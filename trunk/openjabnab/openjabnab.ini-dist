@@ -1,0 +1,17 @@
+[DefaultVioletServers]
+BootServer=r.nabaztag.com
+BroadServer=193.149.120.33
+PingServer=193.149.120.43
+XmppServer=xmpp.nabaztag.com
+
+[OpenJabNabServers]
+PingServer=my.domain.com
+BroadServer=my.domain.com
+ListeningHttpPort=8080
+XmppServer=my.domain.com
+XmppPort=5222
+
+[Log]
+LogFile=openjabnab.log
+LogFileLevel=Debug
+LogScreenLevel=Warning
