@@ -12,6 +12,7 @@ public:
 	static QVariant Get(QString const& key, QVariant const& defaultValue = QVariant());
 	static QString GetString(QString const& key, QString const& defaultValue = QString()) { return Get(key, defaultValue).toString(); }
 	static int GetInt(QString const& key, int defaultValue = 0) {return Get(key, defaultValue).toInt(); }
+	static bool HasKey(QString const& key);
 	
 private:
 	GlobalSettings();

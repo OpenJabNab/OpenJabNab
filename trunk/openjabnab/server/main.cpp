@@ -1,7 +1,6 @@
 #include <iostream>
 #include "openjabnab.h"
 #include <signal.h>
-//#include <QCoreApplication>
 
 OpenJabNab * o;
 
