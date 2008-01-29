@@ -3,8 +3,9 @@
 
 #include <QString>
 #include <QTextStream>
+#include "global.h"
 
-class Log
+class OJN_EXPORT Log
 {
 private:
 	enum LogLevel { Log_None = 0, Log_Info, Log_Error, Log_Warn, Log_Debug};

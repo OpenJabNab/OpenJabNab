@@ -11,10 +11,12 @@ INCLUDEPATH += . ../../server ../../lib
 TARGET = plugin_locate
 DESTDIR = ../../bin/plugins
 DEPENDPATH += . ../../server ../../lib
-LIBS += -L ../../bin/ -lcommon
+LIBS += -L../../bin/ -lcommon
 MOC_DIR = ./tmp/moc
 OBJECTS_DIR = ./tmp/obj
-QMAKE_LFLAGS += -Wl,-rpath,\'\$$ORIGIN\'
+unix {
+	QMAKE_LFLAGS += -Wl,-rpath,\'\$$ORIGIN\'
+}
 
 # Input
 HEADERS += plugin_locate.h

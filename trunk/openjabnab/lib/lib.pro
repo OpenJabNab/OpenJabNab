@@ -13,6 +13,7 @@ DEPENDPATH += .
 MOC_DIR = ./tmp/moc
 OBJECTS_DIR = ./tmp/obj
 DESTDIR = ../bin/
+DEFINES += OJN_MAKEDLL
 
 # Input
 HEADERS += httprequest.h settings.h log.h

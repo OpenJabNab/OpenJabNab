@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-CONFIG += qt release
+CONFIG += qt release console
 CONFIG -= debug
 QT += network
 QT -= gui
@@ -11,10 +11,12 @@ TARGET = openjabnab
 DESTDIR = ../bin/
 DEPENDPATH += . ../lib/
 INCLUDEPATH += ../lib/
-LIBS += -L ../bin/ -lcommon
+LIBS += -L../bin/ -lcommon
 MOC_DIR = ./tmp/moc
 OBJECTS_DIR = ./tmp/obj
-QMAKE_LFLAGS += -Wl,-rpath,\'\$$ORIGIN\'
+unix {
+	QMAKE_LFLAGS += -Wl,-rpath,\'\$$ORIGIN\'
+}
 
 # Input
 HEADERS += openjabnab.h httphandler.h plugininterface.h xmpphandler.h

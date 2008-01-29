@@ -4,7 +4,7 @@
 
 OpenJabNab * o;
 
-void sigCatcher(int sig)
+void sigCatcher(int)
 {
 	delete o;
 	exit(0);

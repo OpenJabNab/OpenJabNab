@@ -5,8 +5,9 @@
 #include <QString>
 #include <QSettings>
 #include <QVariant>
+#include "global.h"
 
-class GlobalSettings
+class OJN_EXPORT GlobalSettings
 {
 public:
 	static QVariant Get(QString const& key, QVariant const& defaultValue = QVariant());

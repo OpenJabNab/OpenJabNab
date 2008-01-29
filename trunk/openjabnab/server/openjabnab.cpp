@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QPluginLoader>
 #include <QString>
+#include <QLibrary>
 
 #include "openjabnab.h"
 #include "httphandler.h"
@@ -20,10 +21,13 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 	
 	foreach (QString fileName, pluginsDir.entryList(QDir::Files)) 
 	{
-		QString status;
-		status = QString(" - %1 : ").arg(fileName);
+		QString file = pluginsDir.absoluteFilePath(fileName);
+		if (!QLibrary::isLibrary(file))
+			continue;
+
+		QString status = QString(" - %1 : ").arg(fileName);
 		
-		QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
+		QPluginLoader loader(file);
 		QObject * p = loader.instance();
 		PluginInterface * plugin = qobject_cast<PluginInterface *>(p);
 		if (plugin)

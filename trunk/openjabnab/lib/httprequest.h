@@ -5,8 +5,9 @@
 #include <QString>
 #include <QEventLoop>
 #include <QStringList>
+#include "global.h"
 
-class HTTPRequest : public QObject
+class OJN_EXPORT HTTPRequest : public QObject
 {
 	Q_OBJECT
 
