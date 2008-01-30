@@ -2,12 +2,6 @@
 #include "openjabnab.h"
 #include "settings.h"
 
-#ifdef DEBUG
-	#define LOG(x) x
-#else
-	#define LOG(x)
-#endif
-
 XmppHandler::XmppHandler(QTcpSocket * s)
 {
 	incomingXmppSocket = s;
