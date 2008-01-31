@@ -43,7 +43,7 @@ void XmppHandler::handleBunnyXmppMessage()
 	QString message = rx.cap(1);
 	
 	// Parse message
-	bool handled;
+	bool handled = false;
 	if (message.startsWith("<button"))
 	{
 		// Single Click : <button xmlns="violet:nabaztag:button"><clic>1</clic></button>
