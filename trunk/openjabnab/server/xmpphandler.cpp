@@ -86,9 +86,9 @@ void XmppHandler::handleVioletXmppMessage()
 {
 	QByteArray data = outgoingXmppSocket.readAll();
 	
-	data.replace(GlobalSettings::GetString("DefaultVioletServers/XmppServer").toAscii(),GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii());
-	
 	pluginManager->XmppVioletMessage(data);
 	
+	// Replace Violet's domain
+	data.replace(GlobalSettings::GetString("DefaultVioletServers/XmppServer").toAscii(),GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii());
 	incomingXmppSocket->write(data);
 }
