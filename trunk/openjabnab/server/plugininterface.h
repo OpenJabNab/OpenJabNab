@@ -8,6 +8,8 @@
 class PluginInterface
 {
 public:
+	enum ClickType { SingleClick = 0, DoubleClick};
+
 	virtual ~PluginInterface() {};
 
 	virtual void HttpRequestBefore(HTTPRequest const&) {};
@@ -16,6 +18,9 @@ public:
 	
 	virtual void XmppBunnyMessage(QByteArray const&) {};
 	virtual void XmppVioletMessage(QByteArray const&) {};
+	
+	virtual bool OnClick(ClickType) { return false; };
+	virtual bool OnEarsMove(int, int) { return false; };
 };
 
 Q_DECLARE_INTERFACE(PluginInterface,"org.toms.openjabnab.PluginInterface/1.0")

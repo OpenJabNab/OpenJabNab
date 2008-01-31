@@ -1,9 +1,5 @@
 #include <QTcpSocket>
-#include <QByteArray>
-#include <QDir>
-#include <QPluginLoader>
 #include <QString>
-#include <QLibrary>
 
 #include "openjabnab.h"
 #include "httphandler.h"
@@ -13,34 +9,10 @@
 
 OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 {
-	// Load all plugins
-	QDir pluginsDir = QCoreApplication::applicationDirPath();
-	pluginsDir.cd("plugins");
+	// Create PluginManager
+	pluginManager = new PluginManager();
 
-	Log::Info(QString("Finding plugins in : %1").arg(pluginsDir.path()));
-	
-	foreach (QString fileName, pluginsDir.entryList(QDir::Files)) 
-	{
-		QString file = pluginsDir.absoluteFilePath(fileName);
-		if (!QLibrary::isLibrary(file))
-			continue;
-
-		QString status = QString(" - %1 : ").arg(fileName);
-		
-		QPluginLoader loader(file);
-		QObject * p = loader.instance();
-		PluginInterface * plugin = qobject_cast<PluginInterface *>(p);
-		if (plugin)
-		{
-			listOfPlugins.append(plugin);
-			status.append(" OK");
-		}
-		else
-		{
-			status.append("Failed, ").append(loader.errorString()); 
-		}
-		Log::Info(status);
-	}
+	// Create Listeners
 
 	httpListener = new QTcpServer(this);
 	httpListener->listen(QHostAddress::Any, GlobalSettings::GetInt("OpenJabNabServers/ListeningHttpPort", 8080));
@@ -54,20 +26,15 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 OpenJabNab::~OpenJabNab()
 {
 	Log::Info("OpenJabNab closing...");
-	foreach(PluginInterface * plugin, listOfPlugins)
-	{
-		delete plugin;
-	}
+	delete pluginManager;
 }
 
 void OpenJabNab::newHTTPConnection()
 {
-	new HttpHandler(httpListener->nextPendingConnection());
+	new HttpHandler(httpListener->nextPendingConnection(), pluginManager);
 }
 
 void OpenJabNab::newXMPPConnection()
 {
-	new XmppHandler(xmppListener->nextPendingConnection());
+	new XmppHandler(xmppListener->nextPendingConnection(), pluginManager);
 }
-
-QVector<PluginInterface *> OpenJabNab::listOfPlugins;

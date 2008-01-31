@@ -4,12 +4,14 @@
 #include <QObject>
 #include <QTcpSocket>
 
+#include "pluginmanager.h"
+
 class HttpHandler : public QObject
 {
 	Q_OBJECT
 	
 public:
-	HttpHandler(QTcpSocket *);
+	HttpHandler(QTcpSocket *, PluginManager * p);
 	virtual ~HttpHandler();
 
 private slots:
@@ -17,6 +19,7 @@ private slots:
 	
 private:
 	QTcpSocket * incomingHttpSocket;
+	PluginManager * pluginManager;
 };
 
 #endif

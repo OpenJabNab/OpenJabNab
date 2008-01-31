@@ -19,5 +19,5 @@ unix {
 }
 
 # Input
-HEADERS += openjabnab.h httphandler.h plugininterface.h xmpphandler.h
-SOURCES += main.cpp openjabnab.cpp httphandler.cpp xmpphandler.cpp
+HEADERS += openjabnab.h httphandler.h plugininterface.h xmpphandler.h pluginmanager.h
+SOURCES += main.cpp openjabnab.cpp httphandler.cpp xmpphandler.cpp pluginmanager.cpp

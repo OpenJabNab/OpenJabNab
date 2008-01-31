@@ -4,23 +4,27 @@
 #include <QObject>
 #include <QTcpSocket>
 
+#include "pluginmanager.h"
+
 class XmppHandler : public QObject
 {
 	Q_OBJECT
 	
 public:
-	XmppHandler(QTcpSocket *);
+	XmppHandler(QTcpSocket *, PluginManager * p);
 
 protected:
-	virtual ~XmppHandler();
+	virtual ~XmppHandler() {};
 
 private slots:
 	void handleBunnyXmppMessage();
 	void handleVioletXmppMessage();
+	void onDisconnect();
 
 private:
 	QTcpSocket * incomingXmppSocket;
-	QTcpSocket * outgoingXmppSocket;
+	QTcpSocket outgoingXmppSocket;
+	PluginManager * pluginManager;
 };
 
 #endif

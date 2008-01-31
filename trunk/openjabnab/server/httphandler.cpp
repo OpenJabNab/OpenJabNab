@@ -4,9 +4,10 @@
 #include "settings.h"
 #include "log.h"
 
-HttpHandler::HttpHandler(QTcpSocket * s)
+HttpHandler::HttpHandler(QTcpSocket * s, PluginManager * p)
 {
 	this->incomingHttpSocket = s;
+	this->pluginManager = p;
 	connect(s, SIGNAL(readyRead()), this, SLOT(handleBunnyHTTPRequest()));
 }
 
@@ -17,34 +18,20 @@ HttpHandler::~HttpHandler()
 void HttpHandler::handleBunnyHTTPRequest()
 {
 	QByteArray dataIn = incomingHttpSocket->readAll();
-	bool handled = false;
 	
 	HTTPRequest request(dataIn);
 	
 	Log::Debug(QString("HTTP REQUEST : ") + dataIn);
 	
-	QVector<PluginInterface *> plugins = OpenJabNab::GetPlugins();
-	// Call RequestBefore for all plugins
-	foreach(PluginInterface * plugin, plugins)
-	{
-		plugin->HttpRequestBefore(request);
-	}
-	
-	// Call GetAnswer for all plugins until one returns true
-	foreach(PluginInterface * plugin, plugins)
-	{
-		handled = plugin->HttpRequestHandle(request);
-		if(handled)
-			break;
-	}
+	pluginManager->HttpRequestBefore(request);
 	
 	// If none can answer, try to forward directly to Violet's servers
-	if (!handled)
+	if (!pluginManager->HttpRequestHandle(request))
 	{
 		if (dataIn.startsWith("/vl/sendMailXMPP.jsp"))
 		{
-			Log::Warning("XMPP-Bosh not yet supported !");
-			request.reply = "XMPP-Bosh not yet supported !";
+			Log::Warning("Problem with the bunny, he's calling sendMailXMPP.jsp !");
+			request.reply = "Not Allowed !";
 		}
 		else if (dataIn.startsWith("/vl/"))
 			request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
@@ -57,14 +44,10 @@ void HttpHandler::handleBunnyHTTPRequest()
 		}
 	}
 	
-	// Call RequestAfter for all plugins
-	foreach(PluginInterface * plugin, plugins)
-	{
-		plugin->HttpRequestAfter(request);
-	}
+	pluginManager->HttpRequestAfter(request);
 	
 	incomingHttpSocket->write(request.reply);
-	Log::Debug(QString("HTTP ANSWER : ") + request.reply);
+	Log::Debug(QString("HTTP REPLY : ") + request.reply);
 	incomingHttpSocket->close();
 	delete this;
 }

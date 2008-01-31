@@ -3,8 +3,7 @@
 
 #include <QCoreApplication>
 #include <QTcpServer>
-#include <QVector>
-#include "plugininterface.h"
+#include "pluginmanager.h"
 
 class OpenJabNab : public QCoreApplication
 {
@@ -13,7 +12,6 @@ class OpenJabNab : public QCoreApplication
 public:
 	OpenJabNab(int argc, char ** argv);
 	~OpenJabNab();
-	static QVector<PluginInterface *> const& GetPlugins() { return listOfPlugins;} ;
 
 private slots:
     void newHTTPConnection();
@@ -22,7 +20,7 @@ private slots:
 private:
 	QTcpServer * httpListener;
 	QTcpServer * xmppListener;
-	static QVector<PluginInterface *> listOfPlugins;
+	PluginManager * pluginManager;
 };
 
 #endif
