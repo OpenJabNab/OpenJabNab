@@ -86,9 +86,68 @@ void XmppHandler::handleVioletXmppMessage()
 {
 	QByteArray data = outgoingXmppSocket.readAll();
 	
-	pluginManager->XmppVioletMessage(data);
-	
-	// Replace Violet's domain
 	data.replace(GlobalSettings::GetString("DefaultVioletServers/XmppServer").toAscii(),GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii());
-	incomingXmppSocket->write(data);
+
+	QList<QByteArray> list = xmlParse(data);
+	foreach(QByteArray tmp, list)
+	{
+		// Send info to all plugins
+		pluginManager->XmppVioletMessage(tmp);
+
+		// Try to handle it
+		// Check if the data contains <message></message>
+		QRegExp rx("<message[^>]*>(.*)</message>");
+		if (rx.indexIn(tmp) == -1)
+		{
+			// Just some signaling informations, forward directly
+			incomingXmppSocket->write(tmp);
+			continue;
+		}
+		incomingXmppSocket->write(tmp);
+	}
+}
+
+QList<QByteArray> XmppHandler::xmlParse(QByteArray const& data)
+{
+	QList<QByteArray> list;
+	QByteArray tmp = data.trimmed();
+
+	QRegExp rxStream("^(<\\?xml[^>]*\\?><stream:stream[^>]*>)");
+	QRegExp rxOne("^(<[^>]*/>)");
+
+	while(!tmp.isEmpty())
+	{
+		if (rxStream.indexIn(tmp) != -1)
+		{
+			list << rxStream.cap(1).toAscii();
+			tmp.remove(0, rxStream.matchedLength());
+		}
+		else if (rxOne.indexIn(tmp) != -1)
+		{
+			list << rxOne.cap(1).toAscii();
+			tmp.remove(0, rxOne.matchedLength());
+		}
+		else
+		{
+			// Full xml message (<xxx>....</xxx>)
+			// Find tag name
+			QRegExp rxTag("^<([^ >]*)");
+			if (rxTag.indexIn(tmp) == -1)
+			{
+				Log::Warning("Unable to parse : " + tmp);
+				break;
+			}
+			QString tagName = rxTag.cap(1);
+			// Search end tag
+			rxTag.setPattern("(.*</" + tagName + ">)");
+			if (rxTag.indexIn(tmp) == -1)
+			{
+				Log::Warning("Unable to parse : " + tmp);
+				break;
+			}
+			list << rxTag.cap(1).toAscii();
+			tmp.remove(0, rxTag.matchedLength());
+		}
+	}
+	return list;
 }

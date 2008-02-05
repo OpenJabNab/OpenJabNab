@@ -3,7 +3,8 @@
 
 #include <QObject>
 #include <QTcpSocket>
-
+#include <QList>
+#include <QByteArray>
 #include "pluginmanager.h"
 
 class XmppHandler : public QObject
@@ -22,6 +23,7 @@ private slots:
 	void onDisconnect();
 
 private:
+	QList<QByteArray> xmlParse(QByteArray const&);
 	QTcpSocket * incomingXmppSocket;
 	QTcpSocket outgoingXmppSocket;
 	PluginManager * pluginManager;
