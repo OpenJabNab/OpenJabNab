@@ -100,11 +100,17 @@ void XmppHandler::handleVioletXmppMessage()
 		if (rx.indexIn(tmp) == -1)
 		{
 			// Just some signaling informations, forward directly
-			incomingXmppSocket->write(tmp);
+			writeToBunny(tmp);
 			continue;
 		}
-		incomingXmppSocket->write(tmp);
+		writeToBunny(tmp);
 	}
+}
+
+void XmppHandler::writeToBunny(QByteArray const& data)
+{
+	incomingXmppSocket->write(data);
+	incomingXmppSocket->flush();
 }
 
 QList<QByteArray> XmppHandler::xmlParse(QByteArray const& data)

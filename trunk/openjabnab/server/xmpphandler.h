@@ -24,6 +24,8 @@ private slots:
 
 private:
 	QList<QByteArray> xmlParse(QByteArray const&);
+	void writeToBunny(QByteArray const&);
+
 	QTcpSocket * incomingXmppSocket;
 	QTcpSocket outgoingXmppSocket;
 	PluginManager * pluginManager;
