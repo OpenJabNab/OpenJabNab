@@ -91,6 +91,13 @@ void PluginManager::XmppVioletMessage(QByteArray const& data)
 		plugin->XmppVioletMessage(data);
 	}
 }
+void PluginManager::XmppVioletPacketMessage(Packet * p)
+{
+	foreach(PluginInterface * plugin, listOfPlugins)
+	{
+		plugin->XmppVioletPacketMessage(p);
+	}
+}
 
 bool PluginManager::OnClick(PluginInterface::ClickType type)
 {

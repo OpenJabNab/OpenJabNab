@@ -96,13 +96,29 @@ void XmppHandler::handleVioletXmppMessage()
 
 		// Try to handle it
 		// Check if the data contains <message></message>
-		QRegExp rx("<message[^>]*>(.*)</message>");
+		QRegExp rx("<message[^>]*>.*</message>");
 		if (rx.indexIn(tmp) == -1)
 		{
 			// Just some signaling informations, forward directly
 			writeToBunny(tmp);
 			continue;
 		}
+		rx.setPattern("<packet[^>]*format='([^']*)'[^>]*>(.*)</packet>");
+		if (rx.indexIn(tmp) == -1)
+		{
+			Log::Warning("Unable to parse message : " + tmp);
+			writeToBunny(tmp);
+			continue;
+		}
+		QString format = rx.cap(1);
+		if (format != "1.0")
+		{
+			Log::Warning("Unknown packet format : " + tmp);
+			writeToBunny(tmp);
+			continue;
+		}
+		Packet * p = Packet::Parse(QByteArray::fromBase64(rx.cap(2).toAscii()));
+		pluginManager->XmppVioletPacketMessage(p);
 		writeToBunny(tmp);
 	}
 }

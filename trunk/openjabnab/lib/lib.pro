@@ -17,5 +17,5 @@ win32 {
 	DEFINES += WIN32 OJN_MAKEDLL
 }
 # Input
-HEADERS += httprequest.h settings.h log.h
-SOURCES += httprequest.cpp settings.cpp log.cpp
+HEADERS += httprequest.h settings.h log.h  packet.h ambientpacket.h messagepacket.h
+SOURCES += httprequest.cpp settings.cpp log.cpp packet.cpp ambientpacket.cpp messagepacket.cpp
