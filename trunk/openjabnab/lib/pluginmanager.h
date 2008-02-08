@@ -4,8 +4,9 @@
 #include <QVector>
 
 #include "plugininterface.h"
+#include "global.h"
 
-class PluginManager
+class OJN_EXPORT PluginManager
 {
 public:
 	PluginManager();

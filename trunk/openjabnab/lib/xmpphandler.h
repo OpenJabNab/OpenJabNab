@@ -5,9 +5,11 @@
 #include <QTcpSocket>
 #include <QList>
 #include <QByteArray>
-#include "pluginmanager.h"
 
-class XmppHandler : public QObject
+#include "pluginmanager.h"
+#include "global.h"
+
+class OJN_EXPORT XmppHandler : public QObject
 {
 	Q_OBJECT
 	

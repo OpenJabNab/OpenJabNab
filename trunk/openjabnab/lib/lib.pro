@@ -8,8 +8,8 @@ CONFIG -= debug
 QT += network
 QT -= gui
 TARGET = common
-INCLUDEPATH += .
-DEPENDPATH += .
+INCLUDEPATH += . ../server
+DEPENDPATH += . ../server
 MOC_DIR = ./tmp/moc
 OBJECTS_DIR = ./tmp/obj
 DESTDIR = ../bin/
@@ -17,5 +17,5 @@ win32 {
 	DEFINES += WIN32 OJN_MAKEDLL
 }
 # Input
-HEADERS += httprequest.h settings.h log.h  packet.h ambientpacket.h messagepacket.h sleeppacket.h
-SOURCES += httprequest.cpp settings.cpp log.cpp packet.cpp ambientpacket.cpp messagepacket.cpp sleeppacket.cpp
+HEADERS += httphandler.h xmpphandler.h httprequest.h settings.h log.h pluginmanager.h packet.h ambientpacket.h messagepacket.h sleeppacket.h
+SOURCES += httphandler.cpp xmpphandler.cpp httprequest.cpp settings.cpp log.cpp pluginmanager.cpp packet.cpp ambientpacket.cpp messagepacket.cpp sleeppacket.cpp
