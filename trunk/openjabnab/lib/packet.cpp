@@ -1,6 +1,7 @@
 #include "packet.h"
 #include "ambientpacket.h"
 #include "messagepacket.h"
+#include "sleeppacket.h"
 #include "log.h"
 
 Packet * Packet::Parse(QByteArray const& buffer)
@@ -8,31 +9,29 @@ Packet * Packet::Parse(QByteArray const& buffer)
 	// Check data
 	const unsigned char * data = (const unsigned char *)buffer.constData();
 	if (data[0] != 0x7F || data[buffer.size() - 1] != 0xFF)
-	{
-		Log::Warning("Unable to parse packet : " + buffer.toHex());
-		return NULL;
-	}
+		throw "Unable to parse packet : " + buffer.toHex();
+
 	unsigned int len = data[2] << 16 | data[3] << 8 | data[4];
 	if (buffer.size() != len + 6) // Header(1) + Type(1) + Len(3) + Trail(1)
-	{
-		Log::Warning("Bad packet length : " + buffer.toHex());
-		return NULL;
-	}
+		throw "Bad packet length : " + buffer.toHex();
+
 	switch(data[1])
 	{
-		case 0x04:
-			return new AmbientPacket(buffer.mid(5, len));
+		case Packet_Ambient:
+			return AmbientPacket::Parse(buffer.mid(5, len));
 
-		case 0x0a:
-			return new MessagePacket(buffer.mid(5, len));
+		case Packet_Message:
+			return MessagePacket::Parse(buffer.mid(5, len));
 		
+		case Packet_Sleep:
+			return SleepPacket::Parse(buffer.mid(5, len));
+
 		default:
-			Log::Warning("Bad packet type : " + buffer.toHex());
-			return NULL;
+			throw "Bad packet type : " + buffer.toHex();
 	}
 }
 
-QByteArray Packet::GetData()
+QByteArray Packet::GetData() const
 {
 	QByteArray tmp;
 	QByteArray const& data = GetInternalData();

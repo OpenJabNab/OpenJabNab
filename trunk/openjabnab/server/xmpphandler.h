@@ -18,13 +18,13 @@ protected:
 	virtual ~XmppHandler() {};
 
 private slots:
-	void handleBunnyXmppMessage();
-	void handleVioletXmppMessage();
-	void onDisconnect();
+	void HandleBunnyXmppMessage();
+	void HandleVioletXmppMessage();
+	void OnDisconnect();
 
 private:
-	QList<QByteArray> xmlParse(QByteArray const&);
-	void writeToBunny(QByteArray const&);
+	QList<QByteArray> XmlParse(QByteArray const&);
+	void WriteToBunny(QByteArray const&);
 
 	QTcpSocket * incomingXmppSocket;
 	QTcpSocket outgoingXmppSocket;

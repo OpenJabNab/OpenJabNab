@@ -9,18 +9,23 @@
 
 class OJN_EXPORT AmbientPacket : public Packet
 {
-	enum Services { Disable_Service = 0, Service_Weather, Service_Bourse, Service_Periph, MoveLeftEar, MoveRightEar, Service_Mail, Service_AirQuality, Service_Noze};
-
 public:
-	AmbientPacket(QByteArray const&);
-	~AmbientPacket() {};
-	QByteArray GetPrintableData();
+	enum Services { Disable_Service = 0, Service_Weather, Service_Bourse, Service_Periph, MoveLeftEar, MoveRightEar, Service_Mail, Service_AirQuality, Service_Noze};
+	enum Weather_Values { Weather_Sun = 0, Weather_Cloudy, Weather_B, Weather_Rain, Weather_Snow, Weather_O};
 
-	void SetServiceValue(enum Services,unsigned char);
+	AmbientPacket() {};
+	AmbientPacket(enum Services, unsigned char value);
+	~AmbientPacket() {};
+
+	QByteArray GetPrintableData() const;
+	void SetServiceValue(enum Services, unsigned char);
+	void DisableService(enum Services);
+	static AmbientPacket * Parse(QByteArray const&);
+
 	
 protected:
-	QByteArray GetInternalData();
-	quint8 GetType() { return 0x04; };
+	QByteArray GetInternalData() const;
+	quint8 GetType() const { return Packet::Packet_Ambient; };
 	QMap<unsigned char, unsigned char> services;
 };
 

@@ -8,15 +8,17 @@
 class OJN_EXPORT Packet
 {
 public:
+	enum Packet_Types { Packet_Ambient = 0x04, Packet_Message = 0x0A, Packet_Sleep = 0x0B };
+	
 	virtual ~Packet() {};
 	static Packet * Parse(QByteArray const&);
-	QByteArray GetData();
-	QByteArray GetHexData() { return GetData().toHex(); }
-	virtual QByteArray GetPrintableData() = 0;
+	QByteArray GetData() const;
+	QByteArray GetHexData() const { return GetData().toHex(); }
+	virtual QByteArray GetPrintableData() const = 0;
 	
 protected:
-	virtual QByteArray GetInternalData() = 0;
-	virtual quint8 GetType() = 0;
+	virtual QByteArray GetInternalData() const = 0;
+	virtual quint8 GetType() const = 0;
 };
 
 #endif

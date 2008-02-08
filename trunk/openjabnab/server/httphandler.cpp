@@ -8,14 +8,14 @@ HttpHandler::HttpHandler(QTcpSocket * s, PluginManager * p)
 {
 	this->incomingHttpSocket = s;
 	this->pluginManager = p;
-	connect(s, SIGNAL(readyRead()), this, SLOT(handleBunnyHTTPRequest()));
+	connect(s, SIGNAL(readyRead()), this, SLOT(HandleBunnyHTTPRequest()));
 }
 
 HttpHandler::~HttpHandler()
 {
 }
 
-void HttpHandler::handleBunnyHTTPRequest()
+void HttpHandler::HandleBunnyHTTPRequest()
 {
 	QByteArray dataIn = incomingHttpSocket->readAll();
 	

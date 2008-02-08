@@ -19,7 +19,7 @@ public:
 	
 	virtual void XmppBunnyMessage(QByteArray const&) {};
 	virtual void XmppVioletMessage(QByteArray const&) {};
-	virtual void XmppVioletPacketMessage(Packet *) {};
+	virtual void XmppVioletPacketMessage(Packet &) {};
 
 	virtual bool OnClick(ClickType) { return false; };
 	virtual bool OnEarsMove(int, int) { return false; };

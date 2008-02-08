@@ -1,20 +1,38 @@
 #include "ambientpacket.h"
-#include "stdio.h"
+#include "log.h"
 
-AmbientPacket::AmbientPacket(QByteArray const& buffer)
+AmbientPacket * AmbientPacket::Parse(QByteArray const& buffer)
 {
+	// Size should be a multiple of 2 (4bytes id & 2*N bytes for (ServiceID, ServiceValue))
+	if ((buffer.size() - 4) % 2)
+	{
+		throw "Bad AmbientPacket size : " + buffer.toHex();
+	}
+	AmbientPacket * p = new AmbientPacket();
 	for(int i = 4; i + 2 <= buffer.size(); i += 2)
 	{
-		services.insert(buffer.at(i), buffer.at(i+1));
+		p->services.insert(buffer.at(i), buffer.at(i+1));
 	}
+	return p;
 }
 
-void AmbientPacket::SetServiceValue(enum Services k,unsigned char v)
+AmbientPacket::AmbientPacket(enum Services s, unsigned char v)
 {
-	services.insert(k,v);
+	SetServiceValue(s,v);
 }
 
-QByteArray AmbientPacket::GetInternalData()
+void AmbientPacket::SetServiceValue(enum Services s, unsigned char v)
+{
+	services.insert(s,v);
+}
+
+void AmbientPacket::DisableService(enum Services s)
+{
+	services.remove(s);
+	services.insert(Disable_Service, s);
+}
+
+QByteArray AmbientPacket::GetInternalData() const
 {
 	QByteArray tmp = QByteArray::fromHex("7FFFFFFE");
 	QMapIterator<unsigned char, unsigned char> i(services);
@@ -26,7 +44,7 @@ QByteArray AmbientPacket::GetInternalData()
 	return tmp;
 }
 
-QByteArray AmbientPacket::GetPrintableData()
+QByteArray AmbientPacket::GetPrintableData() const
 {
 	return GetHexData();
 }

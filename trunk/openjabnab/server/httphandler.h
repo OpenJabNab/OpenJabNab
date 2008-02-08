@@ -15,7 +15,7 @@ public:
 	virtual ~HttpHandler();
 
 private slots:
-    void handleBunnyHTTPRequest();
+    void HandleBunnyHTTPRequest();
 	
 private:
 	QTcpSocket * incomingHttpSocket;

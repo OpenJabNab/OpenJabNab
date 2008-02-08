@@ -38,10 +38,9 @@ void PluginDump::XmppVioletMessage(QByteArray const& msg)
 	dumpStream << QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss") << " - XMPP Violet - " << msg << endl;
 }
 
-void PluginDump::XmppVioletPacketMessage(Packet * p)
+void PluginDump::XmppVioletPacketMessage(Packet & p)
 {
-	if (p)
-		dumpStream << QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss") << " - XMPP Violet Packet - " << p->GetPrintableData() << endl;
+	dumpStream << QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss") << " - XMPP Violet Packet - " << p.GetPrintableData() << endl;
 }
 
 PluginDump::~PluginDump()

@@ -10,16 +10,19 @@ class OJN_EXPORT MessagePacket : public Packet
 {
 
 public:
-	MessagePacket(QByteArray const&);
+	static MessagePacket * Parse(QByteArray const&);
 	~MessagePacket() {};
-	QByteArray GetPrintableData();
+	QByteArray GetPrintableData() const;
 
 	
 protected:
-	QByteArray GetInternalData();
-	quint8 GetType() { return 0x0A; };
+	QByteArray GetInternalData() const;
+	quint8 GetType() const { return Packet::Packet_Message; };
 
 	QByteArray message;
+	
+private:
+	static const unsigned char inversion_table[];
 };
 
 #endif

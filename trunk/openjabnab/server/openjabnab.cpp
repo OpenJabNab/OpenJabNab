@@ -11,16 +11,15 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 {
 	// Create PluginManager
 	pluginManager = new PluginManager();
-
+	
 	// Create Listeners
-
 	httpListener = new QTcpServer(this);
 	httpListener->listen(QHostAddress::Any, GlobalSettings::GetInt("OpenJabNabServers/ListeningHttpPort", 8080));
-	connect(httpListener, SIGNAL(newConnection()), this, SLOT(newHTTPConnection()));
+	connect(httpListener, SIGNAL(newConnection()), this, SLOT(NewHTTPConnection()));
 
 	xmppListener = new QTcpServer(this);
 	xmppListener->listen(QHostAddress::Any, GlobalSettings::GetInt("OpenJabNabServers/XmppPort", 5222));
-	connect(xmppListener, SIGNAL(newConnection()), this, SLOT(newXMPPConnection()));
+	connect(xmppListener, SIGNAL(newConnection()), this, SLOT(NewXMPPConnection()));
 }
 
 OpenJabNab::~OpenJabNab()
@@ -29,12 +28,12 @@ OpenJabNab::~OpenJabNab()
 	delete pluginManager;
 }
 
-void OpenJabNab::newHTTPConnection()
+void OpenJabNab::NewHTTPConnection()
 {
 	new HttpHandler(httpListener->nextPendingConnection(), pluginManager);
 }
 
-void OpenJabNab::newXMPPConnection()
+void OpenJabNab::NewXMPPConnection()
 {
 	new XmppHandler(xmppListener->nextPendingConnection(), pluginManager);
 }

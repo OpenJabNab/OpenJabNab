@@ -91,7 +91,7 @@ void PluginManager::XmppVioletMessage(QByteArray const& data)
 		plugin->XmppVioletMessage(data);
 	}
 }
-void PluginManager::XmppVioletPacketMessage(Packet * p)
+void PluginManager::XmppVioletPacketMessage(Packet & p)
 {
 	foreach(PluginInterface * plugin, listOfPlugins)
 	{

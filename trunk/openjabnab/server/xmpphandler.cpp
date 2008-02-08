@@ -9,19 +9,19 @@ XmppHandler::XmppHandler(QTcpSocket * s, PluginManager * p)
 {
 	incomingXmppSocket = s;
 	pluginManager = p;
-	connect(incomingXmppSocket, SIGNAL(readyRead()), this, SLOT(handleBunnyXmppMessage()));
-	connect(incomingXmppSocket, SIGNAL(disconnected()), this, SLOT(onDisconnect())); 
+	connect(incomingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleBunnyXmppMessage()));
+	connect(incomingXmppSocket, SIGNAL(disconnected()), this, SLOT(OnDisconnect())); 
 	
 	outgoingXmppSocket.connectToHost(GlobalSettings::GetString("DefaultVioletServers/XmppServer"), 5222);
-	connect(&outgoingXmppSocket, SIGNAL(readyRead()), this, SLOT(handleVioletXmppMessage()));
+	connect(&outgoingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleVioletXmppMessage()));
 }
 
-void XmppHandler::onDisconnect()
+void XmppHandler::OnDisconnect()
 {
 	delete this;
 }
 
-void XmppHandler::handleBunnyXmppMessage()
+void XmppHandler::HandleBunnyXmppMessage()
 {
 	QByteArray data = incomingXmppSocket->readAll();
 	
@@ -82,54 +82,66 @@ void XmppHandler::handleBunnyXmppMessage()
 	}
 }
 
-void XmppHandler::handleVioletXmppMessage()
+void XmppHandler::HandleVioletXmppMessage()
 {
 	QByteArray data = outgoingXmppSocket.readAll();
 	
 	data.replace(GlobalSettings::GetString("DefaultVioletServers/XmppServer").toAscii(),GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii());
 
-	QList<QByteArray> list = xmlParse(data);
-	foreach(QByteArray tmp, list)
+	QList<QByteArray> list = XmlParse(data);
+	foreach(QByteArray msg, list)
 	{
 		// Send info to all plugins
-		pluginManager->XmppVioletMessage(tmp);
+		pluginManager->XmppVioletMessage(msg);
 
-		// Try to handle it
 		// Check if the data contains <message></message>
 		QRegExp rx("<message[^>]*>.*</message>");
-		if (rx.indexIn(tmp) == -1)
+		if (rx.indexIn(msg) != -1)
+		{
+			// Try to decode it
+			try
+			{
+				rx.setPattern("<packet[^>]*format='([^']*)'[^>]*>(.*)</packet>");
+				if (rx.indexIn(msg) == -1)
+					throw "Unable to parse message : " + msg;
+
+				if (rx.cap(1) != "1.0")
+					throw "Unknown packet format : " + msg;
+
+				try
+				{
+					Packet * p = Packet::Parse(QByteArray::fromBase64(rx.cap(2).toAscii()));
+					pluginManager->XmppVioletPacketMessage(*p);
+					delete p;
+				}
+				catch (QByteArray const& errorMsg)
+				{
+					Log::Warning(errorMsg);
+				}
+				WriteToBunny(msg);
+			}
+			catch (QByteArray const& errorMsg)
+			{
+				Log::Warning(errorMsg);
+				// Can't handle it so forward it to the bunny
+				WriteToBunny(msg);
+			}
+		}
+		else
 		{
 			// Just some signaling informations, forward directly
-			writeToBunny(tmp);
-			continue;
+			WriteToBunny(msg);
 		}
-		rx.setPattern("<packet[^>]*format='([^']*)'[^>]*>(.*)</packet>");
-		if (rx.indexIn(tmp) == -1)
-		{
-			Log::Warning("Unable to parse message : " + tmp);
-			writeToBunny(tmp);
-			continue;
-		}
-		QString format = rx.cap(1);
-		if (format != "1.0")
-		{
-			Log::Warning("Unknown packet format : " + tmp);
-			writeToBunny(tmp);
-			continue;
-		}
-		Packet * p = Packet::Parse(QByteArray::fromBase64(rx.cap(2).toAscii()));
-		pluginManager->XmppVioletPacketMessage(p);
-		writeToBunny(tmp);
 	}
 }
 
-void XmppHandler::writeToBunny(QByteArray const& data)
+void XmppHandler::WriteToBunny(QByteArray const& data)
 {
 	incomingXmppSocket->write(data);
 	incomingXmppSocket->flush();
 }
 
-QList<QByteArray> XmppHandler::xmlParse(QByteArray const& data)
+QList<QByteArray> XmppHandler::XmlParse(QByteArray const& data)
 {
 	QList<QByteArray> list;
 	QByteArray tmp = data.trimmed();
