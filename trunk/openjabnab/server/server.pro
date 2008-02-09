@@ -19,5 +19,5 @@ unix {
 }
 
 # Input
-HEADERS += openjabnab.h plugininterface.h
+HEADERS += openjabnab.h
 SOURCES += main.cpp openjabnab.cpp

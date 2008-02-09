@@ -91,12 +91,16 @@ void PluginManager::XmppVioletMessage(QByteArray const& data)
 		plugin->XmppVioletMessage(data);
 	}
 }
-void PluginManager::XmppVioletPacketMessage(Packet & p)
+
+// Send the packet to all plugins, if one returns true, the message will be dropped !
+bool PluginManager::XmppVioletPacketMessage(Packet const& p)
 {
+	bool drop = false;
 	foreach(PluginInterface * plugin, listOfPlugins)
 	{
-		plugin->XmppVioletPacketMessage(p);
+		drop |= plugin->XmppVioletPacketMessage(p);
 	}
+	return drop;
 }
 
 bool PluginManager::OnClick(PluginInterface::ClickType type)

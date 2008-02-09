@@ -8,6 +8,7 @@
 
 #include "pluginmanager.h"
 #include "global.h"
+#include "packet.h"
 
 class OJN_EXPORT XmppHandler : public QObject
 {
@@ -15,6 +16,7 @@ class OJN_EXPORT XmppHandler : public QObject
 	
 public:
 	XmppHandler(QTcpSocket *, PluginManager * p);
+	void WritePacketToBunny(Packet const& p);
 
 protected:
 	virtual ~XmppHandler() {};
@@ -31,6 +33,7 @@ private:
 	QTcpSocket * incomingXmppSocket;
 	QTcpSocket outgoingXmppSocket;
 	PluginManager * pluginManager;
+	static unsigned short msgNb;
 };
 
 #endif

@@ -14,12 +14,14 @@ public:
 	virtual ~PluginInterface() {};
 
 	virtual void HttpRequestBefore(HTTPRequest const&) {};
+	// If the plugin returns true, the plugin should handle the request
 	virtual bool HttpRequestHandle(HTTPRequest &) { return false; };
 	virtual void HttpRequestAfter(HTTPRequest const&) {};
 	
 	virtual void XmppBunnyMessage(QByteArray const&) {};
 	virtual void XmppVioletMessage(QByteArray const&) {};
-	virtual void XmppVioletPacketMessage(Packet &) {};
+	// If the plugin returns true, the packet will be dropped
+	virtual bool XmppVioletPacketMessage(Packet const&) { return false; };
 
 	virtual bool OnClick(ClickType) { return false; };
 	virtual bool OnEarsMove(int, int) { return false; };

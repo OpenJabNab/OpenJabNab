@@ -5,10 +5,13 @@
 
 #include <QRegExp>
 
+unsigned short XmppHandler::msgNb = 0;
+
 XmppHandler::XmppHandler(QTcpSocket * s, PluginManager * p)
 {
 	incomingXmppSocket = s;
 	pluginManager = p;
+	
 	connect(incomingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleBunnyXmppMessage()));
 	connect(incomingXmppSocket, SIGNAL(disconnected()), this, SLOT(OnDisconnect())); 
 	
@@ -111,8 +114,10 @@ void XmppHandler::HandleVioletXmppMessage()
 				try
 				{
 					Packet * p = Packet::Parse(QByteArray::fromBase64(rx.cap(2).toAscii()));
-					pluginManager->XmppVioletPacketMessage(*p);
+					bool drop = pluginManager->XmppVioletPacketMessage(*p);
 					delete p;
+					if(drop)
+						continue;
 				}
 				catch (QByteArray const& errorMsg)
 				{
@@ -139,6 +144,19 @@ void XmppHandler::WriteToBunny(QByteArray const& data)
 {
 	incomingXmppSocket->write(data);
 	incomingXmppSocket->flush();
+}
+
+void XmppHandler::WritePacketToBunny(Packet const& p)
+{
+	QByteArray msg;
+	msg.append("<message from='net.openjabnab.platform@" + GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii() + "/services' ");
+	msg.append("to='"  "0019db01dbd7"  "@" + GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii() + "/idle' ");
+	msg.append("id='OJaNa-" + QByteArray::number(msgNb) + "'>");
+	msg.append("<packet xmlns='violet:packet' format='1.0' ttl='604800'>");
+	msg.append(p.GetData().toBase64());
+	msg.append("</packet></message>");
+	WriteToBunny(msg);
+	msgNb++;
 }
 
 QList<QByteArray> XmppHandler::XmlParse(QByteArray const& data)

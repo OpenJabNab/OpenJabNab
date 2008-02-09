@@ -18,7 +18,7 @@ public:
 
 	void XmppBunnyMessage(QByteArray const&);
 	void XmppVioletMessage(QByteArray const&);
-	void XmppVioletPacketMessage(Packet &);
+	bool XmppVioletPacketMessage(Packet const&);
 	
 private:
 	QTextStream dumpStream;
