@@ -192,6 +192,7 @@ QList<QByteArray> XmppHandler::XmlParse(QByteArray const& data)
 			QString tagName = rxTag.cap(1);
 			// Search end tag
 			rxTag.setPattern("(.*</" + tagName + ">)");
+			rxTag.setMinimal(true);
 			if (rxTag.indexIn(tmp) == -1)
 			{
 				Log::Warning("Unable to parse : " + tmp);
