@@ -14,7 +14,7 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 	
 	// Create Listeners
 	httpListener = new QTcpServer(this);
-	httpListener->listen(QHostAddress::Any, GlobalSettings::GetInt("OpenJabNabServers/ListeningHttpPort", 8080));
+	httpListener->listen(QHostAddress::LocalHost, GlobalSettings::GetInt("OpenJabNabServers/ListeningHttpPort", 8080));
 	connect(httpListener, SIGNAL(newConnection()), this, SLOT(NewHTTPConnection()));
 
 	xmppListener = new QTcpServer(this);
