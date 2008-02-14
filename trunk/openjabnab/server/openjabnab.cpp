@@ -6,6 +6,7 @@
 #include "xmpphandler.h"
 #include "settings.h"
 #include "log.h"
+#include "bunnymanager.h"
 
 OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 {
