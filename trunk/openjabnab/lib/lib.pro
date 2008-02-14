@@ -17,5 +17,31 @@ win32 {
 	DEFINES += WIN32 OJN_MAKEDLL
 }
 # Input
-HEADERS += httphandler.h xmpphandler.h httprequest.h settings.h log.h pluginmanager.h plugininterface.h packet.h ambientpacket.h messagepacket.h sleeppacket.h choregraphy.h
-SOURCES += httphandler.cpp xmpphandler.cpp httprequest.cpp settings.cpp log.cpp pluginmanager.cpp packet.cpp ambientpacket.cpp messagepacket.cpp sleeppacket.cpp choregraphy.cpp
+HEADERS +=	httphandler.h \
+			xmpphandler.h \
+			httprequest.h \
+			settings.h \
+			log.h \
+			pluginmanager.h \
+			plugininterface.h \
+			packet.h \
+			ambientpacket.h \
+			messagepacket.h \
+			sleeppacket.h \
+			choregraphy.h \
+			bunnymanager.h \
+			bunny.h
+
+SOURCES +=	httphandler.cpp \
+			xmpphandler.cpp \
+			httprequest.cpp \
+			settings.cpp \
+			log.cpp \
+			pluginmanager.cpp \
+			packet.cpp \
+			ambientpacket.cpp \
+			messagepacket.cpp \
+			sleeppacket.cpp \
+			choregraphy.cpp \
+			bunnymanager.cpp \
+			bunny.cpp

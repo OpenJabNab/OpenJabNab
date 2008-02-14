@@ -9,6 +9,8 @@
 
 OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 {
+	connect(this, SIGNAL(aboutToQuit()), this, SLOT(OnQuit()));
+
 	// Create PluginManager
 	pluginManager = new PluginManager();
 	
@@ -22,10 +24,16 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 	connect(xmppListener, SIGNAL(newConnection()), this, SLOT(NewXMPPConnection()));
 }
 
+void OpenJabNab::OnQuit()
+{
+	delete this;
+}
+
 OpenJabNab::~OpenJabNab()
 {
 	Log::Info("OpenJabNab closing...");
 	delete pluginManager;
+	BunnyManager::Close();
 }
 
 void OpenJabNab::NewHTTPConnection()

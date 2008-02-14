@@ -6,8 +6,7 @@ OpenJabNab * o;
 
 void sigCatcher(int)
 {
-	delete o;
-	exit(0);
+	OpenJabNab::exit();
 }
 
 int main( int argc, char **argv )
