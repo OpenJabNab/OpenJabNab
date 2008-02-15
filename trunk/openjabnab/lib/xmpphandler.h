@@ -9,7 +9,9 @@
 #include "pluginmanager.h"
 #include "global.h"
 #include "packet.h"
+#include "bunny.h"
 
+class Bunny;
 class OJN_EXPORT XmppHandler : public QObject
 {
 	Q_OBJECT
@@ -33,6 +35,8 @@ private:
 	QTcpSocket * incomingXmppSocket;
 	QTcpSocket outgoingXmppSocket;
 	PluginManager * pluginManager;
+	Bunny * bunny;
+	
 	static unsigned short msgNb;
 };
 

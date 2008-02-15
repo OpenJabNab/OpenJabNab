@@ -1,7 +1,9 @@
 #include <QStringList>
+#include <QDateTime>
 #include "plugin_locate.h"
 #include "settings.h"
 #include "log.h"
+#include "bunnymanager.h"
 
 Q_EXPORT_PLUGIN2(plugin_locate, PluginLocate)
 
@@ -21,6 +23,9 @@ bool PluginLocate::HttpRequestHandle(HTTPRequest & request)
 			if (arg.startsWith("sn="))
 				serialnumber = arg.remove(0,3);
 		}
+
+		Bunny * b = BunnyManager::GetBunny(serialnumber.toAscii());
+		b->SetGlobalSetting("Last LocateRequest", QDateTime::currentDateTime());
 		
 		Log::Info(QString("Requesting LOCATE for tag %1").arg(serialnumber));
 		

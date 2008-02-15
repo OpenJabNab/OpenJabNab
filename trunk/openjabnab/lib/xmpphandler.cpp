@@ -2,8 +2,10 @@
 #include "openjabnab.h"
 #include "settings.h"
 #include "log.h"
+#include "bunnymanager.h"
 
 #include <QRegExp>
+#include <QDateTime>
 
 unsigned short XmppHandler::msgNb = 0;
 
@@ -11,6 +13,7 @@ XmppHandler::XmppHandler(QTcpSocket * s, PluginManager * p)
 {
 	incomingXmppSocket = s;
 	pluginManager = p;
+	bunny = 0;
 	
 	connect(incomingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleBunnyXmppMessage()));
 	connect(incomingXmppSocket, SIGNAL(disconnected()), this, SLOT(OnDisconnect())); 
@@ -32,10 +35,27 @@ void XmppHandler::HandleBunnyXmppMessage()
 
 	// Send info to all plugins
 	pluginManager->XmppBunnyMessage(data);
-
+	
+	QRegExp rx("<response[^>]*>(.*)</response>");
+	if (rx.indexIn(data) != -1)
+	{
+		// Response message contains username, catch it to create Bunny
+		QByteArray authString = QByteArray::fromBase64(rx.cap(1).toAscii());
+		rx.setPattern("username=[\'\"]([^\'\"]*)[\'\"]");
+		if (rx.indexIn(authString) != -1)
+		{
+			QByteArray bunnyID = rx.cap(1).toAscii();
+			bunny = BunnyManager::GetBunny(bunnyID);
+			bunny->SetXmppHandler(this);
+			bunny->SetGlobalSetting("Last JabberConnection", QDateTime::currentDateTime());
+		}
+		else
+			Log::Warning("Unable to parse response message : " + authString);
+	}
+	
 	// Try to handle it
 	// Check if the data contains <message></message>
-	QRegExp rx("<message[^>]*>(.*)</message>");
+	rx.setPattern("<message[^>]*>(.*)</message>");
 	if (rx.indexIn(data) == -1)
 	{
 		// Just some signaling informations, forward directly
@@ -150,7 +170,7 @@ void XmppHandler::WritePacketToBunny(Packet const& p)
 {
 	QByteArray msg;
 	msg.append("<message from='net.openjabnab.platform@" + GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii() + "/services' ");
-	msg.append("to='"  "0019db01dbd7"  "@" + GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii() + "/idle' ");
+	msg.append("to='"  "------------"  "@" + GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii() + "/idle' ");
 	msg.append("id='OJaNa-" + QByteArray::number(msgNb) + "'>");
 	msg.append("<packet xmlns='violet:packet' format='1.0' ttl='604800'>");
 	msg.append(p.GetData().toBase64());

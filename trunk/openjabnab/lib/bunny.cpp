@@ -31,7 +31,7 @@ Bunny::Bunny(QByteArray const& bunnyID)
 		
 	saveTimer = new QTimer(this);
 	connect(saveTimer, SIGNAL(timeout()), this, SLOT(SaveConfig()));
-	saveTimer->start(10000);
+	saveTimer->start(5*60*1000); // 5min
 }
 
 Bunny::~Bunny()
@@ -89,7 +89,7 @@ QVariant Bunny::GetGlobalSetting(QString const& key, QVariant const& defaultValu
 		return defaultValue;
 }
 
-void Bunny::SetGlobalSetting(QString const& key, QVariant & value)
+void Bunny::SetGlobalSetting(QString const& key, QVariant const& value)
 {
 	GlobalSettings.insert(key, value);
 }
@@ -102,7 +102,7 @@ QVariant Bunny::GetPluginSetting(QString const& pluginName, QString const& key, 
 		return defaultValue;
 }
 
-void Bunny::SetPluginSetting(QString const& pluginName, QString const& key, QVariant & value)
+void Bunny::SetPluginSetting(QString const& pluginName, QString const& key, QVariant const& value)
 {
 	PluginsSettings[pluginName].insert(key, value);
 }
