@@ -5,12 +5,13 @@
 #include "plugininterface.h"
 #include "httprequest.h"
 	
-class PluginBOOT : public QObject, public PluginInterface
+class PluginBoot : public QObject, public PluginInterface
 {
 	Q_OBJECT
 	Q_INTERFACES(PluginInterface)
 
 public:
+	PluginBoot();
 	bool HttpRequestHandle(HTTPRequest &);
 };
 

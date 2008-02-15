@@ -11,6 +11,7 @@ class PluginLocate : public QObject, public PluginInterface
 	Q_INTERFACES(PluginInterface)
 
 public:
+	PluginLocate();
 	virtual bool HttpRequestHandle(HTTPRequest &);
 };
 

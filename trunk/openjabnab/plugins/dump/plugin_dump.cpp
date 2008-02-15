@@ -4,13 +4,13 @@
 #include <QCoreApplication>
 #include <QFile>
 #include <QDir>
-#include <QDateTime>
 #include "settings.h"
+#include <QDateTime>
 #include "log.h"
 
 Q_EXPORT_PLUGIN2(plugin_dump, PluginDump)
 
-PluginDump::PluginDump()
+PluginDump::PluginDump():PluginInterface("dump")
 {
 	// Open dump file
 	QFile * dumpFile = new QFile(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("dump.log"), this);

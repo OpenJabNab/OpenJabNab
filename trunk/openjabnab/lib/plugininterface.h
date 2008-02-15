@@ -2,7 +2,11 @@
 #define _PLUGININTERFACE_H_
 
 #include <QByteArray>
+#include <QSettings>
 #include <QtPlugin>
+#include <QString>
+#include <QCoreApplication>
+#include <QDir>
 #include "httprequest.h"
 #include "packet.h"
 
@@ -11,7 +15,13 @@ class PluginInterface
 public:
 	enum ClickType { SingleClick = 0, DoubleClick};
 
-	virtual ~PluginInterface() {};
+	PluginInterface(QString pluginName) {
+		// Create settings object
+		QDir dir = QDir(QCoreApplication::applicationDirPath());
+		dir.cd("plugins");
+		settings = new QSettings(dir.absoluteFilePath("plugin_"+pluginName+".ini"), QSettings::IniFormat);
+	};
+	virtual ~PluginInterface() { delete settings;};
 
 	virtual void HttpRequestBefore(HTTPRequest const&) {};
 	// If the plugin returns true, the plugin should handle the request
@@ -25,6 +35,9 @@ public:
 
 	virtual bool OnClick(ClickType) { return false; };
 	virtual bool OnEarsMove(int, int) { return false; };
+
+protected:
+	QSettings * settings;
 };
 
 Q_DECLARE_INTERFACE(PluginInterface,"org.toms.openjabnab.PluginInterface/1.0")

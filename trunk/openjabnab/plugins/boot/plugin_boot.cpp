@@ -4,9 +4,11 @@
 #include "plugin_boot.h"
 #include "log.h"
 
-Q_EXPORT_PLUGIN2(plugin_boot, PluginBOOT)
+Q_EXPORT_PLUGIN2(plugin_boot, PluginBoot)
 
-bool PluginBOOT::HttpRequestHandle(HTTPRequest & request)
+PluginBoot::PluginBoot():PluginInterface("boot") {}
+
+bool PluginBoot::HttpRequestHandle(HTTPRequest & request)
 {
 	QString uri = request.GetURI();
 	if (uri.startsWith("/vl/bc.jsp"))
