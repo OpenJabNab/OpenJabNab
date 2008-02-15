@@ -106,3 +106,4 @@ void Bunny::SetPluginSetting(QString const& pluginName, QString const& key, QVar
 {
 	PluginsSettings[pluginName].insert(key, value);
 }
+

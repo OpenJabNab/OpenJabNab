@@ -11,7 +11,7 @@ Packet * Packet::Parse(QByteArray const& buffer)
 	if (data[0] != 0x7F || data[buffer.size() - 1] != 0xFF)
 		throw "Unable to parse packet : " + buffer.toHex();
 
-	unsigned int len = data[2] << 16 | data[3] << 8 | data[4];
+	int len = data[2] << 16 | data[3] << 8 | data[4];
 	if (buffer.size() != len + 6) // Header(1) + Type(1) + Len(3) + Trail(1)
 		throw "Bad packet length : " + buffer.toHex();
 

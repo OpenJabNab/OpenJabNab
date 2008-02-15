@@ -16,6 +16,9 @@ DESTDIR = ../bin/
 win32 {
 	DEFINES += WIN32 OJN_MAKEDLL
 }
+unix {
+	QMAKE_CXXFLAGS += -Werror
+}
 # Input
 HEADERS +=	httphandler.h \
 			xmpphandler.h \

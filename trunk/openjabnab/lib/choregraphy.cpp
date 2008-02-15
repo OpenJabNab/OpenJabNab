@@ -97,3 +97,4 @@ QByteArray Choregraphy::LedAction::GetData()
 	tmp.append((char)0x00);
 	return tmp;
 }
+

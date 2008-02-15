@@ -26,6 +26,7 @@ public:
 	{
 		public:
 			virtual QByteArray GetData() = 0;
+			virtual ~Action() {} ;
 	};
 	
 	class MotorAction : public Action

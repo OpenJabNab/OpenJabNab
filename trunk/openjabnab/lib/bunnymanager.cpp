@@ -22,3 +22,4 @@ void BunnyManager::Close()
 }
 
 QMap<QByteArray, Bunny *> BunnyManager::listOfBunnies;
+

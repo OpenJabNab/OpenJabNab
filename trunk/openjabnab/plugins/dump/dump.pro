@@ -16,6 +16,7 @@ MOC_DIR = ./tmp/moc
 OBJECTS_DIR = ./tmp/obj
 unix {
 	QMAKE_LFLAGS += -Wl,-rpath,\'\$$ORIGIN\'
+	QMAKE_CXXFLAGS += -Werror
 }
 
 # Input

@@ -28,3 +28,4 @@ QByteArray SleepPacket::GetPrintableData() const
 	else
 		return "Wake up";
 }
+
