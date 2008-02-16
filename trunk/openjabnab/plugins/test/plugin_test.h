@@ -12,6 +12,7 @@ class PluginTest : public QObject, public PluginInterface
 public:
 	PluginTest();
 	bool OnClick(Bunny *, PluginInterface::ClickType);
+	bool HttpRequestHandle(HTTPRequest &);
 
 private:
 	int angle;

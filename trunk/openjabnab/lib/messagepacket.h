@@ -9,12 +9,14 @@ class OJN_EXPORT MessagePacket : public Packet
 {
 
 public:
+	MessagePacket(QByteArray const&);
 	static MessagePacket * Parse(QByteArray const&);
 	~MessagePacket() {};
 	QByteArray GetPrintableData() const;
 
 	
 protected:
+	MessagePacket();
 	QByteArray GetInternalData() const;
 	quint8 GetType() const { return Packet::Packet_Message; };
 

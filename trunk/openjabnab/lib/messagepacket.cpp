@@ -1,5 +1,9 @@
 #include "messagepacket.h"
 
+MessagePacket::MessagePacket() {}
+
+MessagePacket::MessagePacket(QByteArray const& m):message(m) {}
+
 MessagePacket * MessagePacket::Parse(QByteArray const& buffer)
 {
 	MessagePacket * p = new MessagePacket();
