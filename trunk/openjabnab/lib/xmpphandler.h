@@ -5,13 +5,11 @@
 #include <QTcpSocket>
 #include <QList>
 #include <QByteArray>
-
-#include "pluginmanager.h"
 #include "global.h"
 #include "packet.h"
-#include "bunny.h"
 
 class Bunny;
+class PluginManager;
 class OJN_EXPORT XmppHandler : public QObject
 {
 	Q_OBJECT

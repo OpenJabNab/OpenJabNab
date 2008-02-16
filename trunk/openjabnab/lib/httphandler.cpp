@@ -1,8 +1,8 @@
 #include "httphandler.h"
-#include "openjabnab.h"
 #include "httprequest.h"
-#include "settings.h"
+#include "openjabnab.h"
 #include "log.h"
+#include "settings.h"
 
 HttpHandler::HttpHandler(QTcpSocket * s, PluginManager * p)
 {
@@ -11,9 +11,7 @@ HttpHandler::HttpHandler(QTcpSocket * s, PluginManager * p)
 	connect(s, SIGNAL(readyRead()), this, SLOT(HandleBunnyHTTPRequest()));
 }
 
-HttpHandler::~HttpHandler()
-{
-}
+HttpHandler::~HttpHandler() {}
 
 void HttpHandler::HandleBunnyHTTPRequest()
 {

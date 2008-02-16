@@ -2,10 +2,10 @@
 #define _PLUGINMANAGER_H_
 
 #include <QVector>
-
-#include "plugininterface.h"
 #include "global.h"
+#include "plugininterface.h"
 
+class PluginInterface;
 class OJN_EXPORT PluginManager
 {
 public:
@@ -20,8 +20,8 @@ public:
 	void XmppVioletMessage(QByteArray const&);
 	bool XmppVioletPacketMessage(Packet const& p);
 	
-	bool OnClick(PluginInterface::ClickType);
-	bool OnEarsMove(int, int);
+	bool OnClick(Bunny *, PluginInterface::ClickType);
+	bool OnEarsMove(Bunny *, int, int);
 	
 private:
 	QVector<PluginInterface *> listOfPlugins;

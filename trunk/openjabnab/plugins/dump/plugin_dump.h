@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <QTextStream>
-#include "plugininterface.h"
 #include "httprequest.h"
+#include "plugininterface.h"
 	
 class PluginDump : public QObject, public PluginInterface
 {

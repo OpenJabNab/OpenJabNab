@@ -2,8 +2,8 @@
 #define _GLOBALSETTINGS_H_
 
 #include <QObject>
-#include <QString>
 #include <QSettings>
+#include <QString>
 #include <QVariant>
 #include "global.h"
 

@@ -1,11 +1,9 @@
-#include "bunny.h"
-#include "log.h"
-
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
-
-#include "stdio.h"
+#include "bunny.h"
+#include "log.h"
+#include "xmpphandler.h"
 
 Bunny::Bunny(QByteArray const& bunnyID)
 {

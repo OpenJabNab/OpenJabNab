@@ -2,7 +2,6 @@
 #define _PACKET_H_
 
 #include <QByteArray>
-
 #include "global.h"
 
 class OJN_EXPORT Packet

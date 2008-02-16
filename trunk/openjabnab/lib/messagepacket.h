@@ -2,9 +2,8 @@
 #define _MESSAGEPACKET_H_
 
 #include <QByteArray>
-
-#include "packet.h"
 #include "global.h"
+#include "packet.h"
 
 class OJN_EXPORT MessagePacket : public Packet
 {

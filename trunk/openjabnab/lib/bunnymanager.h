@@ -1,10 +1,10 @@
 #ifndef _BUNNYMANAGER_H_
 #define _BUNNYMANAGER_H_
 
-#include "global.h"
-#include "bunny.h"
 #include <QMap>
+#include "global.h"
 
+class Bunny;
 class OJN_EXPORT BunnyManager
 {
 public:

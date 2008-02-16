@@ -3,10 +3,9 @@
 
 #include <QObject>
 #include <QTcpSocket>
-
-#include "pluginmanager.h"
 #include "global.h"
 
+class PluginManager;
 class OJN_EXPORT HttpHandler : public QObject
 {
 	Q_OBJECT

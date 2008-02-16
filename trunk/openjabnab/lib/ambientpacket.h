@@ -3,9 +3,8 @@
 
 #include <QByteArray>
 #include <QMap>
-
-#include "packet.h"
 #include "global.h"
+#include "packet.h"
 
 class OJN_EXPORT AmbientPacket : public Packet
 {

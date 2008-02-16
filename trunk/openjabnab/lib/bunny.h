@@ -1,15 +1,13 @@
 #ifndef _BUNNY_H_
 #define _BUNNY_H_
 
-#include "global.h"
-#include "xmpphandler.h"
-#include "packet.h"
-
 #include <QByteArray>
-#include <QString>
 #include <QMap>
-#include <QVariant>
+#include <QString>
 #include <QTimer>
+#include <QVariant>
+#include "global.h"
+#include "packet.h"
 
 class XmppHandler;
 class OJN_EXPORT Bunny : QObject

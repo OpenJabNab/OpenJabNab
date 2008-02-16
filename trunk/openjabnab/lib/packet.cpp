@@ -1,6 +1,6 @@
-#include "packet.h"
 #include "ambientpacket.h"
 #include "messagepacket.h"
+#include "packet.h"
 #include "sleeppacket.h"
 #include "log.h"
 

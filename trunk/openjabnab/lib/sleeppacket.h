@@ -2,9 +2,8 @@
 #define _SLEEPPACKET_H_
 
 #include <QByteArray>
-
-#include "packet.h"
 #include "global.h"
+#include "packet.h"
 
 class OJN_EXPORT SleepPacket : public Packet
 {

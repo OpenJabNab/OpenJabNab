@@ -1,11 +1,10 @@
-#include <QSettings>
 #include <QCoreApplication>
 #include <QDir>
-
-#include "settings.h"
-#include "log.h"
-
+#include <QSettings>
 #include <iostream>
+#include "log.h"
+#include "settings.h"
+
 
 GlobalSettings::GlobalSettings()
 {

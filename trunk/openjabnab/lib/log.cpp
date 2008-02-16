@@ -1,10 +1,8 @@
-#include <QFile>
 #include <QCoreApplication>
-#include <QDir>
 #include <QDateTime>
-
+#include <QDir>
+#include <QFile>
 #include <iostream>
-
 #include "log.h"
 #include "settings.h"
 

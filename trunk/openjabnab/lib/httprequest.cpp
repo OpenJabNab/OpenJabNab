@@ -1,5 +1,5 @@
-#include "httprequest.h"
 #include <QHttp>
+#include "httprequest.h"
 
 HTTPRequest::HTTPRequest(QString const& _uri):uri(_uri)
 {

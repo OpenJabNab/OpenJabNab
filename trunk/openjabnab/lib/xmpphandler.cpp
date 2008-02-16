@@ -1,11 +1,11 @@
-#include "xmpphandler.h"
-#include "openjabnab.h"
-#include "settings.h"
-#include "log.h"
-#include "bunnymanager.h"
-
 #include <QRegExp>
 #include <QDateTime>
+#include "bunny.h"
+#include "bunnymanager.h"
+#include "log.h"
+#include "openjabnab.h"
+#include "settings.h"
+#include "xmpphandler.h"
 
 unsigned short XmppHandler::msgNb = 0;
 
@@ -63,6 +63,14 @@ void XmppHandler::HandleBunnyXmppMessage()
 		return;
 	}
 	
+	// If we doesn't have a bunny, we can't parse message
+	if (!bunny)
+	{
+		Log::Warning("Parsing a message from bunny without a bunny!");
+		outgoingXmppSocket.write(data);
+		return;
+	}
+	
 	QString message = rx.cap(1);
 	
 	// Parse message
@@ -76,9 +84,9 @@ void XmppHandler::HandleBunnyXmppMessage()
 		{
 			int value = rx.cap(1).toInt();
 			if (value == 1)
-				handled = pluginManager->OnClick(PluginInterface::SingleClick);
+				handled = pluginManager->OnClick(bunny, PluginInterface::SingleClick);
 			else if (value == 2)
-				handled = pluginManager->OnClick(PluginInterface::DoubleClick);
+				handled = pluginManager->OnClick(bunny, PluginInterface::DoubleClick);
 			else
 				Log::Warning("Unable to parse button/click message : " + data);
 		}
@@ -93,7 +101,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 		{
 			int left = rx.cap(1).toInt();
 			int right = rx.cap(2).toInt();
-			handled = pluginManager->OnEarsMove(left, right);
+			handled = pluginManager->OnEarsMove(bunny, left, right);
 		}
 		else
 			Log::Warning("Unable to parse ears message : " + data);

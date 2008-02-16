@@ -1,9 +1,9 @@
 #ifndef _HTTPREQUEST_H_
 #define _HTTPREQUEST_H_
 
+#include <QEventLoop>
 #include <QObject>
 #include <QString>
-#include <QEventLoop>
 #include <QStringList>
 #include "global.h"
 

@@ -1,11 +1,10 @@
+#include <QCoreApplication>
 #include <QDir>
+#include <QLibrary>
 #include <QPluginLoader>
 #include <QString>
-#include <QLibrary>
-#include <QCoreApplication>
-
-#include "pluginmanager.h"
 #include "log.h"
+#include "pluginmanager.h"
 
 PluginManager::PluginManager()
 {
@@ -103,23 +102,23 @@ bool PluginManager::XmppVioletPacketMessage(Packet const& p)
 	return drop;
 }
 
-bool PluginManager::OnClick(PluginInterface::ClickType type)
+bool PluginManager::OnClick(Bunny * b, PluginInterface::ClickType type)
 {
 	// Call OnClick for all plugins until one returns true
 	foreach(PluginInterface * plugin, listOfPlugins)
 	{
-		if(plugin->OnClick(type))
+		if(plugin->OnClick(b, type))
 			return true;
 	}
 	return false;
 }
 
-bool PluginManager::OnEarsMove(int left, int right)
+bool PluginManager::OnEarsMove(Bunny * b, int left, int right)
 {
 	// Call OnClick for all plugins until one returns true
 	foreach(PluginInterface * plugin, listOfPlugins)
 	{
-		if(plugin->OnEarsMove(left, right))
+		if(plugin->OnEarsMove(b, left, right))
 			return true;
 	}
 	return false;

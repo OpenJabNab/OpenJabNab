@@ -1,3 +1,4 @@
+#include "bunny.h"
 #include "bunnymanager.h"
 
 BunnyManager::BunnyManager() {}
@@ -22,4 +23,3 @@ void BunnyManager::Close()
 }
 
 QMap<QByteArray, Bunny *> BunnyManager::listOfBunnies;
-

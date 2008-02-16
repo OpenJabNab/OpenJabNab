@@ -3,6 +3,7 @@
 #include "settings.h"
 #include "plugin_boot.h"
 #include "log.h"
+#include "bunny.h"
 #include "bunnymanager.h"
 
 Q_EXPORT_PLUGIN2(plugin_boot, PluginBoot)

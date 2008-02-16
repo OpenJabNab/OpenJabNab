@@ -2,14 +2,15 @@
 #define _PLUGININTERFACE_H_
 
 #include <QByteArray>
-#include <QSettings>
-#include <QtPlugin>
-#include <QString>
 #include <QCoreApplication>
 #include <QDir>
-#include "httprequest.h"
-#include "packet.h"
+#include <QSettings>
+#include <QString>
+#include <QtPlugin>
 
+class Bunny;
+class HTTPRequest;
+class Packet;
 class PluginInterface
 {
 public:
@@ -33,8 +34,8 @@ public:
 	// If the plugin returns true, the packet will be dropped
 	virtual bool XmppVioletPacketMessage(Packet const&) { return false; };
 
-	virtual bool OnClick(ClickType) { return false; };
-	virtual bool OnEarsMove(int, int) { return false; };
+	virtual bool OnClick(Bunny *, ClickType) { return false; };
+	virtual bool OnEarsMove(Bunny *, int, int) { return false; };
 
 protected:
 	QSettings * settings;
