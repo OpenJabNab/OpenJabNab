@@ -12,6 +12,8 @@ PluginTest::PluginTest():PluginInterface("test")
 bool PluginTest::OnClick(Bunny * b, PluginInterface::ClickType)
 {
 	angle++;
-	b->SendPacket(AmbientPacket(AmbientPacket::MoveLeftEar, angle%18));
+	AmbientPacket p;
+	p.SetEarsPosition(angle%18, 0);
+	b->SendPacket(p);
 	return true;
 }

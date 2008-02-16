@@ -21,6 +21,7 @@ public:
 
 	QByteArray GetPrintableData() const;
 	void SetServiceValue(enum Services, unsigned char);
+	void SetEarsPosition(unsigned char, unsigned char);
 	void DisableService(enum Services);
 	static AmbientPacket * Parse(QByteArray const&);
 

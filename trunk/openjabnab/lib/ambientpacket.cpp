@@ -26,6 +26,12 @@ void AmbientPacket::SetServiceValue(enum Services s, unsigned char v)
 	services.insert(s,v);
 }
 
+void AmbientPacket::SetEarsPosition(unsigned char left, unsigned char right)
+{
+	services.insert(MoveLeftEar, left);
+	services.insert(MoveRightEar, right);
+}
+
 void AmbientPacket::DisableService(enum Services s)
 {
 	services.remove(s);
