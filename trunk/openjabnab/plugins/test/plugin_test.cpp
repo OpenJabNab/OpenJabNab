@@ -36,17 +36,17 @@ bool PluginTest::HttpRequestHandle(HTTPRequest & request)
 	if (uri.startsWith("/openjabnab/plugin_test"))
 	{
 		Choregraphy c;
-		c.SetTempo(200);
+		c.SetTempo(400);
 		for (int i = 0; i < 48; i++)
 		{
-			c.AddLedAction(i, Choregraphy::Led_Left, (i%3 == 0)?0:255, 0, 0);
-			c.AddLedAction(i, Choregraphy::Led_Middle, 0, (i%3 == 1)?0:255, 0);
-			c.AddLedAction(i, Choregraphy::Led_Right, 0, 0, (i%3 == 2)?0:255);
+			c.AddLedAction(i, Choregraphy::Led_Left, (i%3 == 0)?255:0, 0, 0);
+			c.AddLedAction(i, Choregraphy::Led_Middle, 0, (i%3 == 1)?255:0, 0);
+			c.AddLedAction(i, Choregraphy::Led_Right, 0, 0, (i%3 == 2)?255:0);
 		}
 		for (int i = 0; i < 12; i++)
 		{
-			c.AddMotorAction(4*i, Choregraphy::Ear_Left, 30*i, Choregraphy::Dir_Forward);
-			c.AddMotorAction(4*i+2, Choregraphy::Ear_Right, 30*i, Choregraphy::Dir_Forward);
+			c.AddMotorAction(4*i, Choregraphy::Ear_Left, 36*i, Choregraphy::Dir_Forward);
+			c.AddMotorAction(4*i+2, Choregraphy::Ear_Right, 36*i, Choregraphy::Dir_Forward);
 		}
 		request.reply = c.GetData();
 		return true;
