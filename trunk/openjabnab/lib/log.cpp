@@ -6,7 +6,7 @@
 #include "log.h"
 #include "settings.h"
 
-Log::Log():maxFileLogLevel(Log_Debug),maxScreenLogLevel(Log_Warn)
+Log::Log()
 {
 	if (!GlobalSettings::HasKey("Log/LogFile"))
 	{
@@ -15,6 +15,9 @@ Log::Log():maxFileLogLevel(Log_Debug),maxScreenLogLevel(Log_Warn)
 		return;
 	}
 
+	maxFileLogLevel = GetLevel(GlobalSettings::GetString("Log/LogFileLevel", "Debug"));
+	maxScreenLogLevel = GetLevel(GlobalSettings::GetString("Log/LogFileLevel", "Warning"));
+	
 	QFile * logFile = new QFile(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath(GlobalSettings::GetString("Log/LogFile")));
 	if(!logFile->open(QIODevice::Append))
 	{
@@ -38,6 +41,19 @@ void Log::LogToFile(QString const& data, LogLevel level)
 
 	if (level <= instance->maxScreenLogLevel)
 		std::cout << qPrintable(data) << std::endl;
+}
+
+Log::LogLevel Log::GetLevel(QString const& level)
+{
+	if (level.compare("debug", Qt::CaseInsensitive) == 0)
+		return Log_Debug;
+	if (level.compare("warning", Qt::CaseInsensitive) == 0)
+		return Log_Warn;
+	if (level.compare("error", Qt::CaseInsensitive) == 0)
+		return Log_Error;
+	if (level.compare("info", Qt::CaseInsensitive) == 0)
+		return Log_Info;
+	return Log_None;
 }
 
 Log * Log::instance = 0;

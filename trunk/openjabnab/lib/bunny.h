@@ -14,17 +14,18 @@ class OJN_EXPORT Bunny : QObject
 {
 	Q_OBJECT
 public:
+	enum State { Connected, Disconnected };
 	Bunny(QByteArray const&);
+	~Bunny();
+
 	bool IsConnected() const { return state == Connected; };
+	QByteArray GetID() const { return id.toHex(); };
 	void SetXmppHandler (XmppHandler *);
 	void SendPacket(Packet const&);
 	QVariant GetGlobalSetting(QString const&, QVariant const& defaultValue = QVariant());
 	void SetGlobalSetting(QString const&, QVariant const&);
 	QVariant GetPluginSetting(QString const&, QString const&, QVariant const& defaultValue = QVariant());
 	void SetPluginSetting(QString const&, QString const&, QVariant const&);
-
-	~Bunny();
-	enum State { Connected, Disconnected };
 
 private slots:
 	void SaveConfig();

@@ -36,8 +36,11 @@ public:
 
 	virtual bool OnClick(Bunny *, ClickType) { return false; };
 	virtual bool OnEarsMove(Bunny *, int, int) { return false; };
+	
+	QVariant GetSettings(QString const& key, QVariant const& defaultValue = QVariant()) { return settings->value(key, defaultValue); };
+	void SetSettings(QString const& key, QVariant const& value) { settings->setValue(key, value); settings->sync(); };
 
-protected:
+private:
 	QSettings * settings;
 };
 

@@ -22,4 +22,13 @@ void BunnyManager::Close()
 	listOfBunnies.clear();
 }
 
+QVector<Bunny *> BunnyManager::GetConnectedBunnies()
+{
+	QVector<Bunny *> list;
+	foreach(Bunny * b, listOfBunnies)
+		if (b->IsConnected())
+			list.append(b);
+	return list;
+}
+
 QMap<QByteArray, Bunny *> BunnyManager::listOfBunnies;

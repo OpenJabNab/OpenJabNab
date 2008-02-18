@@ -31,28 +31,22 @@ PluginManager::PluginManager()
 			status.append(" OK");
 		}
 		else
-		{
 			status.append("Failed, ").append(loader.errorString()); 
-		}
 		Log::Info(status);
 	}
 }
 
 PluginManager::~PluginManager()
 {
-	foreach(PluginInterface * plugin, listOfPlugins)
-	{
-		delete plugin;
-	}
+	foreach(PluginInterface * p, listOfPlugins)
+		delete p;
 }
 
 void PluginManager::HttpRequestBefore(HTTPRequest const& request)
 {
 	// Call RequestBefore for all plugins
 	foreach(PluginInterface * plugin, listOfPlugins)
-	{
 		plugin->HttpRequestBefore(request);
-	}
 }
 
 bool PluginManager::HttpRequestHandle(HTTPRequest & request)
@@ -70,25 +64,19 @@ void PluginManager::HttpRequestAfter(HTTPRequest const& request)
 {
 	// Call RequestAfter for all plugins
 	foreach(PluginInterface * plugin, listOfPlugins)
-	{
 		plugin->HttpRequestAfter(request);
-	}
 }
 	
 void PluginManager::XmppBunnyMessage(QByteArray const& data)
 {
 	foreach(PluginInterface * plugin, listOfPlugins)
-	{
 		plugin->XmppBunnyMessage(data);
-	}
 }
 
 void PluginManager::XmppVioletMessage(QByteArray const& data)
 {
 	foreach(PluginInterface * plugin, listOfPlugins)
-	{
 		plugin->XmppVioletMessage(data);
-	}
 }
 
 // Send the packet to all plugins, if one returns true, the message will be dropped !
@@ -96,9 +84,7 @@ bool PluginManager::XmppVioletPacketMessage(Packet const& p)
 {
 	bool drop = false;
 	foreach(PluginInterface * plugin, listOfPlugins)
-	{
 		drop |= plugin->XmppVioletPacketMessage(p);
-	}
 	return drop;
 }
 

@@ -19,7 +19,8 @@ public:
 	
 private:
 	Log();
-
+	LogLevel GetLevel(QString const&);
+	
 	static Log * instance;
 	QTextStream logStream;
 	LogLevel maxFileLogLevel;

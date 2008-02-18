@@ -18,7 +18,7 @@ GlobalSettings::GlobalSettings()
 	}
 }
 
-QVariant GlobalSettings::Get(QString const& key, QVariant const& defaultValue)
+QVariant GlobalSettings::Get(QString const& key)
 {
 	if (!instance)
 		instance = new GlobalSettings();
@@ -28,8 +28,19 @@ QVariant GlobalSettings::Get(QString const& key, QVariant const& defaultValue)
 	else
 	{
 		Log::Warning(QString("Unknown setting : %1\n").arg(key));
-		return defaultValue;
+		return QVariant();
 	}
+}
+
+QVariant GlobalSettings::Get(QString const& key, QVariant const& defaultValue)
+{
+	if (!instance)
+		instance = new GlobalSettings();
+
+	if (instance->settings->contains(key))
+		return instance->settings->value(key);
+	else
+		return defaultValue;
 }
 
 bool GlobalSettings::HasKey(QString const& key)

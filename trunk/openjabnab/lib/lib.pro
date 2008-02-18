@@ -15,6 +15,7 @@ OBJECTS_DIR = ./tmp/obj
 DESTDIR = ../bin/
 win32 {
 	DEFINES += WIN32 OJN_MAKEDLL
+	QMAKE_CXXFLAGS_WARN_ON += -WX
 }
 unix {
 	QMAKE_CXXFLAGS += -Werror

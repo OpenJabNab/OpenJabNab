@@ -19,11 +19,9 @@ void HttpHandler::HandleBunnyHTTPRequest()
 	
 	HTTPRequest request(dataIn);
 	
-	Log::Debug(QString("HTTP REQUEST : ") + dataIn);
-	
 	pluginManager->HttpRequestBefore(request);
 	
-	// If none can answer, try to forward directly to Violet's servers
+	// If none can answer, try to forward it directly to Violet's servers
 	if (!pluginManager->HttpRequestHandle(request))
 	{
 		if (dataIn.startsWith("/vl/sendMailXMPP.jsp"))
@@ -45,7 +43,6 @@ void HttpHandler::HandleBunnyHTTPRequest()
 	pluginManager->HttpRequestAfter(request);
 	
 	incomingHttpSocket->write(request.reply);
-	Log::Debug(QString("HTTP REPLY : ") + request.reply);
 	incomingHttpSocket->close();
 	delete this;
 }
