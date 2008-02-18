@@ -24,7 +24,7 @@ protected:
 private slots:
 	void HandleBunnyXmppMessage();
 	void HandleVioletXmppMessage();
-	void OnDisconnect();
+	void Disconnect();
 
 private:
 	QList<QByteArray> XmlParse(QByteArray const&);
@@ -34,6 +34,7 @@ private:
 	QTcpSocket outgoingXmppSocket;
 	PluginManager * pluginManager;
 	Bunny * bunny;
+	QByteArray msgQueue;
 	
 	static unsigned short msgNb;
 };

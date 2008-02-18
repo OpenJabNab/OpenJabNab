@@ -17,15 +17,18 @@ XmppHandler::XmppHandler(QTcpSocket * s, PluginManager * p)
 	
 	// Bunny -> OpenJabNab socket
 	connect(incomingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleBunnyXmppMessage()));
-	connect(incomingXmppSocket, SIGNAL(disconnected()), this, SLOT(OnDisconnect())); 
 
 	// OpenJabNab -> Violet socket
 	outgoingXmppSocket.connectToHost(GlobalSettings::GetString("DefaultVioletServers/XmppServer"), 5222);
 	connect(&outgoingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleVioletXmppMessage()));
+	connect(&outgoingXmppSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
 }
 
-void XmppHandler::OnDisconnect()
+void XmppHandler::Disconnect()
 {
+	delete incomingXmppSocket;
+	if(bunny)
+		bunny->RemoveXmppHandler(this);
 	delete this;
 }
 
@@ -132,6 +135,11 @@ void XmppHandler::HandleVioletXmppMessage()
 
 		// Check if the data contains <message></message>
 		QRegExp rx("<message[^>]*>.*</message>");
+		if(msg.startsWith("</stream:stream>"))
+		{
+			Disconnect();
+			return;
+		}
 		if (rx.indexIn(msg) == -1)
 		{
 			// Just some signaling informations, forward directly
@@ -198,44 +206,50 @@ void XmppHandler::WritePacketToBunny(Packet const& p)
 QList<QByteArray> XmppHandler::XmlParse(QByteArray const& data)
 {
 	QList<QByteArray> list;
-	QByteArray tmp = data.trimmed();
+	msgQueue += data.trimmed();
 
 	QRegExp rxStream("^(<\\?xml[^>]*\\?><stream:stream[^>]*>)");
 	QRegExp rxOne("^(<[^>]*/>)");
+	QRegExp rxEnd("^(</[^>]*>)");
 
-	while(!tmp.isEmpty())
+	while(!msgQueue.isEmpty())
 	{
-		if (rxStream.indexIn(tmp) != -1)
+		if (rxStream.indexIn(msgQueue) != -1)
 		{
 			list << rxStream.cap(1).toAscii();
-			tmp.remove(0, rxStream.matchedLength());
+			msgQueue.remove(0, rxStream.matchedLength());
 		}
-		else if (rxOne.indexIn(tmp) != -1)
+		else if (rxOne.indexIn(msgQueue) != -1)
 		{
 			list << rxOne.cap(1).toAscii();
-			tmp.remove(0, rxOne.matchedLength());
+			msgQueue.remove(0, rxOne.matchedLength());
+		}
+		else if (rxEnd.indexIn(msgQueue) != -1) // Special case for </stream:stream>
+		{
+			list << rxOne.cap(1).toAscii();
+			msgQueue.remove(0, rxOne.matchedLength());
 		}
 		else
 		{
 			// Full xml message (<xxx>....</xxx>)
 			// Find tag name
 			QRegExp rxTag("^<([^ >]*)");
-			if (rxTag.indexIn(tmp) == -1)
+			if (rxTag.indexIn(msgQueue) == -1)
 			{
-				Log::Warning("Unable to parse : " + tmp);
+				// Doesn't find the start tag... wait next message
 				break;
 			}
 			QString tagName = rxTag.cap(1);
 			// Search end tag
 			rxTag.setPattern("(.*</" + tagName + ">)");
 			rxTag.setMinimal(true);
-			if (rxTag.indexIn(tmp) == -1)
+			if (rxTag.indexIn(msgQueue) == -1)
 			{
-				Log::Warning("Unable to parse : " + tmp);
+				// Doesn't find the end tag... wait next message
 				break;
 			}
 			list << rxTag.cap(1).toAscii();
-			tmp.remove(0, rxTag.matchedLength());
+			msgQueue.remove(0, rxTag.matchedLength());
 		}
 	}
 	return list;

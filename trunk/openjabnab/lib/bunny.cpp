@@ -72,6 +72,14 @@ void Bunny::SetXmppHandler(XmppHandler * x)
 	state = Connected;
 	xmppHandler = x;
 }
+void Bunny::RemoveXmppHandler(XmppHandler * x)
+{
+	if (xmppHandler == x)
+	{
+		xmppHandler = 0;
+		state = Disconnected;
+	}
+}
 
 void Bunny::SendPacket(Packet const& p)
 {

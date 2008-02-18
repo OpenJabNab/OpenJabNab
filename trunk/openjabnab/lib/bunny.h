@@ -21,6 +21,7 @@ public:
 	bool IsConnected() const { return state == Connected; };
 	QByteArray GetID() const { return id.toHex(); };
 	void SetXmppHandler (XmppHandler *);
+	void RemoveXmppHandler (XmppHandler *);
 	void SendPacket(Packet const&);
 	QVariant GetGlobalSetting(QString const&, QVariant const& defaultValue = QVariant());
 	void SetGlobalSetting(QString const&, QVariant const&);
