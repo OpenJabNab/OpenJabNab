@@ -1,4 +1,7 @@
 RewriteEngine on
+RewriteCond	%{REQUEST_URI} ^.*/\.svn/.*$
+RewriteRule	.* / [F]
+
 RewriteCond	%{REQUEST_URI} !^.*openjabnab\.php.*$
 RewriteCond	%{REQUEST_URI} !/ojn_local/
 RewriteRule	^.*$	/openjabnab.php	[L]
