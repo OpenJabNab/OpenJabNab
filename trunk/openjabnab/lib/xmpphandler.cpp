@@ -19,14 +19,18 @@ XmppHandler::XmppHandler(QTcpSocket * s, PluginManager * p)
 	connect(incomingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleBunnyXmppMessage()));
 
 	// OpenJabNab -> Violet socket
-	outgoingXmppSocket.connectToHost(GlobalSettings::GetString("DefaultVioletServers/XmppServer"), 5222);
-	connect(&outgoingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleVioletXmppMessage()));
-	connect(&outgoingXmppSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
+	outgoingXmppSocket = new QTcpSocket(this);
+	outgoingXmppSocket->connectToHost(GlobalSettings::GetString("DefaultVioletServers/XmppServer"), 5222);
+	connect(outgoingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleVioletXmppMessage()));
+	connect(outgoingXmppSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
 }
 
 void XmppHandler::Disconnect()
 {
+	incomingXmppSocket->abort();
 	delete incomingXmppSocket;
+	outgoingXmppSocket->disconnect(this);
+	outgoingXmppSocket->abort();
 	if(bunny)
 		bunny->RemoveXmppHandler(this);
 	delete this;
@@ -68,7 +72,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 	if (rx.indexIn(data) == -1)
 	{
 		// Just some signaling informations, forward directly
-		outgoingXmppSocket.write(data);
+		outgoingXmppSocket->write(data);
 	}
 	else
 	{
@@ -76,7 +80,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 		if (!bunny)
 		{
 			Log::Warning("Parsing a message from bunny without a bunny!");
-			outgoingXmppSocket.write(data);
+			outgoingXmppSocket->write(data);
 		}
 		else
 		{
@@ -115,14 +119,14 @@ void XmppHandler::HandleBunnyXmppMessage()
 
 			// If the message wasn't handled by a plugin, forward it to Violet
 			if (!handled)
-				outgoingXmppSocket.write(data);
+				outgoingXmppSocket->write(data);
 		}
 	}
 }
 
 void XmppHandler::HandleVioletXmppMessage()
 {
-	QByteArray data = outgoingXmppSocket.readAll();
+	QByteArray data = outgoingXmppSocket->readAll();
 
 	// Replace Violet's domain
 	data.replace(GlobalSettings::GetString("DefaultVioletServers/XmppServer").toAscii(),GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii());
@@ -137,7 +141,8 @@ void XmppHandler::HandleVioletXmppMessage()
 		QRegExp rx("<message[^>]*>.*</message>");
 		if(msg.startsWith("</stream:stream>"))
 		{
-			Disconnect();
+			// Disconnect as soon as possible
+			QTimer::singleShot(0, this, SLOT(Disconnect()));
 			return;
 		}
 		if (rx.indexIn(msg) == -1)
@@ -226,8 +231,8 @@ QList<QByteArray> XmppHandler::XmlParse(QByteArray const& data)
 		}
 		else if (rxEnd.indexIn(msgQueue) != -1) // Special case for </stream:stream>
 		{
-			list << rxOne.cap(1).toAscii();
-			msgQueue.remove(0, rxOne.matchedLength());
+			list << rxEnd.cap(1).toAscii();
+			msgQueue.remove(0, rxEnd.matchedLength());
 		}
 		else
 		{

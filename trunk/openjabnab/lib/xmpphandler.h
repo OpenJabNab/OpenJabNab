@@ -31,7 +31,7 @@ private:
 	void WriteToBunny(QByteArray const&);
 
 	QTcpSocket * incomingXmppSocket;
-	QTcpSocket outgoingXmppSocket;
+	QTcpSocket * outgoingXmppSocket;
 	PluginManager * pluginManager;
 	Bunny * bunny;
 	QByteArray msgQueue;
