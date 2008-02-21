@@ -7,9 +7,9 @@
 
 class OJN_EXPORT SleepPacket : public Packet
 {
+public:
 	enum State { Wake_Up = 0, Sleep };
 	
-public:
 	SleepPacket() {};
 	SleepPacket(State);
 	static SleepPacket * Parse(QByteArray const&);
