@@ -86,3 +86,4 @@ QByteArray ApiManager::ApiAnswer::SanitizeXML(QByteArray const& msg)
 		return "<![CDATA[" + msg + "]]>";
 	return msg;
 }
+
