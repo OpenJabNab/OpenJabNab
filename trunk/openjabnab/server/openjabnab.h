@@ -4,6 +4,7 @@
 #include <QCoreApplication>
 #include <QTcpServer>
 #include "pluginmanager.h"
+#include "apimanager.h"
 
 class OpenJabNab : public QCoreApplication
 {
@@ -22,6 +23,7 @@ private:
 	QTcpServer * httpListener;
 	QTcpServer * xmppListener;
 	PluginManager * pluginManager;
+	ApiManager * apiManager;
 };
 
 #endif

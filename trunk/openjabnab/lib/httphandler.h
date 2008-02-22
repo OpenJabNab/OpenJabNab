@@ -6,12 +6,13 @@
 #include "global.h"
 
 class PluginManager;
+class ApiManager;
 class OJN_EXPORT HttpHandler : public QObject
 {
 	Q_OBJECT
 	
 public:
-	HttpHandler(QTcpSocket *, PluginManager * p);
+	HttpHandler(QTcpSocket *, PluginManager *, ApiManager *);
 	virtual ~HttpHandler();
 
 private slots:
@@ -20,6 +21,7 @@ private slots:
 private:
 	QTcpSocket * incomingHttpSocket;
 	PluginManager * pluginManager;
+	ApiManager * apiManager;
 };
 
 #endif

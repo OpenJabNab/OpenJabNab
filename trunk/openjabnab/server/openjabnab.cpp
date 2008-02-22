@@ -15,6 +15,9 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 	// Create PluginManager
 	pluginManager = new PluginManager();
 	
+	// Create ApiManager
+	apiManager = new ApiManager(pluginManager);
+	
 	// Create Listeners
 	httpListener = new QTcpServer(this);
 	httpListener->listen(QHostAddress::LocalHost, GlobalSettings::GetInt("OpenJabNabServers/ListeningHttpPort", 8080));
@@ -39,7 +42,7 @@ OpenJabNab::~OpenJabNab()
 
 void OpenJabNab::NewHTTPConnection()
 {
-	new HttpHandler(httpListener->nextPendingConnection(), pluginManager);
+	new HttpHandler(httpListener->nextPendingConnection(), pluginManager, apiManager);
 }
 
 void OpenJabNab::NewXMPPConnection()

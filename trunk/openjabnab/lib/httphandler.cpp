@@ -1,13 +1,15 @@
+#include "apimanager.h"
 #include "httphandler.h"
 #include "httprequest.h"
 #include "openjabnab.h"
 #include "log.h"
 #include "settings.h"
 
-HttpHandler::HttpHandler(QTcpSocket * s, PluginManager * p)
+HttpHandler::HttpHandler(QTcpSocket * s, PluginManager * p, ApiManager * a)
 {
-	this->incomingHttpSocket = s;
-	this->pluginManager = p;
+	incomingHttpSocket = s;
+	pluginManager = p;
+	apiManager = a;
 	connect(s, SIGNAL(readyRead()), this, SLOT(HandleBunnyHTTPRequest()));
 }
 
@@ -17,32 +19,37 @@ void HttpHandler::HandleBunnyHTTPRequest()
 {
 	QByteArray dataIn = incomingHttpSocket->readAll();
 	
-	HTTPRequest request(dataIn);
-	
-	pluginManager->HttpRequestBefore(request);
-	
-	// If none can answer, try to forward it directly to Violet's servers
-	if (!pluginManager->HttpRequestHandle(request))
+	if (dataIn.startsWith("/ojn_api/"))
 	{
-		if (dataIn.startsWith("/vl/sendMailXMPP.jsp"))
-		{
-			Log::Warning("Problem with the bunny, he's calling sendMailXMPP.jsp !");
-			request.reply = "Not Allowed !";
-		}
-		else if (dataIn.startsWith("/vl/"))
-			request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
-		else if (dataIn.startsWith("/broad/"))
-			request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BroadServer"));
-		else
-		{
-			Log::Error(QString("Unable to handle HTTP Request : ") + dataIn);
-			request.reply = "404 Not Found\n";
-		}
+		ApiManager::ApiAnswer * answer = apiManager->ProcessApiCall(dataIn.mid(9));
+		incomingHttpSocket->write(answer->GetData());
+		delete answer;
 	}
-	
-	pluginManager->HttpRequestAfter(request);
-	
-	incomingHttpSocket->write(request.reply);
+	else
+	{
+		HTTPRequest request(dataIn);
+		pluginManager->HttpRequestBefore(request);
+		// If none can answer, try to forward it directly to Violet's servers
+		if (!pluginManager->HttpRequestHandle(request))
+		{
+			if (dataIn.startsWith("/vl/sendMailXMPP.jsp"))
+			{
+				Log::Warning("Problem with the bunny, he's calling sendMailXMPP.jsp !");
+				request.reply = "Not Allowed !";
+			}
+			else if (dataIn.startsWith("/vl/"))
+				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
+			else if (dataIn.startsWith("/broad/"))
+				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BroadServer"));
+			else
+			{
+				Log::Error(QString("Unable to handle HTTP Request : ") + dataIn);
+				request.reply = "404 Not Found\n";
+			}
+		}
+		pluginManager->HttpRequestAfter(request);
+		incomingHttpSocket->write(request.reply);
+	}
 	incomingHttpSocket->close();
 	delete this;
 }

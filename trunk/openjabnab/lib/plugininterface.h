@@ -16,7 +16,8 @@ class PluginInterface
 public:
 	enum ClickType { SingleClick = 0, DoubleClick};
 
-	PluginInterface(QString pluginName) {
+	PluginInterface(QString name) {
+		pluginName = name;
 		// Create settings object
 		QDir dir = QDir(QCoreApplication::applicationDirPath());
 		dir.cd("plugins");
@@ -39,9 +40,12 @@ public:
 	
 	QVariant GetSettings(QString const& key, QVariant const& defaultValue = QVariant()) { return settings->value(key, defaultValue); };
 	void SetSettings(QString const& key, QVariant const& value) { settings->setValue(key, value); settings->sync(); };
+	
+	QString const& GetName() { return pluginName; }
 
 private:
 	QSettings * settings;
+	QString pluginName;
 };
 
 Q_DECLARE_INTERFACE(PluginInterface,"org.toms.openjabnab.PluginInterface/1.0")

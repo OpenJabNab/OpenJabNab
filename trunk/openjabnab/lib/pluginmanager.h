@@ -2,6 +2,7 @@
 #define _PLUGINMANAGER_H_
 
 #include <QVector>
+#include <QMap>
 #include "global.h"
 #include "plugininterface.h"
 
@@ -23,8 +24,12 @@ public:
 	bool OnClick(Bunny *, PluginInterface::ClickType);
 	bool OnEarsMove(Bunny *, int, int);
 	
+	QVector<PluginInterface *> const& GetListOfPlugins() { return listOfPlugins; }
+	PluginInterface * GetPluginByName(QString name) { return listOfPluginsByName.value(name); }
+	
 private:
 	QVector<PluginInterface *> listOfPlugins;
+	QMap<QString, PluginInterface *> listOfPluginsByName;
 
 };
 

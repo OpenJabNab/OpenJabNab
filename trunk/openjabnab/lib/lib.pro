@@ -34,7 +34,8 @@ HEADERS +=	httphandler.h \
 			sleeppacket.h \
 			choregraphy.h \
 			bunnymanager.h \
-			bunny.h
+			bunny.h \
+			apimanager.h
 
 SOURCES +=	httphandler.cpp \
 			xmpphandler.cpp \
@@ -48,4 +49,5 @@ SOURCES +=	httphandler.cpp \
 			sleeppacket.cpp \
 			choregraphy.cpp \
 			bunnymanager.cpp \
-			bunny.cpp
+			bunny.cpp \
+			apimanager.cpp

@@ -28,7 +28,8 @@ PluginManager::PluginManager()
 		if (plugin)
 		{
 			listOfPlugins.append(plugin);
-			status.append(" OK");
+			listOfPluginsByName.insert(plugin->GetName(), plugin);
+			status.append(plugin->GetName() + " OK");
 		}
 		else
 			status.append("Failed, ").append(loader.errorString()); 
