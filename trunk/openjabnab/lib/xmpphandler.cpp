@@ -17,6 +17,7 @@ XmppHandler::XmppHandler(QTcpSocket * s, PluginManager * p)
 	
 	// Bunny -> OpenJabNab socket
 	connect(incomingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleBunnyXmppMessage()));
+	incomingXmppSocket->setParent(this);
 
 	// OpenJabNab -> Violet socket
 	outgoingXmppSocket = new QTcpSocket(this);
