@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = boot dump locate test
+SUBDIRS = boot dice dump locate test
