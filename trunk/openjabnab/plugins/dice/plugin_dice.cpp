@@ -1,9 +1,9 @@
+#include <QDateTime>
 #include "bunny.h"
-#include "log.h"
 #include "httprequest.h"
+#include "log.h"
 #include "messagepacket.h"
 #include "plugin_dice.h"
-#include <QDateTime>
 
 Q_EXPORT_PLUGIN2(plugin_dice, PluginDice)
 
@@ -29,11 +29,10 @@ bool PluginDice::OnClick(Bunny * b, PluginInterface::ClickType type)
 		QByteArray Language = b->GetPluginSetting("dice", "PluginConfiguration/Language", "fr").toByteArray();
 		// Get a random value and create ID
 		quint8 value = rand() % 6 + 1;
-		quint16 id = 1233210 + value;
 		// Log dice value
 		diceStream << QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss") << " -- Language : " << Language << " -- Roll dice : " << value << endl;
 		// Send packet to bunny with mp3 to be played
-		b->SendPacket(MessagePacket("ID "+QByteArray::number(id)+"\nMU broadcast/ojn_local/plugins/dice/"+Language+"/get.mp3\nMW\nMU broadcast/ojn_local/plugins/dice/"+Language+"/"+QByteArray::number(value)+".mp3\nMW\n"));
+		b->SendPacket(MessagePacket("MU broadcast/ojn_local/plugins/dice/"+Language+"/get.mp3\nMW\nMU broadcast/ojn_local/plugins/dice/"+Language+"/"+QByteArray::number(value)+".mp3\nMW\n"));
 	}
 	else
 	{
