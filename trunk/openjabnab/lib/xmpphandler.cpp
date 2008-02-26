@@ -28,8 +28,9 @@ XmppHandler::XmppHandler(QTcpSocket * s, PluginManager * p)
 
 void XmppHandler::Disconnect()
 {
+	incomingXmppSocket->disconnect(this);
 	incomingXmppSocket->abort();
-	delete incomingXmppSocket;
+	
 	outgoingXmppSocket->disconnect(this);
 	outgoingXmppSocket->abort();
 	if(bunny)
