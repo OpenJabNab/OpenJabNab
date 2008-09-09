@@ -45,7 +45,7 @@ public:
 	virtual bool OnEarsMove(Bunny *, int, int) { return false; };
 	virtual bool OnRFID(Bunny *, QByteArray const&) { return false; };
 	
-	virtual void OnCron(unsigned int) {};
+	virtual void OnCron(QVariant) {};
 	
 	inline QVariant GetSettings(QString const& key, QVariant const& defaultValue = QVariant()) const { return settings->value(key, defaultValue); };
 	void SetSettings(QString const& key, QVariant const& value) { settings->setValue(key, value); settings->sync(); };

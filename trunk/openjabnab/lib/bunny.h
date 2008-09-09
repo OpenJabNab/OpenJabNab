@@ -43,4 +43,9 @@ private:
 	XmppHandler * xmppHandler;
 };
 
+Q_DECLARE_METATYPE(Bunny*)
+namespace QVariantHelper
+{
+    inline Bunny* ToBunnyPtr(QVariant v) { return v.value<Bunny*>(); }
+};
 #endif

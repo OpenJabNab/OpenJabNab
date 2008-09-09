@@ -21,9 +21,16 @@ void Cron::OnTimer()
 	{
 		if(it->next_run <= now)
 		{
-			//it->plugin->OnCron();
 			it->next_run += it->interval;
-			it->plugin->OnCron(it->id);
+			if(it->callback)
+			{
+				QMetaObject::invokeMethod(it->plugin, it->callback, Q_ARG(QVariant,it->data));
+			}
+			else
+			{
+				PluginInterface * p = (PluginInterface*)it->plugin->qt_metacast("PluginInterface");
+				p->OnCron(it->data);
+			}
 		}
 	}
 	
@@ -32,7 +39,7 @@ void Cron::OnTimer()
 	QTimer::singleShot(1000 * (60 - (now%60)), this, SLOT(OnTimer()));
 }
 
-bool Cron::Register(PluginInterface * p, unsigned int interval, unsigned int offsetH, unsigned int offsetM, unsigned int id)
+bool Cron::Register(QObject * o, unsigned int interval, unsigned int offsetH, unsigned int offsetM, QVariant data, const char * callback)
 {
 	if(interval > 24*60)
 	{
@@ -44,16 +51,24 @@ bool Cron::Register(PluginInterface * p, unsigned int interval, unsigned int off
 		Log::Error("Cron : Interval should be >= 1 minute");
 		return false;
 	}
-	if(!p)
+	if(!o)
 	{
 		Log::Error("Cron : pointer is null !");
 		return false;
 	}
+	PluginInterface * p = (PluginInterface*)o->qt_metacast("PluginInterface");
+	if(!p)
+	{
+		Log::Error("Cron : pointer is not a plugin interface !");
+		return false;
+	}
+
 	
 	CronElement e;
 	e.interval = interval * 60;
-	e.plugin = p;
-	e.id = id;
+	e.callback = callback;
+	e.plugin = o;
+	e.data = data;
 
 	// Compute next run
 	QDateTime now = QDateTime::currentDateTime();
@@ -70,20 +85,19 @@ bool Cron::Register(PluginInterface * p, unsigned int interval, unsigned int off
 	return true;
 }
 
-void Cron::Unregister(PluginInterface * p, unsigned int id)
+void Cron::Unregister(QObject * p, QVariant data)
 {
 	Cron & theCron = Instance();
 	QMutableVectorIterator<CronElement> i(theCron.CronElements);
 	while(i.hasNext())
 	{
 		CronElement const& e = i.next();
-		if(e.plugin == p && e.id == id)
+		if(e.plugin == p && e.data == data)
 			i.remove();
 	}
-	Log::Info(QString("Cron UnRegister : %1, id : %2").arg(p->GetVisualName()).arg(id));
 }
 
-void Cron::UnregisterAll(PluginInterface * p)
+void Cron::UnregisterAll(QObject * p)
 {
 	Cron & theCron = Instance();
 	QMutableVectorIterator<CronElement> i(theCron.CronElements);
@@ -93,7 +107,6 @@ void Cron::UnregisterAll(PluginInterface * p)
 		if(e.plugin == p)
 			i.remove();
 	}
-	Log::Info(QString("Cron UnRegisterAll : %1").arg(p->GetVisualName()));
 }
 
 Cron& Cron::Instance() {
