@@ -7,8 +7,8 @@
 #include <QSettings>
 #include <QString>
 #include <QtPlugin>
+#include "bunny.h"
 
-class Bunny;
 class HTTPRequest;
 class Packet;
 class PluginInterface
@@ -16,12 +16,18 @@ class PluginInterface
 public:
 	enum ClickType { SingleClick = 0, DoubleClick};
 
-	PluginInterface(QString name) {
+	PluginInterface(QString name, QString visualName = QString()) {
 		pluginName = name;
+		// The visual name is more user-friendly (for visual-side only)
+		if(visualName != QString())
+			pluginVisualName = visualName;
+		else
+			pluginVisualName = name;
 		// Create settings object
 		QDir dir = QDir(QCoreApplication::applicationDirPath());
 		dir.cd("plugins");
 		settings = new QSettings(dir.absoluteFilePath("plugin_"+pluginName+".ini"), QSettings::IniFormat);
+		pluginEnable = GetSettings("pluginStatus/Enable", QVariant(true)).toBool();
 	};
 	virtual ~PluginInterface() { delete settings;};
 
@@ -37,15 +43,25 @@ public:
 
 	virtual bool OnClick(Bunny *, ClickType) { return false; };
 	virtual bool OnEarsMove(Bunny *, int, int) { return false; };
+	virtual bool OnRFID(Bunny *, QByteArray const&) { return false; };
 	
-	QVariant GetSettings(QString const& key, QVariant const& defaultValue = QVariant()) { return settings->value(key, defaultValue); };
+	virtual void OnCron(unsigned int) {};
+	
+	inline QVariant GetSettings(QString const& key, QVariant const& defaultValue = QVariant()) const { return settings->value(key, defaultValue); };
 	void SetSettings(QString const& key, QVariant const& value) { settings->setValue(key, value); settings->sync(); };
 	
-	QString const& GetName() { return pluginName; }
+	inline QString const& GetName() const { return pluginName; }
+	inline QString const& GetVisualName() const { return pluginVisualName; }
+	// Plugin enable/disable functions
+	inline bool GetEnable() const { return pluginEnable; }
+	bool GetEnable(Bunny * b) const { return pluginEnable && (b->GetPluginSetting(pluginName, "pluginStatus/Enable", QVariant(true)).toBool()); }
+	void SetEnable(bool newStatus) { pluginEnable = newStatus; SetSettings("pluginStatus/Enable", QVariant(newStatus)); }
 
 private:
 	QSettings * settings;
 	QString pluginName;
+	QString pluginVisualName;
+	bool pluginEnable;
 };
 
 Q_DECLARE_INTERFACE(PluginInterface,"org.toms.openjabnab.PluginInterface/1.0")

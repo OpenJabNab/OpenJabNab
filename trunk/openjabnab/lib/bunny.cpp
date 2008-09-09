@@ -87,7 +87,7 @@ void Bunny::SendPacket(Packet const& p)
 		xmppHandler->WritePacketToBunny(p);
 }
 
-QVariant Bunny::GetGlobalSetting(QString const& key, QVariant const& defaultValue)
+QVariant Bunny::GetGlobalSetting(QString const& key, QVariant const& defaultValue) const
 {
 	if (GlobalSettings.contains(key))
 		return GlobalSettings.value(key);
@@ -100,7 +100,7 @@ void Bunny::SetGlobalSetting(QString const& key, QVariant const& value)
 	GlobalSettings.insert(key, value);
 }
 
-QVariant Bunny::GetPluginSetting(QString const& pluginName, QString const& key, QVariant const& defaultValue)
+QVariant Bunny::GetPluginSetting(QString const& pluginName, QString const& key, QVariant const& defaultValue) const
 {
 	if (PluginsSettings[pluginName].contains(key))
 		return PluginsSettings[pluginName].value(key);

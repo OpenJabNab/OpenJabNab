@@ -110,3 +110,14 @@ bool PluginManager::OnEarsMove(Bunny * b, int left, int right)
 	}
 	return false;
 }
+
+bool PluginManager::OnRFID(Bunny * b, QByteArray const& id)
+{
+	// Call OnClick for all plugins until one returns true
+	foreach(PluginInterface * plugin, listOfPlugins)
+	{
+		if(plugin->OnRFID(b, id))
+			return true;
+	}
+	return false;
+}

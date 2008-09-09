@@ -1,4 +1,6 @@
 #include "apimanager.h"
+#include "bunny.h"
+#include "bunnymanager.h"
 #include "httphandler.h"
 #include "httprequest.h"
 #include "openjabnab.h"
@@ -24,6 +26,30 @@ void HttpHandler::HandleBunnyHTTPRequest()
 		ApiManager::ApiAnswer * answer = apiManager->ProcessApiCall(dataIn.mid(9));
 		incomingHttpSocket->write(answer->GetData());
 		delete answer;
+	}
+	else if (dataIn.startsWith("/vl/rfid.jsp"))
+	{
+		HTTPRequest request(dataIn);
+		QString serialnumber;
+		QString tagId;
+
+		foreach(QString arg, request.GetArgs())
+		{
+			if (arg.startsWith("sn="))
+				serialnumber = arg.mid(3);
+			else if (arg.startsWith("t="))
+				tagId = arg.mid(2);
+		}
+
+		Bunny * b = BunnyManager::GetBunny(serialnumber.toAscii());
+		b->SetGlobalSetting("Last RFID Tag", tagId);
+		
+		if (!pluginManager->OnRFID(b, QByteArray::fromHex(tagId.toAscii())))
+		{
+			// Forward it to Violet's servers
+			request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
+			incomingHttpSocket->write(request.reply);
+		}
 	}
 	else
 	{
