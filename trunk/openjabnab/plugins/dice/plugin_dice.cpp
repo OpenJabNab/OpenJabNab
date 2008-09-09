@@ -5,6 +5,7 @@
 #include "messagepacket.h"
 #include "plugin_dice.h"
 #include "time.h"
+#include "stdlib.h"
 
 Q_EXPORT_PLUGIN2(plugin_dice, PluginDice)
 
