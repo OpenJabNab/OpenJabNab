@@ -23,6 +23,7 @@ public:
 	
 	bool OnClick(Bunny *, PluginInterface::ClickType);
 	bool OnEarsMove(Bunny *, int, int);
+	bool OnRFID(Bunny *, QByteArray const&);
 	
 	QVector<PluginInterface *> const& GetListOfPlugins() { return listOfPlugins; }
 	PluginInterface * GetPluginByName(QString name) { return listOfPluginsByName.value(name); }

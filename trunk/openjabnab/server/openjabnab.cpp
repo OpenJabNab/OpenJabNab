@@ -37,6 +37,7 @@ OpenJabNab::~OpenJabNab()
 {
 	Log::Info("OpenJabNab closing...");
 	delete pluginManager;
+	delete apiManager;
 	BunnyManager::Close();
 }
 

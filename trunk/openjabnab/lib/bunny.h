@@ -23,9 +23,9 @@ public:
 	void SetXmppHandler (XmppHandler *);
 	void RemoveXmppHandler (XmppHandler *);
 	void SendPacket(Packet const&);
-	QVariant GetGlobalSetting(QString const&, QVariant const& defaultValue = QVariant());
+	QVariant GetGlobalSetting(QString const&, QVariant const& defaultValue = QVariant()) const;
 	void SetGlobalSetting(QString const&, QVariant const&);
-	QVariant GetPluginSetting(QString const&, QString const&, QVariant const& defaultValue = QVariant());
+	QVariant GetPluginSetting(QString const&, QString const&, QVariant const& defaultValue = QVariant()) const;
 	void SetPluginSetting(QString const&, QString const&, QVariant const&);
 
 private slots:
