@@ -25,12 +25,11 @@ void Cron::OnTimer()
 			it->next_run += it->interval;
 			if(it->callback)
 			{
-				QMetaObject::invokeMethod(it->plugin, it->callback, Q_ARG(QVariant,it->data));
+				QMetaObject::invokeMethod(it->plugin->asQObject(), it->callback, Q_ARG(QVariant,it->data));
 			}
 			else
 			{
-				PluginInterface * p = (PluginInterface*)it->plugin->qt_metacast("PluginInterface");
-				p->OnCron(it->data);
+				it->plugin->OnCron(it->data);
 			}
 		}
 	}
@@ -40,7 +39,7 @@ void Cron::OnTimer()
 	QTimer::singleShot(1000 * (60 - (now%60)), this, SLOT(OnTimer()));
 }
 
-unsigned int Cron::Register(QObject * o, unsigned int interval, unsigned int offsetH, unsigned int offsetM, QVariant data, const char * callback)
+unsigned int Cron::Register(PluginInterface * p, unsigned int interval, unsigned int offsetH, unsigned int offsetM, QVariant data, const char * callback)
 {
 	if(interval > 24*60)
 	{
@@ -52,15 +51,9 @@ unsigned int Cron::Register(QObject * o, unsigned int interval, unsigned int off
 		Log::Error("Cron : Interval should be >= 1 minute");
 		return 0;
 	}
-	if(!o)
-	{
-		Log::Error("Cron : pointer is null !");
-		return 0;
-	}
-	PluginInterface * p = (PluginInterface*)o->qt_metacast("PluginInterface");
 	if(!p)
 	{
-		Log::Error("Cron : pointer is not a plugin interface !");
+		Log::Error("Cron : pointer is null !");
 		return 0;
 	}
 	
@@ -72,7 +65,7 @@ unsigned int Cron::Register(QObject * o, unsigned int interval, unsigned int off
 	CronElement e;
 	e.interval = interval * 60;
 	e.callback = callback;
-	e.plugin = o;
+	e.plugin = p;
 	e.data = data;
 	e.id = id;
 
@@ -91,7 +84,7 @@ unsigned int Cron::Register(QObject * o, unsigned int interval, unsigned int off
 	return id;
 }
 
-void Cron::Unregister(QObject * p, unsigned int id)
+void Cron::Unregister(PluginInterface * p, unsigned int id)
 {
 	Cron & theCron = Instance();
 	QMutableListIterator<CronElement> i(theCron.CronElements);
@@ -103,7 +96,7 @@ void Cron::Unregister(QObject * p, unsigned int id)
 	}
 }
 
-void Cron::UnregisterAll(QObject * p)
+void Cron::UnregisterAll(PluginInterface * p)
 {
 	Cron & theCron = Instance();
 	QMutableListIterator<CronElement> i(theCron.CronElements);
@@ -115,7 +108,7 @@ void Cron::UnregisterAll(QObject * p)
 	}
 }
 
-QList<CronElement> Cron::GetByData(QObject * p, QVariant v)
+QList<CronElement> Cron::GetByData(PluginInterface * p, QVariant v)
 {
 	QList<CronElement> list;
 	Cron & theCron = Instance();
