@@ -72,7 +72,15 @@ ApiManager::ApiAnswer * ApiManager::ProcessPluginApiCall(QByteArray const& reque
 	if(!plugin)
 		return new ApiManager::ApiError("Unknown Plugin : " + pluginName.toUtf8());
 
-	return new ApiManager::ApiError("Unknown Plugin Api Call : " + functionName.toUtf8());
+	if(functionName == "enable" || functionName == "disable")
+	{
+		plugin->SetEnable(functionName == "enable" ? true : false);
+		return new ApiManager::ApiString(plugin->GetName().toUtf8() + " is now "+ ( functionName == "enable" ? "enabled" : "disabled") +".");
+	}
+	else
+	{
+		return new ApiManager::ApiError("Unknown Plugin Api Call : " + functionName.toUtf8());
+	}
 }
 
 ApiManager::ApiAnswer * ApiManager::ProcessBunnyApiCall(QByteArray const& request)
