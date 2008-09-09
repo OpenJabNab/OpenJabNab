@@ -9,7 +9,7 @@
 class PluginInterface;
 
 typedef struct {
-	QObject * plugin;
+	PluginInterface * plugin;
 	QVariant data;
 	const char * callback;
 	unsigned int id;
@@ -22,10 +22,10 @@ class OJN_EXPORT Cron : public QObject
 	Q_OBJECT
 	
 public:
-	static unsigned int Register(QObject *, unsigned int interval, unsigned int offsetH, unsigned int offsetM, QVariant data = QVariant(), const char * callback = 0);
-	static void Unregister(QObject *, unsigned int id);
-	static void UnregisterAll(QObject *);
-	static QList<CronElement> GetByData(QObject *, QVariant);
+	static unsigned int Register(PluginInterface *, unsigned int interval, unsigned int offsetH, unsigned int offsetM, QVariant data = QVariant(), const char * callback = 0);
+	static void Unregister(PluginInterface *, unsigned int id);
+	static void UnregisterAll(PluginInterface *);
+	static QList<CronElement> GetByData(PluginInterface *, QVariant);
 
 private slots:
 	void OnTimer();
