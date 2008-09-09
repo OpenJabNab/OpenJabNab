@@ -10,6 +10,7 @@ Cron::Cron() {
 	// Conmpute next slot
 	int now = QDateTime::currentDateTime().toTime_t();
 	QTimer::singleShot(1000 * (60 - (now%60)), this, SLOT(OnTimer()));
+	lastGivenID = 0;
 }
 
 void Cron::OnTimer()
@@ -17,7 +18,7 @@ void Cron::OnTimer()
 	Log::Info(QString("Cron Timer ") + QDateTime::currentDateTime().toString());
 	unsigned int now = QDateTime::currentDateTime().toTime_t();
 	
-	for(QVector<CronElement>::iterator it = CronElements.begin(); it != CronElements.end(); it++)
+	for(QList<CronElement>::iterator it = CronElements.begin(); it != CronElements.end(); it++)
 	{
 		if(it->next_run <= now)
 		{
@@ -39,36 +40,41 @@ void Cron::OnTimer()
 	QTimer::singleShot(1000 * (60 - (now%60)), this, SLOT(OnTimer()));
 }
 
-bool Cron::Register(QObject * o, unsigned int interval, unsigned int offsetH, unsigned int offsetM, QVariant data, const char * callback)
+unsigned int Cron::Register(QObject * o, unsigned int interval, unsigned int offsetH, unsigned int offsetM, QVariant data, const char * callback)
 {
 	if(interval > 24*60)
 	{
 		Log::Error("Cron : Interval should be <= 1 day");
-		return false;
+		return 0;
 	}
 	if(!interval)
 	{
 		Log::Error("Cron : Interval should be >= 1 minute");
-		return false;
+		return 0;
 	}
 	if(!o)
 	{
 		Log::Error("Cron : pointer is null !");
-		return false;
+		return 0;
 	}
 	PluginInterface * p = (PluginInterface*)o->qt_metacast("PluginInterface");
 	if(!p)
 	{
 		Log::Error("Cron : pointer is not a plugin interface !");
-		return false;
+		return 0;
 	}
-
 	
+	Cron & theCron = Instance();
+	unsigned id = ++theCron.lastGivenID;
+	if(!id)
+		Log::Error("Warning Cron::Register : lastGivenID overlapped !");
+
 	CronElement e;
 	e.interval = interval * 60;
 	e.callback = callback;
 	e.plugin = o;
 	e.data = data;
+	e.id = id;
 
 	// Compute next run
 	QDateTime now = QDateTime::currentDateTime();
@@ -79,20 +85,20 @@ bool Cron::Register(QObject * o, unsigned int interval, unsigned int offsetH, un
 		time = time.addSecs(interval*60);
 	
 	e.next_run = time.toTime_t();
-	Instance().CronElements.append(e);
+	theCron.CronElements.append(e);
 
 	Log::Info(QString("Cron Register : %1 - ").arg(p->GetVisualName()) + time.toString());
-	return true;
+	return id;
 }
 
-void Cron::Unregister(QObject * p, QVariant data)
+void Cron::Unregister(QObject * p, unsigned int id)
 {
 	Cron & theCron = Instance();
-	QMutableVectorIterator<CronElement> i(theCron.CronElements);
+	QMutableListIterator<CronElement> i(theCron.CronElements);
 	while(i.hasNext())
 	{
 		CronElement const& e = i.next();
-		if(e.plugin == p && e.data == data)
+		if(e.plugin == p && e.id == id)
 			i.remove();
 	}
 }
@@ -100,13 +106,27 @@ void Cron::Unregister(QObject * p, QVariant data)
 void Cron::UnregisterAll(QObject * p)
 {
 	Cron & theCron = Instance();
-	QMutableVectorIterator<CronElement> i(theCron.CronElements);
+	QMutableListIterator<CronElement> i(theCron.CronElements);
 	while(i.hasNext())
 	{
 		CronElement const& e = i.next();
 		if(e.plugin == p)
 			i.remove();
 	}
+}
+
+QList<CronElement> Cron::GetByData(QObject * p, QVariant v)
+{
+	QList<CronElement> list;
+	Cron & theCron = Instance();
+	QListIterator<CronElement> i(theCron.CronElements);
+	while(i.hasNext())
+	{
+		CronElement const& e = i.next();
+		if(e.plugin == p && e.data == v)
+			list.append(e);
+	}
+	return list;
 }
 
 Cron& Cron::Instance() {
