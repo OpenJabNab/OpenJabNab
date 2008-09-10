@@ -1,10 +1,9 @@
 #ifndef _PLUGINTEST_H_
 #define _PLUGINTEST_H_
 
-#include <QObject>
 #include "plugininterface.h"
 	
-class PluginTest : public QObject, public PluginInterface
+class PluginTest : public PluginInterface
 {
 	Q_OBJECT
 	Q_INTERFACES(PluginInterface)

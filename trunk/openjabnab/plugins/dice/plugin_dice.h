@@ -1,11 +1,10 @@
 #ifndef _PLUGINDICE_H_
 #define _PLUGINDICE_H_
 
-#include <QObject>
 #include <QTextStream>
 #include "plugininterface.h"
 	
-class PluginDice : public QObject, public PluginInterface
+class PluginDice : public PluginInterface
 {
 	Q_OBJECT
 	Q_INTERFACES(PluginInterface)
