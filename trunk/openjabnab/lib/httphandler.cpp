@@ -7,11 +7,13 @@
 #include "log.h"
 #include "settings.h"
 
-HttpHandler::HttpHandler(QTcpSocket * s, PluginManager * p, ApiManager * a)
+HttpHandler::HttpHandler(QTcpSocket * s, PluginManager * p, ApiManager * a, bool api, bool violet)
 {
 	incomingHttpSocket = s;
 	pluginManager = p;
 	apiManager = a;
+	httpApi = api;
+	httpViolet = violet;
 	connect(s, SIGNAL(readyRead()), this, SLOT(HandleBunnyHTTPRequest()));
 }
 
@@ -23,58 +25,70 @@ void HttpHandler::HandleBunnyHTTPRequest()
 	
 	if (dataIn.startsWith("/ojn_api/"))
 	{
-		ApiManager::ApiAnswer * answer = apiManager->ProcessApiCall(dataIn.mid(9));
-		incomingHttpSocket->write(answer->GetData());
-		delete answer;
-	}
-	else if (dataIn.startsWith("/vl/rfid.jsp"))
-	{
-		HTTPRequest request(dataIn);
-		QString serialnumber;
-		QString tagId;
-
-		foreach(QString arg, request.GetArgs())
+		if(httpApi)
 		{
-			if (arg.startsWith("sn="))
-				serialnumber = arg.mid(3);
-			else if (arg.startsWith("t="))
-				tagId = arg.mid(2);
+			ApiManager::ApiAnswer * answer = apiManager->ProcessApiCall(dataIn.mid(9));
+			incomingHttpSocket->write(answer->GetData());
+			delete answer;
 		}
-
-		Bunny * b = BunnyManager::GetBunny(serialnumber.toAscii());
-		b->SetGlobalSetting("Last RFID Tag", tagId);
-		
-		if (!pluginManager->OnRFID(b, QByteArray::fromHex(tagId.toAscii())))
+		else
+			incomingHttpSocket->write("Api is disabled");
+	}
+	else if(httpViolet)
+	{
+		if (dataIn.startsWith("/vl/rfid.jsp"))
 		{
-			// Forward it to Violet's servers
-			request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
+			HTTPRequest request(dataIn);
+			QString serialnumber;
+			QString tagId;
+
+			foreach(QString arg, request.GetArgs())
+			{
+				if (arg.startsWith("sn="))
+					serialnumber = arg.mid(3);
+				else if (arg.startsWith("t="))
+					tagId = arg.mid(2);
+			}
+
+			Bunny * b = BunnyManager::GetBunny(serialnumber.toAscii());
+			b->SetGlobalSetting("Last RFID Tag", tagId);
+		
+			if (!pluginManager->OnRFID(b, QByteArray::fromHex(tagId.toAscii())))
+			{
+				// Forward it to Violet's servers
+				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
+				incomingHttpSocket->write(request.reply);
+			}
+		}
+		else
+		{
+			HTTPRequest request(dataIn);
+			pluginManager->HttpRequestBefore(request);
+			// If none can answer, try to forward it directly to Violet's servers
+			if (!pluginManager->HttpRequestHandle(request))
+			{
+				if (dataIn.startsWith("/vl/sendMailXMPP.jsp"))
+				{
+					Log::Warning("Problem with the bunny, he's calling sendMailXMPP.jsp !");
+					request.reply = "Not Allowed !";
+				}
+				else if (dataIn.startsWith("/vl/"))
+					request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
+				else if (dataIn.startsWith("/broad/"))
+					request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BroadServer"));
+				else
+				{
+					Log::Error(QString("Unable to handle HTTP Request : ") + dataIn);
+					request.reply = "404 Not Found\n";
+				}
+			}
+			pluginManager->HttpRequestAfter(request);
 			incomingHttpSocket->write(request.reply);
 		}
 	}
 	else
 	{
-		HTTPRequest request(dataIn);
-		pluginManager->HttpRequestBefore(request);
-		// If none can answer, try to forward it directly to Violet's servers
-		if (!pluginManager->HttpRequestHandle(request))
-		{
-			if (dataIn.startsWith("/vl/sendMailXMPP.jsp"))
-			{
-				Log::Warning("Problem with the bunny, he's calling sendMailXMPP.jsp !");
-				request.reply = "Not Allowed !";
-			}
-			else if (dataIn.startsWith("/vl/"))
-				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
-			else if (dataIn.startsWith("/broad/"))
-				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BroadServer"));
-			else
-			{
-				Log::Error(QString("Unable to handle HTTP Request : ") + dataIn);
-				request.reply = "404 Not Found\n";
-			}
-		}
-		pluginManager->HttpRequestAfter(request);
-		incomingHttpSocket->write(request.reply);
+		incomingHttpSocket->write("Bunny's message parsing is disabled");
 	}
 	incomingHttpSocket->close();
 	delete this;

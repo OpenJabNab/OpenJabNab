@@ -15,8 +15,8 @@ public:
 	~OpenJabNab();
 
 private slots:
-    void NewHTTPConnection();
-    void NewXMPPConnection();
+	void NewHTTPConnection();
+	void NewXMPPConnection();
 	void OnQuit();
 
 private:
@@ -24,6 +24,8 @@ private:
 	QTcpServer * xmppListener;
 	PluginManager * pluginManager;
 	ApiManager * apiManager;
+	bool httpApi;
+	bool httpViolet;
 };
 
 #endif

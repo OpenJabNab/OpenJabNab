@@ -12,7 +12,7 @@ class OJN_EXPORT HttpHandler : public QObject
 	Q_OBJECT
 	
 public:
-	HttpHandler(QTcpSocket *, PluginManager *, ApiManager *);
+	HttpHandler(QTcpSocket *, PluginManager *, ApiManager *, bool, bool);
 	virtual ~HttpHandler();
 
 private slots:
@@ -22,6 +22,8 @@ private:
 	QTcpSocket * incomingHttpSocket;
 	PluginManager * pluginManager;
 	ApiManager * apiManager;
+	bool httpApi;
+	bool httpViolet;
 };
 
 #endif
