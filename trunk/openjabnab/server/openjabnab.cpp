@@ -18,14 +18,29 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 	// Create ApiManager
 	apiManager = new ApiManager(pluginManager);
 	
-	// Create Listeners
-	httpListener = new QTcpServer(this);
-	httpListener->listen(QHostAddress::LocalHost, GlobalSettings::GetInt("OpenJabNabServers/ListeningHttpPort", 8080));
-	connect(httpListener, SIGNAL(newConnection()), this, SLOT(NewHTTPConnection()));
+	if(GlobalSettings::Get("Config/HttpListener", true) == true)
+	{
+		// Create Listeners
+		httpListener = new QTcpServer(this);
+		httpListener->listen(QHostAddress::LocalHost, GlobalSettings::GetInt("OpenJabNabServers/ListeningHttpPort", 8080));
+		connect(httpListener, SIGNAL(newConnection()), this, SLOT(NewHTTPConnection()));
+	}
+	else
+		Log::Warning("Warning : HTTP Listener is disabled !");
 
-	xmppListener = new QTcpServer(this);
-	xmppListener->listen(QHostAddress::Any, GlobalSettings::GetInt("OpenJabNabServers/XmppPort", 5222));
-	connect(xmppListener, SIGNAL(newConnection()), this, SLOT(NewXMPPConnection()));
+	if(GlobalSettings::Get("Config/XmppListener", true) == true)
+	{
+		xmppListener = new QTcpServer(this);
+		xmppListener->listen(QHostAddress::Any, GlobalSettings::GetInt("OpenJabNabServers/XmppPort", 5222));
+		connect(xmppListener, SIGNAL(newConnection()), this, SLOT(NewXMPPConnection()));
+	}
+	else
+		Log::Warning("Warning : XMPP Listener is disabled !");
+
+	httpApi = GlobalSettings::Get("Config/HttpApi", true).toBool();
+	httpViolet = GlobalSettings::Get("Config/HttpViolet", true).toBool();
+	Log::Info(QString("Parsing of HTTP Api is ").append((httpApi == true)?"enabled":"disabled"));
+	Log::Info(QString("Parsing of HTTP Bunny messages is ").append((httpViolet == true)?"enabled":"disabled"));
 }
 
 void OpenJabNab::OnQuit()
@@ -43,7 +58,7 @@ OpenJabNab::~OpenJabNab()
 
 void OpenJabNab::NewHTTPConnection()
 {
-	new HttpHandler(httpListener->nextPendingConnection(), pluginManager, apiManager);
+	new HttpHandler(httpListener->nextPendingConnection(), pluginManager, apiManager, httpApi, httpViolet);
 }
 
 void OpenJabNab::NewXMPPConnection()

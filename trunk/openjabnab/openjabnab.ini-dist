@@ -1,3 +1,9 @@
+[Config]
+httpListener=true
+httpApi=true
+httpViolet=true
+xmppListener=true
+
 [DefaultVioletServers]
 BootServer=r.nabaztag.com
 BroadServer=193.149.120.33
