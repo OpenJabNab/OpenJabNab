@@ -11,7 +11,7 @@
 
 class HTTPRequest;
 class Packet;
-class PluginInterface
+class PluginInterface : public QObject
 {
 public:
 	enum ClickType { SingleClick = 0, DoubleClick};
@@ -57,12 +57,8 @@ public:
 	bool GetEnable(Bunny * b) const { return pluginEnable && (b->GetPluginSetting(pluginName, "pluginStatus/Enable", QVariant(true)).toBool()); }
 	void SetEnable(bool newStatus) { pluginEnable = newStatus; SetSettings("pluginStatus/Enable", QVariant(newStatus)); }
 
-	inline QObject * asQObject() { return ptrToQObject; }
-	inline void setQObject(QObject * o) { ptrToQObject = o; }
-
 private:
 	QSettings * settings;
-	QObject * ptrToQObject;
 	QString pluginName;
 	QString pluginVisualName;
 	bool pluginEnable;

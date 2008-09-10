@@ -1,12 +1,11 @@
 #ifndef _PLUGINDUMP_H_
 #define _PLUGINDUMP_H_
 
-#include <QObject>
 #include <QTextStream>
 #include "httprequest.h"
 #include "plugininterface.h"
 	
-class PluginDump : public QObject, public PluginInterface
+class PluginDump : public PluginInterface
 {
 	Q_OBJECT
 	Q_INTERFACES(PluginInterface)

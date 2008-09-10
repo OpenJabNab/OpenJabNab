@@ -25,7 +25,7 @@ void Cron::OnTimer()
 			it->next_run += it->interval;
 			if(it->callback)
 			{
-				QMetaObject::invokeMethod(it->plugin->asQObject(), it->callback, Q_ARG(QVariant,it->data));
+				QMetaObject::invokeMethod(it->plugin, it->callback, Q_ARG(QVariant,it->data));
 			}
 			else
 			{

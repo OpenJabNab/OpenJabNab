@@ -27,7 +27,6 @@ PluginManager::PluginManager()
 		PluginInterface * plugin = qobject_cast<PluginInterface *>(p);
 		if (plugin)
 		{
-			plugin->setQObject(p);
 			listOfPlugins.append(plugin);
 			listOfPluginsByName.insert(plugin->GetName(), plugin);
 			status.append(plugin->GetName() + " OK, Enable : " + ( plugin->GetEnable() ? "Yes" : "No" ) );
