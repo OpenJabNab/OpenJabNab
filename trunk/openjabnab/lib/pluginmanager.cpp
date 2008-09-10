@@ -30,7 +30,7 @@ PluginManager::PluginManager()
 			plugin->setQObject(p);
 			listOfPlugins.append(plugin);
 			listOfPluginsByName.insert(plugin->GetName(), plugin);
-			status.append(plugin->GetName() + " OK");
+			status.append(plugin->GetName() + " OK, Enable : " + ( plugin->GetEnable() ? "Yes" : "No" ) );
 		}
 		else
 			status.append("Failed, ").append(loader.errorString()); 
@@ -48,7 +48,8 @@ void PluginManager::HttpRequestBefore(HTTPRequest const& request)
 {
 	// Call RequestBefore for all plugins
 	foreach(PluginInterface * plugin, listOfPlugins)
-		plugin->HttpRequestBefore(request);
+		if(plugin->GetEnable())
+			plugin->HttpRequestBefore(request);
 }
 
 bool PluginManager::HttpRequestHandle(HTTPRequest & request)
@@ -66,19 +67,22 @@ void PluginManager::HttpRequestAfter(HTTPRequest const& request)
 {
 	// Call RequestAfter for all plugins
 	foreach(PluginInterface * plugin, listOfPlugins)
-		plugin->HttpRequestAfter(request);
+		if(plugin->GetEnable())
+			plugin->HttpRequestAfter(request);
 }
 	
 void PluginManager::XmppBunnyMessage(QByteArray const& data)
 {
 	foreach(PluginInterface * plugin, listOfPlugins)
-		plugin->XmppBunnyMessage(data);
+		if(plugin->GetEnable())
+			plugin->XmppBunnyMessage(data);
 }
 
 void PluginManager::XmppVioletMessage(QByteArray const& data)
 {
 	foreach(PluginInterface * plugin, listOfPlugins)
-		plugin->XmppVioletMessage(data);
+		if(plugin->GetEnable())
+			plugin->XmppVioletMessage(data);
 }
 
 // Send the packet to all plugins, if one returns true, the message will be dropped !
@@ -86,7 +90,8 @@ bool PluginManager::XmppVioletPacketMessage(Packet const& p)
 {
 	bool drop = false;
 	foreach(PluginInterface * plugin, listOfPlugins)
-		drop |= plugin->XmppVioletPacketMessage(p);
+		if(plugin->GetEnable())
+			drop |= plugin->XmppVioletPacketMessage(p);
 	return drop;
 }
 
@@ -95,8 +100,11 @@ bool PluginManager::OnClick(Bunny * b, PluginInterface::ClickType type)
 	// Call OnClick for all plugins until one returns true
 	foreach(PluginInterface * plugin, listOfPlugins)
 	{
-		if(plugin->OnClick(b, type))
-			return true;
+		if(plugin->GetEnable(b))
+		{
+			if(plugin->OnClick(b, type))
+				return true;
+		}
 	}
 	return false;
 }
@@ -106,8 +114,11 @@ bool PluginManager::OnEarsMove(Bunny * b, int left, int right)
 	// Call OnClick for all plugins until one returns true
 	foreach(PluginInterface * plugin, listOfPlugins)
 	{
-		if(plugin->OnEarsMove(b, left, right))
-			return true;
+		if(plugin->GetEnable(b))
+		{
+			if(plugin->OnEarsMove(b, left, right))
+				return true;
+		}
 	}
 	return false;
 }
@@ -117,8 +128,11 @@ bool PluginManager::OnRFID(Bunny * b, QByteArray const& id)
 	// Call OnClick for all plugins until one returns true
 	foreach(PluginInterface * plugin, listOfPlugins)
 	{
-		if(plugin->OnRFID(b, id))
-			return true;
+		if(plugin->GetEnable(b))
+		{
+			if(plugin->OnRFID(b, id))
+				return true;
+		}
 	}
 	return false;
 }
