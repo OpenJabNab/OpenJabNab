@@ -8,7 +8,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_locate, PluginLocate)
 
-PluginLocate::PluginLocate():PluginInterface("locate") {}
+PluginLocate::PluginLocate():PluginInterface("locate", "Locate", RequiredPlugin) {}
 
 bool PluginLocate::HttpRequestHandle(HTTPRequest & request)
 {
