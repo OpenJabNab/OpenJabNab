@@ -135,3 +135,8 @@ bool PluginManager::OnRFID(Bunny * b, QByteArray const& id)
 	}
 	return false;
 }
+
+PluginManager * PluginManager::Instance() {
+  static PluginManager p;
+  return &p;
+}

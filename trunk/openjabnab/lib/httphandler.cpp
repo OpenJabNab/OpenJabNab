@@ -8,10 +8,10 @@
 #include "log.h"
 #include "settings.h"
 
-HttpHandler::HttpHandler(QTcpSocket * s, PluginManager * p, ApiManager * a, bool api, bool violet)
+HttpHandler::HttpHandler(QTcpSocket * s, ApiManager * a, bool api, bool violet)
 {
 	incomingHttpSocket = s;
-	pluginManager = p;
+	pluginManager = PluginManager::Instance();
 	apiManager = a;
 	httpApi = api;
 	httpViolet = violet;
