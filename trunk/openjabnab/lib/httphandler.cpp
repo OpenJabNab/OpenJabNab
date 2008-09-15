@@ -1,3 +1,4 @@
+#include <QByteArray>
 #include "apimanager.h"
 #include "bunny.h"
 #include "bunnymanager.h"
@@ -33,12 +34,12 @@ void HttpHandler::ReceiveData()
 void HttpHandler::HandleBunnyHTTPRequest()
 {
 	HTTPRequest request(receivedData);
-	
-	if (request.GetURI().startsWith("/ojn_api/"))
+	QByteArray uri = request.GetURI();
+	if (uri.startsWith("/ojn_api/"))
 	{
 		if(httpApi)
 		{
-			ApiManager::ApiAnswer * answer = apiManager->ProcessApiCall(request.GetURI().mid(9));
+			ApiManager::ApiAnswer * answer = apiManager->ProcessApiCall(uri.mid(9), request);
 			incomingHttpSocket->write(answer->GetData());
 			delete answer;
 		}
@@ -47,7 +48,7 @@ void HttpHandler::HandleBunnyHTTPRequest()
 	}
 	else if(httpViolet)
 	{
-		if (request.GetURI().startsWith("/vl/rfid.jsp"))
+		if (uri.startsWith("/vl/rfid.jsp"))
 		{
 			QString serialnumber = request.GetArg("sn");
 			QString tagId = request.GetArg("t");
@@ -68,19 +69,19 @@ void HttpHandler::HandleBunnyHTTPRequest()
 			// If none can answer, try to forward it directly to Violet's servers
 			if (!pluginManager->HttpRequestHandle(request))
 			{
-				if (request.GetURI().startsWith("/vl/sendMailXMPP.jsp"))
+				if (uri.startsWith("/vl/sendMailXMPP.jsp"))
 				{
 					Log::Warning("Problem with the bunny, he's calling sendMailXMPP.jsp !");
 					request.reply = "Not Allowed !";
 				}
-				else if (request.GetURI().startsWith("/vl/"))
+				else if (uri.startsWith("/vl/"))
 					request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
-				else if (request.GetURI().startsWith("/broad/"))
+				else if (uri.startsWith("/broad/"))
 					request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BroadServer"));
 				else
 				{
-					Log::Error(QString("Unable to handle HTTP Request : ") + request.GetURI());
-					request.reply = "404 Not Found\n";
+					Log::Error(QString("Unable to handle HTTP Request : ") + request.toString());
+					request.reply = "404 Not Found";
 				}
 			}
 			pluginManager->HttpRequestAfter(request);
