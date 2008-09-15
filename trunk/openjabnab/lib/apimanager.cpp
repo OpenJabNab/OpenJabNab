@@ -29,7 +29,7 @@ ApiManager::ApiAnswer * ApiManager::ProcessApiCall(QByteArray const& request, HT
 		return ProcessPluginApiCall(request.mid(7), hRequest);
 
 	if (request.startsWith("bunny/"))
-		return ProcessPluginApiCall(request.mid(6), hRequest);
+		return ProcessBunnyApiCall(request.mid(6), hRequest);
 	
 	return new ApiManager::ApiError("Unknown Api Call : " + hRequest.toString());
 }
@@ -54,6 +54,36 @@ ApiManager::ApiAnswer * ApiManager::ProcessGlobalApiCall(QByteArray const& reque
 		return new ApiManager::ApiList(listOfPlugins);
 	}
 
+	if (request.startsWith("GetListOfBunnyPlugins"))
+	{
+		QList<QByteArray> listOfPlugins;
+		foreach (PluginInterface * p, pluginManager->GetListOfPlugins())
+			if(p->GetType() == PluginInterface::BunnyPlugin)
+				listOfPlugins.append(p->GetName().toAscii());
+
+		return new ApiManager::ApiList(listOfPlugins);
+	}
+
+	if (request.startsWith("GetListOfSystemPlugins"))
+	{
+		QList<QByteArray> listOfPlugins;
+		foreach (PluginInterface * p, pluginManager->GetListOfPlugins())
+			if(p->GetType() == PluginInterface::SystemPlugin)
+				listOfPlugins.append(p->GetName().toAscii());
+
+		return new ApiManager::ApiList(listOfPlugins);
+	}
+
+	if (request.startsWith("GetListOfRequiredPlugins"))
+	{
+		QList<QByteArray> listOfPlugins;
+		foreach (PluginInterface * p, pluginManager->GetListOfPlugins())
+			if(p->GetType() == PluginInterface::RequiredPlugin)
+				listOfPlugins.append(p->GetName().toAscii());
+
+		return new ApiManager::ApiList(listOfPlugins);
+	}
+
 	return new ApiManager::ApiError("Unknown Global Api Call : " + hRequest.toString());
 }
 
@@ -71,10 +101,10 @@ ApiManager::ApiAnswer * ApiManager::ProcessPluginApiCall(QByteArray const& reque
 	if(!plugin)
 		return new ApiManager::ApiError("Unknown Plugin : " + pluginName.toUtf8() + "<br />" + "Request was : " + hRequest.toString());
 
-	if(functionName == "enable" || functionName == "disable")
+	if(functionName == "ActivatePlugin" || functionName == "DeactivatePlugin")
 	{
-		plugin->SetEnable(functionName == "enable" ? true : false);
-		return new ApiManager::ApiString(plugin->GetName().toUtf8() + " is now "+ ( functionName == "enable" ? "enabled" : "disabled") +".");
+		plugin->SetEnable(functionName == "ActivatePlugin" ? true : false);
+		return new ApiManager::ApiString(plugin->GetName().toUtf8() + " is now "+ ( functionName == "ActivatePlugin" ? "enabled" : "disabled") +".");
 	}
 	else
 	{
@@ -82,9 +112,41 @@ ApiManager::ApiAnswer * ApiManager::ProcessPluginApiCall(QByteArray const& reque
 	}
 }
 
-ApiManager::ApiAnswer * ApiManager::ProcessBunnyApiCall(QByteArray const& /*request*/, HTTPRequest const& hRequest)
+ApiManager::ApiAnswer * ApiManager::ProcessBunnyApiCall(QByteArray const& request, HTTPRequest const& hRequest)
 {
-	return new ApiManager::ApiError("Unknown Bunny Api Call : " + hRequest.toString());
+	QStringList list = QString(request).split('/', QString::SkipEmptyParts);
+	
+	if (list.size() != 2)
+		return new ApiManager::ApiError("Malformed Bunny Api Call : " + hRequest.toString());
+		
+	QString const& bunnyID = list.at(0);
+	QString const& functionName = list.at(1);
+	
+	Bunny * b = BunnyManager::GetBunny(bunnyID.toAscii());
+	if(functionName == "RegisterPlugin")
+	{
+		if(hRequest.HasArg("name"))
+		{
+			PluginInterface * plugin = pluginManager->GetPluginByName(hRequest.GetArg("name"));
+			plugin->RegisterBunny(b);
+			return new ApiManager::ApiString("Bunny "+ b->GetID() +" is registering plugin " + plugin->GetVisualName() + ".");
+		}
+		return new ApiManager::ApiError("Missing argument in Bunny Api Call 'RegisterPlugin' : " + hRequest.toString());
+	}
+	else if(functionName == "UnregisterPlugin")
+	{
+		if(hRequest.HasArg("name"))
+		{
+			PluginInterface * plugin = pluginManager->GetPluginByName(hRequest.GetArg("name"));
+			plugin->UnregisterBunny(b);
+			return new ApiManager::ApiString("Bunny "+ b->GetID() +" is unregistering plugin " + plugin->GetVisualName() + ".");
+		}
+		return new ApiManager::ApiError("Missing argument in Bunny Api Call 'UnregisterPlugin' : " + hRequest.toString());
+	}
+	else
+	{
+		return new ApiManager::ApiError("Unknown Bunny Api Call : " + hRequest.toString());
+	}
 }
 
 QByteArray ApiManager::ApiAnswer::SanitizeXML(QByteArray const& msg)

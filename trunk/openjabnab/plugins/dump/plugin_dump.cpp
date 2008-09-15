@@ -10,7 +10,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_dump, PluginDump)
 
-PluginDump::PluginDump():PluginInterface("dump")
+PluginDump::PluginDump():PluginInterface("dump", "Dump", SystemPlugin)
 {
 	// Open dump file
 	QFile * dumpFile = new QFile(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("dump.log"), this);
