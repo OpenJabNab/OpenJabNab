@@ -15,17 +15,9 @@ bool PluginBoot::HttpRequestHandle(HTTPRequest & request)
 	QString uri = request.GetURI();
 	if (uri.startsWith("/vl/bc.jsp"))
 	{
-		QStringList args = request.GetArgs();
-		QString version;
-		QString serialnumber;
+		QString version = request.GetArg("v");
+		QString serialnumber = request.GetArg("m").remove(':');
 		
-		foreach(QString arg, args)
-		{
-			if (arg.startsWith("v="))
-				version = arg.remove(0,2);
-			else if (arg.startsWith("m="))
-				serialnumber = arg.remove(0,2).remove(':');
-		}
 		Bunny * b = BunnyManager::GetBunny(serialnumber.toAscii());
 		b->SetGlobalSetting("Last BootRequest", QDateTime::currentDateTime());
 		

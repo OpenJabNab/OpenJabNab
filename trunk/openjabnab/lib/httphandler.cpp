@@ -14,20 +14,31 @@ HttpHandler::HttpHandler(QTcpSocket * s, PluginManager * p, ApiManager * a, bool
 	apiManager = a;
 	httpApi = api;
 	httpViolet = violet;
-	connect(s, SIGNAL(readyRead()), this, SLOT(HandleBunnyHTTPRequest()));
+	bytesToReceive = 0;
+	connect(s, SIGNAL(readyRead()), this, SLOT(ReceiveData()));
 }
 
 HttpHandler::~HttpHandler() {}
 
+void HttpHandler::ReceiveData()
+{
+	receivedData += incomingHttpSocket->readAll();
+	if(bytesToReceive == 0 && (receivedData.size() >= 4))
+		bytesToReceive = *(int *)receivedData.left(4).constData();
+
+	if(bytesToReceive != 0 && (receivedData.size() == bytesToReceive))
+		HandleBunnyHTTPRequest();
+}
+
 void HttpHandler::HandleBunnyHTTPRequest()
 {
-	QByteArray dataIn = incomingHttpSocket->readAll();
+	HTTPRequest request(receivedData);
 	
-	if (dataIn.startsWith("/ojn_api/"))
+	if (request.GetURI().startsWith("/ojn_api/"))
 	{
 		if(httpApi)
 		{
-			ApiManager::ApiAnswer * answer = apiManager->ProcessApiCall(dataIn.mid(9));
+			ApiManager::ApiAnswer * answer = apiManager->ProcessApiCall(request.GetURI().mid(9));
 			incomingHttpSocket->write(answer->GetData());
 			delete answer;
 		}
@@ -36,19 +47,10 @@ void HttpHandler::HandleBunnyHTTPRequest()
 	}
 	else if(httpViolet)
 	{
-		if (dataIn.startsWith("/vl/rfid.jsp"))
+		if (request.GetURI().startsWith("/vl/rfid.jsp"))
 		{
-			HTTPRequest request(dataIn);
-			QString serialnumber;
-			QString tagId;
-
-			foreach(QString arg, request.GetArgs())
-			{
-				if (arg.startsWith("sn="))
-					serialnumber = arg.mid(3);
-				else if (arg.startsWith("t="))
-					tagId = arg.mid(2);
-			}
+			QString serialnumber = request.GetArg("sn");
+			QString tagId = request.GetArg("t");
 
 			Bunny * b = BunnyManager::GetBunny(serialnumber.toAscii());
 			b->SetGlobalSetting("Last RFID Tag", tagId);
@@ -62,23 +64,22 @@ void HttpHandler::HandleBunnyHTTPRequest()
 		}
 		else
 		{
-			HTTPRequest request(dataIn);
 			pluginManager->HttpRequestBefore(request);
 			// If none can answer, try to forward it directly to Violet's servers
 			if (!pluginManager->HttpRequestHandle(request))
 			{
-				if (dataIn.startsWith("/vl/sendMailXMPP.jsp"))
+				if (request.GetURI().startsWith("/vl/sendMailXMPP.jsp"))
 				{
 					Log::Warning("Problem with the bunny, he's calling sendMailXMPP.jsp !");
 					request.reply = "Not Allowed !";
 				}
-				else if (dataIn.startsWith("/vl/"))
+				else if (request.GetURI().startsWith("/vl/"))
 					request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
-				else if (dataIn.startsWith("/broad/"))
+				else if (request.GetURI().startsWith("/broad/"))
 					request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BroadServer"));
 				else
 				{
-					Log::Error(QString("Unable to handle HTTP Request : ") + dataIn);
+					Log::Error(QString("Unable to handle HTTP Request : ") + request.GetURI());
 					request.reply = "404 Not Found\n";
 				}
 			}
@@ -88,7 +89,9 @@ void HttpHandler::HandleBunnyHTTPRequest()
 	}
 	else
 	{
-		incomingHttpSocket->write("Bunny's message parsing is disabled");
+		incomingHttpSocket->write("Bunny's message parsing is disabled <br />");
+		incomingHttpSocket->write("Request was : <br />");
+		incomingHttpSocket->write(request.toString().toAscii());
 	}
 	incomingHttpSocket->close();
 	delete this;
