@@ -36,7 +36,8 @@ HEADERS +=	httphandler.h \
 			bunnymanager.h \
 			bunny.h \
 			apimanager.h \
-			cron.h
+			cron.h \
+			soundmanager.h
 
 SOURCES +=	httphandler.cpp \
 			xmpphandler.cpp \
@@ -52,4 +53,5 @@ SOURCES +=	httphandler.cpp \
 			bunnymanager.cpp \
 			bunny.cpp \
 			apimanager.cpp \
-			cron.cpp
+			cron.cpp \
+			soundmanager.cpp

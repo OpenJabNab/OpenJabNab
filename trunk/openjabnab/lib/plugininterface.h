@@ -57,8 +57,10 @@ public:
 	bool GetEnable(Bunny * b) const { return pluginEnable && (b->GetPluginSetting(pluginName, "pluginStatus/Enable", QVariant(true)).toBool()); }
 	void SetEnable(bool newStatus) { pluginEnable = newStatus; SetSettings("pluginStatus/Enable", QVariant(newStatus)); }
 
-private:
+protected:
 	QSettings * settings;
+
+private:
 	QString pluginName;
 	QString pluginVisualName;
 	bool pluginEnable;
