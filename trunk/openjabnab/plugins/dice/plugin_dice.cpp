@@ -1,5 +1,3 @@
-#include <QDateTime>
-#include <time.h>
 #include <stdlib.h>
 #include "plugin_dice.h"
 #include "bunny.h"
@@ -37,7 +35,4 @@ bool PluginDice::OnClick(Bunny * b, PluginInterface::ClickType type)
 
 PluginDice::~PluginDice()
 {
-	QIODevice * d = diceStream.device();
-	if (d)
-		d->close();
 }

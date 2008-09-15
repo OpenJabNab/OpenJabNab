@@ -1,7 +1,6 @@
 #ifndef _PLUGINDICE_H_
 #define _PLUGINDICE_H_
 
-#include <QTextStream>
 #include "plugininterface.h"
 	
 class PluginDice : public PluginInterface
@@ -14,8 +13,6 @@ public:
 	virtual ~PluginDice();
 	bool OnClick(Bunny *, PluginInterface::ClickType);
 
-private:
-	QTextStream diceStream;
 };
 
 #endif
