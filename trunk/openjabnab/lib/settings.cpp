@@ -4,7 +4,6 @@
 #include <iostream>
 #include "log.h"
 #include "settings.h"
-#include "stdlib.h"
 
 GlobalSettings::GlobalSettings()
 {

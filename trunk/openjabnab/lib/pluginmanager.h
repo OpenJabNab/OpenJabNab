@@ -1,8 +1,8 @@
 #ifndef _PLUGINMANAGER_H_
 #define _PLUGINMANAGER_H_
 
-#include <QVector>
 #include <QMap>
+#include <QVector>
 #include "global.h"
 #include "plugininterface.h"
 

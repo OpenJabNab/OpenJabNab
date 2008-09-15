@@ -3,8 +3,8 @@
 
 #include <QCoreApplication>
 #include <QTcpServer>
-#include "pluginmanager.h"
 #include "apimanager.h"
+#include "pluginmanager.h"
 
 class OpenJabNab : public QCoreApplication
 {

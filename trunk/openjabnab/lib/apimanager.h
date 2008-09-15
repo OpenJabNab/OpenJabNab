@@ -1,10 +1,10 @@
 #ifndef _APIMANAGER_H_
 #define _APIMANAGER_H_
 
-#include "global.h"
-#include "pluginmanager.h"
 #include <QByteArray>
 #include <QList>
+#include "global.h"
+#include "pluginmanager.h"
 
 class OJN_EXPORT ApiManager
 {

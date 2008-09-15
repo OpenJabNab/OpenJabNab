@@ -1,9 +1,9 @@
+#include "plugin_test.h"
 #include "ambientpacket.h"
 #include "bunny.h"
 #include "choregraphy.h"
 #include "httprequest.h"
 #include "messagepacket.h"
-#include "plugin_test.h"
 
 Q_EXPORT_PLUGIN2(plugin_test, PluginTest)
 

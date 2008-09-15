@@ -1,9 +1,9 @@
+#include <QDateTime>
+#include <QTime>
+#include <QTimer>
 #include "cron.h"
 #include "plugininterface.h"
 #include "log.h"
-#include <QTimer>
-#include <QTime>
-#include <QDateTime>
 
 Cron::Cron() {
 	Log::Info("Cron Started...");

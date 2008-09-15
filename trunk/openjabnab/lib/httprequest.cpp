@@ -1,9 +1,9 @@
-#include "httprequest.h"
-#include "log.h"
 #include <QHttp>
 #include <QHttpRequestHeader>
-#include <QUrl>
 #include <QStringList>
+#include <QUrl>
+#include "httprequest.h"
+#include "log.h"
 
 HTTPRequest::HTTPRequest(QByteArray const& data):type(INVALID)
 {
@@ -50,7 +50,6 @@ HTTPRequest::HTTPRequest(QByteArray const& data):type(INVALID)
 	
 		default:
 			Log::Error("HTTP Request : Invalid type");
-			printf("%d\n", t);
 			return;
 	}
 	// Parse URI

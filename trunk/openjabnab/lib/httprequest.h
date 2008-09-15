@@ -2,10 +2,10 @@
 #define _HTTPREQUEST_H_
 
 #include <QEventLoop>
+#include <QMap>
 #include <QObject>
 #include <QString>
 #include <QStringList>
-#include <QMap>
 #include "global.h"
 
 class OJN_EXPORT HTTPRequest : public QObject

@@ -1,5 +1,5 @@
-#include <QRegExp>
 #include <QDateTime>
+#include <QRegExp>
 #include "bunny.h"
 #include "bunnymanager.h"
 #include "log.h"
