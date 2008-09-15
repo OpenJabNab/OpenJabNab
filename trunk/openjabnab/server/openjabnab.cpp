@@ -2,11 +2,11 @@
 #include <QString>
 
 #include "openjabnab.h"
-#include "httphandler.h"
-#include "xmpphandler.h"
-#include "settings.h"
-#include "log.h"
 #include "bunnymanager.h"
+#include "httphandler.h"
+#include "log.h"
+#include "settings.h"
+#include "xmpphandler.h"
 
 OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 {

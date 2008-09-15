@@ -1,10 +1,10 @@
-#include <QStringList>
 #include <QDateTime>
+#include <QStringList>
 #include "plugin_locate.h"
-#include "settings.h"
-#include "log.h"
 #include "bunny.h"
 #include "bunnymanager.h"
+#include "log.h"
+#include "settings.h"
 
 Q_EXPORT_PLUGIN2(plugin_locate, PluginLocate)
 

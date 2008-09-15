@@ -1,12 +1,12 @@
+#include <QDataStream>
+#include <QFile>
 #include <QHttp>
+#include <QHttpRequestHeader>
 #include <QStringList>
 #include <QUrl>
-#include <QFile>
-#include <QHttpRequestHeader>
-#include <QDataStream>
 #include "log.h"
-#include "soundmanager.h"
 #include "settings.h"
+#include "soundmanager.h"
 
 bool SoundManager::createNewSound(QString text, QString voice, QString fileName)
 {

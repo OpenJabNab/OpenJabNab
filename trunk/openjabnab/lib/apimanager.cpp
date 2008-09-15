@@ -5,7 +5,6 @@
 #include "bunny.h"
 #include "bunnymanager.h"
 #include "plugininterface.h"
-#include "stdio.h"
 
 ApiManager::ApiManager(PluginManager * p):pluginManager(p)
 {

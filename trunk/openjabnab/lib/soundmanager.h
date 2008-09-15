@@ -1,8 +1,6 @@
 #ifndef _SOUNDMANAGER_H_
 #define _SOUNDMANAGER_H_
 
-#include <QMap>
-#include <QVector>
 #include <QEventLoop>
 #include <QObject>
 #include "global.h"

@@ -2,8 +2,8 @@
 #define _PLUGINDUMP_H_
 
 #include <QTextStream>
-#include "httprequest.h"
 #include "plugininterface.h"
+#include "httprequest.h"
 	
 class PluginDump : public PluginInterface
 {

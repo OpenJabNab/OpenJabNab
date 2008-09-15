@@ -1,10 +1,10 @@
 #ifndef _CRON_H_
 #define _CRON_H_
 
-#include "global.h"
+#include <QList>
 #include <QObject>
 #include <QVariant>
-#include <QList>
+#include "global.h"
 
 class PluginInterface;
 

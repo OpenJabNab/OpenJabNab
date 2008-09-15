@@ -1,6 +1,6 @@
 #include <iostream>
-#include "openjabnab.h"
 #include <signal.h>
+#include "openjabnab.h"
 
 OpenJabNab * o;
 

@@ -1,10 +1,10 @@
 #ifndef _XMPPHANDLER_H_
 #define _XMPPHANDLER_H_
 
+#include <QByteArray>
+#include <QList>
 #include <QObject>
 #include <QTcpSocket>
-#include <QList>
-#include <QByteArray>
 #include "global.h"
 #include "packet.h"
 
