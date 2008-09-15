@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QSettings>
 #include <iostream>
+#include <cstdlib>
 #include "log.h"
 #include "settings.h"
 
