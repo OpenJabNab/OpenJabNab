@@ -12,11 +12,8 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 {
 	connect(this, SIGNAL(aboutToQuit()), this, SLOT(OnQuit()));
 
-	// Create PluginManager
-	pluginManager = new PluginManager();
-	
 	// Create ApiManager
-	apiManager = new ApiManager(pluginManager);
+	apiManager = new ApiManager(PluginManager::Instance());
 	
 	if(GlobalSettings::Get("Config/HttpListener", true) == true)
 	{
@@ -51,17 +48,16 @@ void OpenJabNab::OnQuit()
 OpenJabNab::~OpenJabNab()
 {
 	Log::Info("OpenJabNab closing...");
-	delete pluginManager;
 	delete apiManager;
 	BunnyManager::Close();
 }
 
 void OpenJabNab::NewHTTPConnection()
 {
-	new HttpHandler(httpListener->nextPendingConnection(), pluginManager, apiManager, httpApi, httpViolet);
+	new HttpHandler(httpListener->nextPendingConnection(), apiManager, httpApi, httpViolet);
 }
 
 void OpenJabNab::NewXMPPConnection()
 {
-	new XmppHandler(xmppListener->nextPendingConnection(), pluginManager);
+	new XmppHandler(xmppListener->nextPendingConnection());
 }

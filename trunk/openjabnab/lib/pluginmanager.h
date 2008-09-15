@@ -10,7 +10,7 @@ class PluginInterface;
 class OJN_EXPORT PluginManager
 {
 public:
-	PluginManager();
+	static PluginManager * Instance();
 	virtual ~PluginManager();
 
 	void HttpRequestBefore(HTTPRequest const&);
@@ -29,6 +29,7 @@ public:
 	PluginInterface * GetPluginByName(QString name) { return listOfPluginsByName.value(name); }
 	
 private:
+	PluginManager();
 	QVector<PluginInterface *> listOfPlugins;
 	QMap<QString, PluginInterface *> listOfPluginsByName;
 

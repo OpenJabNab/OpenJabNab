@@ -22,7 +22,6 @@ private slots:
 private:
 	QTcpServer * httpListener;
 	QTcpServer * xmppListener;
-	PluginManager * pluginManager;
 	ApiManager * apiManager;
 	bool httpApi;
 	bool httpViolet;

@@ -9,10 +9,10 @@
 
 unsigned short XmppHandler::msgNb = 0;
 
-XmppHandler::XmppHandler(QTcpSocket * s, PluginManager * p)
+XmppHandler::XmppHandler(QTcpSocket * s)
 {
 	incomingXmppSocket = s;
-	pluginManager = p;
+	pluginManager = PluginManager::Instance();
 	bunny = 0;
 	
 	// Bunny -> OpenJabNab socket
