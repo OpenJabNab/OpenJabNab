@@ -50,6 +50,7 @@ bool SoundManager::createNewSound(QString text, QString voice, QString fileName)
 		return true;
 	}
 	Log::Error("Acapela demo did not return a sound file");
+	Log::Debug("Acapela answer : " + reponse);
 	return false;
 }
 
