@@ -15,16 +15,8 @@ bool PluginLocate::HttpRequestHandle(HTTPRequest & request)
 	QString uri = request.GetURI();
 	if (uri.startsWith("/vl/locate.jsp"))
 	{
-		QStringList args = request.GetArgs();
-		QString version;
-		QString serialnumber;
+		QString serialnumber = request.GetArg("sn").remove(':');
 		
-		foreach(QString arg, args)
-		{
-			if (arg.startsWith("sn="))
-				serialnumber = arg.remove(0,3);
-		}
-
 		Bunny * b = BunnyManager::GetBunny(serialnumber.toAscii());
 		b->SetGlobalSetting("Last LocateRequest", QDateTime::currentDateTime());
 		

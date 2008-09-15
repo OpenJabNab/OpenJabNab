@@ -16,14 +16,17 @@ public:
 	virtual ~HttpHandler();
 
 private slots:
-    void HandleBunnyHTTPRequest();
+	void ReceiveData();
 	
 private:
+    void HandleBunnyHTTPRequest();
 	QTcpSocket * incomingHttpSocket;
 	PluginManager * pluginManager;
 	ApiManager * apiManager;
 	bool httpApi;
 	bool httpViolet;
+	QByteArray receivedData;
+	int bytesToReceive;
 };
 
 #endif
