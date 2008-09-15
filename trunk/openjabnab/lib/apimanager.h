@@ -21,12 +21,12 @@ public:
 	};
 
 	ApiManager(PluginManager * p);
-	ApiAnswer * ProcessApiCall(QByteArray const&);
+	ApiAnswer * ProcessApiCall(QByteArray const&, HTTPRequest const&);
 	
 private:
-	ApiAnswer * ProcessGlobalApiCall(QByteArray const&);
-	ApiAnswer * ProcessPluginApiCall(QByteArray const&);
-	ApiAnswer * ProcessBunnyApiCall(QByteArray const&);
+	ApiAnswer * ProcessGlobalApiCall(QByteArray const&, HTTPRequest const&);
+	ApiAnswer * ProcessPluginApiCall(QByteArray const&, HTTPRequest const&);
+	ApiAnswer * ProcessBunnyApiCall(QByteArray const&, HTTPRequest const&);
 	
 	PluginManager * pluginManager;
 	
@@ -34,6 +34,7 @@ private:
 	{
 		public:
 			ApiError(QByteArray s):error(s) {}
+			ApiError(QString s):error(s.toAscii()) {}
 			QByteArray GetInternalData() { return "<error>" + SanitizeXML(error) + "</error>"; }
 		private:
 			QByteArray error;
@@ -43,6 +44,7 @@ private:
 	{
 		public:
 			ApiString(QByteArray s):string(s) {}
+			ApiString(QString s):string(s.toAscii()) {}
 			QByteArray GetInternalData() { return "<value>" + SanitizeXML(string) + "</value>"; }
 		private:
 			QByteArray string;
