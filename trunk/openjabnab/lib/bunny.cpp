@@ -59,7 +59,7 @@ void Bunny::SaveConfig()
 	QFile file(configFileName);
 	if (!file.open(QIODevice::WriteOnly))
 	{
-		Log::Error("Cannot open config file for reading : " + configFileName);
+		Log::Error("Cannot open config file for writing : " + configFileName);
 		return;
 	}
 	QDataStream out(&file);
