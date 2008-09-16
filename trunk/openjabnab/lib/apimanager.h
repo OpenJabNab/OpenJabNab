@@ -2,14 +2,16 @@
 #define _APIMANAGER_H_
 
 #include <QByteArray>
+#include <QString>
 #include <QList>
 #include "global.h"
-#include "pluginmanager.h"
 
+class HTTPRequest;
+class PluginManager;
 class OJN_EXPORT ApiManager
 {
 public:
-	class ApiAnswer
+	class OJN_EXPORT ApiAnswer
 	{
 		public:
 			virtual ~ApiAnswer() {}
@@ -23,14 +25,8 @@ public:
 	ApiManager(PluginManager * p);
 	ApiAnswer * ProcessApiCall(QByteArray const&, HTTPRequest const&);
 	
-private:
-	ApiAnswer * ProcessGlobalApiCall(QByteArray const&, HTTPRequest const&);
-	ApiAnswer * ProcessPluginApiCall(QByteArray const&, HTTPRequest const&);
-	ApiAnswer * ProcessBunnyApiCall(QByteArray const&, HTTPRequest const&);
-	
-	PluginManager * pluginManager;
-	
-	class ApiError : public ApiAnswer
+	// Internal classes
+	class OJN_EXPORT ApiError : public ApiAnswer
 	{
 		public:
 			ApiError(QByteArray s):error(s) {}
@@ -40,7 +36,7 @@ private:
 			QByteArray error;
 	};
 
-	class ApiString : public ApiAnswer
+	class OJN_EXPORT ApiString : public ApiAnswer
 	{
 		public:
 			ApiString(QByteArray s):string(s) {}
@@ -50,7 +46,7 @@ private:
 			QByteArray string;
 	};
 
-	class ApiList : public ApiAnswer
+	class OJN_EXPORT ApiList : public ApiAnswer
 	{
 		public:
 			ApiList(QList<QByteArray> l):list(l) {}
@@ -65,5 +61,12 @@ private:
 		private:
 			QList<QByteArray> list;
 	};
+
+private:
+	ApiAnswer * ProcessGlobalApiCall(QByteArray const&, HTTPRequest const&);
+	ApiAnswer * ProcessPluginApiCall(QByteArray const&, HTTPRequest const&);
+	ApiAnswer * ProcessBunnyApiCall(QByteArray const&, HTTPRequest const&);
+	
+	PluginManager * pluginManager;
 };
 #endif

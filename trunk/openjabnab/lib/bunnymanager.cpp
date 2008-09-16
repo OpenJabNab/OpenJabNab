@@ -1,5 +1,6 @@
 #include "bunny.h"
 #include "bunnymanager.h"
+#include "httprequest.h"
 
 BunnyManager::BunnyManager() {}
 
@@ -29,6 +30,20 @@ QVector<Bunny *> BunnyManager::GetConnectedBunnies()
 		if (b->IsConnected())
 			list.append(b);
 	return list;
+}
+
+ApiManager::ApiAnswer * BunnyManager::ProcessApiCall(QByteArray const& request, HTTPRequest const& hRequest)
+{
+	if (request.startsWith("getListOfConnectedBunnies"))
+	{
+		QList<QByteArray> list;
+		foreach(Bunny * b, listOfBunnies)
+			if (b->IsConnected())
+				list.append(b->GetID());
+		return new ApiManager::ApiList(list);
+	}
+	else
+		return new ApiManager::ApiError("Unknown Bunnies Api Call : " + request + "<br />Request was : " + hRequest.toString());
 }
 
 QMap<QByteArray, Bunny *> BunnyManager::listOfBunnies;

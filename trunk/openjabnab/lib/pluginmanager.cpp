@@ -3,6 +3,8 @@
 #include <QLibrary>
 #include <QPluginLoader>
 #include <QString>
+#include "apimanager.h"
+#include "httprequest.h"
 #include "log.h"
 #include "pluginmanager.h"
 
@@ -99,7 +101,7 @@ bool PluginManager::OnClick(Bunny * b, PluginInterface::ClickType type)
 	// Call OnClick for all plugins until one returns true
 	foreach(PluginInterface * plugin, listOfPlugins)
 	{
-		if(plugin->GetEnable(b))
+		if(plugin->HasBunny(b))
 		{
 			if(plugin->OnClick(b, type))
 				return true;
@@ -113,7 +115,7 @@ bool PluginManager::OnEarsMove(Bunny * b, int left, int right)
 	// Call OnClick for all plugins until one returns true
 	foreach(PluginInterface * plugin, listOfPlugins)
 	{
-		if(plugin->GetEnable(b))
+		if(plugin->HasBunny(b))
 		{
 			if(plugin->OnEarsMove(b, left, right))
 				return true;
@@ -127,7 +129,7 @@ bool PluginManager::OnRFID(Bunny * b, QByteArray const& id)
 	// Call OnClick for all plugins until one returns true
 	foreach(PluginInterface * plugin, listOfPlugins)
 	{
-		if(plugin->GetEnable(b))
+		if(plugin->HasBunny(b))
 		{
 			if(plugin->OnRFID(b, id))
 				return true;
@@ -139,4 +141,65 @@ bool PluginManager::OnRFID(Bunny * b, QByteArray const& id)
 PluginManager * PluginManager::Instance() {
   static PluginManager p;
   return &p;
+}
+
+ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request, HTTPRequest const& hRequest)
+{
+	if(request.startsWith("getListOfPlugins"))
+	{
+		QList<QByteArray> list;
+		foreach (PluginInterface * p, listOfPlugins)
+			list.append(p->GetName().toAscii());
+
+		return new ApiManager::ApiList(list);
+	}
+	else if(request.startsWith("getListOfBunnyPlugins"))
+	{
+		QList<QByteArray> list;
+		foreach (PluginInterface * p, listOfPlugins)
+			if(p->GetType() == PluginInterface::BunnyPlugin)
+				list.append(p->GetName().toAscii());
+
+		return new ApiManager::ApiList(list);
+	}
+	else if(request.startsWith("getListOfSystemPlugins"))
+	{
+		QList<QByteArray> list;
+		foreach (PluginInterface * p, listOfPlugins)
+			if(p->GetType() == PluginInterface::SystemPlugin)
+				list.append(p->GetName().toAscii());
+
+		return new ApiManager::ApiList(list);
+	}
+	else if(request.startsWith("getListOfRequiredPlugins"))
+	{
+		QList<QByteArray> list;
+		foreach (PluginInterface * p, listOfPlugins)
+			if(p->GetType() == PluginInterface::RequiredPlugin)
+				list.append(p->GetName().toAscii());
+
+		return new ApiManager::ApiList(list);
+	}
+	else if(request == "activatePlugin")
+	{
+		if(!hRequest.HasArg("name"))
+			return new ApiManager::ApiError("Missing 'name' argument<br />Request was : " + hRequest.toString());
+		PluginInterface * p = listOfPluginsByName.value(hRequest.GetArg("name"));
+		if(!p)
+			return new ApiManager::ApiError("Unknown plugin : " + hRequest.GetArg("name") + "<br />Request was : " + hRequest.toString());
+		p->SetEnable(true);
+		return new ApiManager::ApiString(p->GetName() + " is now enabled.");
+	}
+	else if(request == "deactivatePlugin")
+	{
+		if(!hRequest.HasArg("name"))
+			return new ApiManager::ApiError("Missing 'name' argument<br />Request was : " + hRequest.toString());
+		PluginInterface * p = listOfPluginsByName.value(hRequest.GetArg("name"));
+		if(!p)
+			return new ApiManager::ApiError("Unknown plugin : " + hRequest.GetArg("name") + "<br />Request was : " + hRequest.toString());
+		p->SetEnable(false);
+		return new ApiManager::ApiString(p->GetName() + " is now disabled.");
+	}
+	else
+		return new ApiManager::ApiError("Unknown Plugins Api Call : " + request + "<br />Request was : " + hRequest.toString());
 }

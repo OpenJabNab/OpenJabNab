@@ -3,6 +3,9 @@
 #include <QFile>
 #include "bunny.h"
 #include "log.h"
+#include "httprequest.h"
+#include "plugininterface.h"
+#include "pluginmanager.h"
 #include "xmpphandler.h"
 
 Bunny::Bunny(QByteArray const& bunnyID)
@@ -47,7 +50,7 @@ void Bunny::LoadConfig()
 	}
 	QDataStream in(&file);
 	in.setVersion(QDataStream::Qt_4_3);
-	in >> GlobalSettings >> PluginsSettings;
+	in >> GlobalSettings >> PluginsSettings >> listOfPlugins;
 	if (in.status() != QDataStream::Ok)
 	{
 		Log::Warning("Problem when loading config file for bunny : " + id.toHex());
@@ -64,14 +67,16 @@ void Bunny::SaveConfig()
 	}
 	QDataStream out(&file);
 	out.setVersion(QDataStream::Qt_4_3);
-	out << GlobalSettings << PluginsSettings;
+	out << GlobalSettings << PluginsSettings << listOfPlugins;
 }
 
 void Bunny::SetXmppHandler(XmppHandler * x)
 { 
 	state = Connected;
 	xmppHandler = x;
+	RegisterAllPlugins();
 }
+
 void Bunny::RemoveXmppHandler(XmppHandler * x)
 {
 	if (xmppHandler == x)
@@ -79,6 +84,7 @@ void Bunny::RemoveXmppHandler(XmppHandler * x)
 		xmppHandler = 0;
 		state = Disconnected;
 	}
+	UnregisterAllPlugins();
 }
 
 void Bunny::SendPacket(Packet const& p)
@@ -113,3 +119,88 @@ void Bunny::SetPluginSetting(QString const& pluginName, QString const& key, QVar
 	PluginsSettings[pluginName].insert(key, value);
 }
 
+void Bunny::AddPlugin(PluginInterface * p)
+{
+	if(!listOfPlugins.contains(p->GetName()))
+	{
+		listOfPlugins.append(p->GetName());
+		if(IsConnected())
+			p->RegisterBunny(this);
+		SaveConfig();
+	}
+}
+
+void Bunny::RemovePlugin(PluginInterface * p)
+{
+	if(listOfPlugins.contains(p->GetName()))
+	{
+		listOfPlugins.removeAll(p->GetName());
+		if(IsConnected())
+			p->RegisterBunny(this);
+		SaveConfig();
+	}
+}
+
+void Bunny::RegisterAllPlugins()
+{
+	foreach(QString s, listOfPlugins)
+	{
+		PluginInterface * p = PluginManager::Instance()->GetPluginByName(s);
+		if(p)
+			p->RegisterBunny(this);
+		else
+			Log::Error("Bunny " + GetID() + " has invalid plugin !");
+	}
+}
+
+void Bunny::UnregisterAllPlugins()
+{
+	foreach(QString s, listOfPlugins)
+	{
+		PluginInterface * p = PluginManager::Instance()->GetPluginByName(s);
+		if(p)
+			p->UnregisterBunny(this);
+		else
+			Log::Error("Bunny " + GetID() + " has invalid plugin !");
+	}
+}
+
+ApiManager::ApiAnswer * Bunny::ProcessApiCall(QByteArray const& functionName, HTTPRequest const& hRequest)
+{
+	if(functionName == "registerPlugin")
+	{
+		if(hRequest.HasArg("name"))
+		{
+			PluginInterface * plugin = PluginManager::Instance()->GetPluginByName(hRequest.GetArg("name"));
+			if(!plugin)
+				return new ApiManager::ApiError("Unknown plugin : " + hRequest.GetArg("name") + "<br />Request was : " + hRequest.toString());
+
+			if(plugin->GetType() != PluginInterface::BunnyPlugin)
+				return new ApiManager::ApiError("Bad plugin type : " + hRequest.GetArg("name") + "<br />Request was : " + hRequest.toString());
+
+			AddPlugin(plugin);
+			return new ApiManager::ApiString("Added " + plugin->GetVisualName() + " as active plugin.");
+		}
+		return new ApiManager::ApiError("Missing argument in Bunny Api Call 'RegisterPlugin' : " + hRequest.toString());
+	}
+	else if(functionName == "unregisterPlugin")
+	{
+		if(hRequest.HasArg("name"))
+		{
+			PluginInterface * plugin = PluginManager::Instance()->GetPluginByName(hRequest.GetArg("name"));
+			if(!plugin)
+				return new ApiManager::ApiError("Unknown plugin : " + hRequest.GetArg("name") + "<br />Request was : " + hRequest.toString());
+
+			if(plugin->GetType() != PluginInterface::BunnyPlugin)
+				return new ApiManager::ApiError("Bad plugin type : " + hRequest.GetArg("name") + "<br />Request was : " + hRequest.toString());
+
+			RemovePlugin(plugin);
+			return new ApiManager::ApiString("Removed " + plugin->GetVisualName() + " as active plugin.");
+		}
+		return new ApiManager::ApiError("Missing argument in Bunny Api Call 'UnregisterPlugin' : " + hRequest.toString());
+	}
+	else
+	{
+		return new ApiManager::ApiError("Unknown Bunny Api Call : " + hRequest.toString());
+	}
+}
