@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <time.h> 
-#include "plugin_dice.h"
 #include "bunny.h"
 #include "httprequest.h"
 #include "log.h"
 #include "messagepacket.h"
+#include "plugin_dice.h"
 
 Q_EXPORT_PLUGIN2(plugin_dice, PluginDice)
 
