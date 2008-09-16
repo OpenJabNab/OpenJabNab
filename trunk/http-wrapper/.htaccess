@@ -4,4 +4,5 @@ RewriteRule	.* / [F]
 
 RewriteCond	%{REQUEST_URI} !^.*openjabnab\.php.*$
 RewriteCond	%{REQUEST_URI} !/ojn_local/
+RewriteCond	%{REQUEST_URI} !/favicon.ico
 RewriteRule	^.*$	/openjabnab.php	[L]

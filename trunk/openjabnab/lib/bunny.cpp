@@ -136,7 +136,7 @@ void Bunny::RemovePlugin(PluginInterface * p)
 	{
 		listOfPlugins.removeAll(p->GetName());
 		if(IsConnected())
-			p->RegisterBunny(this);
+			p->UnregisterBunny(this);
 		SaveConfig();
 	}
 }
@@ -198,6 +198,14 @@ ApiManager::ApiAnswer * Bunny::ProcessApiCall(QByteArray const& functionName, HT
 			return new ApiManager::ApiString("Removed " + plugin->GetVisualName() + " as active plugin.");
 		}
 		return new ApiManager::ApiError("Missing argument in Bunny Api Call 'UnregisterPlugin' : " + hRequest.toString());
+	}
+	else if(functionName == "getListOfActivePlugins")
+	{
+		QList<QByteArray> list;
+		foreach (QString pluginName, listOfPlugins)
+			list.append(pluginName.toAscii());
+
+		return new ApiManager::ApiList(list);
 	}
 	else
 	{
