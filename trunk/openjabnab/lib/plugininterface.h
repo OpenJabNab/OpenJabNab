@@ -7,6 +7,7 @@
 #include <QSettings>
 #include <QString>
 #include <QtPlugin>
+#include "apimanager.h"
 #include "bunny.h"
 #include "log.h"
 
@@ -56,13 +57,15 @@ public:
 	inline QString const& GetName() const { return pluginName; }
 	inline QString const& GetVisualName() const { return pluginVisualName; }
 
+	// Api Call
+	virtual ApiManager::ApiAnswer * ProcessApiCall(QByteArray const&, HTTPRequest const&) { return new ApiManager::ApiError(QString("This plugin doesn't support API")); };
+
 	// Plugin enable/disable functions
-	inline bool GetEnable() { return (pluginEnable && (bool)(GetRegisteredBunnies().count()) || pluginType != BunnyPlugin); }
-	bool GetEnable(Bunny * b) { return (pluginEnable && HasBunny(b->GetID()) && (b->GetPluginSetting(pluginName, "pluginStatus/Enable", QVariant(true)).toBool()) || pluginType != BunnyPlugin); }
+	inline bool GetEnable() { return pluginEnable;}
 	void SetEnable(bool newStatus) {
 		if(GetType() == RequiredPlugin)
 		{
-			Log::Info("Plugin "+GetVisualName()+" is already enabled");
+			Log::Info("Plugin " + GetVisualName() + " is a required plugin !");
 		}
 		else
 		{
@@ -79,16 +82,15 @@ public:
 	void RegisterBunny(Bunny * b) {
 		listOfConnectedBunnies.append(b);
 		Log::Info("Bunny "+b->GetID()+" is registering plugin "+GetVisualName());
-		if(pluginType == SystemPlugin || b->GetPluginSetting(pluginName, "pluginStatus/Enable", QVariant(true)).toBool())
-			SetEnable(true);
 	};
+
 	void UnregisterBunny(Bunny * b) {
 		listOfConnectedBunnies.removeAt(listOfConnectedBunnies.indexOf(b));
 		Log::Info("Bunny "+b->GetID()+" is unregistering plugin "+GetVisualName());
-		if(pluginType != RequiredPlugin || GetRegisteredBunnies().count() == 0)
-			SetEnable(false);
 	};
-	QList < Bunny* > GetRegisteredBunnies() { return listOfConnectedBunnies; };
+
+	QList<Bunny *> GetRegisteredBunnies() { return listOfConnectedBunnies; };
+	inline bool HasBunny(Bunny * b) { return listOfConnectedBunnies.contains(b); };
 	bool HasBunny(QByteArray BunnyID) {
 		foreach(Bunny * b, listOfConnectedBunnies)
 			if(b->GetID() == BunnyID)
@@ -104,7 +106,7 @@ private:
 	QString pluginName;
 	QString pluginVisualName;
 	bool pluginEnable;
-	QList < Bunny* > listOfConnectedBunnies;
+	QList<Bunny *> listOfConnectedBunnies;
 };
 
 Q_DECLARE_INTERFACE(PluginInterface,"org.toms.openjabnab.PluginInterface/1.0")

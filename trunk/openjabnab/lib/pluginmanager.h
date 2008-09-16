@@ -5,6 +5,7 @@
 #include <QVector>
 #include "global.h"
 #include "plugininterface.h"
+#include "apimanager.h"
 
 class PluginInterface;
 class OJN_EXPORT PluginManager
@@ -27,7 +28,8 @@ public:
 	
 	QVector<PluginInterface *> const& GetListOfPlugins() { return listOfPlugins; }
 	PluginInterface * GetPluginByName(QString name) { return listOfPluginsByName.value(name); }
-	
+	ApiManager::ApiAnswer * ProcessApiCall(QByteArray const& request, HTTPRequest const& hRequest);
+
 private:
 	PluginManager();
 	QVector<PluginInterface *> listOfPlugins;

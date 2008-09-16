@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <time.h> 
 #include "plugin_dice.h"
 #include "bunny.h"
 #include "httprequest.h"
