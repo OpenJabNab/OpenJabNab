@@ -1,11 +1,11 @@
-#ifndef _SOUNDMANAGER_H_
-#define _SOUNDMANAGER_H_
+#ifndef _TTSMANAGER_H_
+#define _TTSMANAGER_H_
 
 #include <QEventLoop>
 #include <QObject>
 #include "global.h"
 
-class OJN_EXPORT SoundManager : public QObject
+class OJN_EXPORT TTSManager : public QObject
 {
 	Q_OBJECT
 public:

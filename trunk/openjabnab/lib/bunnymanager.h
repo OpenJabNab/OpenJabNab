@@ -12,6 +12,7 @@ class OJN_EXPORT BunnyManager
 {
 public:
 	static Bunny * GetBunny(QByteArray const&);
+	static Bunny * GetConnectedBunny(QByteArray const&);
 	static QVector<Bunny *> GetConnectedBunnies();
 	static ApiManager::ApiAnswer * ProcessApiCall(QByteArray const& request, HTTPRequest const& hRequest);
 	static void Close();

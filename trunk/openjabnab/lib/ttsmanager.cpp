@@ -6,9 +6,9 @@
 #include <QUrl>
 #include "log.h"
 #include "settings.h"
-#include "soundmanager.h"
+#include "ttsmanager.h"
 
-bool SoundManager::createNewSound(QString text, QString voice, QString fileName)
+bool TTSManager::createNewSound(QString text, QString voice, QString fileName)
 {
 	QStringList voiceList;
 	// French voices
@@ -54,7 +54,7 @@ bool SoundManager::createNewSound(QString text, QString voice, QString fileName)
 	return false;
 }
 
-void SoundManager::downloadDone()
+void TTSManager::downloadDone()
 {
 	loop.exit();
 }

@@ -16,6 +16,20 @@ Bunny * BunnyManager::GetBunny(QByteArray const& bunnyHexID)
 	return b;
 }
 
+Bunny * BunnyManager::GetConnectedBunny(QByteArray const& bunnyHexID)
+{
+	QByteArray bunnyID = QByteArray::fromHex(bunnyHexID);
+	
+	if(listOfBunnies.contains(bunnyID))
+	{
+		Bunny * b = listOfBunnies.value(bunnyID);
+		if(b->IsConnected())
+			return b;
+	}
+
+	return NULL;
+}
+
 void BunnyManager::Close()
 {
 	foreach(Bunny * b, listOfBunnies)
