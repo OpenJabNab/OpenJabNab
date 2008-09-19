@@ -37,7 +37,7 @@ ApiManager::ApiAnswer * PluginTTS::ProcessApiCall(QByteArray const& funcName, HT
 		}
 		ttsFolder.cd("tts");
 	}
-	QByteArray fileName = QCryptographicHash::hash(r.GetArg("text").toAscii(), QCryptographicHash::Md5).append(".mp3");
+	QByteArray fileName = QCryptographicHash::hash(r.GetArg("text").toAscii(), QCryptographicHash::Md5).toHex().append(".mp3");
 	if(!QFile::exists(ttsFolder.absoluteFilePath(fileName)))
 	{
 		TTSManager * tts = new TTSManager();

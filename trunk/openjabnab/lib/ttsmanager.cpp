@@ -39,7 +39,7 @@ bool TTSManager::createNewSound(QString text, QString voice, QString fileName)
 		QString acapelaFile = reponse.mid(12);
 		http.get("/Demo_Web/Sorties/" + acapelaFile + ".mp3");
 		loop.exec();
-		QFile file(GlobalSettings::GetString("OpenJabNabServers/HttpPath") + fileName);
+		QFile file(GlobalSettings::GetString("Config/HttpPath") + fileName);
 		if (!file.open(QIODevice::WriteOnly))
 		{
 			Log::Error("Cannot open config file for writing");
