@@ -3,6 +3,7 @@ httpListener=true
 httpApi=true
 httpViolet=true
 xmppListener=true
+HttpPath=/var/www/http-wrapper/
 
 [DefaultVioletServers]
 BootServer=r.nabaztag.com
@@ -16,7 +17,6 @@ BroadServer=my.domain.com
 ListeningHttpPort=8080
 XmppServer=my.domain.com
 XmppPort=5222
-HttpPath=/var/www/http-wrapper/
 
 [Log]
 LogFile=openjabnab.log
