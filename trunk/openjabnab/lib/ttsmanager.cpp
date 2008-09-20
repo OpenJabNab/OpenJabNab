@@ -28,7 +28,7 @@ bool TTSManager::createNewSound(QString text, QString voice, QString fileName)
 	Header.addValue("User-Agent", "Mozilla/5.0 (X11; U; Linux i686; fr; rv:1.9.0.1) Gecko/2008072820 Firefox/3.0.1");
 	Header.addValue("Referer", "http://vaas3.acapela-group.com/Demo_Web/synthese_movieclip_small.swf");
 	Header.addValue("Content-type", "application/x-www-form-urlencoded");
-	Header.addValue("Content-length", QString::number(ContentData.length()));
+	Header.setContentLength(ContentData.length());
 	Header.setRequest("POST", "/Demo_Web/write.php", 1, 1);
 
 	http.request(Header, ContentData);
