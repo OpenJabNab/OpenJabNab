@@ -2,11 +2,14 @@
 #define _APIMANAGER_H_
 
 #include <QByteArray>
-#include <QString>
 #include <QList>
+#include <QMap>
+#include <QMapIterator>
+#include <QString>
 #include "global.h"
 
 class HTTPRequest;
+class AccountManager;
 class PluginManager;
 class OJN_EXPORT ApiManager
 {
@@ -62,11 +65,31 @@ public:
 			QList<QByteArray> list;
 	};
 
+	class OJN_EXPORT ApiMappedList : public ApiAnswer
+	{
+		public:
+			ApiMappedList(QMap<QByteArray, QByteArray> l):list(l) {}
+			QByteArray GetInternalData() { 
+				QByteArray tmp;
+				tmp += "<list>";
+				QMapIterator<QByteArray, QByteArray> i(list);
+				while (i.hasNext()) {
+					i.next();
+					tmp += "<item><key>" + SanitizeXML(i.key()) + "</key><value>" + SanitizeXML(i.value()) + "</value></item>";
+				}
+				tmp += "</list>";
+				return tmp;
+			}
+		private:
+			QMap<QByteArray, QByteArray> list;
+	};
+
 private:
 	ApiAnswer * ProcessGlobalApiCall(QByteArray const&, HTTPRequest const&);
 	ApiAnswer * ProcessPluginApiCall(QByteArray const&, HTTPRequest const&);
 	ApiAnswer * ProcessBunnyApiCall(QByteArray const&, HTTPRequest const&);
 	
 	PluginManager * pluginManager;
+	AccountManager * accountManager;
 };
 #endif

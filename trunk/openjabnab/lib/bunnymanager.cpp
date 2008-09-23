@@ -50,11 +50,11 @@ ApiManager::ApiAnswer * BunnyManager::ProcessApiCall(QByteArray const& request, 
 {
 	if (request.startsWith("getListOfConnectedBunnies"))
 	{
-		QList<QByteArray> list;
+		QMap<QByteArray, QByteArray> list;
 		foreach(Bunny * b, listOfBunnies)
 			if (b->IsConnected())
-				list.append(b->GetID());
-		return new ApiManager::ApiList(list);
+				list.insert(b->GetID(), b->GetBunnyName().toAscii());
+		return new ApiManager::ApiMappedList(list);
 	}
 	else
 		return new ApiManager::ApiError("Unknown Bunnies Api Call : " + request + "<br />Request was : " + hRequest.toString());

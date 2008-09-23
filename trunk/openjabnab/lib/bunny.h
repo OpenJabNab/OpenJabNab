@@ -26,6 +26,9 @@ public:
 	void RemoveXmppHandler (XmppHandler *);
 	void SendPacket(Packet const&);
 
+	QString GetBunnyName() { return GetGlobalSetting("BunnyName", "Bunny").toString(); };
+	void SetBunnyName(QVariant const& bunnyName) {SetGlobalSetting("BunnyName", bunnyName); };
+
 	QVariant GetGlobalSetting(QString const&, QVariant const& defaultValue = QVariant()) const;
 	void SetGlobalSetting(QString const&, QVariant const&);
 

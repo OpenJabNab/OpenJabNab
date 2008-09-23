@@ -147,11 +147,28 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 {
 	if(request.startsWith("getListOfPlugins"))
 	{
+		QMap<QByteArray, QByteArray> list;
+		foreach (PluginInterface * p, listOfPlugins)
+			list.insert(p->GetName().toAscii(), p->GetVisualName().toAscii());
+		return new ApiManager::ApiMappedList(list);
+	}
+	else if(request.startsWith("getListOfActivePlugins"))
+	{
 		QList<QByteArray> list;
 		foreach (PluginInterface * p, listOfPlugins)
-			list.append(p->GetName().toAscii());
+			if(p->GetEnable() && (p->GetRegisteredBunnies().count() || p->GetType() != PluginInterface::BunnyPlugin))
+				list.append(p->GetName().toAscii());
 
 		return new ApiManager::ApiList(list);
+	}
+	else if(request.startsWith("getListOfEnabledPlugins"))
+	{
+		QMap<QByteArray, QByteArray> list;
+		foreach (PluginInterface * p, listOfPlugins)
+			if(p->GetEnable())
+				list.insert(p->GetName().toAscii(), QString::number(p->GetRegisteredBunnies().count()).toAscii());
+
+		return new ApiManager::ApiMappedList(list);
 	}
 	else if(request.startsWith("getListOfBunnyPlugins"))
 	{
