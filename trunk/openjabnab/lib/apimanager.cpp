@@ -1,6 +1,7 @@
 #include <QUrl>
 #include <QStringList>
 
+#include "accountmanager.h"
 #include "apimanager.h"
 #include "bunny.h"
 #include "bunnymanager.h"
@@ -10,6 +11,7 @@
 
 ApiManager::ApiManager(PluginManager * p):pluginManager(p)
 {
+	accountManager = AccountManager::Instance();
 }
 
 QByteArray ApiManager::ApiAnswer::GetData()
@@ -37,6 +39,9 @@ ApiManager::ApiAnswer * ApiManager::ProcessApiCall(QByteArray const& request, HT
 
 	if (request.startsWith("bunny/"))
 		return ProcessBunnyApiCall(request.mid(6), hRequest);
+	
+	if (request.startsWith("accounts/"))
+		return accountManager->ProcessApiCall(request.mid(9), hRequest);
 	
 	return new ApiManager::ApiError("Unknown Api Call : " + hRequest.toString());
 }

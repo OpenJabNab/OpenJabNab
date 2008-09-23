@@ -37,7 +37,9 @@ HEADERS +=	httphandler.h \
 			bunny.h \
 			apimanager.h \
 			cron.h \
-			ttsmanager.h
+			ttsmanager.h \
+			accountmanager.h \
+			account.h
 
 SOURCES +=	httphandler.cpp \
 			xmpphandler.cpp \
@@ -54,4 +56,6 @@ SOURCES +=	httphandler.cpp \
 			bunny.cpp \
 			apimanager.cpp \
 			cron.cpp \
-			ttsmanager.cpp
+			ttsmanager.cpp \
+			accountmanager.cpp \
+			account.cpp
