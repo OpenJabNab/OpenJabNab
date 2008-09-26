@@ -9,7 +9,8 @@ class OJN_EXPORT TTSManager : public QObject
 {
 	Q_OBJECT
 public:
-	bool createNewSound(QString, QString, QString);
+	bool createNewSound(QString, QString, QString, bool);
+	bool createNewSound(QString text, QString voice, QString file) { return createNewSound(text, voice, file, false); };
 
 private slots:
 	void downloadDone();

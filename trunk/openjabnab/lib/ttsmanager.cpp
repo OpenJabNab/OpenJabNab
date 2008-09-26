@@ -8,11 +8,14 @@
 #include "settings.h"
 #include "ttsmanager.h"
 
-bool TTSManager::createNewSound(QString text, QString voice, QString fileName)
+bool TTSManager::createNewSound(QString text, QString voice, QString fileName, bool forceOverwrite = false)
 {
 	QStringList voiceList;
 	// French voices
 	voiceList << "claire" << "alice" << "bruno" << "julie";
+
+	if(!forceOverwrite && QFile::exists(GlobalSettings::GetString("Config/HttpPath") + fileName))
+		return true;
 
 	if(!voiceList.contains(voice))
 		voice = "claire";
@@ -21,7 +24,6 @@ bool TTSManager::createNewSound(QString text, QString voice, QString fileName)
 	connect(&http, SIGNAL(done(bool)), this, SLOT(downloadDone()));
 
 	QByteArray ContentData;
-//	ContentData += "php%5Fvar%5Fdec=undefined&php%5Fvar%5Fhtml=undefined&php%5Fvar%5Fstring=" + voice + "22k%5B%2Fvoix%5D" + QUrl::toPercentEncoding(text) + "&php%5Fvar%5Fnom=whatever%2Etxt&php%5Fverif=flash&onLoad=%5Btype%20Function%5D";
 	ContentData += "client%5Ftext=" + QUrl::toPercentEncoding(text) + "&client%5Fvoice=" + voice + "22k&client%5Frequest%5Ftype=CREATE%5FREQUEST&client%5Fpassword=reuno&client%5Flogin=asTTS&client%5Fversion=1%2D00&onLoad=%5Btype%20Function%5D";
 
 	QHttpRequestHeader Header;
@@ -51,7 +53,7 @@ bool TTSManager::createNewSound(QString text, QString voice, QString fileName)
 		QFile file(GlobalSettings::GetString("Config/HttpPath") + fileName);
 		if (!file.open(QIODevice::WriteOnly))
 		{
-			Log::Error("Cannot open config file for writing");
+			Log::Error("Cannot open sound file for writing");
 			return false;
 		}
 		file.write(http.readAll());
