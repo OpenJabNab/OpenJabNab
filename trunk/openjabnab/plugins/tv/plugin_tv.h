@@ -1,0 +1,31 @@
+#ifndef _PLUGINTV_H_
+#define _PLUGINTV_H_
+
+#include <QHttp>
+#include <QTextStream>
+#include "plugininterface.h"
+	
+class PluginTV : public PluginInterface
+{
+	Q_OBJECT
+	Q_INTERFACES(PluginInterface)
+	
+private slots:
+	void analyseXml();
+
+public:
+	PluginTV();
+	virtual ~PluginTV();
+	bool OnClick(Bunny *, PluginInterface::ClickType);
+	void OnCron(QVariant);
+	ApiManager::ApiAnswer * ProcessApiCall(QByteArray const&, HTTPRequest const&);
+	void AfterBunnyRegistered(Bunny *);
+	void AfterBunnyUnregistered(Bunny *) {};
+
+private:
+	void getTVPage(Bunny *);
+	QMap <int, QStringList> webcastList;
+
+};
+
+#endif

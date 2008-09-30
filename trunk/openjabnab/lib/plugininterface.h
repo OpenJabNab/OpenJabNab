@@ -79,13 +79,17 @@ public:
 	int GetType() { return pluginType; };
 
 	// Bunny registration
+	virtual void AfterBunnyRegistered(Bunny *) {};
 	void RegisterBunny(Bunny * b) {
 		listOfConnectedBunnies.append(b);
+		AfterBunnyRegistered(b);
 		Log::Info("Bunny "+b->GetID()+" is registering plugin "+GetVisualName());
 	};
 
+	virtual void AfterBunnyUnregistered(Bunny *) {};
 	void UnregisterBunny(Bunny * b) {
 		listOfConnectedBunnies.removeAt(listOfConnectedBunnies.indexOf(b));
+		AfterBunnyUnregistered(b);
 		Log::Info("Bunny "+b->GetID()+" is unregistering plugin "+GetVisualName());
 	};
 
