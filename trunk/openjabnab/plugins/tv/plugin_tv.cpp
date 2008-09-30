@@ -3,6 +3,7 @@
 #include <QXmlStreamReader>
 #include <QHttp>
 #include <QRegExp>
+#include <QUrl>
 #include "bunny.h"
 #include "bunnymanager.h"
 #include "httprequest.h"
@@ -26,9 +27,7 @@ PluginTV::PluginTV():PluginInterface("tv", "Programme TV")
 		}
 	}
 	TTSManager * tts = new TTSManager();
-	tts->createNewSound("Programme tÃ©lÃ© de ce soir", "claire", "plugins/tv/cesoir.mp3");
-//	Cron::Register(this, 60*24, 19, 45, QVariant::fromValue( BunnyManager::GetBunny("0013d385e587") ));
-//	Cron::Register(this, 60*24, 19, 22, QVariant::fromValue( BunnyManager::GetBunny("0013d385e587") ));
+	tts->createNewSound("Programme télé de ce soir", "claire", "plugins/tv/cesoir.mp3");
 }
 
 void PluginTV::OnCron(QVariant v)
@@ -93,7 +92,7 @@ void PluginTV::analyseXml()
 						QByteArray fileName = QCryptographicHash::hash(rx.cap(3).trimmed().toAscii(), QCryptographicHash::Md5).toHex().append(".mp3");
 						TTSManager * tts = new TTSManager();
 						tts->createNewSound(rx.cap(4).trimmed(), "claire", QString("plugins/tv/").append(chaineFile));
-						tts->createNewSound(rx.cap(3).trimmed(), "claire", QString("plugins/tv/").append(fileName));
+						tts->createNewSound(rx.cap(3).trimmed(), "julie", QString("plugins/tv/").append(fileName));
 						message += "MU broadcast/ojn_local/plugins/tv/"+chaineFile+"\nPL 3\nMW\nMU broadcast/ojn_local/plugins/tv/"+fileName+"\nMW\n";
 					}
 				}
