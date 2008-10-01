@@ -45,7 +45,6 @@ void OpenJabNab::OnQuit()
 OpenJabNab::~OpenJabNab()
 {
 	Log::Info("OpenJabNab closing...");
-	delete apiManager;
 	BunnyManager::Close();
 }
 
