@@ -1,5 +1,7 @@
+#include <QEventLoop>
 #include <QHttp>
 #include <QHttpRequestHeader>
+#include <QObject>
 #include <QStringList>
 #include <QUrl>
 #include "httprequest.h"
@@ -64,16 +66,12 @@ HTTPRequest::HTTPRequest(QByteArray const& data):type(INVALID)
 	}
 }
 
-void HTTPRequest::ForwardDone(bool)
-{
-	loop.exit();
-}
-
 QByteArray HTTPRequest::ForwardTo(QString const& server)
 {
 	QByteArray answer;
+	QEventLoop loop;
 	QHttp http(server);
-	connect(&http, SIGNAL(done(bool)), this, SLOT(ForwardDone(bool)));
+	QObject::connect(&http, SIGNAL(done(bool)), &loop, SLOT(quit()));
 
 	QHttpRequestHeader header;
 	{
