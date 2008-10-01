@@ -1,7 +1,9 @@
 #include <QDataStream>
+#include <QEventLoop>
 #include <QFile>
 #include <QHttp>
 #include <QHttpRequestHeader>
+#include <QObject>
 #include <QStringList>
 #include <QUrl>
 #include "log.h"
@@ -11,6 +13,7 @@
 bool TTSManager::createNewSound(QString text, QString voice, QString fileName, bool forceOverwrite)
 {
 	QStringList voiceList;
+	QEventLoop loop;
 	// French voices
 	voiceList << "claire" << "alice" << "bruno" << "julie";
 
@@ -21,7 +24,7 @@ bool TTSManager::createNewSound(QString text, QString voice, QString fileName, b
 		voice = "claire";
 
 	QHttp http("vaas3.acapela-group.com");
-	connect(&http, SIGNAL(done(bool)), this, SLOT(downloadDone()));
+	QObject::connect(&http, SIGNAL(done(bool)), &loop, SLOT(exit()));
 
 	QByteArray ContentData;
 	ContentData += "client%5Ftext=" + QUrl::toPercentEncoding(text) + "&client%5Fvoice=" + voice + "22k&client%5Frequest%5Ftype=CREATE%5FREQUEST&client%5Fpassword=reuno&client%5Flogin=asTTS&client%5Fversion=1%2D00&onLoad=%5Btype%20Function%5D";
@@ -63,9 +66,4 @@ bool TTSManager::createNewSound(QString text, QString voice, QString fileName, b
 	Log::Error("Acapela demo did not return a sound file");
 	Log::Debug("Acapela answer : " + reponse);
 	return false;
-}
-
-void TTSManager::downloadDone()
-{
-	loop.exit();
 }
