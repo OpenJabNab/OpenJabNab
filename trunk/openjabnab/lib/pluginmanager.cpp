@@ -13,13 +13,6 @@ PluginManager::PluginManager()
 	// Load all plugins
 	pluginsDir = QCoreApplication::applicationDirPath();
 	pluginsDir.cd("plugins");
-
-	Log::Info(QString("Finding plugins in : %1").arg(pluginsDir.path()));
-	
-	foreach (QString fileName, pluginsDir.entryList(QDir::Files)) 
-	{
-		LoadPlugin(fileName);
-	}
 }
 
 PluginManager & PluginManager::Instance() {
@@ -31,6 +24,15 @@ PluginManager::~PluginManager()
 {
 	foreach(PluginInterface * p, listOfPluginsPtr)
 		delete p;
+}
+
+void PluginManager::LoadPlugins()
+{
+	Log::Info(QString("Finding plugins in : %1").arg(pluginsDir.path()));
+	foreach (QString fileName, pluginsDir.entryList(QDir::Files)) 
+	{
+		LoadPlugin(fileName);
+	}
 }
 
 bool PluginManager::LoadPlugin(QString const& fileName)

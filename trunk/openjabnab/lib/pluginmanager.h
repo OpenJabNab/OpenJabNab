@@ -12,6 +12,7 @@ class OJN_EXPORT PluginManager
 {
 public:
 	static PluginManager & Instance();
+	void LoadPlugins();
 	virtual ~PluginManager();
 
 	void HttpRequestBefore(HTTPRequest const&);

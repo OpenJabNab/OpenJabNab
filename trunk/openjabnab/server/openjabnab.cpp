@@ -12,6 +12,8 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 {
 	connect(this, SIGNAL(aboutToQuit()), this, SLOT(OnQuit()));
 
+	PluginManager::Instance().LoadPlugins();
+
 	if(GlobalSettings::Get("Config/HttpListener", true) == true)
 	{
 		// Create Listeners
