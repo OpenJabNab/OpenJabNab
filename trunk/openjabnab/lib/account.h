@@ -18,10 +18,10 @@ public:
 	void SetBunny(QString const& name, QByteArray const& id) { bunnyName = name; bunnyID = id; }
 	void SetPasswordHash(QByteArray const& password) { passwordHash = password; }
 
-	QString GetLoginName() { return accountLogin; }
-	QString GetBunnyName() { return bunnyName; }
-	QByteArray GetBunnyID() { return bunnyID; }
-	bool IsGoodPassword(QByteArray const& password) { return (bool)(passwordHash == password); }
+	QString const& GetLoginName() const { return accountLogin; }
+	QString const& GetBunnyName() const { return bunnyName; }
+	QByteArray const& GetBunnyID() const { return bunnyID; }
+	bool IsGoodPassword(QByteArray const& password) const { return (bool)(passwordHash == password); }
 
 private slots:
 	void SaveAccount();
