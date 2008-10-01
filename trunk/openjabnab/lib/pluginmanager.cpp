@@ -279,7 +279,7 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 		if(LoadPlugin(filename))
 			return new ApiManager::ApiOk(filename + " is now loaded.");
 		else
-			return new ApiManager::ApiError("Can't unload " + filename);
+			return new ApiManager::ApiError("Can't load " + filename);
 	}
 	else if(request == "reloadPlugin")
 	{
