@@ -14,14 +14,16 @@ public:
 	SleepPacket(State);
 	static SleepPacket * Parse(QByteArray const&);
 	~SleepPacket() {};
-	QByteArray GetPrintableData() const;
 
+
+	QByteArray GetPrintableData() const;
 	Packet_Types GetType() const { return Packet::Packet_Sleep; };
-	
+	State GetState() const { return (sleep==true?Sleep:Wake_Up); };
+
 protected:
 	QByteArray GetInternalData() const;
-
 	bool sleep;
+
 };
 
 #endif

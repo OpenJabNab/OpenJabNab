@@ -9,10 +9,9 @@
 
 unsigned short XmppHandler::msgNb = 0;
 
-XmppHandler::XmppHandler(QTcpSocket * s)
+XmppHandler::XmppHandler(QTcpSocket * s):pluginManager(PluginManager::Instance())
 {
 	incomingXmppSocket = s;
-	pluginManager = PluginManager::Instance();
 	bunny = 0;
 	
 	// Bunny -> OpenJabNab socket
@@ -46,7 +45,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 	data.replace(GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii(),GlobalSettings::GetString("DefaultVioletServers/XmppServer").toAscii());
 
 	// Send info to all plugins
-	pluginManager->XmppBunnyMessage(data);
+	pluginManager.XmppBunnyMessage(data);
 	
 	// If we don't already know which bunny is connected, try to find a <response></response> message
 	if (!bunny)
@@ -98,9 +97,9 @@ void XmppHandler::HandleBunnyXmppMessage()
 				{
 					int value = rx.cap(1).toInt();
 					if (value == 1)
-						handled = pluginManager->OnClick(bunny, PluginInterface::SingleClick);
+						handled = pluginManager.OnClick(bunny, PluginInterface::SingleClick);
 					else if (value == 2)
-						handled = pluginManager->OnClick(bunny, PluginInterface::DoubleClick);
+						handled = pluginManager.OnClick(bunny, PluginInterface::DoubleClick);
 					else
 						Log::Warning("Unable to parse button/click message : " + data);
 				}
@@ -112,7 +111,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 				// <ears xmlns="violet:nabaztag:ears"><left>0</left><right>0</right></ears>
 				QRegExp rx("<left>([0-9]+)</left><right>([0-9]+)</right>");
 				if (rx.indexIn(message) != -1)
-					handled = pluginManager->OnEarsMove(bunny, rx.cap(1).toInt(), rx.cap(2).toInt());
+					handled = pluginManager.OnEarsMove(bunny, rx.cap(1).toInt(), rx.cap(2).toInt());
 				else
 					Log::Warning("Unable to parse ears message : " + data);
 			}
@@ -137,7 +136,7 @@ void XmppHandler::HandleVioletXmppMessage()
 	foreach(QByteArray msg, list)
 	{
 		// Send info to all plugins
-		pluginManager->XmppVioletMessage(msg);
+		pluginManager.XmppVioletMessage(msg);
 
 		// Check if the data contains <message></message>
 		QRegExp rx("<message[^>]*>.*</message>");
@@ -168,7 +167,7 @@ void XmppHandler::HandleVioletXmppMessage()
 				try
 				{
 					Packet * p = Packet::Parse(QByteArray::fromBase64(rx.cap(2).toAscii()));
-					drop = pluginManager->XmppVioletPacketMessage(*p);
+					drop = pluginManager.XmppVioletPacketMessage(*p);
 					delete p;
 				}
 				catch (QByteArray const& errorMsg)

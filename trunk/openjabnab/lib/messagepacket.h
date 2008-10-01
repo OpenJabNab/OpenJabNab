@@ -7,19 +7,21 @@
 
 class OJN_EXPORT MessagePacket : public Packet
 {
-
 public:
 	MessagePacket(QByteArray const&);
 	static MessagePacket * Parse(QByteArray const&);
 	~MessagePacket() {};
-	QByteArray GetPrintableData() const;
+
+	void SetMessage(QByteArray const& s) { message = s; };
+	void AddMessage(QByteArray const& s) { message += s; };
 
 	Packet_Types GetType() const { return Packet::Packet_Message; };
+	QByteArray GetPrintableData() const { return message; };
+	QByteArray const& GetMessage() const { return message; };
 	
 protected:
 	MessagePacket();
 	QByteArray GetInternalData() const;
-
 	QByteArray message;
 	
 private:

@@ -20,7 +20,6 @@ public:
 	static QString GetString(QString const& key, QString const& defaultValue) { return Get(key, defaultValue).toString(); }
 	static int GetInt(QString const& key, int defaultValue) {return Get(key, defaultValue).toInt(); }
 	
-	
 	static bool HasKey(QString const& key);
 	
 private:

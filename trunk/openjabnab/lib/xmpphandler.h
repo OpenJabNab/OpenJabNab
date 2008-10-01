@@ -32,7 +32,7 @@ private:
 
 	QTcpSocket * incomingXmppSocket;
 	QTcpSocket * outgoingXmppSocket;
-	PluginManager * pluginManager;
+	PluginManager & pluginManager;
 	Bunny * bunny;
 	QByteArray msgQueue;
 	

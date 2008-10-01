@@ -8,11 +8,9 @@
 #include "log.h"
 #include "settings.h"
 
-HttpHandler::HttpHandler(QTcpSocket * s, ApiManager * a, bool api, bool violet)
+HttpHandler::HttpHandler(QTcpSocket * s, bool api, bool violet):pluginManager(PluginManager::Instance())
 {
 	incomingHttpSocket = s;
-	pluginManager = PluginManager::Instance();
-	apiManager = a;
 	httpApi = api;
 	httpViolet = violet;
 	bytesToReceive = 0;
@@ -39,7 +37,7 @@ void HttpHandler::HandleBunnyHTTPRequest()
 	{
 		if(httpApi)
 		{
-			ApiManager::ApiAnswer * answer = apiManager->ProcessApiCall(uri.mid(9), request);
+			ApiManager::ApiAnswer * answer = ApiManager::Instance().ProcessApiCall(uri.mid(9), request);
 			incomingHttpSocket->write(answer->GetData());
 			delete answer;
 		}
@@ -56,7 +54,7 @@ void HttpHandler::HandleBunnyHTTPRequest()
 			Bunny * b = BunnyManager::GetBunny(serialnumber.toAscii());
 			b->SetGlobalSetting("Last RFID Tag", tagId);
 		
-			if (!pluginManager->OnRFID(b, QByteArray::fromHex(tagId.toAscii())))
+			if (!pluginManager.OnRFID(b, QByteArray::fromHex(tagId.toAscii())))
 			{
 				// Forward it to Violet's servers
 				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
@@ -65,9 +63,9 @@ void HttpHandler::HandleBunnyHTTPRequest()
 		}
 		else
 		{
-			pluginManager->HttpRequestBefore(request);
+			pluginManager.HttpRequestBefore(request);
 			// If none can answer, try to forward it directly to Violet's servers
-			if (!pluginManager->HttpRequestHandle(request))
+			if (!pluginManager.HttpRequestHandle(request))
 			{
 				if (uri.startsWith("/vl/sendMailXMPP.jsp"))
 				{
@@ -84,7 +82,7 @@ void HttpHandler::HandleBunnyHTTPRequest()
 					request.reply = "404 Not Found";
 				}
 			}
-			pluginManager->HttpRequestAfter(request);
+			pluginManager.HttpRequestAfter(request);
 			incomingHttpSocket->write(request.reply);
 		}
 	}

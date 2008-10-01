@@ -25,7 +25,7 @@ public:
 			QByteArray SanitizeXML(QByteArray const&);
 	};
 
-	ApiManager(PluginManager * p);
+	static ApiManager & Instance();
 	ApiAnswer * ProcessApiCall(QByteArray const&, HTTPRequest const&);
 	
 	// Internal classes
@@ -96,10 +96,9 @@ public:
 	};
 
 private:
+	ApiManager();
 	ApiAnswer * ProcessGlobalApiCall(QByteArray const&, HTTPRequest const&);
 	ApiAnswer * ProcessPluginApiCall(QByteArray const&, HTTPRequest const&);
 	ApiAnswer * ProcessBunnyApiCall(QByteArray const&, HTTPRequest const&);
-	
-	PluginManager * pluginManager;
 };
 #endif

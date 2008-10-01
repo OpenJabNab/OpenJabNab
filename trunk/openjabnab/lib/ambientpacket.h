@@ -17,15 +17,16 @@ public:
 
 	AmbientPacket() {};
 	AmbientPacket(enum Services, unsigned char value);
+	static AmbientPacket * Parse(QByteArray const&);
 	~AmbientPacket() {};
 
-	QByteArray GetPrintableData() const;
 	void SetServiceValue(enum Services, unsigned char);
 	void SetEarsPosition(unsigned char, unsigned char);
 	void DisableService(enum Services);
-	static AmbientPacket * Parse(QByteArray const&);
 
 	Packet_Types GetType() const { return Packet::Packet_Ambient; };
+	QByteArray GetPrintableData() const;
+	QMap<unsigned char, unsigned char> const& GetServices() { return services; };
 	
 protected:
 	QByteArray GetInternalData() const;
