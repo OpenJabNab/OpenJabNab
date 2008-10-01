@@ -11,7 +11,7 @@ class PluginInterface;
 class OJN_EXPORT PluginManager
 {
 public:
-	static PluginManager * Instance();
+	static PluginManager & Instance();
 	virtual ~PluginManager();
 
 	void HttpRequestBefore(HTTPRequest const&);

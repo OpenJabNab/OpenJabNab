@@ -42,16 +42,16 @@ AccountManager::AccountManager()
 	}
 }
 
+AccountManager & AccountManager::Instance()
+{
+  static AccountManager p;
+  return p;
+}
+
 AccountManager::~AccountManager()
 {
 	foreach(Account * a, listOfAccounts)
 		delete a;
-}
-
-AccountManager * AccountManager::Instance()
-{
-  static AccountManager p;
-  return &p;
 }
 
 QByteArray AccountManager::Login(QString const& login, QByteArray const& hash)
@@ -61,7 +61,7 @@ QByteArray AccountManager::Login(QString const& login, QByteArray const& hash)
 	Account * a = GetAccountByName(login);
 	if(a->IsGoodPassword(hash))
 		return GenerateNewToken(a);
-	return "";
+	return "BAD_PASSWORD";
 }
 
 QByteArray AccountManager::GenerateNewToken(Account * a)

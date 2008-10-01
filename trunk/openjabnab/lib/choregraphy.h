@@ -21,7 +21,7 @@ public:
 	void AddMotorAction(unsigned int, enum Ear, unsigned int, enum Direction);
 	QByteArray GetData();
 
-	private:
+private:
 	class Action
 	{
 		public:

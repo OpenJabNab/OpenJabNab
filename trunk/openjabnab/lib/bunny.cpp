@@ -145,7 +145,7 @@ void Bunny::RegisterAllPlugins()
 {
 	foreach(QString s, listOfPlugins)
 	{
-		PluginInterface * p = PluginManager::Instance()->GetPluginByName(s);
+		PluginInterface * p = PluginManager::Instance().GetPluginByName(s);
 		if(p)
 			p->RegisterBunny(this);
 		else
@@ -157,7 +157,7 @@ void Bunny::UnregisterAllPlugins()
 {
 	foreach(QString s, listOfPlugins)
 	{
-		PluginInterface * p = PluginManager::Instance()->GetPluginByName(s);
+		PluginInterface * p = PluginManager::Instance().GetPluginByName(s);
 		if(p)
 			p->UnregisterBunny(this);
 		else
@@ -171,7 +171,7 @@ ApiManager::ApiAnswer * Bunny::ProcessApiCall(QByteArray const& functionName, HT
 	{
 		if(hRequest.HasArg("name"))
 		{
-			PluginInterface * plugin = PluginManager::Instance()->GetPluginByName(hRequest.GetArg("name"));
+			PluginInterface * plugin = PluginManager::Instance().GetPluginByName(hRequest.GetArg("name"));
 			if(!plugin)
 				return new ApiManager::ApiError("Unknown plugin : " + hRequest.GetArg("name") + "<br />Request was : " + hRequest.toString());
 
@@ -187,7 +187,7 @@ ApiManager::ApiAnswer * Bunny::ProcessApiCall(QByteArray const& functionName, HT
 	{
 		if(hRequest.HasArg("name"))
 		{
-			PluginInterface * plugin = PluginManager::Instance()->GetPluginByName(hRequest.GetArg("name"));
+			PluginInterface * plugin = PluginManager::Instance().GetPluginByName(hRequest.GetArg("name"));
 			if(!plugin)
 				return new ApiManager::ApiError("Unknown plugin : " + hRequest.GetArg("name") + "<br />Request was : " + hRequest.toString());
 

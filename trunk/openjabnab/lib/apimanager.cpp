@@ -9,8 +9,14 @@
 #include "plugininterface.h"
 #include "pluginmanager.h"
 
-ApiManager::ApiManager(PluginManager * p):pluginManager(p)
+ApiManager::ApiManager()
 {
+}
+
+ApiManager & ApiManager::Instance()
+{
+  static ApiManager a;
+  return a;
 }
 
 QByteArray ApiManager::ApiAnswer::GetData()
@@ -28,7 +34,7 @@ ApiManager::ApiAnswer * ApiManager::ProcessApiCall(QByteArray const& request, HT
 		return ProcessGlobalApiCall(request.mid(7), hRequest);
 	
 	if (request.startsWith("plugins/"))
-		return pluginManager->ProcessApiCall(request.mid(8), hRequest);
+		return PluginManager::Instance().ProcessApiCall(request.mid(8), hRequest);
 
 	if (request.startsWith("plugin/"))
 		return ProcessPluginApiCall(request.mid(7), hRequest);
@@ -40,7 +46,7 @@ ApiManager::ApiAnswer * ApiManager::ProcessApiCall(QByteArray const& request, HT
 		return ProcessBunnyApiCall(request.mid(6), hRequest);
 	
 	if (request.startsWith("accounts/"))
-		return AccountManager::Instance()->ProcessApiCall(request.mid(9), hRequest);
+		return AccountManager::Instance().ProcessApiCall(request.mid(9), hRequest);
 	
 	return new ApiManager::ApiError("Unknown Api Call : " + hRequest.toString());
 }
@@ -60,7 +66,7 @@ ApiManager::ApiAnswer * ApiManager::ProcessPluginApiCall(QByteArray const& reque
 	QString const& pluginName = list.at(0);
 	QString const& functionName = list.at(1);
 	
-	PluginInterface * plugin = pluginManager->GetPluginByName(pluginName);
+	PluginInterface * plugin = PluginManager::Instance().GetPluginByName(pluginName);
 	if(!plugin)
 		return new ApiManager::ApiError("Unknown Plugin : " + pluginName.toUtf8() + "<br />" + "Request was : " + hRequest.toString());
 

@@ -11,7 +11,7 @@
 class OJN_EXPORT AccountManager
 {
 public:
-	static AccountManager * Instance();
+	static AccountManager & Instance();
 	virtual ~AccountManager();
 
 	QVector<Account *> const& GetListOfAccounts() { return listOfAccounts; }

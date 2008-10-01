@@ -31,8 +31,7 @@ PluginTV::PluginTV():PluginInterface("tv", "Programme TV")
 			tvFolder.cd(QString("%1/tv").arg(GlobalSettings::GetString("Config/HttpPluginsFolder")));
 		}
 	}
-	std::auto_ptr<TTSManager> tts(new TTSManager());
-	tts->createNewSound("Programme télé de ce soir", "claire", "plugins/tv/cesoir.mp3");
+	TTSManager::CreateNewSound("Programme télé de ce soir", "claire", "plugins/tv/cesoir.mp3");
 }
 
 void PluginTV::OnCron(QVariant v)
@@ -95,9 +94,8 @@ void PluginTV::analyseXml()
 						chaineFile = chaineFile.replace(" ", "").trimmed().append(".mp3").toLower();
 						Log::Debug(rx.cap(4) +" : "+rx.cap(3));
 						QByteArray fileName = QCryptographicHash::hash(rx.cap(3).trimmed().toAscii(), QCryptographicHash::Md5).toHex().append(".mp3");
-						std::auto_ptr<TTSManager> tts(new TTSManager());
-						tts->createNewSound(rx.cap(4).trimmed(), "claire", QString("plugins/tv/").append(chaineFile));
-						tts->createNewSound(rx.cap(3).trimmed(), "julie", QString("plugins/tv/").append(fileName));
+						TTSManager::CreateNewSound(rx.cap(4).trimmed(), "claire", QString("plugins/tv/").append(chaineFile));
+						TTSManager::CreateNewSound(rx.cap(3).trimmed(), "julie", QString("plugins/tv/").append(fileName));
 						message += "MU "+GetBroadcastHTTPPath(chaineFile)+"\nPL 3\nMW\nMU "+GetBroadcastHTTPPath(fileName)+"\nMW\n";
 					}
 				}

@@ -108,20 +108,6 @@ void Cron::UnregisterAll(PluginInterface * p)
 	}
 }
 
-QList<CronElement> Cron::GetByData(PluginInterface * p, QVariant v)
-{
-	QList<CronElement> list;
-	Cron & theCron = Instance();
-	QListIterator<CronElement> i(theCron.CronElements);
-	while(i.hasNext())
-	{
-		CronElement const& e = i.next();
-		if(e.plugin == p && e.data == v)
-			list.append(e);
-	}
-	return list;
-}
-
 Cron& Cron::Instance() {
   static Cron theCron;
   return theCron;

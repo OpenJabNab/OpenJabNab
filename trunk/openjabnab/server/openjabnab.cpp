@@ -12,9 +12,6 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 {
 	connect(this, SIGNAL(aboutToQuit()), this, SLOT(OnQuit()));
 
-	// Create ApiManager
-	apiManager = new ApiManager(PluginManager::Instance());
-	
 	if(GlobalSettings::Get("Config/HttpListener", true) == true)
 	{
 		// Create Listeners
@@ -54,7 +51,7 @@ OpenJabNab::~OpenJabNab()
 
 void OpenJabNab::NewHTTPConnection()
 {
-	new HttpHandler(httpListener->nextPendingConnection(), apiManager, httpApi, httpViolet);
+	new HttpHandler(httpListener->nextPendingConnection(), httpApi, httpViolet);
 }
 
 void OpenJabNab::NewXMPPConnection()
