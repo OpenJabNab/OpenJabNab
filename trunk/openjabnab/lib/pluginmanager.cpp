@@ -11,18 +11,30 @@
 PluginManager::PluginManager()
 {
 	// Load all plugins
-	QDir pluginsDir = QCoreApplication::applicationDirPath();
+	pluginsDir = QCoreApplication::applicationDirPath();
 	pluginsDir.cd("plugins");
 
 	Log::Info(QString("Finding plugins in : %1").arg(pluginsDir.path()));
 	
 	foreach (QString fileName, pluginsDir.entryList(QDir::Files)) 
 	{
+		LoadPlugin(fileName);
+	}
+}
+
+PluginManager::~PluginManager()
+{
+	foreach(PluginInterface * p, listOfPlugins)
+		delete p;
+}
+
+bool PluginManager::LoadPlugin(QString const& fileName)
+{
 		QString file = pluginsDir.absoluteFilePath(fileName);
 		if (!QLibrary::isLibrary(file))
-			continue;
+			return false;
 
-		QString status = QString(" - %1 : ").arg(fileName);
+		QString status = QString("Loading %1 : ").arg(fileName);
 		
 		QPluginLoader loader(file);
 		QObject * p = loader.instance();
@@ -32,17 +44,27 @@ PluginManager::PluginManager()
 			listOfPlugins.append(plugin);
 			listOfPluginsByName.insert(plugin->GetName(), plugin);
 			status.append(plugin->GetName() + " OK, Enable : " + ( plugin->GetEnable() ? "Yes" : "No" ) );
+			Log::Info(status);
+			return true;
 		}
-		else
-			status.append("Failed, ").append(loader.errorString()); 
+		status.append("Failed, ").append(loader.errorString()); 
 		Log::Info(status);
-	}
+		return false;
 }
 
-PluginManager::~PluginManager()
+bool PluginManager::UnloadPlugin(QString const& name)
 {
-	foreach(PluginInterface * p, listOfPlugins)
+	if(listOfPluginsByName.contains(name))
+	{
+		PluginInterface * p = listOfPluginsByName.value(name);
+		listOfPluginsByName.remove(name);
+		listOfPlugins.remove(listOfPlugins.indexOf(p));
 		delete p;
+		Log::Info(QString("Plugin %1 unloaded.").arg(name));
+		return true;
+	}
+	Log::Info(QString("Can't unload plugin %1").arg(name));
+	return false;
 }
 
 void PluginManager::HttpRequestBefore(HTTPRequest const& request)
@@ -216,6 +238,16 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 			return new ApiManager::ApiError("Unknown plugin : " + hRequest.GetArg("name") + "<br />Request was : " + hRequest.toString());
 		p->SetEnable(false);
 		return new ApiManager::ApiString(p->GetName() + " is now disabled.");
+	}
+	else if(request == "unloadPlugin")
+	{
+		if(!hRequest.HasArg("name"))
+			return new ApiManager::ApiError("Missing 'name' argument<br />Request was : " + hRequest.toString());
+		QString name = hRequest.GetArg("name");
+		if(UnloadPlugin(name))
+			return new ApiManager::ApiOk(name + " is now unloaded.");
+		else
+			return new ApiManager::ApiError("Can't unload " + name);
 	}
 	else
 		return new ApiManager::ApiError("Unknown Plugins Api Call : " + request + "<br />Request was : " + hRequest.toString());

@@ -32,6 +32,9 @@ public:
 
 private:
 	PluginManager();
+	bool LoadPlugin(QString const&);
+	bool UnloadPlugin(QString const&);
+	QDir pluginsDir;
 	QVector<PluginInterface *> listOfPlugins;
 	QMap<QString, PluginInterface *> listOfPluginsByName;
 
