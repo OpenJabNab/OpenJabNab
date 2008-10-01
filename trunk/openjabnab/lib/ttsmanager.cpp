@@ -8,7 +8,7 @@
 #include "settings.h"
 #include "ttsmanager.h"
 
-bool TTSManager::createNewSound(QString text, QString voice, QString fileName, bool forceOverwrite = false)
+bool TTSManager::createNewSound(QString text, QString voice, QString fileName, bool forceOverwrite)
 {
 	QStringList voiceList;
 	// French voices
