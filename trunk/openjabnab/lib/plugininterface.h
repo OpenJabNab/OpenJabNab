@@ -34,7 +34,7 @@ public:
 		settings = new QSettings(dir.absoluteFilePath("plugin_"+pluginName+".ini"), QSettings::IniFormat);
 		pluginEnable = GetSettings("pluginStatus/Enable", QVariant(true)).toBool();
 		// Compute Plugin's Http path
-		httpFolder = QString("%1/%2/%3").arg(GlobalSettings::GetString("Config/HttpRoot"), GlobalSettings::GetString("Config/HttpPluginsFolder"), httpFolder);
+		httpFolder = QString("%1/%2/%3").arg(GlobalSettings::GetString("Config/HttpRoot"), GlobalSettings::GetString("Config/HttpPluginsFolder"), pluginName);
 	};
 	virtual ~PluginInterface() { delete settings;};
 
