@@ -1,16 +1,13 @@
 #ifndef _HTTPREQUEST_H_
 #define _HTTPREQUEST_H_
 
-#include <QEventLoop>
 #include <QMap>
-#include <QObject>
 #include <QString>
 #include <QStringList>
 #include "global.h"
 
-class OJN_EXPORT HTTPRequest : public QObject
+class OJN_EXPORT HTTPRequest
 {
-	Q_OBJECT
 
 public:
 	enum RequestType { INVALID, GET, POST, POSTRAW };
@@ -30,9 +27,6 @@ public:
 	
 	QByteArray reply;
 
-private slots:
-	void ForwardDone(bool);
-
 private:
 	QByteArray rawUri;
 	QByteArray rawHeaders;
@@ -41,7 +35,6 @@ private:
 	QMap<QString, QString> getData;
 	QMap<QString, QString> formPostData;
 	RequestType type;
-	QEventLoop loop;
 };
 
 #endif
