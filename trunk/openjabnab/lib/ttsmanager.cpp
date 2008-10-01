@@ -14,7 +14,7 @@ bool TTSManager::createNewSound(QString text, QString voice, QString fileName, b
 	// French voices
 	voiceList << "claire" << "alice" << "bruno" << "julie";
 
-	if(!forceOverwrite && QFile::exists(GlobalSettings::GetString("Config/HttpPath") + fileName))
+	if(!forceOverwrite && QFile::exists(GlobalSettings::GetString("Config/RealHttpRoot") + fileName))
 		return true;
 
 	if(!voiceList.contains(voice))
@@ -50,7 +50,7 @@ bool TTSManager::createNewSound(QString text, QString voice, QString fileName, b
 		Log::Debug("Downloading MP3 file : " + acapelaFile);
 		http.get("/asTTS/v1-00/sounds/" + acapelaFile + ".mp3");
 		loop.exec();
-		QFile file(GlobalSettings::GetString("Config/HttpPath") + fileName);
+		QFile file(GlobalSettings::GetString("Config/RealHttpRoot") + fileName);
 		if (!file.open(QIODevice::WriteOnly))
 		{
 			Log::Error("Cannot open sound file for writing");
