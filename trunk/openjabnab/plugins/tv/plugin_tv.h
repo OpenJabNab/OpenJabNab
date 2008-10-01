@@ -25,6 +25,7 @@ public:
 private:
 	void getTVPage(Bunny *);
 	QMap <int, QStringList> webcastList;
+	QDir tvFolder;
 
 };
 

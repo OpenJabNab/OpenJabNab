@@ -7,7 +7,6 @@
 #include <QStringList>
 #include <QUrl>
 #include "log.h"
-#include "settings.h"
 #include "ttsmanager.h"
 
 bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, bool forceOverwrite)
@@ -17,7 +16,7 @@ bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, b
 	// French voices
 	voiceList << "claire" << "alice" << "bruno" << "julie";
 
-	if(!forceOverwrite && QFile::exists(GlobalSettings::GetString("Config/RealHttpRoot") + fileName))
+	if(!forceOverwrite && QFile::exists(fileName))
 		return true;
 
 	if(!voiceList.contains(voice))
@@ -53,7 +52,7 @@ bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, b
 		Log::Debug("Downloading MP3 file : " + acapelaFile);
 		http.get("/asTTS/v1-00/sounds/" + acapelaFile + ".mp3");
 		loop.exec();
-		QFile file(GlobalSettings::GetString("Config/RealHttpRoot") + fileName);
+		QFile file(fileName);
 		if (!file.open(QIODevice::WriteOnly))
 		{
 			Log::Error("Cannot open sound file for writing");

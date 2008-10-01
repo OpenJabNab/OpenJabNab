@@ -33,8 +33,9 @@ ApiManager::ApiAnswer * PluginTTS::ProcessApiCall(QByteArray const& funcName, HT
 			return new ApiManager::ApiError(QString("Can't create output folder, please check logs"));
 
 	QByteArray fileName = QCryptographicHash::hash(r.GetArg("text").toAscii(), QCryptographicHash::Md5).toHex().append(".mp3");
-	if(!QFile::exists(ttsFolder->absoluteFilePath(fileName)))
-		TTSManager::CreateNewSound(r.GetArg("text"), "claire", QString("tts/").append(fileName));
+	QString filePath = ttsFolder->absoluteFilePath(fileName);
+	if(!QFile::exists(filePath))
+		TTSManager::CreateNewSound(r.GetArg("text"), "claire", filePath);
 
 	b->SendPacket(MessagePacket("MU " + GetBroadcastHTTPPath(fileName) + "\nMW\n"));
 	return new ApiManager::ApiOk(QString("Sending '%1' to bunny '%2'").arg(r.GetArg("text"), r.GetArg("to")));
