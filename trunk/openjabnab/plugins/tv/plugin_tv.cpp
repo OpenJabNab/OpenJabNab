@@ -4,6 +4,7 @@
 #include <QHttp>
 #include <QRegExp>
 #include <QUrl>
+#include <memory>
 #include "bunny.h"
 #include "bunnymanager.h"
 #include "httprequest.h"
@@ -18,15 +19,19 @@ Q_EXPORT_PLUGIN2(plugin_tv, PluginTV)
 
 PluginTV::PluginTV():PluginInterface("tv", "Programme TV")
 {
-	QDir tvFolder(GlobalSettings::GetString("Config/HttpPath"));
-	if (!tvFolder.cd("plugins/tv"))
+	QDir tvFolder(GlobalSettings::GetString("Config/RealHttpRoot"));
+	if (!tvFolder.cd(QString("%1/tv").arg(GlobalSettings::GetString("Config/HttpPluginsFolder"))))
 	{
-		if (!tvFolder.mkdir("plugins/tv"))
+		if (!tvFolder.mkdir(QString("%1/tv").arg(GlobalSettings::GetString("Config/HttpPluginsFolder"))))
 		{
 			Log::Error("Unable to create plugins/tv directory !\n");
 		}
+		else
+		{
+			tvFolder.cd(QString("%1/tv").arg(GlobalSettings::GetString("Config/HttpPluginsFolder")));
+		}
 	}
-	TTSManager * tts = new TTSManager();
+	std::auto_ptr<TTSManager> tts(new TTSManager());
 	tts->createNewSound("Programme télé de ce soir", "claire", "plugins/tv/cesoir.mp3");
 }
 
@@ -67,7 +72,7 @@ void PluginTV::analyseXml()
 
 	QString currentTag;
 	QString chaine;
-	QByteArray message = "MU broadcast/ojn_local/plugins/tv/cesoir.mp3\nPL 3\nMW\n";
+	QByteArray message = "MU "+GetBroadcastHTTPPath("cesoir.mp3")+"\nPL 3\nMW\n";
 	while (!xml.atEnd())
 	{
 		xml.readNext();
@@ -90,10 +95,10 @@ void PluginTV::analyseXml()
 						chaineFile = chaineFile.replace(" ", "").trimmed().append(".mp3").toLower();
 						Log::Debug(rx.cap(4) +" : "+rx.cap(3));
 						QByteArray fileName = QCryptographicHash::hash(rx.cap(3).trimmed().toAscii(), QCryptographicHash::Md5).toHex().append(".mp3");
-						TTSManager * tts = new TTSManager();
+						std::auto_ptr<TTSManager> tts(new TTSManager());
 						tts->createNewSound(rx.cap(4).trimmed(), "claire", QString("plugins/tv/").append(chaineFile));
 						tts->createNewSound(rx.cap(3).trimmed(), "julie", QString("plugins/tv/").append(fileName));
-						message += "MU broadcast/ojn_local/plugins/tv/"+chaineFile+"\nPL 3\nMW\nMU broadcast/ojn_local/plugins/tv/"+fileName+"\nMW\n";
+						message += "MU "+GetBroadcastHTTPPath(chaineFile)+"\nPL 3\nMW\nMU "+GetBroadcastHTTPPath(fileName)+"\nMW\n";
 					}
 				}
 			}
@@ -139,11 +144,13 @@ ApiManager::ApiAnswer * PluginTV::ProcessApiCall(QByteArray const& funcName, HTT
 		if(!b)
 			return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(r.GetArg("to")));
 
-		QStringList time = r.GetArg("time").split(":");
-		int id = Cron::Register(this, 60*24, time[0].toInt(), time[1].toInt(), QVariant::fromValue( b ));
-		webcastList.insert(id, QStringList() << r.GetArg("to") << r.GetArg("time"));
-		b->SetPluginSetting(GetName(), "Webcast/List", b->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList() << r.GetArg("time"));
-
+		if(! b->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList().contains(r.GetArg("time")))
+		{
+			QStringList time = r.GetArg("time").split(":");
+			int id = Cron::Register(this, 60*24, time[0].toInt(), time[1].toInt(), QVariant::fromValue( b ));
+			webcastList.insert(id, QStringList() << r.GetArg("to") << r.GetArg("time"));
+			b->SetPluginSetting(GetName(), "Webcast/List", b->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList() << r.GetArg("time"));
+		}
 		return new ApiManager::ApiString(QString("Add webcast at '%1' to bunny '%2'").arg(r.GetArg("time"), r.GetArg("to")));
 	}
 	else if(funcName.toLower() == "removewebcast")
