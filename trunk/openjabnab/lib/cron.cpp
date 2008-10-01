@@ -15,7 +15,7 @@ Cron::Cron() {
 
 void Cron::OnTimer()
 {
-	Log::Info(QString("Cron Timer ") + QDateTime::currentDateTime().toString());
+	Log::Debug(QString("Cron Timer ") + QDateTime::currentDateTime().toString());
 	unsigned int now = QDateTime::currentDateTime().toTime_t();
 	
 	for(QList<CronElement>::iterator it = CronElements.begin(); it != CronElements.end(); it++)
