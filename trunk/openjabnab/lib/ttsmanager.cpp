@@ -10,7 +10,7 @@
 #include "settings.h"
 #include "ttsmanager.h"
 
-bool TTSManager::createNewSound(QString text, QString voice, QString fileName, bool forceOverwrite)
+bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, bool forceOverwrite)
 {
 	QStringList voiceList;
 	QEventLoop loop;
@@ -24,7 +24,7 @@ bool TTSManager::createNewSound(QString text, QString voice, QString fileName, b
 		voice = "claire";
 
 	QHttp http("vaas3.acapela-group.com");
-	QObject::connect(&http, SIGNAL(done(bool)), &loop, SLOT(exit()));
+	QObject::connect(&http, SIGNAL(done(bool)), &loop, SLOT(quit()));
 
 	QByteArray ContentData;
 	ContentData += "client%5Ftext=" + QUrl::toPercentEncoding(text) + "&client%5Fvoice=" + voice + "22k&client%5Frequest%5Ftype=CREATE%5FREQUEST&client%5Fpassword=reuno&client%5Flogin=asTTS&client%5Fversion=1%2D00&onLoad=%5Btype%20Function%5D";
