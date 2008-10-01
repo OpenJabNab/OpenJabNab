@@ -10,6 +10,12 @@ Q_EXPORT_PLUGIN2(plugin_test, PluginTest)
 PluginTest::PluginTest():PluginInterface("test")
 {
 	angle = 0;
+	Log::Info("Plugin test loaded !");
+}
+
+PluginTest::~PluginTest()
+{
+	Log::Info("Plugin test unloaded !");
 }
 
 bool PluginTest::OnClick(Bunny * b, PluginInterface::ClickType type)
