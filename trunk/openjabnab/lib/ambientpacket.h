@@ -25,10 +25,10 @@ public:
 	void DisableService(enum Services);
 	static AmbientPacket * Parse(QByteArray const&);
 
+	Packet_Types GetType() const { return Packet::Packet_Ambient; };
 	
 protected:
 	QByteArray GetInternalData() const;
-	quint8 GetType() const { return Packet::Packet_Ambient; };
 	QMap<unsigned char, unsigned char> services;
 };
 

@@ -14,10 +14,10 @@ public:
 	QByteArray GetData() const;
 	QByteArray GetHexData() const { return GetData().toHex(); }
 	virtual QByteArray GetPrintableData() const = 0;
+	virtual Packet_Types GetType() const = 0;
 	
 protected:
 	virtual QByteArray GetInternalData() const = 0;
-	virtual quint8 GetType() const = 0;
 };
 
 #endif

@@ -39,6 +39,17 @@ public:
 			QByteArray error;
 	};
 
+	class OJN_EXPORT ApiOk : public ApiAnswer
+	{
+		public:
+			ApiOk():string(QByteArray()) {}
+			ApiOk(QByteArray s):string(s) {}
+			ApiOk(QString s):string(s.toAscii()) {}
+			QByteArray GetInternalData() { return "<ok>" + SanitizeXML(string) + "</ok>"; }
+		private:
+			QByteArray string;
+	};
+
 	class OJN_EXPORT ApiString : public ApiAnswer
 	{
 		public:
