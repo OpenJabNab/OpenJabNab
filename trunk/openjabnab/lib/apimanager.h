@@ -101,6 +101,5 @@ private:
 	ApiAnswer * ProcessBunnyApiCall(QByteArray const&, HTTPRequest const&);
 	
 	PluginManager * pluginManager;
-	AccountManager * accountManager;
 };
 #endif
