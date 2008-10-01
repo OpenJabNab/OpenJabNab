@@ -2,7 +2,7 @@
 #define _PLUGINMANAGER_H_
 
 #include <QMap>
-#include <QVector>
+#include <QList>
 #include "global.h"
 #include "plugininterface.h"
 #include "apimanager.h"
@@ -26,7 +26,7 @@ public:
 	bool OnEarsMove(Bunny *, int, int);
 	bool OnRFID(Bunny *, QByteArray const&);
 	
-	QVector<PluginInterface *> const& GetListOfPlugins() { return listOfPlugins; }
+	QList<PluginInterface *> const& GetListOfPlugins() { return listOfPluginsPtr; }
 	PluginInterface * GetPluginByName(QString name) { return listOfPluginsByName.value(name); }
 	ApiManager::ApiAnswer * ProcessApiCall(QByteArray const& request, HTTPRequest const& hRequest);
 
@@ -34,10 +34,12 @@ private:
 	PluginManager();
 	bool LoadPlugin(QString const&);
 	bool UnloadPlugin(QString const&);
+	bool ReloadPlugin(QString const&);
 	QDir pluginsDir;
-	QVector<PluginInterface *> listOfPlugins;
+	QList<PluginInterface *> listOfPluginsPtr;
+	QMap<PluginInterface *, QString> listOfPluginsFileName;
 	QMap<QString, PluginInterface *> listOfPluginsByName;
-
+	QMap<QString, PluginInterface *> listOfPluginsByFileName;
 };
 
 #endif
