@@ -35,7 +35,7 @@ ApiManager::ApiAnswer * PluginTTS::ProcessApiCall(QByteArray const& funcName, HT
 	QByteArray fileName = QCryptographicHash::hash(r.GetArg("text").toAscii(), QCryptographicHash::Md5).toHex().append(".mp3");
 	if(!QFile::exists(ttsFolder->absoluteFilePath(fileName)))
 	{
-		TTSManager * tts = new TTSManager();
+		std::auto_ptr<TTSManager> tts(new TTSManager());
 		tts->createNewSound(r.GetArg("text"), "claire", QString("tts/").append(fileName));
 	}
 	b->SendPacket(MessagePacket("MU " + GetBroadcastHTTPPath(fileName) + "\nMW\n"));
