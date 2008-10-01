@@ -24,7 +24,7 @@ bool PluginDice::OnClick(Bunny * b, PluginInterface::ClickType type)
 		quint8 value = rand() % 6 + 1;
 		Log::Debug(" -- Language : " + Language + " -- Roll dice : " + QString::number(value));
 		// Send packet to bunny with mp3 to be played
-		b->SendPacket(MessagePacket("MU broadcast/ojn_local/plugins/dice/" + Language + "/get.mp3\nMW\nMU broadcast/ojn_local/plugins/dice/" + Language + "/" + QByteArray::number(value) + ".mp3\nMW\n"));
+		b->SendPacket(MessagePacket("MU "+GetBroadcastHTTPPath(Language + "/get.mp3")+"\nMW\nMU "+GetBroadcastHTTPPath(Language + "/" + QString::number(value) + ".mp3")+"\nMW\n"));
 	}
 	else
 	{
