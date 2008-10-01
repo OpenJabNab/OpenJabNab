@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
+#include <cstdlib>
 #include "account.h"
 #include "log.h"
 
