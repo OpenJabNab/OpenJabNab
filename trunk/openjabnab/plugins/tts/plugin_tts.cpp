@@ -1,5 +1,6 @@
 #include <QDir>
 #include <QCryptographicHash>
+#include <memory>
 #include "plugin_tts.h"
 #include "bunny.h"
 #include "bunnymanager.h"
@@ -27,22 +28,16 @@ ApiManager::ApiAnswer * PluginTTS::ProcessApiCall(QByteArray const& funcName, HT
 	if(!b)
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(r.GetArg("to")));
 
-	QDir ttsFolder(GlobalSettings::GetString("Config/HttpPath"));
-	if (!ttsFolder.cd("tts"))
-	{
-		if (!ttsFolder.mkdir("tts"))
-		{
-			Log::Error("Unable to create plugin/tts directory !\n");
-			return new ApiManager::ApiError(QString("Internal error with plugin, please check logs"));
-		}
-		ttsFolder.cd("tts");
-	}
+	std::auto_ptr<QDir> ttsFolder(GetLocalHTTPFolder());
+	if(!ttsFolder.get())
+			return new ApiManager::ApiError(QString("Can't create output folder, please check logs"));
+
 	QByteArray fileName = QCryptographicHash::hash(r.GetArg("text").toAscii(), QCryptographicHash::Md5).toHex().append(".mp3");
-	if(!QFile::exists(ttsFolder.absoluteFilePath(fileName)))
+	if(!QFile::exists(ttsFolder->absoluteFilePath(fileName)))
 	{
 		TTSManager * tts = new TTSManager();
 		tts->createNewSound(r.GetArg("text"), "claire", QString("tts/").append(fileName));
 	}
-	b->SendPacket(MessagePacket("MU broadcast/ojn_local/tts/" + fileName + "\nMW\n"));
-	return new ApiManager::ApiString(QString("Sending '%1' to bunny '%2'").arg(r.GetArg("text"), r.GetArg("to")));
+	b->SendPacket(MessagePacket("MU " + GetBroadcastHTTPPath(fileName) + "\nMW\n"));
+	return new ApiManager::ApiOk(QString("Sending '%1' to bunny '%2'").arg(r.GetArg("text"), r.GetArg("to")));
 }

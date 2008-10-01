@@ -1,9 +1,11 @@
 [Config]
-httpListener=true
-httpApi=true
-httpViolet=true
-xmppListener=true
-HttpPath=/var/www/http-wrapper/
+httpListener = true
+httpApi = true
+httpViolet = true
+xmppListener = true
+RealHttpRoot = /var/www/http-wrapper/ojn_local/
+HttpRoot = ojn_local
+HttpPluginsFolder = plugins
 
 [DefaultVioletServers]
 BootServer=r.nabaztag.com

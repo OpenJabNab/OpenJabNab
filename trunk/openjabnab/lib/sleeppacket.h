@@ -16,10 +16,10 @@ public:
 	~SleepPacket() {};
 	QByteArray GetPrintableData() const;
 
+	Packet_Types GetType() const { return Packet::Packet_Sleep; };
 	
 protected:
 	QByteArray GetInternalData() const;
-	quint8 GetType() const { return Packet::Packet_Sleep; };
 
 	bool sleep;
 };

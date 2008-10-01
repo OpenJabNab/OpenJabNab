@@ -14,11 +14,11 @@ public:
 	~MessagePacket() {};
 	QByteArray GetPrintableData() const;
 
+	Packet_Types GetType() const { return Packet::Packet_Message; };
 	
 protected:
 	MessagePacket();
 	QByteArray GetInternalData() const;
-	quint8 GetType() const { return Packet::Packet_Message; };
 
 	QByteArray message;
 	

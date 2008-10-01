@@ -10,6 +10,7 @@
 #include "apimanager.h"
 #include "bunny.h"
 #include "log.h"
+#include "settings.h"
 
 class HTTPRequest;
 class Packet;
@@ -32,6 +33,8 @@ public:
 		dir.cd("plugins");
 		settings = new QSettings(dir.absoluteFilePath("plugin_"+pluginName+".ini"), QSettings::IniFormat);
 		pluginEnable = GetSettings("pluginStatus/Enable", QVariant(true)).toBool();
+		// Compute Plugin's Http path
+		httpFolder = QString("%1/%2/%3").arg(GlobalSettings::GetString("Config/HttpRoot"), GlobalSettings::GetString("Config/HttpPluginsFolder"), httpFolder);
 	};
 	virtual ~PluginInterface() { delete settings;};
 
@@ -103,6 +106,36 @@ public:
 	};
 
 protected:
+	// HTTP Data folder
+	QDir * GetLocalHTTPFolder() const
+	{
+		QDir pluginsFolder(GlobalSettings::GetString("Config/RealHttpRoot"));
+		QString httpPluginsFolder = GlobalSettings::GetString("Config/HttpPluginsFolder");
+		if (!pluginsFolder.cd(httpPluginsFolder))
+		{
+			if (!pluginsFolder.mkdir(httpPluginsFolder))
+			{
+				Log::Error(QString("Unable to create %1 directory !\n").arg(httpPluginsFolder));
+				return NULL;
+			}
+			pluginsFolder.cd(httpPluginsFolder);
+		}
+		if (!pluginsFolder.cd(pluginName))
+		{
+			if (!pluginsFolder.mkdir(pluginName))
+			{
+				Log::Error(QString("Unable to create %1/%2 directory !\n").arg(httpPluginsFolder, pluginName));
+				return NULL;
+			}
+			pluginsFolder.cd("tts");
+		}
+		return new QDir(pluginsFolder);
+	}
+
+	QByteArray GetBroadcastHTTPPath(QString f) const
+	{
+		return QString("broadcast/%1/%2").arg(httpFolder, f).toAscii();
+	}
 	QSettings * settings;
 
 private:
@@ -111,6 +144,7 @@ private:
 	QString pluginVisualName;
 	bool pluginEnable;
 	QList<Bunny *> listOfConnectedBunnies;
+	QString httpFolder;
 };
 
 Q_DECLARE_INTERFACE(PluginInterface,"org.toms.openjabnab.PluginInterface/1.0")
