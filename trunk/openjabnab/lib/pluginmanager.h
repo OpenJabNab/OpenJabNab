@@ -8,6 +8,7 @@
 #include "apimanager.h"
 
 class PluginInterface;
+class QPluginLoader;
 class OJN_EXPORT PluginManager
 {
 public:
@@ -39,6 +40,7 @@ private:
 	QDir pluginsDir;
 	QList<PluginInterface *> listOfPluginsPtr;
 	QMap<PluginInterface *, QString> listOfPluginsFileName;
+	QMap<PluginInterface *, QPluginLoader *> listOfPluginsLoader;
 	QMap<QString, PluginInterface *> listOfPluginsByName;
 	QMap<QString, PluginInterface *> listOfPluginsByFileName;
 };

@@ -49,20 +49,21 @@ bool PluginManager::LoadPlugin(QString const& fileName)
 
 	QString status = QString("Loading %1 : ").arg(fileName);
 	
-	QPluginLoader loader(file);
-	QObject * p = loader.instance();
+	QPluginLoader * loader = new QPluginLoader(file);
+	QObject * p = loader->instance();
 	PluginInterface * plugin = qobject_cast<PluginInterface *>(p);
 	if (plugin)
 	{
 		listOfPluginsPtr.append(plugin);
 		listOfPluginsFileName.insert(plugin, fileName);
+		listOfPluginsLoader.insert(plugin, loader);
 		listOfPluginsByName.insert(plugin->GetName(), plugin);
 		listOfPluginsByFileName.insert(fileName, plugin);
 		status.append(plugin->GetName() + " OK, Enable : " + ( plugin->GetEnable() ? "Yes" : "No" ) );
 		Log::Info(status);
 		return true;
 	}
-	status.append("Failed, ").append(loader.errorString()); 
+	status.append("Failed, ").append(loader->errorString()); 
 	Log::Info(status);
 	return false;
 }
@@ -73,11 +74,14 @@ bool PluginManager::UnloadPlugin(QString const& name)
 	{
 		PluginInterface * p = listOfPluginsByName.value(name);
 		QString fileName = listOfPluginsFileName.value(p);
+		QPluginLoader * loader = listOfPluginsLoader.value(p);
 		listOfPluginsByFileName.remove(fileName);
 		listOfPluginsFileName.remove(p);
 		listOfPluginsByName.remove(name);
 		listOfPluginsPtr.removeAll(p);
 		delete p;
+		loader->unload();
+		delete loader;
 		Log::Info(QString("Plugin %1 unloaded.").arg(name));
 		return true;
 	}
