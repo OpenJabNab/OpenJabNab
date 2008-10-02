@@ -138,14 +138,14 @@ void XmppHandler::HandleVioletXmppMessage()
 		// Send info to all plugins
 		pluginManager.XmppVioletMessage(msg);
 
-		// Check if the data contains <message></message>
-		QRegExp rx("<message[^>]*>.*</message>");
 		if(msg.startsWith("</stream:stream>"))
 		{
 			// Disconnect as soon as possible
 			QTimer::singleShot(0, this, SLOT(Disconnect()));
 			return;
 		}
+		// Check if the data contains <packet></packet>
+		QRegExp rx("<packet[^>]*format='([^']*)'[^>]*>(.*)</packet>");
 		if (rx.indexIn(msg) == -1)
 		{
 			// Just some signaling informations, forward directly
@@ -155,12 +155,8 @@ void XmppHandler::HandleVioletXmppMessage()
 		{
 			bool drop = false;
 			// Try to decode it
-			rx.setPattern("<packet[^>]*format='([^']*)'[^>]*>(.*)</packet>");
 			try
 			{
-				if (rx.indexIn(msg) == -1)
-					throw "Unable to parse message : " + msg;
-
 				if (rx.cap(1) != "1.0")
 					throw "Unknown packet format : " + msg;
 
