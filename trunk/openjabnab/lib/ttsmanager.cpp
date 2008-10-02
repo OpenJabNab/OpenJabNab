@@ -7,6 +7,7 @@
 #include <QStringList>
 #include <QUrl>
 #include "log.h"
+#include "settings.h"
 #include "ttsmanager.h"
 
 bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, bool forceOverwrite)
@@ -46,11 +47,13 @@ bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, b
 	http.request(Header, ContentData);
 	loop.exec();
 	QByteArray reponse = http.readAll();
-	if(reponse.startsWith("retour_php"))
+	QUrl url("http://"+GlobalSettings::GetString("DefaultVioletServers/BroadServer")+"/index.php?"+reponse);
+	if(url.hasQueryItem("retour_php"))
 	{
-		QString acapelaFile = reponse.mid(44, 13);
-		Log::Debug("Downloading MP3 file : " + acapelaFile);
-		http.get("/asTTS/v1-00/sounds/" + acapelaFile + ".mp3");
+		Log::Debug("Acapela answer: " + reponse);
+		QString acapelaFile = url.queryItemValue("retour_php");
+		Log::Info("Downloading MP3 file : " + acapelaFile);
+		http.get("/asTTS/v1-00/" + acapelaFile);
 		loop.exec();
 		QFile file(fileName);
 		if (!file.open(QIODevice::WriteOnly))
