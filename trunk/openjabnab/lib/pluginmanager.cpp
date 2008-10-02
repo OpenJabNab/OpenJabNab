@@ -77,6 +77,7 @@ bool PluginManager::UnloadPlugin(QString const& name)
 		QPluginLoader * loader = listOfPluginsLoader.value(p);
 		listOfPluginsByFileName.remove(fileName);
 		listOfPluginsFileName.remove(p);
+		listOfPluginsLoader.remove(p);
 		listOfPluginsByName.remove(name);
 		listOfPluginsPtr.removeAll(p);
 		delete p;
