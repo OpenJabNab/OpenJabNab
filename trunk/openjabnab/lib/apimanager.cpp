@@ -51,8 +51,12 @@ ApiManager::ApiAnswer * ApiManager::ProcessApiCall(QByteArray const& request, HT
 	return new ApiManager::ApiError("Unknown Api Call : " + hRequest.toString());
 }
 
-ApiManager::ApiAnswer * ApiManager::ProcessGlobalApiCall(QByteArray const& /*request*/, HTTPRequest const& hRequest)
+ApiManager::ApiAnswer * ApiManager::ProcessGlobalApiCall(QByteArray const& request, HTTPRequest const& hRequest)
 {
+	if(request == "about")
+	{
+		return new ApiManager::ApiString(QByteArray("OpenJabNab v0.01 - (Build " __DATE__ " / " __TIME__ ")"));
+	}
 	return new ApiManager::ApiError("Unknown Global Api Call : " + hRequest.toString());
 }
 
