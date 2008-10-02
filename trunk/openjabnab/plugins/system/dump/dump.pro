@@ -7,11 +7,11 @@ CONFIG -= debug
 CONFIG += plugin qt release
 QT += network
 QT -= gui
-INCLUDEPATH += . ../../server ../../lib
-TARGET = plugin_boot
-DESTDIR = ../../bin/plugins
-DEPENDPATH += . ../../server ../../lib
-LIBS += -L../../bin/ -lcommon
+INCLUDEPATH += . ../../../server ../../../lib
+TARGET = plugin_dump
+DESTDIR = ../../../bin/plugins
+DEPENDPATH += . ../../../server ../../../lib
+LIBS += -L../../../bin/ -lcommon
 MOC_DIR = ./tmp/moc
 OBJECTS_DIR = ./tmp/obj
 win32 {
@@ -23,5 +23,5 @@ unix {
 }
 
 # Input
-HEADERS += plugin_boot.h
-SOURCES += plugin_boot.cpp
+HEADERS += plugin_dump.h
+SOURCES += plugin_dump.cpp

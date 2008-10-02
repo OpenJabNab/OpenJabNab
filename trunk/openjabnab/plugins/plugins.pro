@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = boot dice dump locate test tts tv
+SUBDIRS = system dice test tts tv

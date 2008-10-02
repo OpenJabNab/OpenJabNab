@@ -7,11 +7,11 @@ CONFIG -= debug
 CONFIG += plugin qt release
 QT += network
 QT -= gui
-INCLUDEPATH += . ../../server ../../lib
+INCLUDEPATH += . ../../../server ../../../lib
 TARGET = plugin_locate
-DESTDIR = ../../bin/plugins
-DEPENDPATH += . ../../server ../../lib
-LIBS += -L../../bin/ -lcommon
+DESTDIR = ../../../bin/plugins
+DEPENDPATH += . ../../../server ../../../lib
+LIBS += -L../../../bin/ -lcommon
 MOC_DIR = ./tmp/moc
 OBJECTS_DIR = ./tmp/obj
 win32 {
