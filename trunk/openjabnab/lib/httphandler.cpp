@@ -46,45 +46,27 @@ void HttpHandler::HandleBunnyHTTPRequest()
 	}
 	else if(httpViolet)
 	{
-		if (uri.startsWith("/vl/rfid.jsp"))
+		pluginManager.HttpRequestBefore(request);
+		// If none can answer, try to forward it directly to Violet's servers
+		if (!pluginManager.HttpRequestHandle(request))
 		{
-			QString serialnumber = request.GetArg("sn");
-			QString tagId = request.GetArg("t");
-
-			Bunny * b = BunnyManager::GetBunny(serialnumber.toAscii());
-			b->SetGlobalSetting("Last RFID Tag", tagId);
-		
-			if (!pluginManager.OnRFID(b, QByteArray::fromHex(tagId.toAscii())))
+			if (uri.startsWith("/vl/sendMailXMPP.jsp"))
 			{
-				// Forward it to Violet's servers
+				Log::Warning("Problem with the bunny, he's calling sendMailXMPP.jsp !");
+				request.reply = "Not Allowed !";
+			}
+			else if (uri.startsWith("/vl/"))
 				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
-				incomingHttpSocket->write(request.reply);
-			}
-		}
-		else
-		{
-			pluginManager.HttpRequestBefore(request);
-			// If none can answer, try to forward it directly to Violet's servers
-			if (!pluginManager.HttpRequestHandle(request))
+			else if (uri.startsWith("/broad/"))
+				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BroadServer"));
+			else
 			{
-				if (uri.startsWith("/vl/sendMailXMPP.jsp"))
-				{
-					Log::Warning("Problem with the bunny, he's calling sendMailXMPP.jsp !");
-					request.reply = "Not Allowed !";
-				}
-				else if (uri.startsWith("/vl/"))
-					request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
-				else if (uri.startsWith("/broad/"))
-					request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BroadServer"));
-				else
-				{
-					Log::Error(QString("Unable to handle HTTP Request : ") + request.toString());
-					request.reply = "404 Not Found";
-				}
+				Log::Error(QString("Unable to handle HTTP Request : ") + request.toString());
+				request.reply = "404 Not Found";
 			}
-			pluginManager.HttpRequestAfter(request);
-			incomingHttpSocket->write(request.reply);
 		}
+		pluginManager.HttpRequestAfter(request);
+		incomingHttpSocket->write(request.reply);
 	}
 	else
 	{
