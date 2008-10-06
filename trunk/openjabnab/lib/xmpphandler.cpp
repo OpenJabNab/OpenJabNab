@@ -162,9 +162,31 @@ void XmppHandler::HandleVioletXmppMessage()
 
 				try
 				{
-					Packet * p = Packet::Parse(QByteArray::fromBase64(rx.cap(2).toAscii()));
-					drop = pluginManager.XmppVioletPacketMessage(*p);
-					delete p;
+					QList<Packet*> list = Packet::Parse(QByteArray::fromBase64(rx.cap(2).toAscii()));
+					QList<Packet*>::iterator it = list.begin();
+					while(it != list.end())
+					{
+						if (pluginManager.XmppVioletPacketMessage(**it))
+						{
+							delete *it; // Packed used and dropped
+							it = list.erase(it);
+							drop = true; // List changed
+						}
+						else
+							it++;
+					}
+					if(drop) // If list changed
+					{
+						if(list.count()) // If there is still one packet to send
+						{
+							msg.replace(rx.cap(2), Packet::GetData(list));
+							foreach(Packet * p, list)
+								delete p;
+							drop = false;
+						}
+						else
+							drop = true; // Nothing to send, drop all
+					}
 				}
 				catch (QByteArray const& errorMsg)
 				{
