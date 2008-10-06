@@ -47,7 +47,7 @@ bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, b
 	http.request(Header, ContentData);
 	loop.exec();
 	QByteArray reponse = http.readAll();
-	QUrl url("http://"+GlobalSettings::GetString("DefaultVioletServers/BroadServer")+"/index.php?"+reponse);
+	QUrl url("?"+reponse);
 	if(url.hasQueryItem("retour_php"))
 	{
 		Log::Debug("Acapela answer: " + reponse);
