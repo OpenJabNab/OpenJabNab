@@ -44,9 +44,6 @@ void XmppHandler::HandleBunnyXmppMessage()
 	// Replace OpenJabNab's domain
 	data.replace(GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii(),GlobalSettings::GetString("DefaultVioletServers/XmppServer").toAscii());
 
-	// Send info to all plugins
-	pluginManager.XmppBunnyMessage(data);
-	
 	// If we don't already know which bunny is connected, try to find a <response></response> message
 	if (!bunny)
 	{
@@ -67,6 +64,18 @@ void XmppHandler::HandleBunnyXmppMessage()
 				Log::Warning("Unable to parse response message : " + authString);
 		}
 	}
+
+	// No bunny yet, forward
+	if(!bunny)
+	{
+		// Send info to all 'system' plugins only
+		pluginManager.XmppBunnyMessage(bunny, data);
+		outgoingXmppSocket->write(data);
+		return;
+	}
+
+	// Send info to all 'system' plugins and bunny's plugins
+	bunny->XmppBunnyMessage(data);
 	
 	// Check if the data contains <message></message>
 	QRegExp rx("<message[^>]*>(.*)</message>");
@@ -77,51 +86,42 @@ void XmppHandler::HandleBunnyXmppMessage()
 	}
 	else
 	{
-		// We can't parse a message without knowing which bunny is connected 
-		if (!bunny)
+		QString message = rx.cap(1);
+		// Parse message
+		bool handled = false;
+		if (message.startsWith("<button"))
 		{
-			Log::Warning("Parsing a message from bunny without a bunny!");
-			outgoingXmppSocket->write(data);
-		}
-		else
-		{
-			QString message = rx.cap(1);
-			// Parse message
-			bool handled = false;
-			if (message.startsWith("<button"))
+			// Single Click : <button xmlns="violet:nabaztag:button"><clic>1</clic></button>
+			// Double Click : <button xmlns="violet:nabaztag:button"><clic>2</clic></button>
+			QRegExp rx("<clic>([0-9]+)</clic>");
+			if (rx.indexIn(message) != -1)
 			{
-				// Single Click : <button xmlns="violet:nabaztag:button"><clic>1</clic></button>
-				// Double Click : <button xmlns="violet:nabaztag:button"><clic>2</clic></button>
-				QRegExp rx("<clic>([0-9]+)</clic>");
-				if (rx.indexIn(message) != -1)
-				{
-					int value = rx.cap(1).toInt();
-					if (value == 1)
-						handled = pluginManager.OnClick(bunny, PluginInterface::SingleClick);
-					else if (value == 2)
-						handled = pluginManager.OnClick(bunny, PluginInterface::DoubleClick);
-					else
-						Log::Warning("Unable to parse button/click message : " + data);
-				}
+				int value = rx.cap(1).toInt();
+				if (value == 1)
+					handled = bunny->OnClick(PluginInterface::SingleClick);
+				else if (value == 2)
+					handled = bunny->OnClick(PluginInterface::DoubleClick);
 				else
-					Log::Warning("Unable to parse button message : " + data);
-			}
-			else if (message.startsWith("<ears"))
-			{
-				// <ears xmlns="violet:nabaztag:ears"><left>0</left><right>0</right></ears>
-				QRegExp rx("<left>([0-9]+)</left><right>([0-9]+)</right>");
-				if (rx.indexIn(message) != -1)
-					handled = pluginManager.OnEarsMove(bunny, rx.cap(1).toInt(), rx.cap(2).toInt());
-				else
-					Log::Warning("Unable to parse ears message : " + data);
+					Log::Warning("Unable to parse button/click message : " + data);
 			}
 			else
-				Log::Warning("Unknown message from bunny : " + data);
-
-			// If the message wasn't handled by a plugin, forward it to Violet
-			if (!handled)
-				outgoingXmppSocket->write(data);
+				Log::Warning("Unable to parse button message : " + data);
 		}
+		else if (message.startsWith("<ears"))
+		{
+			// <ears xmlns="violet:nabaztag:ears"><left>0</left><right>0</right></ears>
+			QRegExp rx("<left>([0-9]+)</left><right>([0-9]+)</right>");
+			if (rx.indexIn(message) != -1)
+				handled = bunny->OnEarsMove(rx.cap(1).toInt(), rx.cap(2).toInt());
+			else
+				Log::Warning("Unable to parse ears message : " + data);
+		}
+		else
+			Log::Warning("Unknown message from bunny : " + data);
+
+		// If the message wasn't handled by a plugin, forward it to Violet
+		if (!handled)
+			outgoingXmppSocket->write(data);
 	}
 }
 
@@ -135,15 +135,24 @@ void XmppHandler::HandleVioletXmppMessage()
 	QList<QByteArray> list = XmlParse(data);
 	foreach(QByteArray msg, list)
 	{
-		// Send info to all plugins
-		pluginManager.XmppVioletMessage(msg);
-
 		if(msg.startsWith("</stream:stream>"))
 		{
 			// Disconnect as soon as possible
 			QTimer::singleShot(0, this, SLOT(Disconnect()));
 			return;
 		}
+
+		if(!bunny)
+		{
+			// Send info to all 'system' plugins only and forward
+			pluginManager.XmppVioletMessage(bunny, msg);
+			WriteToBunny(msg);
+			return;
+		}
+		else
+			bunny->XmppVioletMessage(msg); 	// Send info to all 'system' plugins and bunny's plugins
+
+
 		// Check if the data contains <packet></packet>
 		QRegExp rx("<packet[^>]*format='([^']*)'[^>]*>(.*)</packet>");
 		if (rx.indexIn(msg) == -1)
@@ -166,7 +175,7 @@ void XmppHandler::HandleVioletXmppMessage()
 					QList<Packet*>::iterator it = list.begin();
 					while(it != list.end())
 					{
-						if (pluginManager.XmppVioletPacketMessage(**it))
+						if (bunny->XmppVioletPacketMessage(**it))
 						{
 							delete *it; // Packed used and dropped
 							it = list.erase(it);

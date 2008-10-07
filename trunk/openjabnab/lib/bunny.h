@@ -9,8 +9,8 @@
 #include "apimanager.h"
 #include "global.h"
 #include "packet.h"
+#include "plugininterface.h"
 
-class PluginInterface;
 class XmppHandler;
 class OJN_EXPORT Bunny : QObject
 {
@@ -35,6 +35,14 @@ public:
 	QVariant GetPluginSetting(QString const&, QString const&, QVariant const& defaultValue = QVariant()) const;
 	void SetPluginSetting(QString const&, QString const&, QVariant const&);
 
+	void XmppBunnyMessage(QByteArray const&);
+	void XmppVioletMessage(QByteArray const&);
+	bool XmppVioletPacketMessage(Packet const& p);
+	
+	bool OnClick(PluginInterface::ClickType);
+	bool OnEarsMove(int, int);
+	bool OnRFID(QByteArray const&);
+
 	ApiManager::ApiAnswer * ProcessApiCall(QByteArray const& functionName, HTTPRequest const& hRequest);
 
 private slots:
@@ -44,8 +52,8 @@ private:
 	void LoadConfig();
 	void AddPlugin(PluginInterface * p);
 	void RemovePlugin(PluginInterface * p);
-	void RegisterAllPlugins();
-	void UnregisterAllPlugins();
+	void OnConnect();
+	void OnDisconnect();
 
 	enum State state;
 	QByteArray id;
@@ -53,6 +61,7 @@ private:
 	QMap<QString, QVariant> GlobalSettings;
 	QMap<QString, QMap<QString, QVariant> > PluginsSettings;
 	QList<QString> listOfPlugins;
+	QList<PluginInterface*> listOfPluginsPtr;
 	QTimer * saveTimer;
 	XmppHandler * xmppHandler;
 };
