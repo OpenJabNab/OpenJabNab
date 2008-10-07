@@ -25,20 +25,20 @@ PluginDump::PluginDump():PluginInterface("dump", "Dump", SystemPlugin)
 
 void PluginDump::HttpRequestBefore(HTTPRequest const& request)
 {
-	dumpStream << QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss") << " - HTTP Request - " << request.GetURI() << endl;
+	dumpStream << QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss") << " - HTTP Request - " << request.GetRawURI() << endl;
 }
 
-void PluginDump::XmppBunnyMessage(QByteArray const& msg)
+void PluginDump::XmppBunnyMessage(Bunny *, QByteArray const& msg)
 {
 	dumpStream << QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss") << " - XMPP Bunny - " << msg << endl;
 }
 
-void PluginDump::XmppVioletMessage(QByteArray const& msg)
+void PluginDump::XmppVioletMessage(Bunny *, QByteArray const& msg)
 {
 	dumpStream << QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss") << " - XMPP Violet - " << msg << endl;
 }
 
-bool PluginDump::XmppVioletPacketMessage(Packet const& p)
+bool PluginDump::XmppVioletPacketMessage(Bunny *, Packet const& p)
 {
 	dumpStream << QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss") << " - XMPP Violet Packet - " << p.GetPrintableData() << endl;
 	return false;

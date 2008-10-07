@@ -15,6 +15,7 @@ public:
 	HTTPRequest(QByteArray const&);
 	QByteArray ForwardTo(QString const& server);
 	inline QByteArray const& GetURI() const { return uri; };
+	inline QByteArray const& GetRawURI() const { return rawUri; };
 	inline QString GetArg(QString const& s) const { return getData.value(s, QString()); };
 	inline bool HasArg(QString const& s) const { return getData.contains(s); };
 	inline QString GetPostArg(QString const& s) const { return formPostData.value(s, QString()); };
