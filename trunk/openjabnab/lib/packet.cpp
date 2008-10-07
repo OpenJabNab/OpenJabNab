@@ -18,22 +18,23 @@ QList<Packet*> Packet::Parse(QByteArray const& originalBuffer)
 	while(buffer.size() != 1)
 	{
 		Packet * p;
+		data = (const unsigned char *)buffer.constData();
 		int len = data[1] << 16 | data[2] << 8 | data[3];
 		if (buffer.size() < len + 5) // Type(1) + Len(3) + Trail(1)
 			throw "Bad packet length : " + buffer.toHex() + " / " + originalBuffer.toHex();
 
-		switch(data[1])
+		switch(data[0])
 		{
 			case Packet_Ambient:
-				p = AmbientPacket::Parse(buffer.mid(5, len));
+				p = AmbientPacket::Parse(buffer.mid(4, len));
 				break;
 
 			case Packet_Message:
-				p = MessagePacket::Parse(buffer.mid(5, len));
+				p = MessagePacket::Parse(buffer.mid(4, len));
 				break;
 			
 			case Packet_Sleep:
-				p = SleepPacket::Parse(buffer.mid(5, len));
+				p = SleepPacket::Parse(buffer.mid(4, len));
 				break;
 
 			default:

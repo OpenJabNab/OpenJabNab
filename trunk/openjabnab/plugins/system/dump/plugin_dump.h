@@ -15,9 +15,9 @@ public:
 	virtual ~PluginDump();
 	void HttpRequestBefore(HTTPRequest const&);
 
-	void XmppBunnyMessage(QByteArray const&);
-	void XmppVioletMessage(QByteArray const&);
-	bool XmppVioletPacketMessage(Packet const&);
+	void XmppBunnyMessage(Bunny *, QByteArray const&);
+	void XmppVioletMessage(Bunny *, QByteArray const&);
+	bool XmppVioletPacketMessage(Bunny *, Packet const&);
 	
 private:
 	QTextStream dumpStream;
