@@ -55,6 +55,15 @@ void Bunny::LoadConfig()
 	{
 		Log::Warning("Problem when loading config file for bunny : " + id.toHex());
 	}
+	foreach(QString s, listOfPlugins)
+	{
+		PluginInterface * p = PluginManager::Instance().GetPluginByName(s);
+		if(p)
+			listOfPluginsPtr.append(p);
+		else
+			Log::Error("Bunny " + GetID() + " has invalid plugin !");
+	}
+
 }
 
 void Bunny::SaveConfig()
@@ -74,7 +83,7 @@ void Bunny::SetXmppHandler(XmppHandler * x)
 { 
 	state = Connected;
 	xmppHandler = x;
-	RegisterAllPlugins();
+	OnConnect();
 }
 
 void Bunny::RemoveXmppHandler(XmppHandler * x)
@@ -83,8 +92,8 @@ void Bunny::RemoveXmppHandler(XmppHandler * x)
 	{
 		xmppHandler = 0;
 		state = Disconnected;
+		OnDisconnect();
 	}
-	UnregisterAllPlugins();
 }
 
 void Bunny::SendPacket(Packet const& p)
@@ -124,8 +133,9 @@ void Bunny::AddPlugin(PluginInterface * p)
 	if(!listOfPlugins.contains(p->GetName()))
 	{
 		listOfPlugins.append(p->GetName());
-		if(IsConnected())
-			p->RegisterBunny(this);
+		listOfPluginsPtr.append(p);
+		if(IsConnected() && p->GetEnable())
+			p->OnBunnyConnect(this);
 		SaveConfig();
 	}
 }
@@ -135,34 +145,119 @@ void Bunny::RemovePlugin(PluginInterface * p)
 	if(listOfPlugins.contains(p->GetName()))
 	{
 		listOfPlugins.removeAll(p->GetName());
-		if(IsConnected())
-			p->UnregisterBunny(this);
+		listOfPluginsPtr.removeAll(p);
+		if(IsConnected() && p->GetEnable())
+			p->OnBunnyDisconnect(this);
 		SaveConfig();
 	}
 }
 
-void Bunny::RegisterAllPlugins()
+void Bunny::OnConnect()
 {
-	foreach(QString s, listOfPlugins)
+	// Send to all 'system' plugins
+	PluginManager::Instance().OnBunnyConnect(this);
+	// And all bunny's plugins
+	foreach(PluginInterface * p, listOfPluginsPtr)
 	{
-		PluginInterface * p = PluginManager::Instance().GetPluginByName(s);
-		if(p)
-			p->RegisterBunny(this);
-		else
-			Log::Error("Bunny " + GetID() + " has invalid plugin !");
+		if(p->GetEnable())
+			p->OnBunnyConnect(this);
 	}
 }
 
-void Bunny::UnregisterAllPlugins()
+void Bunny::OnDisconnect()
 {
-	foreach(QString s, listOfPlugins)
+	// Send to all 'system' plugins
+	PluginManager::Instance().OnBunnyDisconnect(this);
+	// And all bunny's plugins
+	foreach(PluginInterface * p, listOfPluginsPtr)
 	{
-		PluginInterface * p = PluginManager::Instance().GetPluginByName(s);
-		if(p)
-			p->UnregisterBunny(this);
-		else
-			Log::Error("Bunny " + GetID() + " has invalid plugin !");
+		if(p->GetEnable())
+			p->OnBunnyDisconnect(this);
 	}
+}
+
+void Bunny::XmppBunnyMessage(QByteArray const& data)
+{
+	// Send to all 'system' plugins
+	PluginManager::Instance().XmppBunnyMessage(this, data);
+	// And all bunny's plugins
+	foreach(PluginInterface * p, listOfPluginsPtr)
+	{
+		if(p->GetEnable())
+			p->XmppBunnyMessage(this, data);
+	}
+}
+
+void Bunny::XmppVioletMessage(QByteArray const& data)
+{
+	// Send to all 'system' plugins
+	PluginManager::Instance().XmppVioletMessage(this, data);
+	// And all bunny's plugins
+	foreach(PluginInterface * p, listOfPluginsPtr)
+	{
+		if(p->GetEnable())
+			p->XmppVioletMessage(this, data);
+	}
+}
+
+bool Bunny::XmppVioletPacketMessage(Packet const& packet)
+{
+	bool drop = PluginManager::Instance().XmppVioletPacketMessage(this, packet);
+	foreach(PluginInterface * p, listOfPluginsPtr)
+		if(p->GetEnable())
+			drop |= p->XmppVioletPacketMessage(this, packet);
+	return drop;
+}
+
+bool Bunny::OnClick(PluginInterface::ClickType type)
+{
+	if(PluginManager::Instance().OnClick(this, type))
+		return true;
+
+	// Call OnClick for all 'system' plugins until one returns true
+	foreach(PluginInterface * p, listOfPluginsPtr)
+	{
+		if(p->GetEnable())
+		{
+			if(p->OnClick(this, type))
+				return true;
+		}
+	}
+	return false;
+}
+
+bool Bunny::OnEarsMove(int left, int right)
+{
+	if(PluginManager::Instance().OnEarsMove(this, left, right))
+		return true;
+
+	// Call OnClick for all 'system' plugins until one returns true
+	foreach(PluginInterface * p, listOfPluginsPtr)
+	{
+		if(p->GetEnable())
+		{
+			if(p->OnEarsMove(this, left, right))
+				return true;
+		}
+	}
+	return false;
+}
+
+bool Bunny::OnRFID(QByteArray const& tag)
+{
+	if(PluginManager::Instance().OnRFID(this, tag))
+		return true;
+
+	// Call OnClick for all 'system' plugins until one returns true
+	foreach(PluginInterface * p, listOfPluginsPtr)
+	{
+		if(p->GetEnable())
+		{
+			if(p->OnRFID(this, tag))
+				return true;
+		}
+	}
+	return false;
 }
 
 ApiManager::ApiAnswer * Bunny::ProcessApiCall(QByteArray const& functionName, HTTPRequest const& hRequest)
@@ -202,8 +297,8 @@ ApiManager::ApiAnswer * Bunny::ProcessApiCall(QByteArray const& functionName, HT
 	else if(functionName == "getListOfActivePlugins")
 	{
 		QList<QByteArray> list;
-		foreach (QString pluginName, listOfPlugins)
-			list.append(pluginName.toAscii());
+		foreach (PluginInterface * p, listOfPluginsPtr)
+			list.append(p->GetVisualName().toAscii());
 
 		return new ApiManager::ApiList(list);
 	}

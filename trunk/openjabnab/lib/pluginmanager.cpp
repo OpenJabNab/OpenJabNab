@@ -22,7 +22,7 @@ PluginManager & PluginManager::Instance() {
 
 PluginManager::~PluginManager()
 {
-	foreach(PluginInterface * p, listOfPluginsPtr)
+	foreach(PluginInterface * p, listOfPlugins)
 		delete p;
 }
 
@@ -54,11 +54,13 @@ bool PluginManager::LoadPlugin(QString const& fileName)
 	PluginInterface * plugin = qobject_cast<PluginInterface *>(p);
 	if (plugin)
 	{
-		listOfPluginsPtr.append(plugin);
+		listOfPlugins.append(plugin);
 		listOfPluginsFileName.insert(plugin, fileName);
 		listOfPluginsLoader.insert(plugin, loader);
 		listOfPluginsByName.insert(plugin->GetName(), plugin);
 		listOfPluginsByFileName.insert(fileName, plugin);
+		if(plugin->GetType() != PluginInterface::BunnyPlugin)
+			listOfSystemPlugins.append(plugin);
 		status.append(plugin->GetName() + " OK, Enable : " + ( plugin->GetEnable() ? "Yes" : "No" ) );
 		Log::Info(status);
 		return true;
@@ -79,7 +81,8 @@ bool PluginManager::UnloadPlugin(QString const& name)
 		listOfPluginsFileName.remove(p);
 		listOfPluginsLoader.remove(p);
 		listOfPluginsByName.remove(name);
-		listOfPluginsPtr.removeAll(p);
+		listOfPlugins.removeAll(p);
+		listOfSystemPlugins.removeAll(p);
 		delete p;
 		loader->unload();
 		delete loader;
@@ -101,10 +104,13 @@ bool PluginManager::ReloadPlugin(QString const& name)
 	return false;
 }
 
+/**************************************************/
+/* HTTP requests are sent to ALL 'active' plugins */
+/**************************************************/
 void PluginManager::HttpRequestBefore(HTTPRequest const& request)
 {
 	// Call RequestBefore for all plugins
-	foreach(PluginInterface * plugin, listOfPluginsPtr)
+	foreach(PluginInterface * plugin, listOfPlugins)
 		if(plugin->GetEnable())
 			plugin->HttpRequestBefore(request);
 }
@@ -112,9 +118,9 @@ void PluginManager::HttpRequestBefore(HTTPRequest const& request)
 bool PluginManager::HttpRequestHandle(HTTPRequest & request)
 {
 	// Call GetAnswer for all plugins until one returns true
-	foreach(PluginInterface * plugin, listOfPluginsPtr)
+	foreach(PluginInterface * plugin, listOfPlugins)
 	{
-		if(plugin->HttpRequestHandle(request))
+		if(plugin->GetEnable() && plugin->HttpRequestHandle(request))
 			return true;
 	}
 	return false;
@@ -123,41 +129,48 @@ bool PluginManager::HttpRequestHandle(HTTPRequest & request)
 void PluginManager::HttpRequestAfter(HTTPRequest const& request)
 {
 	// Call RequestAfter for all plugins
-	foreach(PluginInterface * plugin, listOfPluginsPtr)
+	foreach(PluginInterface * plugin, listOfPlugins)
 		if(plugin->GetEnable())
 			plugin->HttpRequestAfter(request);
 }
-	
-void PluginManager::XmppBunnyMessage(QByteArray const& data)
+
+/*****************************************************/
+/* Others requests are sent only to "system" plugins */
+/*****************************************************/
+// Bunny -> Violet Message
+void PluginManager::XmppBunnyMessage(Bunny * b, QByteArray const& data)
 {
-	foreach(PluginInterface * plugin, listOfPluginsPtr)
+	foreach(PluginInterface * plugin, listOfSystemPlugins)
 		if(plugin->GetEnable())
-			plugin->XmppBunnyMessage(data);
+			plugin->XmppBunnyMessage(b, data);
 }
 
-void PluginManager::XmppVioletMessage(QByteArray const& data)
+// Violet -> Bunny Message
+void PluginManager::XmppVioletMessage(Bunny * b, QByteArray const& data)
 {
-	foreach(PluginInterface * plugin, listOfPluginsPtr)
+	foreach(PluginInterface * plugin, listOfSystemPlugins)
 		if(plugin->GetEnable())
-			plugin->XmppVioletMessage(data);
+			plugin->XmppVioletMessage(b, data);
 }
 
-// Send the packet to all plugins, if one returns true, the message will be dropped !
-bool PluginManager::XmppVioletPacketMessage(Packet const& p)
+// Violet -> Bunny Packet
+// Send the packet to all 'system' plugins, if one returns true, the message will be dropped !
+bool PluginManager::XmppVioletPacketMessage(Bunny * b, Packet const& p)
 {
 	bool drop = false;
-	foreach(PluginInterface * plugin, listOfPluginsPtr)
+	foreach(PluginInterface * plugin, listOfSystemPlugins)
 		if(plugin->GetEnable())
-			drop |= plugin->XmppVioletPacketMessage(p);
+			drop |= plugin->XmppVioletPacketMessage(b, p);
 	return drop;
 }
 
+// Bunny OnClick
 bool PluginManager::OnClick(Bunny * b, PluginInterface::ClickType type)
 {
-	// Call OnClick for all plugins until one returns true
-	foreach(PluginInterface * plugin, listOfPluginsPtr)
+	// Call OnClick for all 'system' plugins until one returns true
+	foreach(PluginInterface * plugin, listOfSystemPlugins)
 	{
-		if(plugin->HasBunny(b))
+		if(plugin->GetEnable())
 		{
 			if(plugin->OnClick(b, type))
 				return true;
@@ -168,10 +181,10 @@ bool PluginManager::OnClick(Bunny * b, PluginInterface::ClickType type)
 
 bool PluginManager::OnEarsMove(Bunny * b, int left, int right)
 {
-	// Call OnClick for all plugins until one returns true
-	foreach(PluginInterface * plugin, listOfPluginsPtr)
+	// Call OnEarsMove for all 'system' plugins until one returns true
+	foreach(PluginInterface * plugin, listOfSystemPlugins)
 	{
-		if(plugin->HasBunny(b))
+		if(plugin->GetEnable())
 		{
 			if(plugin->OnEarsMove(b, left, right))
 				return true;
@@ -182,10 +195,10 @@ bool PluginManager::OnEarsMove(Bunny * b, int left, int right)
 
 bool PluginManager::OnRFID(Bunny * b, QByteArray const& id)
 {
-	// Call OnClick for all plugins until one returns true
-	foreach(PluginInterface * plugin, listOfPluginsPtr)
+	// Call OnRFID for all 'system' plugins until one returns true
+	foreach(PluginInterface * plugin, listOfSystemPlugins)
 	{
-		if(plugin->HasBunny(b))
+		if(plugin->GetEnable())
 		{
 			if(plugin->OnRFID(b, id))
 				return true;
@@ -194,38 +207,47 @@ bool PluginManager::OnRFID(Bunny * b, QByteArray const& id)
 	return false;
 }
 
+// Bunny Connect
+void PluginManager::OnBunnyConnect(Bunny * b)
+{
+	foreach(PluginInterface * plugin, listOfSystemPlugins)
+		if(plugin->GetEnable())
+			plugin->OnBunnyConnect(b);
+}
 
+// Bunny Connect
+void PluginManager::OnBunnyDisconnect(Bunny * b)
+{
+	foreach(PluginInterface * plugin, listOfSystemPlugins)
+		if(plugin->GetEnable())
+			plugin->OnBunnyDisconnect(b);
+}
+
+/*******/
+/* API */
+/*******/
 ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request, HTTPRequest const& hRequest)
 {
 	if(request.startsWith("getListOfPlugins"))
 	{
 		QMap<QByteArray, QByteArray> list;
-		foreach (PluginInterface * p, listOfPluginsPtr)
+		foreach (PluginInterface * p, listOfPlugins)
 			list.insert(p->GetName().toAscii(), p->GetVisualName().toAscii());
 		return new ApiManager::ApiMappedList(list);
 	}
-	else if(request.startsWith("getListOfActivePlugins"))
+	else if(request.startsWith("getListOfEnabledPlugins"))
 	{
 		QList<QByteArray> list;
-		foreach (PluginInterface * p, listOfPluginsPtr)
-			if(p->GetEnable() && (p->GetRegisteredBunnies().count() || p->GetType() != PluginInterface::BunnyPlugin))
+		foreach (PluginInterface * p, listOfPlugins)
+			if(p->GetEnable())
 				list.append(p->GetName().toAscii());
 
 		return new ApiManager::ApiList(list);
 	}
-	else if(request.startsWith("getListOfEnabledPlugins"))
-	{
-		QMap<QByteArray, QByteArray> list;
-		foreach (PluginInterface * p, listOfPluginsPtr)
-			if(p->GetEnable())
-				list.insert(p->GetName().toAscii(), QString::number(p->GetRegisteredBunnies().count()).toAscii());
-
-		return new ApiManager::ApiMappedList(list);
-	}
 	else if(request.startsWith("getListOfBunnyPlugins"))
 	{
 		QList<QByteArray> list;
-		foreach (PluginInterface * p, listOfPluginsPtr)
+		foreach (PluginInterface * p, listOfPlugins)
 			if(p->GetType() == PluginInterface::BunnyPlugin)
 				list.append(p->GetName().toAscii());
 
@@ -234,7 +256,7 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 	else if(request.startsWith("getListOfSystemPlugins"))
 	{
 		QList<QByteArray> list;
-		foreach (PluginInterface * p, listOfPluginsPtr)
+		foreach (PluginInterface * p, listOfPlugins)
 			if(p->GetType() == PluginInterface::SystemPlugin)
 				list.append(p->GetName().toAscii());
 
@@ -243,7 +265,7 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 	else if(request.startsWith("getListOfRequiredPlugins"))
 	{
 		QList<QByteArray> list;
-		foreach (PluginInterface * p, listOfPluginsPtr)
+		foreach (PluginInterface * p, listOfPlugins)
 			if(p->GetType() == PluginInterface::RequiredPlugin)
 				list.append(p->GetName().toAscii());
 

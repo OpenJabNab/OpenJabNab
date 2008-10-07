@@ -16,20 +16,25 @@ public:
 	void LoadPlugins();
 	virtual ~PluginManager();
 
+	// HttpRequests are sent to all 'active' plugins
 	void HttpRequestBefore(HTTPRequest const&);
 	bool HttpRequestHandle(HTTPRequest &);
 	void HttpRequestAfter(HTTPRequest const&);
 	
-	void XmppBunnyMessage(QByteArray const&);
-	void XmppVioletMessage(QByteArray const&);
-	bool XmppVioletPacketMessage(Packet const& p);
+	void XmppBunnyMessage(Bunny *, QByteArray const&);
+	void XmppVioletMessage(Bunny *, QByteArray const&);
+	bool XmppVioletPacketMessage(Bunny *, Packet const& p);
 	
 	bool OnClick(Bunny *, PluginInterface::ClickType);
 	bool OnEarsMove(Bunny *, int, int);
 	bool OnRFID(Bunny *, QByteArray const&);
 	
-	QList<PluginInterface *> const& GetListOfPlugins() { return listOfPluginsPtr; }
+	void OnBunnyConnect(Bunny *);
+	void OnBunnyDisconnect(Bunny *);
+
+	QList<PluginInterface *> const& GetListOfPlugins() { return listOfPlugins; }
 	PluginInterface * GetPluginByName(QString name) { return listOfPluginsByName.value(name); }
+
 	ApiManager::ApiAnswer * ProcessApiCall(QByteArray const& request, HTTPRequest const& hRequest);
 
 private:
@@ -38,7 +43,8 @@ private:
 	bool UnloadPlugin(QString const&);
 	bool ReloadPlugin(QString const&);
 	QDir pluginsDir;
-	QList<PluginInterface *> listOfPluginsPtr;
+	QList<PluginInterface *> listOfPlugins;
+	QList<PluginInterface *> listOfSystemPlugins;
 	QMap<PluginInterface *, QString> listOfPluginsFileName;
 	QMap<PluginInterface *, QPluginLoader *> listOfPluginsLoader;
 	QMap<QString, PluginInterface *> listOfPluginsByName;

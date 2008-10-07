@@ -4,7 +4,6 @@
 #include "bunny.h"
 #include "bunnymanager.h"
 #include "log.h"
-#include "pluginmanager.h"
 #include "settings.h"
 
 Q_EXPORT_PLUGIN2(plugin_rfid, PluginRFID)
@@ -22,7 +21,7 @@ bool PluginRFID::HttpRequestHandle(HTTPRequest & request)
 		Bunny * b = BunnyManager::GetBunny(serialnumber.toAscii());
 		b->SetGlobalSetting("Last RFID Tag", tagId);
 	
-		if (PluginManager::Instance().OnRFID(b, QByteArray::fromHex(tagId.toAscii())))
+		if (b->OnRFID(QByteArray::fromHex(tagId.toAscii())))
 			return true;
 	}
 	return false;
