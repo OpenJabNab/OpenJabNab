@@ -7,6 +7,7 @@
 #include "httprequest.h"
 #include "log.h"
 #include "pluginmanager.h"
+#include <iostream>
 
 PluginManager::PluginManager()
 {
@@ -20,10 +21,15 @@ PluginManager & PluginManager::Instance() {
   return p;
 }
 
-PluginManager::~PluginManager()
+void PluginManager::Close()
 {
 	foreach(PluginInterface * p, listOfPlugins)
 		delete p;
+	foreach(QPluginLoader * l, listOfPluginsLoader.values())
+	{
+		l->unload();
+		delete l;
+	}
 }
 
 void PluginManager::LoadPlugins()
@@ -31,7 +37,9 @@ void PluginManager::LoadPlugins()
 	Log::Info(QString("Finding plugins in : %1").arg(pluginsDir.path()));
 	foreach (QString fileName, pluginsDir.entryList(QDir::Files)) 
 	{
+		std::cout << "LOADING : " << qPrintable(fileName) << std::endl;
 		LoadPlugin(fileName);
+		std::cout << "END LOADING : " << qPrintable(fileName) << std::endl;
 	}
 }
 

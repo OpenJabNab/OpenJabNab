@@ -20,7 +20,7 @@ XmppHandler::XmppHandler(QTcpSocket * s):pluginManager(PluginManager::Instance()
 
 	// OpenJabNab -> Violet socket
 	outgoingXmppSocket = new QTcpSocket(this);
-	outgoingXmppSocket->connectToHost(GlobalSettings::GetString("DefaultVioletServers/XmppServer"), 5222);
+//	outgoingXmppSocket->connectToHost(GlobalSettings::GetString("DefaultVioletServers/XmppServer"), 5222);
 	connect(outgoingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleVioletXmppMessage()));
 	connect(outgoingXmppSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
 }

@@ -14,7 +14,7 @@ class OJN_EXPORT PluginManager
 public:
 	static PluginManager & Instance();
 	void LoadPlugins();
-	virtual ~PluginManager();
+	void Close();
 
 	// HttpRequests are sent to all 'active' plugins
 	void HttpRequestBefore(HTTPRequest const&);

@@ -10,6 +10,10 @@
 class OJN_EXPORT GlobalSettings
 {
 public:
+	~GlobalSettings();
+	static void Instantiate() { if (!instance) instance = new GlobalSettings(); }
+	static void Release() { if (instance) delete instance; }
+
 	// Without default value
 	static QVariant Get(QString const& key);
 	static QString GetString(QString const& key) { return Get(key).toString(); }

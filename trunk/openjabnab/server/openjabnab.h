@@ -17,7 +17,6 @@ public:
 private slots:
 	void NewHTTPConnection();
 	void NewXMPPConnection();
-	void OnQuit();
 
 private:
 	QTcpServer * httpListener;
