@@ -11,11 +11,13 @@ unsigned short XmppHandler::msgNb = 0;
 
 XmppHandler::XmppHandler(QTcpSocket * s):pluginManager(PluginManager::Instance())
 {
+	Log::Info("Connect");
 	incomingXmppSocket = s;
 	bunny = 0;
 	
 	// Bunny -> OpenJabNab socket
 	connect(incomingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleBunnyXmppMessage()));
+	connect(incomingXmppSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
 	incomingXmppSocket->setParent(this);
 
 	// OpenJabNab -> Violet socket
@@ -27,6 +29,7 @@ XmppHandler::XmppHandler(QTcpSocket * s):pluginManager(PluginManager::Instance()
 
 void XmppHandler::Disconnect()
 {
+	Log::Info("Disconnect");
 	incomingXmppSocket->disconnect(this);
 	incomingXmppSocket->abort();
 	
@@ -34,7 +37,7 @@ void XmppHandler::Disconnect()
 	outgoingXmppSocket->abort();
 	if(bunny)
 		bunny->RemoveXmppHandler(this);
-	delete this;
+	deleteLater();
 }
 
 void XmppHandler::HandleBunnyXmppMessage()
