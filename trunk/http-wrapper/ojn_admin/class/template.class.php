@@ -15,6 +15,7 @@ class ojnTemplate
 
 		$pattern = array(
 				"|<!!TITLE!!>|",
+				"|<!!ALTTITLE!!>|",
 				"|<!!SUBTITLE!!>|",
 				"|<!!CONTENT!!>|",
 				"|<!!LAPINS!!>|",
@@ -24,6 +25,7 @@ class ojnTemplate
 			);
 		$replace = array(
 				$this->titre,
+				ojnApi::getGlobalAbout(),
 				$this->soustitre,
 				$buffer,
 				count(ojnApi::getListOfConnectedBunnies()),

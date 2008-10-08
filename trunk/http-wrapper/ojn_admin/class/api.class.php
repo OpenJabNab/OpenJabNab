@@ -33,23 +33,62 @@ class ojnApi
 	static function getAccountInfo($login)
 	{
 		$infos = file_get_contents(ROOT_WWW_API."accounts/getAccountInfo?login=$login");
-		$infos = simplexml_load_string($infos);
-		$infos = (array)$infos->list->children();
+		$infos = ojnApi::transformMappedList(simplexml_load_string($infos));
+		return $infos;
+	}
 
-		if(count($infos))
+	static function bunnyRegisterPlugin($serial, $plugin)
+	{
+		$register = file_get_contents(ROOT_WWW_API."bunny/$serial/registerPlugin?name=$plugin");
+		$register = simplexml_load_string($register);
+		$register = (array)$register;
+		if(isset($register['error']))
+			return false;
+		return true;
+	}
+
+	static function bunnyUnregisterPlugin($serial, $plugin)
+	{
+		$register = file_get_contents(ROOT_WWW_API."bunny/$serial/unregisterPlugin?name=$plugin");
+		$register = simplexml_load_string($register);
+		$register = (array)$register;
+		if(isset($register['error']))
+			return false;
+		return true;
+	}
+
+	static function bunnyListOfPlugins($serial)
+	{
+		$list = file_get_contents(ROOT_WWW_API."bunny/$serial/getListOfActivePlugins");
+		$list = ojnApi::transformList(simplexml_load_string($list));
+		return $list;
+	}
+
+	static function pluginRegisterCron($plugin, $serial, $interval, $offsetH, $offsetM, $callback = "")
+	{
+		$register = file_get_contents(ROOT_WWW_API."plugin/$plugin/registerCron?id=$plugin&callback=$callback&interval=$interval&offseth=$offsetH&offsetm=$offsetM");
+		$register = simplexml_load_string($register);
+		$register = (array)$register;
+		if(isset($register['error']))
+			return false;
+		return true;
+	}
+
+	static function getGlobalAbout()
+	{
+		if(file_exists(ROOT_SITE.'cache/about.cache.php') && time() - filemtime(ROOT_SITE.'cache/about.cache.php') < ojnApi::mtimeMax)
 		{
-			if(!is_array($infos['item']))
-				$infos['item'] = array($infos['item']);
-			$infos = $infos['item'];
+			require(ROOT_SITE.'cache/about.cache.php');
+			return $GlobalAbout;
 		}
-		$temp = array();
-		foreach($infos as $bunny)
+		else
 		{
-			$bunny = (array)$bunny;
-			$temp[$bunny['key']] = $bunny['value'];
+			$GlobalAbout = file_get_contents(ROOT_WWW_API."global/about");
+			$GlobalAbout = ojnApi::transformValue(simplexml_load_string($GlobalAbout));
+			file_put_contents(ROOT_SITE.'cache/about.cache.php', '<?php'."\n".'$GlobalAbout = '.var_export($GlobalAbout, true)."\n".'?>');
+			return $GlobalAbout;
 		}
 
-		return $temp;
 	}
 
 	static function getListOfConnectedBunnies()
@@ -57,29 +96,14 @@ class ojnApi
 		if(file_exists(ROOT_SITE.'cache/bunnies.cache.php') && time() - filemtime(ROOT_SITE.'cache/bunnies.cache.php') < ojnApi::mtimeMini)
 		{
 			require(ROOT_SITE.'cache/bunnies.cache.php');
-			return $bunnies;
+			return $ListOfConnectedBunnies;
 		}
 		else
 		{
-			$bunnies = file_get_contents(ROOT_WWW_API."bunnies/getListOfConnectedBunnies");
-
-			$bunnies = simplexml_load_string($bunnies);
-			$bunnies = (array)$bunnies->list->children();
-
-			if(count($bunnies))
-			{
-				if(!is_array($bunnies['item']))
-					$bunnies['item'] = array($bunnies['item']);
-				$bunnies = $bunnies['item'];
-			}
-			$temp = array();
-			foreach($bunnies as $bunny)
-			{
-				$bunny = (array)$bunny;
-				$temp[$bunny['key']] = $bunny['value'];
-			}
-			file_put_contents(ROOT_SITE.'cache/bunnies.cache.php', '<?php'."\n".'$bunnies = '.var_export($temp, true)."\n".'?>');
-			return $temp;
+			$ListOfConnectedBunnies = file_get_contents(ROOT_WWW_API."bunnies/getListOfConnectedBunnies");
+			$ListOfConnectedBunnies = ojnApi::transformMappedList(simplexml_load_string($ListOfConnectedBunnies));
+			file_put_contents(ROOT_SITE.'cache/bunnies.cache.php', '<?php'."\n".'$ListOfConnectedBunnies = '.var_export($ListOfConnectedBunnies, true)."\n".'?>');
+			return $ListOfConnectedBunnies;
 		}
 
 	}
@@ -94,24 +118,9 @@ class ojnApi
 		else
 		{
 			$plugins = file_get_contents(ROOT_WWW_API."plugins/getListOfEnabledPlugins");
-
-			$plugins = simplexml_load_string($plugins);
-			$plugins = (array)$plugins->list->children();
-
-			if(count($plugins))
-			{
-				if(!is_array($plugins['item']))
-					$plugins['item'] = array($plugins['item']);
-				$plugins = $plugins['item'];
-			}
-			$temp = array();
-			foreach($plugins as $plugin)
-			{
-				$plugin = (array)$plugin;
-				$temp[$plugin['key']] = $plugin['value'];
-			}
-			file_put_contents(ROOT_SITE.'cache/plugins_active.cache.php', '<?php'."\n".'$plugins_active = '.var_export($temp, true)."\n".'?>');
-			return $temp;
+			$plugins = ojnApi::transformMappedList(simplexml_load_string($plugins));
+			file_put_contents(ROOT_SITE.'cache/plugins_active.cache.php', '<?php'."\n".'$plugins_active = '.var_export($plugins, true)."\n".'?>');
+			return $plugins;
 		}
 	}
 
@@ -125,28 +134,49 @@ class ojnApi
 		else
 		{
 			$plugins = file_get_contents(ROOT_WWW_API."plugins/getListOfPlugins");
-
-			$plugins = simplexml_load_string($plugins);
-			$plugins = (array)$plugins->list->children();
-
-			if(count($plugins))
-			{
-				if(!is_array($plugins['item']))
-					$plugins['item'] = array($plugins['item']);
-				$plugins = $plugins['item'];
-			}
-			$temp = array();
-			foreach($plugins as $plugin)
-			{
-				$plugin = (array)$plugin;
-				$temp[$plugin['key']] = $plugin['value'];
-			}
-			file_put_contents(ROOT_SITE.'cache/plugins.cache.php', '<?php'."\n".'$plugins = '.var_export($temp, true).";\n".'?>');
-			return $temp;
+			$plugins = ojnApi::transformMappedList(simplexml_load_string($plugins));
+			file_put_contents(ROOT_SITE.'cache/plugins.cache.php', '<?php'."\n".'$plugins = '.var_export($plugins, true).";\n".'?>');
+			return $plugins;
 		}
+	}
+
+	static function transformMappedList($mapped)
+	{
+		$mapped = (array)$mapped->list->children();
+
+		if(count($mapped))
+		{
+			if(!is_array($mapped['item']))
+				$mapped['item'] = array($mapped['item']);
+			$mapped = $mapped['item'];
+		}
+		$temp = array();
+		foreach($mapped as $item)
+		{
+			$item = (array)$item;
+			$temp[$item['key']] = $item['value'];
+		}
+		return $temp;
+	}
+
+	static function transformValue($value)
+	{
+		$value = (array)$value;
+		return $value['value'];
+	}
+
+	static function transformList($list)
+	{
+		$list = (array)$list;
+		$list = (array)$list['list'];
+		$temp = array();
+		foreach($list['item'] as $item)
+			$temp[] = $item;
+		return $temp;
 	}
 }
 ojnApi::getListOfConnectedBunnies();
 ojnApi::getListOfPlugins();
 ojnApi::getListOfActivePlugins();
+ojnApi::getGlobalAbout();
 ?>
