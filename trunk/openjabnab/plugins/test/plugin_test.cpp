@@ -18,6 +18,16 @@ PluginTest::~PluginTest()
 	Log::Info("Plugin test unloaded !");
 }
 
+void PluginTest::OnBunnyConnect(Bunny * b)
+{
+	Log::Info("New bunny Connected : " + b->GetID());
+}
+
+void PluginTest::OnBunnyDisconnect(Bunny * b)
+{
+	Log::Info("Bunny Disconnected : " + b->GetID());
+}
+
 bool PluginTest::OnClick(Bunny * b, PluginInterface::ClickType type)
 {
 	if (type == PluginInterface::SingleClick)
@@ -59,3 +69,4 @@ bool PluginTest::HttpRequestHandle(HTTPRequest & request)
 	}
 	return false;
 }
+

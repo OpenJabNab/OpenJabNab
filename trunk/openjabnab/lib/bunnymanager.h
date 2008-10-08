@@ -8,6 +8,7 @@
 
 class Bunny;
 class HTTPRequest;
+class PluginInterface;
 class OJN_EXPORT BunnyManager
 {
 public:
@@ -15,6 +16,9 @@ public:
 	static Bunny * GetConnectedBunny(QByteArray const&);
 	static QVector<Bunny *> GetConnectedBunnies();
 	static ApiManager::ApiAnswer * ProcessApiCall(QByteArray const& request, HTTPRequest const& hRequest);
+	static void PluginStateChanged(PluginInterface *);
+	static void PluginLoaded(PluginInterface *);
+	static void PluginUnloaded(PluginInterface *);
 	static void Close();
 	
 private:

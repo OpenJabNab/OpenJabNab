@@ -260,6 +260,33 @@ bool Bunny::OnRFID(QByteArray const& tag)
 	return false;
 }
 
+void Bunny::PluginStateChanged(PluginInterface * p)
+{
+	if(listOfPluginsPtr.contains(p) && state == Connected)
+	{
+		if(p->GetEnable())
+			p->OnBunnyConnect(this);
+		else
+			p->OnBunnyDisconnect(this);
+	}
+}
+
+void Bunny::PluginLoaded(PluginInterface * p)
+{
+	if(listOfPlugins.contains(p->GetName()))
+	{
+		listOfPluginsPtr.append(p);
+		if(p->GetEnable() && state == Connected)
+			p->OnBunnyConnect(this);
+	}
+}
+
+void Bunny::PluginUnloaded(PluginInterface * p)
+{
+	if(listOfPluginsPtr.contains(p))
+		listOfPluginsPtr.removeAll(p);
+}
+
 ApiManager::ApiAnswer * Bunny::ProcessApiCall(QByteArray const& functionName, HTTPRequest const& hRequest)
 {
 	if(functionName == "registerPlugin")

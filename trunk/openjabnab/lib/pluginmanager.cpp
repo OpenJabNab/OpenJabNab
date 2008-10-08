@@ -69,6 +69,9 @@ bool PluginManager::LoadPlugin(QString const& fileName)
 		listOfPluginsByFileName.insert(fileName, plugin);
 		if(plugin->GetType() != PluginInterface::BunnyPlugin)
 			listOfSystemPlugins.append(plugin);
+		else
+			BunnyManager::PluginLoaded(plugin);
+
 		status.append(plugin->GetName() + " OK, Enable : " + ( plugin->GetEnable() ? "Yes" : "No" ) );
 		Log::Info(status);
 		return true;
@@ -83,6 +86,8 @@ bool PluginManager::UnloadPlugin(QString const& name)
 	if(listOfPluginsByName.contains(name))
 	{
 		PluginInterface * p = listOfPluginsByName.value(name);
+		if(p->GetType() == PluginInterface::BunnyPlugin)
+			BunnyManager::PluginUnloaded(p);
 		QString fileName = listOfPluginsFileName.value(p);
 		QPluginLoader * loader = listOfPluginsLoader.value(p);
 		listOfPluginsByFileName.remove(fileName);
@@ -283,19 +288,32 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 	{
 		if(!hRequest.HasArg("name"))
 			return new ApiManager::ApiError("Missing 'name' argument<br />Request was : " + hRequest.toString());
+
 		PluginInterface * p = listOfPluginsByName.value(hRequest.GetArg("name"));
 		if(!p)
 			return new ApiManager::ApiError("Unknown plugin : " + hRequest.GetArg("name") + "<br />Request was : " + hRequest.toString());
+
+		if(p->GetEnable())
+			return new ApiManager::ApiError("Plugin '" + hRequest.GetArg("name") + "' is already enabled!");
+
 		p->SetEnable(true);
-		return new ApiManager::ApiString(p->GetName() + " is now enabled.");
+		return new ApiManager::ApiString("Plugin '" + p->GetName() + "' is now enabled.");
 	}
 	else if(request == "deactivatePlugin")
 	{
 		if(!hRequest.HasArg("name"))
 			return new ApiManager::ApiError("Missing 'name' argument<br />Request was : " + hRequest.toString());
+
 		PluginInterface * p = listOfPluginsByName.value(hRequest.GetArg("name"));
 		if(!p)
 			return new ApiManager::ApiError("Unknown plugin : " + hRequest.GetArg("name") + "<br />Request was : " + hRequest.toString());
+
+		if(p->GetType() == PluginInterface::RequiredPlugin)
+			return new ApiManager::ApiError("Plugin '" + hRequest.GetArg("name") + "' can't be deactivated!");
+
+		if(!p->GetEnable())
+			return new ApiManager::ApiError("Plugin '" + hRequest.GetArg("name") + "' is already disabled!");
+
 		p->SetEnable(false);
 		return new ApiManager::ApiString(p->GetName() + " is now disabled.");
 	}
@@ -305,7 +323,9 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 			return new ApiManager::ApiError("Missing 'name' argument<br />Request was : " + hRequest.toString());
 		QString name = hRequest.GetArg("name");
 		if(UnloadPlugin(name))
+		{
 			return new ApiManager::ApiOk(name + " is now unloaded.");
+		}
 		else
 			return new ApiManager::ApiError("Can't unload " + name);
 	}

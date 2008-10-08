@@ -8,6 +8,7 @@
 #include <QString>
 #include <QtPlugin>
 #include "apimanager.h"
+#include "bunnymanager.h"
 #include "log.h"
 #include "settings.h"
 
@@ -16,6 +17,7 @@ class HTTPRequest;
 class Packet;
 class PluginInterface : public QObject
 {
+	friend class PluginManager;
 public:
 	enum ClickType { SingleClick = 0, DoubleClick};
 	enum PluginType { RequiredPlugin, SystemPlugin, BunnyPlugin};
@@ -76,23 +78,23 @@ public:
 
 	// Plugin enable/disable functions
 	inline bool GetEnable() { return pluginEnable; }
-	void SetEnable(bool newStatus) {
-		if(GetType() == RequiredPlugin)
-		{
-			Log::Info("Plugin " + GetVisualName() + " is a required plugin !");
-		}
-		else
-		{
-			pluginEnable = newStatus;
-			SetSettings("pluginStatus/Enable", QVariant(newStatus)); 
-			Log::Info("Plugin " + GetVisualName() + " is now " + (GetEnable() ? "enabled" : "disabled"));
-		}
-	}
 
 	// Plugin type
 	int GetType() { return pluginType; };
 
 protected:
+	// Plugin enable/disable functions
+	void SetEnable(bool newStatus)
+	{
+		if(newStatus != pluginEnable)
+		{
+			pluginEnable = newStatus;
+			SetSettings("pluginStatus/Enable", QVariant(newStatus)); 
+			Log::Info("Plugin " + GetVisualName() + " is now " + (GetEnable() ? "enabled" : "disabled"));
+			if(pluginType == BunnyPlugin)
+				BunnyManager::PluginStateChanged(this);
+		}
+	}
 	// HTTP Data folder
 	QDir * GetLocalHTTPFolder() const
 	{
