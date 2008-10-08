@@ -43,6 +43,10 @@ public:
 	bool OnEarsMove(int, int);
 	bool OnRFID(QByteArray const&);
 
+	void PluginStateChanged(PluginInterface * p);
+	void PluginLoaded(PluginInterface *);
+	void PluginUnloaded(PluginInterface *);
+
 	ApiManager::ApiAnswer * ProcessApiCall(QByteArray const& functionName, HTTPRequest const& hRequest);
 
 private slots:

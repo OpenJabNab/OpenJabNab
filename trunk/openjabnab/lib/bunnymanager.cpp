@@ -46,6 +46,28 @@ QVector<Bunny *> BunnyManager::GetConnectedBunnies()
 	return list;
 }
 
+void BunnyManager::PluginStateChanged(PluginInterface * p)
+{
+	foreach(Bunny * b, listOfBunnies)
+		if (b->IsConnected())
+			b->PluginStateChanged(p);
+}
+
+void BunnyManager::PluginLoaded(PluginInterface * p)
+{
+	foreach(Bunny * b, listOfBunnies)
+		if (b->IsConnected())
+			b->PluginLoaded(p);
+}
+
+void BunnyManager::PluginUnloaded(PluginInterface * p)
+{
+	foreach(Bunny * b, listOfBunnies)
+		if (b->IsConnected())
+			b->PluginUnloaded(p);
+}
+
+
 ApiManager::ApiAnswer * BunnyManager::ProcessApiCall(QByteArray const& request, HTTPRequest const& hRequest)
 {
 	if (request.startsWith("getListOfConnectedBunnies"))
