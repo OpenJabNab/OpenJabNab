@@ -19,7 +19,7 @@ public:
 	bool OnClick(Bunny *, PluginInterface::ClickType);
 	void OnCron(QVariant);
 	ApiManager::ApiAnswer * ProcessApiCall(QByteArray const&, HTTPRequest const&);
-	void AfterBunnyRegistered(Bunny *);
+	void OnBunnyConnect(Bunny *);
 	void AfterBunnyUnregistered(Bunny *) {};
 
 private:
