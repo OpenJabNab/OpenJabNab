@@ -18,25 +18,23 @@ Log::Log()
 	maxFileLogLevel = GetLevel(GlobalSettings::GetString("Log/LogFileLevel", "Debug"));
 	maxScreenLogLevel = GetLevel(GlobalSettings::GetString("Log/LogScreenLevel", "Warning"));
 	
-	QFile * logFile = new QFile(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath(GlobalSettings::GetString("Log/LogFile")));
+	logFile = new QFile(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath(GlobalSettings::GetString("Log/LogFile")));
 	if(!logFile->open(QIODevice::Append))
 	{
 		std::cerr << "Error opening file : " << qPrintable(logFile->fileName()) << std::endl << "Logging only on screen !" << std::endl;
 		maxFileLogLevel = Log_None;
 	}
 	else
-	{
 		logStream.setDevice(logFile);
-		logStream << QDateTime::currentDateTime().toString("[dd/MM/yyyy hh:mm:ss] ") << "-- OpenJabNab Start --" << endl;
-		std::cout << "-- OpenJabNab Start --" << std::endl;
-	}
+}
+
+Log::~Log()
+{
+	delete logFile;
 }
 
 void Log::LogToFile(QString const& data, LogLevel level)
 {	
-	if (!instance)
-		instance = new Log();
-
 	if (level <= instance->maxFileLogLevel)
 		instance->logStream << QDateTime::currentDateTime().toString("[dd/MM/yyyy hh:mm:ss] ") << data << endl;
 

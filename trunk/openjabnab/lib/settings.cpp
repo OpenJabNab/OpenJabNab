@@ -18,11 +18,14 @@ GlobalSettings::GlobalSettings()
 	}
 }
 
+GlobalSettings::~GlobalSettings()
+{
+	delete settings;
+}
+
+
 QVariant GlobalSettings::Get(QString const& key)
 {
-	if (!instance)
-		instance = new GlobalSettings();
-
 	if (instance->settings->contains(key))
 		return instance->settings->value(key);
 	else
@@ -34,9 +37,6 @@ QVariant GlobalSettings::Get(QString const& key)
 
 QVariant GlobalSettings::Get(QString const& key, QVariant const& defaultValue)
 {
-	if (!instance)
-		instance = new GlobalSettings();
-
 	if (instance->settings->contains(key))
 		return instance->settings->value(key);
 	else
@@ -45,8 +45,6 @@ QVariant GlobalSettings::Get(QString const& key, QVariant const& defaultValue)
 
 bool GlobalSettings::HasKey(QString const& key)
 {
-	if (!instance)
-		instance = new GlobalSettings();
 	return instance->settings->contains(key);
 }
 

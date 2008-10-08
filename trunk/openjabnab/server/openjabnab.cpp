@@ -10,7 +10,9 @@
 
 OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 {
-	connect(this, SIGNAL(aboutToQuit()), this, SLOT(OnQuit()));
+	GlobalSettings::Instantiate();
+	Log::Instantiate();
+	Log::Info("-- OpenJabNab Start --");
 
 	PluginManager::Instance().LoadPlugins();
 
@@ -39,15 +41,19 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 	Log::Info(QString("Parsing of HTTP Bunny messages is ").append((httpViolet == true)?"enabled":"disabled"));
 }
 
-void OpenJabNab::OnQuit()
-{
-	delete this;
-}
-
 OpenJabNab::~OpenJabNab()
 {
-	Log::Info("OpenJabNab closing...");
+	Log::Info("-- OpenJabNab Close --");
+	xmppListener->close();
+	delete xmppListener;
+
+	httpListener->close();
+	delete httpListener;
+
+	PluginManager::Instance().Close();
 	BunnyManager::Close();
+	Log::Release();
+	GlobalSettings::Release();
 }
 
 void OpenJabNab::NewHTTPConnection()
