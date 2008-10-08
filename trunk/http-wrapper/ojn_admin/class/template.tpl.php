@@ -25,7 +25,7 @@
       </div>
 
       <div class="midHeader">
-        <h1 class="headerTitle"><!!TITLE!!></h1>
+        <h1 class="headerTitle" alt="<!!ALTTITLE!!>" title="<!!ALTTITLE!!>"><!!TITLE!!></h1>
         <div class="headerSubTitle"><!!SUBTITLE!!></div>
 
         <div class="headerLinks">
