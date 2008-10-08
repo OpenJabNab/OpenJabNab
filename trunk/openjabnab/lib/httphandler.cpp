@@ -75,5 +75,5 @@ void HttpHandler::HandleBunnyHTTPRequest()
 		incomingHttpSocket->write(request.toString().toAscii());
 	}
 	incomingHttpSocket->close();
-	delete this;
+	deleteLater();
 }
