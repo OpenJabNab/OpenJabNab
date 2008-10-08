@@ -111,7 +111,7 @@ PluginTV::~PluginTV()
 {
 }
 
-void PluginTV::AfterBunnyRegistered(Bunny * b)
+void PluginTV::OnBunnyConnect(Bunny * b)
 {
 	QStringList webcasts = b->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList();
 	foreach(QString webcast, webcasts)
