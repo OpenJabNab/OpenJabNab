@@ -11,7 +11,6 @@ unsigned short XmppHandler::msgNb = 0;
 
 XmppHandler::XmppHandler(QTcpSocket * s):pluginManager(PluginManager::Instance())
 {
-	Log::Info("Connect");
 	incomingXmppSocket = s;
 	bunny = 0;
 	
@@ -29,7 +28,6 @@ XmppHandler::XmppHandler(QTcpSocket * s):pluginManager(PluginManager::Instance()
 
 void XmppHandler::Disconnect()
 {
-	Log::Info("Disconnect");
 	incomingXmppSocket->disconnect(this);
 	incomingXmppSocket->abort();
 	
