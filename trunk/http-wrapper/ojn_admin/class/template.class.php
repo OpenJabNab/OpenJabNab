@@ -1,11 +1,13 @@
 <?
 class ojnTemplate
 {
+	var $titre_alt	= "";
 	var $titre	= "openJabNab";
 	var $soustitre	= "Configuration";
 
         function ojnTemplate()
         {
+		$this->titre_alt = ojnApi::getGlobalAbout();
                 ob_start(array(&$this, "display"));
         }
 
@@ -25,7 +27,7 @@ class ojnTemplate
 			);
 		$replace = array(
 				$this->titre,
-				ojnApi::getGlobalAbout(),
+				$this->titre_alt,
 				$this->soustitre,
 				$buffer,
 				count(ojnApi::getListOfConnectedBunnies()),
