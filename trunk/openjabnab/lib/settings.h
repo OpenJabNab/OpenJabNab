@@ -11,8 +11,8 @@ class OJN_EXPORT GlobalSettings
 {
 public:
 	~GlobalSettings();
-	static void Instantiate() { if (!instance) instance = new GlobalSettings(); }
-	static void Release() { if (instance) delete instance; }
+	static inline void Init() { if (!instance) instance = new GlobalSettings(); }
+	static inline void Close() { if (instance) delete instance; }
 
 	// Without default value
 	static QVariant Get(QString const& key);
