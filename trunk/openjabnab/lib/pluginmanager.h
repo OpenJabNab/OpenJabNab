@@ -13,8 +13,8 @@ class OJN_EXPORT PluginManager
 {
 public:
 	static PluginManager & Instance();
-	void LoadPlugins();
-	void Close();
+	static inline void Init() { Instance().LoadPlugins(); };
+	static inline void Close() { Instance().UnloadPlugins(); };
 
 	// HttpRequests are sent to all 'active' plugins
 	void HttpRequestBefore(HTTPRequest const&);
@@ -39,6 +39,8 @@ public:
 
 private:
 	PluginManager();
+	void LoadPlugins();
+	void UnloadPlugins();
 	bool LoadPlugin(QString const&);
 	bool UnloadPlugin(QString const&);
 	bool ReloadPlugin(QString const&);

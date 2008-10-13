@@ -21,7 +21,7 @@ PluginManager & PluginManager::Instance() {
   return p;
 }
 
-void PluginManager::Close()
+void PluginManager::UnloadPlugins()
 {
 	foreach(PluginInterface * p, listOfPlugins)
 		delete p;

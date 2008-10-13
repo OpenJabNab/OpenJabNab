@@ -12,8 +12,8 @@ private:
 	enum LogLevel { Log_None = 0, Log_Info, Log_Error, Log_Warn, Log_Debug};
 
 public:
-	static void Instantiate() { if(!instance) instance = new Log(); }
-	static void Release() { if (instance) { delete instance; } }
+	static inline void Init() { if(!instance) instance = new Log(); }
+	static inline void Close() { if (instance) { delete instance; } }
 	~Log();
 	static void LogToFile(QString const&, LogLevel);
 	static void Debug(QString const& data) { LogToFile(data, Log_Debug); }
