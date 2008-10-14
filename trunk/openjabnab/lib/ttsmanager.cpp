@@ -16,6 +16,16 @@ bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, b
 	QEventLoop loop;
 	// French voices
 	voiceList << "claire" << "alice" << "bruno" << "julie";
+	// Canadian French voices
+	voiceList << "louise";
+	// German voices
+	voiceList << "klaus" << "sarah";
+	// Spanish voices
+	voiceList << "maria";
+	// UK English voices
+	voiceList << "graham" << "lucy" << "peter" << "rachel";
+	// US English voices
+	voiceList << "heather" << "kenny" << "laura" << "nelly" << "ryan";
 
 	if(!forceOverwrite && QFile::exists(fileName))
 		return true;
