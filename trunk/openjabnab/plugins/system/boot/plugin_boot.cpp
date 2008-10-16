@@ -18,7 +18,7 @@ bool PluginBoot::HttpRequestHandle(HTTPRequest & request)
 		QString version = request.GetArg("v");
 		QString serialnumber = request.GetArg("m").remove(':');
 		
-		Bunny * b = BunnyManager::GetBunny(serialnumber.toAscii());
+		Bunny * b = BunnyManager::GetBunny(this, serialnumber.toAscii());
 		b->SetGlobalSetting("Last BootRequest", QDateTime::currentDateTime());
 		
 		Log::Info(QString("Requesting BOOT for tag %1 with version %2").arg(serialnumber,version));

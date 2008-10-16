@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QLibrary>
 #include <QString>
+#include <QUuid>
 #include "account.h"
 #include "accountmanager.h"
 #include "apimanager.h"
@@ -12,34 +13,6 @@
 
 AccountManager::AccountManager()
 {
-	QDir accountsDir = QCoreApplication::applicationDirPath();
-	accountsDir.cd("accounts");
-
-	Log::Info(QString("Finding accounts in : %1").arg(accountsDir.path()));
-	
-	foreach (QString fileName, accountsDir.entryList(QDir::Files)) 
-	{
-		QFile file(accountsDir.absoluteFilePath(fileName));
-		if (!file.open(QIODevice::ReadOnly))
-		{
-			Log::Error("Cannot open account file for reading : " + fileName);
-		}
-		QString status = QString(" - %1 : ").arg(fileName);
-		QString accountLogin;
-		QDataStream in(&file);
-		in.setVersion(QDataStream::Qt_4_3);
-		in >> accountLogin;
-		if (in.status() == QDataStream::Ok)
-		{
-			Account * a = new Account(accountLogin);
-			listOfAccounts.append(a);
-			listOfAccountsByName.insert(a->GetLoginName(), a);
-			status.append(a->GetLoginName() + " (Bunny: "+a->GetBunnyName()+") OK" );
-		}
-		else
-			status.append(" Failed, "+ QString::number(in.status())); 
-		Log::Info(status);
-	}
 }
 
 AccountManager & AccountManager::Instance()
@@ -54,93 +27,135 @@ AccountManager::~AccountManager()
 		delete a;
 }
 
-QByteArray AccountManager::Login(QString const& login, QByteArray const& hash)
+void AccountManager::LoadAccounts()
 {
-	if(!listOfAccountsByName.contains(login))
-		return "BAD_LOGIN";
-	Account * a = GetAccountByName(login);
-	if(a->IsGoodPassword(hash))
-		return GenerateNewToken(a);
-	return "BAD_PASSWORD";
-}
-
-QByteArray AccountManager::GenerateNewToken(Account * a)
-{
-	QByteArray token = QCryptographicHash::hash((a->GetLoginName()+QDateTime::currentDateTime().toString(Qt::ISODate)).toAscii(), QCryptographicHash::Md5).toHex();
-	listOfToken.insert(token, a);
-	listOfTokenExpiration.insert(token, QDateTime::currentDateTime().addSecs(1800));
-	return token;
-}
-
-bool AccountManager::checkTokenValidity(QByteArray token, Account * a)
-{
-	Account	* b = listOfToken.value(token);
-	if(a != b)
-		return false;
-	if(listOfTokenExpiration.value(token) < QDateTime::currentDateTime())
-		return false;
-	return true;
-
-}
-
-void AccountManager::updateToken(QByteArray token)
-{
-	listOfTokenExpiration[token] = QDateTime::currentDateTime().addSecs(1800);
-}
-
-ApiManager::ApiAnswer * AccountManager::ProcessApiCall(QByteArray const& request, HTTPRequest const& hRequest)
-{
-	if(request.startsWith("getListOfAccounts"))
+	QDir appDir(QCoreApplication::applicationDirPath());
+	if(appDir.exists("accounts.dat"))
 	{
-		QList<QByteArray> list;
-		foreach (Account * a, listOfAccounts)
-			list.append(a->GetLoginName().toAscii());
-
-		return new ApiManager::ApiList(list);
+		QFile accountsFile(appDir.absoluteFilePath("accounts.dat"));
+		if(accountsFile.open(QIODevice::ReadOnly))
+		{
+			QDataStream in(&accountsFile);
+			in.setVersion(QDataStream::Qt_4_4);
+			int version;
+			in >> version;
+			while(!in.atEnd())
+			{
+				Account * a = new Account(in, version);
+				if(in.status() == QDataStream::Ok)
+				{
+					listOfAccounts.append(a);
+					listOfAccountsByName.insert(a->GetLogin(), a);
+				}
+				else
+				{
+					Log::Error("Bad account file, stop parsing");
+					delete a;
+					break;
+				}
+			}
+		}
+		else
+			Log::Error("Can't open accounts.dat");
 	}
-	else if(request.startsWith("loginAccount"))
+	if(listOfAccounts.count() == 0)
 	{
-		if(!hRequest.HasArg("login") || !hRequest.HasArg("hash"))
+		Log::Warning("No account loaded ... inserting default admin");
+		listOfAccounts.append(new Account(Account::DefaultAdmin));
+	}
+}
+
+void AccountManager::SaveAccounts()
+{
+	QDir appDir(QCoreApplication::applicationDirPath());
+	QFile accountsFile(appDir.absoluteFilePath("accounts.dat"));
+	if(accountsFile.open(QIODevice::WriteOnly))
+	{
+		QDataStream out(&accountsFile);
+		out.setVersion(QDataStream::Qt_4_4);
+		out << Account::Version();
+		foreach(Account * a, listOfAccounts)
+			out << *a;
+	}
+	else
+		Log::Error("Can't open accounts.dat, accounts will not be saved");
+}
+
+Account const& AccountManager::Guest()
+{
+	static Account guest(Account::Guest);
+	return guest;
+}
+
+Account const& AccountManager::GetAccount(QByteArray const& token)
+{
+	QMap<QByteArray, TokenData>::iterator it = listOfTokens.find(token);
+	if(it != listOfTokens.end())
+	{
+		unsigned int now = QDateTime::currentDateTime().toTime_t();
+		if(now < it->expire_time)
+		{
+			it->expire_time = now + 300; // 5min
+			return *(it->account);
+		}
+		else
+		{
+			listOfTokens.erase(it);
+			return Guest();
+		}
+	}
+	return Guest();
+}
+
+QByteArray AccountManager::GetToken(QByteArray login, QByteArray hash)
+{
+	QMap<QByteArray, Account *>::const_iterator it = listOfAccountsByName.find(login);
+	if(it != listOfAccountsByName.end())
+	{
+		if((*it)->GetPasswordHash() == hash)
+		{
+			// Generate random token
+			QByteArray token = QCryptographicHash::hash(QUuid::createUuid().toString().toAscii(), QCryptographicHash::Md5).toHex();
+			TokenData t;
+			t.account = *it;
+			t.expire_time = QDateTime::currentDateTime().toTime_t() + 300;
+			listOfTokens.insert(token, t);
+			return token;
+		}
+		return QByteArray();
+	}
+	return QByteArray();
+}
+
+ApiManager::ApiAnswer * AccountManager::ProcessApiCall(Account const& account, QByteArray const& request, HTTPRequest const& hRequest)
+{
+	if(request == "auth")
+	{
+		if(!hRequest.HasArg("login") || !hRequest.HasArg("pass"))
 			return new ApiManager::ApiError("Missing arguments<br />Request was : " + hRequest.toString());
 
-		QByteArray retour = Login(hRequest.GetArg("login"), hRequest.GetArg("hash").toAscii());
-		if(retour == "BAD_LOGIN")
-			return new ApiManager::ApiError("Login '"+hRequest.GetArg("login")+"' doesn't exist");
-
-		if(retour == "")
-			return new ApiManager::ApiError("Bad password for login '"+hRequest.GetArg("login")+"'");
+		QByteArray retour = GetToken(hRequest.GetArg("login").toAscii(), hRequest.GetArg("hash").toAscii());
+		if(retour == QByteArray())
+			return new ApiManager::ApiError(QByteArray("Access denied"));
 
 		return new ApiManager::ApiString(retour);
-			
 	}
-	else if(request.startsWith("getAccountInfo"))
+	else if(request == "registerNewAccount")
 	{
-		if(!hRequest.HasArg("login"))
-			return new ApiManager::ApiError("Missing argument 'login'<br />Request was : " + hRequest.toString());
+		if(!account.IsAdmin())
+			return new ApiManager::ApiError(QByteArray("Access denied"));
 
-		if(!listOfAccountsByName.contains(hRequest.GetArg("login")))
-			return new ApiManager::ApiError("Account '"+hRequest.GetArg("login")+"' doesn't exists");
-			
-		Account * a = GetAccountByName(hRequest.GetArg("login"));
-		QMap<QByteArray, QByteArray> list;
-		list.insert("Login", a->GetLoginName().toAscii());
-		list.insert("Bunny", a->GetBunnyName().toAscii());
-		list.insert("Serial", a->GetBunnyID());
-		list.insert("Admin", "true");
-		return new ApiManager::ApiMappedList(list);
-	}
-	else if(request.startsWith("registerNewAccount"))
-	{
-		if(!hRequest.HasArg("login") || !hRequest.HasArg("hash") || !hRequest.HasArg("name") || !hRequest.HasArg("bunny"))
+		if(!hRequest.HasArg("login") || !hRequest.HasArg("username") || !hRequest.HasArg("pass"))
 			return new ApiManager::ApiError("Missing arguments<br />Request was : " + hRequest.toString());
 
-		if(listOfAccountsByName.contains(hRequest.GetArg("login")))
+		QByteArray login = hRequest.GetArg("login").toAscii();
+		if(listOfAccountsByName.contains(login))
 			return new ApiManager::ApiError("Account '"+hRequest.GetArg("login")+"' already exists");
 			
-		Account * a = new Account(hRequest.GetArg("login"), hRequest.GetArg("hash").toAscii(), hRequest.GetArg("name"), hRequest.GetArg("bunny").toAscii());
+		Account * a = new Account(login, hRequest.GetArg("username").toAscii(), hRequest.GetArg("hash").toAscii());
 		listOfAccounts.append(a);
-		listOfAccountsByName.insert(a->GetLoginName(), a);
-		return new ApiManager::ApiString("New account created : "+hRequest.GetArg("login"));
+		listOfAccountsByName.insert(a->GetLogin(), a);
+		return new ApiManager::ApiOk("New account created : "+hRequest.GetArg("login"));
 	}
 	else
 		return new ApiManager::ApiError("Unknown Accounts Api Call : " + request + "<br />Request was : " + hRequest.toString());

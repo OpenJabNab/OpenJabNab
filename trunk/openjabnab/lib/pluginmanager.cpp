@@ -4,6 +4,7 @@
 #include <QPluginLoader>
 #include <QString>
 #include "apimanager.h"
+#include "account.h"
 #include "httprequest.h"
 #include "log.h"
 #include "pluginmanager.h"
@@ -36,11 +37,7 @@ void PluginManager::LoadPlugins()
 {
 	Log::Info(QString("Finding plugins in : %1").arg(pluginsDir.path()));
 	foreach (QString fileName, pluginsDir.entryList(QDir::Files)) 
-	{
-		std::cout << "LOADING : " << qPrintable(fileName) << std::endl;
 		LoadPlugin(fileName);
-		std::cout << "END LOADING : " << qPrintable(fileName) << std::endl;
-	}
 }
 
 bool PluginManager::LoadPlugin(QString const& fileName)
@@ -239,17 +236,21 @@ void PluginManager::OnBunnyDisconnect(Bunny * b)
 /*******/
 /* API */
 /*******/
-ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request, HTTPRequest const& hRequest)
+ApiManager::ApiAnswer * PluginManager::ProcessApiCall(Account const& account, QByteArray const& request, HTTPRequest const& hRequest)
 {
-	if(request.startsWith("getListOfPlugins"))
+	if(request == "getListOfPlugins")
 	{
+		if(!account.HasPluginsAccess(Account::Read))
+			return new ApiManager::ApiError(QByteArray("Access denied"));
 		QMap<QByteArray, QByteArray> list;
 		foreach (PluginInterface * p, listOfPlugins)
 			list.insert(p->GetName().toAscii(), p->GetVisualName().toAscii());
 		return new ApiManager::ApiMappedList(list);
 	}
-	else if(request.startsWith("getListOfEnabledPlugins"))
+	else if(request == "getListOfEnabledPlugins")
 	{
+		if(!account.HasPluginsAccess(Account::Read))
+			return new ApiManager::ApiError(QByteArray("Access denied"));
 		QList<QByteArray> list;
 		foreach (PluginInterface * p, listOfPlugins)
 			if(p->GetEnable())
@@ -257,8 +258,10 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 
 		return new ApiManager::ApiList(list);
 	}
-	else if(request.startsWith("getListOfBunnyPlugins"))
+	else if(request == "getListOfBunnyPlugins")
 	{
+		if(!account.HasPluginsAccess(Account::Read))
+			return new ApiManager::ApiError(QByteArray("Access denied"));
 		QList<QByteArray> list;
 		foreach (PluginInterface * p, listOfPlugins)
 			if(p->GetType() == PluginInterface::BunnyPlugin)
@@ -266,8 +269,10 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 
 		return new ApiManager::ApiList(list);
 	}
-	else if(request.startsWith("getListOfSystemPlugins"))
+	else if(request == "getListOfSystemPlugins")
 	{
+		if(!account.HasPluginsAccess(Account::Read))
+			return new ApiManager::ApiError(QByteArray("Access denied"));
 		QList<QByteArray> list;
 		foreach (PluginInterface * p, listOfPlugins)
 			if(p->GetType() == PluginInterface::SystemPlugin)
@@ -275,8 +280,10 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 
 		return new ApiManager::ApiList(list);
 	}
-	else if(request.startsWith("getListOfRequiredPlugins"))
+	else if(request == "getListOfRequiredPlugins")
 	{
+		if(!account.HasPluginsAccess(Account::Read))
+			return new ApiManager::ApiError(QByteArray("Access denied"));
 		QList<QByteArray> list;
 		foreach (PluginInterface * p, listOfPlugins)
 			if(p->GetType() == PluginInterface::RequiredPlugin)
@@ -286,6 +293,8 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 	}
 	else if(request == "activatePlugin")
 	{
+		if(!account.HasPluginsAccess(Account::Write))
+			return new ApiManager::ApiError(QByteArray("Access denied"));
 		if(!hRequest.HasArg("name"))
 			return new ApiManager::ApiError("Missing 'name' argument<br />Request was : " + hRequest.toString());
 
@@ -301,6 +310,8 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 	}
 	else if(request == "deactivatePlugin")
 	{
+		if(!account.HasPluginsAccess(Account::Write))
+			return new ApiManager::ApiError(QByteArray("Access denied"));
 		if(!hRequest.HasArg("name"))
 			return new ApiManager::ApiError("Missing 'name' argument<br />Request was : " + hRequest.toString());
 
@@ -319,6 +330,8 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 	}
 	else if(request == "unloadPlugin")
 	{
+		if(!account.HasPluginsAccess(Account::Write))
+			return new ApiManager::ApiError(QByteArray("Access denied"));
 		if(!hRequest.HasArg("name"))
 			return new ApiManager::ApiError("Missing 'name' argument<br />Request was : " + hRequest.toString());
 		QString name = hRequest.GetArg("name");
@@ -331,6 +344,8 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 	}
 	else if(request == "loadPlugin")
 	{
+		if(!account.HasPluginsAccess(Account::Write))
+			return new ApiManager::ApiError(QByteArray("Access denied"));
 		if(!hRequest.HasArg("filename"))
 			return new ApiManager::ApiError("Missing 'filename' argument<br />Request was : " + hRequest.toString());
 		QString filename = hRequest.GetArg("filename");
@@ -341,6 +356,8 @@ ApiManager::ApiAnswer * PluginManager::ProcessApiCall(QByteArray const& request,
 	}
 	else if(request == "reloadPlugin")
 	{
+		if(!account.HasPluginsAccess(Account::Write))
+			return new ApiManager::ApiError(QByteArray("Access denied"));
 		if(!hRequest.HasArg("name"))
 			return new ApiManager::ApiError("Missing 'name' argument<br />Request was : " + hRequest.toString());
 		QString name = hRequest.GetArg("name");

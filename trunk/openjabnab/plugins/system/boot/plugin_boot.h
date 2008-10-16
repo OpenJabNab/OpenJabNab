@@ -11,6 +11,7 @@ class PluginBoot : public PluginInterface
 
 public:
 	PluginBoot();
+	virtual ~PluginBoot() {};
 	bool HttpRequestHandle(HTTPRequest &);
 };
 

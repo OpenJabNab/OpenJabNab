@@ -15,7 +15,7 @@ PluginTTS::PluginTTS():PluginInterface("tts")
 {
 }
 
-ApiManager::ApiAnswer * PluginTTS::ProcessApiCall(QByteArray const& funcName, HTTPRequest const& r)
+ApiManager::ApiAnswer * PluginTTS::ProcessBunnyApiCall(Bunny * b, Account const&, QByteArray const& funcName, HTTPRequest const& r)
 {
 	if(funcName.toLower() != "say")
 		return new ApiManager::ApiError(QString("Bad function name for plugin TTS"));
@@ -24,8 +24,7 @@ ApiManager::ApiAnswer * PluginTTS::ProcessApiCall(QByteArray const& funcName, HT
 	if(!r.HasArg("text"))
 		return new ApiManager::ApiError(QString("Missing argument 'text' for plugin TTS"));
 
-	Bunny * b = BunnyManager::GetConnectedBunny(r.GetArg("to").toAscii());
-	if(!b)
+	if(!b->IsConnected())
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(r.GetArg("to")));
 
 	std::auto_ptr<QDir> ttsFolder(GetLocalHTTPFolder());

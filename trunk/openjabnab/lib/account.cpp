@@ -1,75 +1,80 @@
+#include <QCryptographicHash>
 #include <QCoreApplication>
-#include <QDir>
-#include <QFile>
-#include <cstdlib>
+#include <QDataStream>
+#include <QFlag>
 #include "account.h"
 #include "log.h"
 
-Account::Account(QString const& login)
+Account::Account()
 {
-	accountLogin = login;
-	InitAccountFile();
-	if (QFile::exists(accountFileName))
-		LoadAccount();
+	SetDefault();
 }
 
-Account::Account(QString const& login, QByteArray const& password, QString const& name, QByteArray const& id)
+Account::Account(SpecialAccount t)
 {
-	accountLogin = login;
-	passwordHash = password;
-	bunnyName = name;
-	bunnyID = id;
-	InitAccountFile();
-	if (!QFile::exists(accountFileName))
-		SaveAccount();
-}
-
-void Account::InitAccountFile()
-{
-	QDir accountsDir = QDir(QCoreApplication::applicationDirPath());
-	if (!accountsDir.cd("accounts"))
+	switch(t)
 	{
-		if (!accountsDir.mkdir("accounts"))
-		{
-			Log::Error("Unable to create accounts directory !\n");
-			exit(-1);
-		}
-		accountsDir.cd("accounts");
-	}
-	accountFileName = accountsDir.absoluteFilePath(accountLogin+".dat");
-}
+		case Guest:
+			SetDefault(); // Default values
+			login = "guest";
+			username = "Guest";
+			GlobalAccess = Read;
+			break;
 
-Account::~Account()
-{
-	SaveAccount();
-}
-
-void Account::LoadAccount()
-{
-	QFile file(accountFileName);
-	if (!file.open(QIODevice::ReadOnly))
-	{
-		Log::Error("Cannot open account file for reading : " + accountFileName);
-		return;
-	}
-	QDataStream in(&file);
-	in.setVersion(QDataStream::Qt_4_3);
-	in >> accountLogin >> passwordHash >> bunnyName >> bunnyID;
-	if (in.status() != QDataStream::Ok)
-	{
-		Log::Warning("Problem when loading account file : " + accountLogin);
+		case DefaultAdmin:
+			login = "admin";
+			username = "Administrator";
+			passwordHash = QCryptographicHash::hash("admin", QCryptographicHash::Md5).toHex();
+			isAdmin = true;
+			break;
 	}
 }
 
-void Account::SaveAccount()
+Account::Account(QDataStream & in, unsigned int version)
 {
-	QFile file(accountFileName);
-	if (!file.open(QIODevice::WriteOnly))
+	SetDefault();
+	if(version == 1)
 	{
-		Log::Error("Cannot open account file for writing : " + accountFileName);
-		return;
+		in >> login >> username >> passwordHash >> isAdmin >> PluginsAccess >> BunniesAccess >> GlobalAccess >> GeneralPluginAccess >> listOfBunnies;
 	}
-	QDataStream out(&file);
-	out.setVersion(QDataStream::Qt_4_3);
-	out << accountLogin << passwordHash << bunnyName << bunnyID;
+	else
+		Log::Error(QString("Can't load account with version %1").arg(version));
+}
+
+Account::Account(QByteArray const& l, QByteArray const& u, QByteArray const& p)
+{
+	SetDefault();
+	login = l;
+	username = u;
+	passwordHash = p;
+}
+
+void Account::SetDefault()
+{
+	// By default NO ACCESS
+	isAdmin = false;
+	PluginsAccess = None;
+	BunniesAccess = None;
+	GlobalAccess = None;
+	GeneralPluginAccess = None;
+}
+
+QDataStream & operator<< (QDataStream & out, const Account & a)
+{
+	out << a.login << a.username << a.passwordHash << a.isAdmin << a.PluginsAccess << a.BunniesAccess << a.GlobalAccess << a.GeneralPluginAccess << a.listOfBunnies;
+	return out;
+}
+
+QDataStream & operator>> (QDataStream & in, Account::Rights & r)
+{
+	int value;
+	in >> value;
+	r = QFlag(value);
+	return in;
+}
+
+QDataStream & operator<< (QDataStream & out, const Account::Rights & r)
+{
+	out << (int)r;
+	return out;
 }

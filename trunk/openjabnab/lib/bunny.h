@@ -14,11 +14,11 @@
 class XmppHandler;
 class OJN_EXPORT Bunny : QObject
 {
+	friend class BunnyManager;
 	Q_OBJECT
 public:
 	enum State { Connected, Disconnected };
-	Bunny(QByteArray const&);
-	~Bunny();
+	virtual ~Bunny();
 
 	bool IsConnected() const { return state == Connected; };
 	QByteArray GetID() const { return id.toHex(); };
@@ -34,6 +34,8 @@ public:
 
 	QVariant GetPluginSetting(QString const&, QString const&, QVariant const& defaultValue = QVariant()) const;
 	void SetPluginSetting(QString const&, QString const&, QVariant const&);
+
+	inline bool HasPlugin(PluginInterface * p) { return listOfPluginsPtr.contains(p); };
 
 	void XmppBunnyMessage(QByteArray const&);
 	void XmppVioletMessage(QByteArray const&);
@@ -53,6 +55,7 @@ private slots:
 	void SaveConfig();
 	
 private:
+	Bunny(QByteArray const&);
 	void LoadConfig();
 	void AddPlugin(PluginInterface * p);
 	void RemovePlugin(PluginInterface * p);

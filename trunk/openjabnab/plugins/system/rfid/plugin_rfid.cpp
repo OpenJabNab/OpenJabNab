@@ -18,7 +18,7 @@ bool PluginRFID::HttpRequestHandle(HTTPRequest & request)
 		QString serialnumber = request.GetArg("sn");
 		QString tagId = request.GetArg("t");
 
-		Bunny * b = BunnyManager::GetBunny(serialnumber.toAscii());
+		Bunny * b = BunnyManager::GetBunny(this, serialnumber.toAscii());
 		b->SetGlobalSetting("Last RFID Tag", tagId);
 	
 		if (b->OnRFID(QByteArray::fromHex(tagId.toAscii())))

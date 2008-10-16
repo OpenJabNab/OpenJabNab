@@ -18,7 +18,7 @@ public:
 	AmbientPacket() {};
 	AmbientPacket(enum Services, unsigned char value);
 	static AmbientPacket * Parse(QByteArray const&);
-	~AmbientPacket() {};
+	virtual ~AmbientPacket() {};
 
 	void SetServiceValue(enum Services, unsigned char);
 	void SetEarsPosition(unsigned char, unsigned char);

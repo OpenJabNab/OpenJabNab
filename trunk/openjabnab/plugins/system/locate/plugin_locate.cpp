@@ -17,7 +17,7 @@ bool PluginLocate::HttpRequestHandle(HTTPRequest & request)
 	{
 		QString serialnumber = request.GetArg("sn").remove(':');
 		
-		Bunny * b = BunnyManager::GetBunny(serialnumber.toAscii());
+		Bunny * b = BunnyManager::GetBunny(this, serialnumber.toAscii());
 		b->SetGlobalSetting("Last LocateRequest", QDateTime::currentDateTime());
 		
 		Log::Info(QString("Requesting LOCATE for tag %1").arg(serialnumber));

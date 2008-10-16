@@ -2,6 +2,7 @@
 #include <QString>
 
 #include "openjabnab.h"
+#include "accountmanager.h"
 #include "bunnymanager.h"
 #include "httphandler.h"
 #include "log.h"
@@ -14,8 +15,8 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 	GlobalSettings::Init();
 	Log::Init();
 	Log::Info("-- OpenJabNab Start --");
-
 	PluginManager::Init();
+	AccountManager::Init();
 
 	if(GlobalSettings::Get("Config/HttpListener", true) == true)
 	{
@@ -47,6 +48,7 @@ OpenJabNab::~OpenJabNab()
 	Log::Info("-- OpenJabNab Close --");
 	xmppListener->close();
 	httpListener->close();
+	AccountManager::Close();
 	PluginManager::Close();
 	BunnyManager::Close();
 	Log::Close();
