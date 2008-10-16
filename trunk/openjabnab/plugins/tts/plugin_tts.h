@@ -11,7 +11,8 @@ class PluginTTS : public PluginInterface
 
 public:
 	PluginTTS();
-	ApiManager::ApiAnswer * ProcessApiCall(QByteArray const&, HTTPRequest const&);
+	virtual ~PluginTTS() {};
+	ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QByteArray const&, HTTPRequest const&);
 
 private:
 };

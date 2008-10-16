@@ -13,7 +13,7 @@ public:
 	SleepPacket() {};
 	SleepPacket(State);
 	static SleepPacket * Parse(QByteArray const&);
-	~SleepPacket() {};
+	virtual ~SleepPacket() {};
 
 
 	QByteArray GetPrintableData() const;

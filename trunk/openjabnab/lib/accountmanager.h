@@ -2,33 +2,40 @@
 #define _ACCOUNTMANAGER_H_
 
 #include <QDateTime>
+#include <QList>
 #include <QMap>
-#include <QVector>
 #include "global.h"
 #include "account.h"
 #include "apimanager.h"
 
+typedef struct {
+	Account * account;
+	unsigned int expire_time;
+} TokenData;
+
 class OJN_EXPORT AccountManager
 {
+	friend class OpenJabNab;
 public:
 	static AccountManager & Instance();
+
+	Account const& GetAccount(QByteArray const&);
+	static Account const& Guest();
+	QByteArray GetToken(QByteArray login, QByteArray hash);
+	ApiManager::ApiAnswer * ProcessApiCall(Account const&, QByteArray const& request, HTTPRequest const& hRequest);
+
+protected:
+	static inline void Init() { Instance().LoadAccounts(); };
+	static inline void Close() { Instance().SaveAccounts(); };
 	virtual ~AccountManager();
-
-	QVector<Account *> const& GetListOfAccounts() { return listOfAccounts; }
-	Account * GetAccountByName(QString name) { return listOfAccountsByName.value(name); }
-	QByteArray GenerateNewToken(Account *);
-	ApiManager::ApiAnswer * ProcessApiCall(QByteArray const& request, HTTPRequest const& hRequest);
-	bool checkTokenValidity(QByteArray, Account *);
-	void updateToken(QByteArray);
-
 
 private:
 	AccountManager();
-	QByteArray Login(QString const&, QByteArray const&);
-	QVector<Account *> listOfAccounts;
-	QMap<QString, Account *> listOfAccountsByName;
-	QMap<QByteArray, QDateTime> listOfTokenExpiration;
-	QMap<QByteArray, Account *> listOfToken;
+	void LoadAccounts();
+	void SaveAccounts();
+	QList<Account *> listOfAccounts;
+	QMap<QByteArray, Account *> listOfAccountsByName;
+	QMap<QByteArray, TokenData> listOfTokens;
 };
 
 #endif

@@ -32,6 +32,7 @@ private slots:
 	
 private:
 	Cron();
+	virtual ~Cron() {};
 	static Cron& Instance();
 	unsigned int lastGivenID;
 	QList<CronElement> CronElements;

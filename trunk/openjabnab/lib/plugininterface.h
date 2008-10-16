@@ -12,6 +12,7 @@
 #include "log.h"
 #include "settings.h"
 
+class Account; 
 class Bunny;
 class HTTPRequest;
 class Packet;
@@ -74,7 +75,8 @@ public:
 	inline QString const& GetVisualName() const { return pluginVisualName; }
 
 	// Api Call
-	virtual ApiManager::ApiAnswer * ProcessApiCall(QByteArray const&, HTTPRequest const&) { return new ApiManager::ApiError(QString("This plugin doesn't support API")); };
+	virtual ApiManager::ApiAnswer * ProcessApiCall(Account const&, QByteArray const&, HTTPRequest const&) { return new ApiManager::ApiError(QString("This plugin doesn't support this api call")); };
+	virtual ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QByteArray const&, HTTPRequest const&) { return new ApiManager::ApiError(QString("This plugin doesn't support this api call")); };
 
 	// Plugin enable/disable functions
 	inline bool GetEnable() { return pluginEnable; }

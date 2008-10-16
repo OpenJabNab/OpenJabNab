@@ -28,13 +28,13 @@ XmppHandler::XmppHandler(QTcpSocket * s):pluginManager(PluginManager::Instance()
 
 void XmppHandler::Disconnect()
 {
-	incomingXmppSocket->disconnect(this);
 	incomingXmppSocket->abort();
-	
-	outgoingXmppSocket->disconnect(this);
 	outgoingXmppSocket->abort();
 	if(bunny)
+	{
 		bunny->RemoveXmppHandler(this);
+		bunny = 0;
+	}
 	deleteLater();
 }
 

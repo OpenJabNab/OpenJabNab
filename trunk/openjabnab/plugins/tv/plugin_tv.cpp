@@ -55,7 +55,7 @@ void PluginTV::getTVPage(Bunny * b)
 void PluginTV::analyseXml()
 {
 	QHttp * http = qobject_cast<QHttp *>(sender());
-	Bunny * b = BunnyManager::GetBunny(http->property("BunnyID").toByteArray());
+	Bunny * b = BunnyManager::GetBunny(this, http->property("BunnyID").toByteArray());
 	QXmlStreamReader xml;
 	xml.clear();
 	QString source = http->readAll();
@@ -122,20 +122,17 @@ void PluginTV::OnBunnyConnect(Bunny * b)
 	}
 }
 
-ApiManager::ApiAnswer * PluginTV::ProcessApiCall(QByteArray const& funcName, HTTPRequest const& r)
+ApiManager::ApiAnswer * PluginTV::ProcessBunnyApiCall(Bunny * b, Account const&, QByteArray const& funcName, HTTPRequest const& r)
 {
 	if(funcName.toLower() == "addwebcast")
 	{
-		if(!r.HasArg("to"))
-			return new ApiManager::ApiError(QString("Missing argument 'to' for plugin TV"));
 		if(!r.HasArg("time"))
 			return new ApiManager::ApiError(QString("Missing argument 'time' for plugin TV"));
 	
-		Bunny * b = BunnyManager::GetConnectedBunny(r.GetArg("to").toAscii());
-		if(!b)
+		if(!b->IsConnected())
 			return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(r.GetArg("to")));
 
-		if(! b->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList().contains(r.GetArg("time")))
+		if(!b->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList().contains(r.GetArg("time")))
 		{
 			QStringList time = r.GetArg("time").split(":");
 			int id = Cron::Register(this, 60*24, time[0].toInt(), time[1].toInt(), QVariant::fromValue( b ));
@@ -148,13 +145,10 @@ ApiManager::ApiAnswer * PluginTV::ProcessApiCall(QByteArray const& funcName, HTT
 	}
 	else if(funcName.toLower() == "removewebcast")
 	{
-		if(!r.HasArg("to"))
-			return new ApiManager::ApiError(QString("Missing argument 'to' for plugin TV"));
 		if(!r.HasArg("time"))
 			return new ApiManager::ApiError(QString("Missing argument 'time' for plugin TV"));
 	
-		Bunny * b = BunnyManager::GetConnectedBunny(r.GetArg("to").toAscii());
-		if(!b)
+		if(!b->IsConnected())
 			return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(r.GetArg("to")));
 		
 		QMapIterator<int, QStringList> i(webcastList);

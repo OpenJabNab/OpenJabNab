@@ -10,7 +10,7 @@ class OJN_EXPORT MessagePacket : public Packet
 public:
 	MessagePacket(QByteArray const&);
 	static MessagePacket * Parse(QByteArray const&);
-	~MessagePacket() {};
+	virtual ~MessagePacket() {};
 
 	void SetMessage(QByteArray const& s) { message = s; };
 	void AddMessage(QByteArray const& s) { message += s; };

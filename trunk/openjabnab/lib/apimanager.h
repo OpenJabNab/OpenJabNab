@@ -8,8 +8,9 @@
 #include <QString>
 #include "global.h"
 
-class HTTPRequest;
+class Account;
 class AccountManager;
+class HTTPRequest;
 class PluginManager;
 class OJN_EXPORT ApiManager
 {
@@ -26,7 +27,7 @@ public:
 	};
 
 	static ApiManager & Instance();
-	ApiAnswer * ProcessApiCall(QByteArray const&, HTTPRequest const&);
+	ApiAnswer * ProcessApiCall(QByteArray const&, HTTPRequest &);
 	
 	// Internal classes
 	class OJN_EXPORT ApiError : public ApiAnswer
@@ -97,8 +98,8 @@ public:
 
 private:
 	ApiManager();
-	ApiAnswer * ProcessGlobalApiCall(QByteArray const&, HTTPRequest const&);
-	ApiAnswer * ProcessPluginApiCall(QByteArray const&, HTTPRequest const&);
-	ApiAnswer * ProcessBunnyApiCall(QByteArray const&, HTTPRequest const&);
+	ApiAnswer * ProcessGlobalApiCall(Account const&, QByteArray const&, HTTPRequest const&);
+	ApiAnswer * ProcessPluginApiCall(Account const&, QByteArray const&, HTTPRequest &);
+	ApiAnswer * ProcessBunnyApiCall(Account const&, QByteArray const&, HTTPRequest const&);
 };
 #endif

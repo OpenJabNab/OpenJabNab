@@ -1,3 +1,4 @@
+#include "account.h"
 #include "bunny.h"
 #include "bunnymanager.h"
 #include "httprequest.h"
@@ -14,6 +15,17 @@ Bunny * BunnyManager::GetBunny(QByteArray const& bunnyHexID)
 	Bunny * b = new Bunny(bunnyID);
 	listOfBunnies.insert(bunnyID, b);
 	return b;
+}
+
+Bunny * BunnyManager::GetBunny(PluginInterface * p, QByteArray const& bunnyHexID)
+{
+	Bunny * b = GetBunny(bunnyHexID);
+	
+	if(p->GetType() != PluginInterface::BunnyPlugin)
+		return b;
+	if(b->HasPlugin(p))
+		return b;
+	return NULL;
 }
 
 Bunny * BunnyManager::GetConnectedBunny(QByteArray const& bunnyHexID)
@@ -68,10 +80,12 @@ void BunnyManager::PluginUnloaded(PluginInterface * p)
 }
 
 
-ApiManager::ApiAnswer * BunnyManager::ProcessApiCall(QByteArray const& request, HTTPRequest const& hRequest)
+ApiManager::ApiAnswer * BunnyManager::ProcessApiCall(Account const& account, QByteArray const& request, HTTPRequest const& hRequest)
 {
-	if (request.startsWith("getListOfConnectedBunnies"))
+	if (request == "getListOfConnectedBunnies")
 	{
+		if(!account.HasBunniesAccess(Account::Read))
+			return new ApiManager::ApiError(QByteArray("Access denied"));
 		QMap<QByteArray, QByteArray> list;
 		foreach(Bunny * b, listOfBunnies)
 			if (b->IsConnected())
