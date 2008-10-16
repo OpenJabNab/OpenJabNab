@@ -24,7 +24,7 @@ Account::Account(SpecialAccount t)
 		case DefaultAdmin:
 			login = "admin";
 			username = "Administrator";
-			passwordHash = QCryptographicHash::hash("admin", QCryptographicHash::Md5).toHex();
+			passwordHash = QCryptographicHash::hash("admin", QCryptographicHash::Md5);
 			isAdmin = true;
 			break;
 	}
