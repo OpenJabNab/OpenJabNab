@@ -61,7 +61,9 @@ void AccountManager::LoadAccounts()
 	if(listOfAccounts.count() == 0)
 	{
 		Log::Warning("No account loaded ... inserting default admin");
+		Account * a = new Account(Account::DefaultAdmin);
 		listOfAccounts.append(new Account(Account::DefaultAdmin));
+		listOfAccountsByName.insert(a->GetLogin(), a);
 	}
 }
 
@@ -122,8 +124,10 @@ QByteArray AccountManager::GetToken(QByteArray login, QByteArray hash)
 			listOfTokens.insert(token, t);
 			return token;
 		}
+		Log::Error(QString("Bad login : user=%1, hash=%2, proposed hash=%3").arg(QString(login)).arg(QString((*it)->GetPasswordHash().toHex())).arg(QString(hash.toHex())));
 		return QByteArray();
 	}
+	Log::Error(QString("Bad login : user=%1").arg(QString(login)));
 	return QByteArray();
 }
 
@@ -134,7 +138,7 @@ ApiManager::ApiAnswer * AccountManager::ProcessApiCall(Account const& account, Q
 		if(!hRequest.HasArg("login") || !hRequest.HasArg("pass"))
 			return new ApiManager::ApiError("Missing arguments<br />Request was : " + hRequest.toString());
 
-		QByteArray retour = GetToken(hRequest.GetArg("login").toAscii(), hRequest.GetArg("hash").toAscii());
+		QByteArray retour = GetToken(hRequest.GetArg("login").toAscii(), QCryptographicHash::hash(hRequest.GetArg("pass").toAscii(), QCryptographicHash::Md5));
 		if(retour == QByteArray())
 			return new ApiManager::ApiError(QByteArray("Access denied"));
 
@@ -152,7 +156,7 @@ ApiManager::ApiAnswer * AccountManager::ProcessApiCall(Account const& account, Q
 		if(listOfAccountsByName.contains(login))
 			return new ApiManager::ApiError("Account '"+hRequest.GetArg("login")+"' already exists");
 			
-		Account * a = new Account(login, hRequest.GetArg("username").toAscii(), hRequest.GetArg("hash").toAscii());
+		Account * a = new Account(login, hRequest.GetArg("username").toAscii(), QCryptographicHash::hash(hRequest.GetArg("pass").toAscii(), QCryptographicHash::Md5));
 		listOfAccounts.append(a);
 		listOfAccountsByName.insert(a->GetLogin(), a);
 		return new ApiManager::ApiOk("New account created : "+hRequest.GetArg("login"));
