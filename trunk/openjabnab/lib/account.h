@@ -31,9 +31,9 @@ public:
 
 private:
 	Account();
-	Account::Account(SpecialAccount t);
-	Account::Account(QDataStream & in, unsigned int version);
-	Account::Account(QByteArray const& login, QByteArray const& username, QByteArray const& passwordHash);
+	Account(SpecialAccount t);
+	Account(QDataStream & in, unsigned int version);
+	Account(QByteArray const& login, QByteArray const& username, QByteArray const& passwordHash);
 
 	void SetDefault();
 
