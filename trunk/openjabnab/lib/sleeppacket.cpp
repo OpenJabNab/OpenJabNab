@@ -1,3 +1,4 @@
+#include <QString>
 #include "sleeppacket.h"
 
 SleepPacket::SleepPacket(State s)
@@ -11,11 +12,11 @@ SleepPacket::SleepPacket(State s)
 SleepPacket * SleepPacket::Parse(QByteArray const& buffer)
 {
 	if(buffer.size() !=1)
-		throw "Bad SleepPacket size : " + buffer.toHex();
+		throw QString("Bad SleepPacket size : %1").arg(QString(buffer.toHex()));
 
 	unsigned char value = (unsigned char)buffer.at(0);
 	if (value > 1)
-		throw "Bad SleepPacket value : " + buffer.toHex();
+		throw QString("Bad SleepPacket value : %1").arg(QString(buffer.toHex()));
 
 	SleepPacket * s = new SleepPacket;
 	s->sleep = value;

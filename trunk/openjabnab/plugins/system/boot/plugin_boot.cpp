@@ -8,7 +8,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_boot, PluginBoot)
 
-PluginBoot::PluginBoot():PluginInterface("boot", "Boot", RequiredPlugin) {}
+PluginBoot::PluginBoot():PluginInterface("boot", "Manage Boot requests", RequiredPlugin) {}
 
 bool PluginBoot::HttpRequestHandle(HTTPRequest & request)
 {

@@ -10,7 +10,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_dump, PluginDump)
 
-PluginDump::PluginDump():PluginInterface("dump", "Dump", SystemPlugin)
+PluginDump::PluginDump():PluginInterface("dump", "Dump network traffic to file", SystemPlugin)
 {
 	// Open dump file
 	QFile * dumpFile = new QFile(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("dump.log"), this);

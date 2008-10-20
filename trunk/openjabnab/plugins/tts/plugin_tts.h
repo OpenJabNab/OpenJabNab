@@ -12,7 +12,7 @@ class PluginTTS : public PluginInterface
 public:
 	PluginTTS();
 	virtual ~PluginTTS() {};
-	ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QByteArray const&, HTTPRequest const&);
+	ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QString const&, HTTPRequest const&);
 
 private:
 };

@@ -75,8 +75,8 @@ public:
 	inline QString const& GetVisualName() const { return pluginVisualName; }
 
 	// Api Call
-	virtual ApiManager::ApiAnswer * ProcessApiCall(Account const&, QByteArray const&, HTTPRequest const&) { return new ApiManager::ApiError(QString("This plugin doesn't support this api call")); };
-	virtual ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QByteArray const&, HTTPRequest const&) { return new ApiManager::ApiError(QString("This plugin doesn't support this api call")); };
+	virtual ApiManager::ApiAnswer * ProcessApiCall(Account const&, QString const&, HTTPRequest const&) { return new ApiManager::ApiError(QString("This plugin doesn't support this api call")); };
+	virtual ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QString const&, HTTPRequest const&) { return new ApiManager::ApiError(QString("This plugin doesn't support this api call")); };
 
 	// Plugin enable/disable functions
 	inline bool GetEnable() { return pluginEnable; }
@@ -92,7 +92,7 @@ protected:
 		{
 			pluginEnable = newStatus;
 			SetSettings("pluginStatus/Enable", QVariant(newStatus)); 
-			Log::Info("Plugin " + GetVisualName() + " is now " + (GetEnable() ? "enabled" : "disabled"));
+			Log::Info(QString("Plugin %1 is now %2").arg(GetVisualName(), GetEnable() ? "enabled" : "disabled"));
 			if(pluginType == BunnyPlugin)
 				BunnyManager::PluginStateChanged(this);
 		}

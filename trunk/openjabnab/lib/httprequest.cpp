@@ -56,7 +56,7 @@ HTTPRequest::HTTPRequest(QByteArray const& data):type(INVALID)
 	}
 	// Parse URI
 	QUrl url(rawUri);
-	uri = url.path().toAscii();
+	uri = url.path();
 	if(url.hasQuery())
 	{
 		QList<QPair<QString, QString> > items = url.queryItems();

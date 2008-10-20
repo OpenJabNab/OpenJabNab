@@ -15,7 +15,6 @@ Cron::Cron() {
 
 void Cron::OnTimer()
 {
-	Log::Debug(QString("Cron Timer ") + QDateTime::currentDateTime().toString());
 	unsigned int now = QDateTime::currentDateTime().toTime_t();
 	
 	for(QList<CronElement>::iterator it = CronElements.begin(); it != CronElements.end(); it++)
@@ -80,7 +79,7 @@ unsigned int Cron::Register(PluginInterface * p, unsigned int interval, unsigned
 	e.next_run = time.toTime_t();
 	theCron.CronElements.append(e);
 
-	Log::Info(QString("Cron Register : %1 - ").arg(p->GetVisualName()) + time.toString());
+	Log::Info(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
 	return id;
 }
 

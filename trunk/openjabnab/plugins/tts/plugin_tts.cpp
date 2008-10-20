@@ -11,11 +11,11 @@
 
 Q_EXPORT_PLUGIN2(plugin_tts, PluginTTS)
 
-PluginTTS::PluginTTS():PluginInterface("tts")
+PluginTTS::PluginTTS():PluginInterface("tts", "TTS Plugin, Send Text to Bunny")
 {
 }
 
-ApiManager::ApiAnswer * PluginTTS::ProcessBunnyApiCall(Bunny * b, Account const&, QByteArray const& funcName, HTTPRequest const& r)
+ApiManager::ApiAnswer * PluginTTS::ProcessBunnyApiCall(Bunny * b, Account const&, QString const& funcName, HTTPRequest const& r)
 {
 	if(funcName.toLower() != "say")
 		return new ApiManager::ApiError(QString("Bad function name for plugin TTS"));

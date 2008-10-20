@@ -19,87 +19,84 @@ public:
 	{
 		public:
 			virtual ~ApiAnswer() {}
-			virtual QByteArray GetData();
-			virtual QByteArray GetInternalData() = 0;
+			virtual QByteArray GetData(); // UTF8
+			virtual QString GetInternalData() = 0;
 
 		protected:
-			QByteArray SanitizeXML(QByteArray const&);
+			QString SanitizeXML(QString const&);
 	};
 
 	static ApiManager & Instance();
-	ApiAnswer * ProcessApiCall(QByteArray const&, HTTPRequest &);
+	ApiAnswer * ProcessApiCall(QString const&, HTTPRequest &);
 	
 	// Internal classes
 	class OJN_EXPORT ApiError : public ApiAnswer
 	{
 		public:
-			ApiError(QByteArray s):error(s) {}
-			ApiError(QString s):error(s.toAscii()) {}
-			QByteArray GetInternalData() { return "<error>" + SanitizeXML(error) + "</error>"; }
+			ApiError(QString s):error(s) {}
+			QString GetInternalData() { return QString("<error>%1</error>").arg(SanitizeXML(error)); }
 		private:
-			QByteArray error;
+			QString error;
 	};
 
 	class OJN_EXPORT ApiOk : public ApiAnswer
 	{
 		public:
-			ApiOk():string(QByteArray()) {}
-			ApiOk(QByteArray s):string(s) {}
-			ApiOk(QString s):string(s.toAscii()) {}
-			QByteArray GetInternalData() { return "<ok>" + SanitizeXML(string) + "</ok>"; }
+			ApiOk():string(QString()) {}
+			ApiOk(QString s):string(s) {}
+			QString GetInternalData() { return QString("<ok>%1</ok>").arg(SanitizeXML(string)); }
 		private:
-			QByteArray string;
+			QString string;
 	};
 
 	class OJN_EXPORT ApiString : public ApiAnswer
 	{
 		public:
-			ApiString(QByteArray s):string(s) {}
-			ApiString(QString s):string(s.toAscii()) {}
-			QByteArray GetInternalData() { return "<value>" + SanitizeXML(string) + "</value>"; }
+			ApiString(QString s):string(s) {}
+			QString GetInternalData() { return QString("<value>%1</value>").arg(SanitizeXML(string)); }
 		private:
-			QByteArray string;
+			QString string;
 	};
 
 	class OJN_EXPORT ApiList : public ApiAnswer
 	{
 		public:
-			ApiList(QList<QByteArray> l):list(l) {}
-			QByteArray GetInternalData() { 
-				QByteArray tmp;
+			ApiList(QList<QString> l):list(l) {}
+			QString GetInternalData() { 
+				QString tmp;
 				tmp += "<list>";
-				foreach (QByteArray b, list)
-					tmp += "<item>" + SanitizeXML(b) + "</item>";
+				foreach (QString b, list)
+					tmp += QString("<item>%1</item>").arg(SanitizeXML(b));
 				tmp += "</list>";
 				return tmp;
 			}
 		private:
-			QList<QByteArray> list;
+			QList<QString> list;
 	};
 
 	class OJN_EXPORT ApiMappedList : public ApiAnswer
 	{
 		public:
-			ApiMappedList(QMap<QByteArray, QByteArray> l):list(l) {}
-			QByteArray GetInternalData() { 
-				QByteArray tmp;
+			ApiMappedList(QMap<QString, QString> l):list(l) {}
+			QString GetInternalData() { 
+				QString tmp;
 				tmp += "<list>";
-				QMapIterator<QByteArray, QByteArray> i(list);
+				QMapIterator<QString, QString> i(list);
 				while (i.hasNext()) {
 					i.next();
-					tmp += "<item><key>" + SanitizeXML(i.key()) + "</key><value>" + SanitizeXML(i.value()) + "</value></item>";
+					tmp += QString("<item><key>%1</key><value>%2</value></item>").arg(SanitizeXML(i.key()), SanitizeXML(i.value()));
 				}
 				tmp += "</list>";
 				return tmp;
 			}
 		private:
-			QMap<QByteArray, QByteArray> list;
+			QMap<QString, QString> list;
 	};
 
 private:
 	ApiManager();
-	ApiAnswer * ProcessGlobalApiCall(Account const&, QByteArray const&, HTTPRequest const&);
-	ApiAnswer * ProcessPluginApiCall(Account const&, QByteArray const&, HTTPRequest &);
-	ApiAnswer * ProcessBunnyApiCall(Account const&, QByteArray const&, HTTPRequest const&);
+	ApiAnswer * ProcessGlobalApiCall(Account const&, QString const&, HTTPRequest const&);
+	ApiAnswer * ProcessPluginApiCall(Account const&, QString const&, HTTPRequest &);
+	ApiAnswer * ProcessBunnyApiCall(Account const&, QString const&, HTTPRequest const&);
 };
 #endif

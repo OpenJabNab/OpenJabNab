@@ -41,7 +41,7 @@ Account::Account(QDataStream & in, unsigned int version)
 		Log::Error(QString("Can't load account with version %1").arg(version));
 }
 
-Account::Account(QByteArray const& l, QByteArray const& u, QByteArray const& p)
+Account::Account(QString const& l, QString const& u, QByteArray const& p)
 {
 	SetDefault();
 	login = l;

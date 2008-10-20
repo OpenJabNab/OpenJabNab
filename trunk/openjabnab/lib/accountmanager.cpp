@@ -109,9 +109,9 @@ Account const& AccountManager::GetAccount(QByteArray const& token)
 	return Guest();
 }
 
-QByteArray AccountManager::GetToken(QByteArray login, QByteArray hash)
+QByteArray AccountManager::GetToken(QString const& login, QByteArray const& hash)
 {
-	QMap<QByteArray, Account *>::const_iterator it = listOfAccountsByName.find(login);
+	QMap<QString, Account *>::const_iterator it = listOfAccountsByName.find(login);
 	if(it != listOfAccountsByName.end())
 	{
 		if((*it)->GetPasswordHash() == hash)
@@ -124,43 +124,59 @@ QByteArray AccountManager::GetToken(QByteArray login, QByteArray hash)
 			listOfTokens.insert(token, t);
 			return token;
 		}
-		Log::Error(QString("Bad login : user=%1, hash=%2, proposed hash=%3").arg(QString(login)).arg(QString((*it)->GetPasswordHash().toHex())).arg(QString(hash.toHex())));
+		Log::Error(QString("Bad login : user=%1, hash=%2, proposed hash=%3").arg(login,QString((*it)->GetPasswordHash().toHex()),QString(hash.toHex())));
 		return QByteArray();
 	}
 	Log::Error(QString("Bad login : user=%1").arg(QString(login)));
 	return QByteArray();
 }
 
-ApiManager::ApiAnswer * AccountManager::ProcessApiCall(Account const& account, QByteArray const& request, HTTPRequest const& hRequest)
+ApiManager::ApiAnswer * AccountManager::ProcessApiCall(Account const& account, QString const& request, HTTPRequest const& hRequest)
 {
 	if(request == "auth")
 	{
 		if(!hRequest.HasArg("login") || !hRequest.HasArg("pass"))
-			return new ApiManager::ApiError("Missing arguments<br />Request was : " + hRequest.toString());
+			return new ApiManager::ApiError(QString("Missing arguments<br />Request was : %1").arg(hRequest.toString()));
 
-		QByteArray retour = GetToken(hRequest.GetArg("login").toAscii(), QCryptographicHash::hash(hRequest.GetArg("pass").toAscii(), QCryptographicHash::Md5));
+		QByteArray retour = GetToken(hRequest.GetArg("login"), QCryptographicHash::hash(hRequest.GetArg("pass").toAscii(), QCryptographicHash::Md5));
 		if(retour == QByteArray())
-			return new ApiManager::ApiError(QByteArray("Access denied"));
+			return new ApiManager::ApiError("Access denied");
 
+		Log::Info(QString("User login : %1").arg(hRequest.GetArg("login")));
 		return new ApiManager::ApiString(retour);
 	}
 	else if(request == "registerNewAccount")
 	{
 		if(!account.IsAdmin())
-			return new ApiManager::ApiError(QByteArray("Access denied"));
+			return new ApiManager::ApiError("Access denied");
 
 		if(!hRequest.HasArg("login") || !hRequest.HasArg("username") || !hRequest.HasArg("pass"))
-			return new ApiManager::ApiError("Missing arguments<br />Request was : " + hRequest.toString());
+			return new ApiManager::ApiError(QString("Missing arguments<br />Request was : %1").arg(hRequest.toString()));
 
-		QByteArray login = hRequest.GetArg("login").toAscii();
+		QString login = hRequest.GetArg("login");
 		if(listOfAccountsByName.contains(login))
-			return new ApiManager::ApiError("Account '"+hRequest.GetArg("login")+"' already exists");
+			return new ApiManager::ApiError(QString("Account %1 already exists").arg(hRequest.GetArg("login")));
 			
-		Account * a = new Account(login, hRequest.GetArg("username").toAscii(), QCryptographicHash::hash(hRequest.GetArg("pass").toAscii(), QCryptographicHash::Md5));
+		Account * a = new Account(login, hRequest.GetArg("username"), QCryptographicHash::hash(hRequest.GetArg("pass").toAscii(), QCryptographicHash::Md5));
 		listOfAccounts.append(a);
 		listOfAccountsByName.insert(a->GetLogin(), a);
-		return new ApiManager::ApiOk("New account created : "+hRequest.GetArg("login"));
+		return new ApiManager::ApiOk(QString("New account created : %1").arg(hRequest.GetArg("login")));
+	}
+	else if (request == "addBunny")
+	{
+		if(!account.IsAdmin())
+			return new ApiManager::ApiError("Access denied");
+
+		if(!hRequest.HasArg("login") || !hRequest.HasArg("bunnyid"))
+			return new ApiManager::ApiError(QString("Missing arguments<br />Request was : %1").arg(hRequest.toString()));
+
+		QString login = hRequest.GetArg("login");
+		if(!listOfAccountsByName.contains(login))
+			return new ApiManager::ApiError(QString("Account %1 doesn't exist").arg(hRequest.GetArg("login")));
+
+		QByteArray id = listOfAccountsByName.value(login)->AddBunny(hRequest.GetArg("bunnyid").toAscii());
+		return new ApiManager::ApiOk(QString("Bunny %1 added to account %2").arg(QString(id)).arg(login));
 	}
 	else
-		return new ApiManager::ApiError("Unknown Accounts Api Call : " + request + "<br />Request was : " + hRequest.toString());
+		return new ApiManager::ApiError(QString("Unknown Accounts Api Call : %1<br />Request was : %2").arg(request,hRequest.toString()));
 }

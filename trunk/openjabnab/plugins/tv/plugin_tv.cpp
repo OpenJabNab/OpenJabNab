@@ -98,7 +98,7 @@ void PluginTV::analyseXml()
 
 	if (xml.error() && xml.error() != QXmlStreamReader::PrematureEndOfDocumentError)
 	{
-		Log::Error(QString("Plugin " + GetVisualName() + " - XML Error at line %1 : %2").arg(xml.lineNumber()).arg(xml.errorString()));
+		Log::Error(QString("Plugin %1 - XML Error at line %2 : %3").arg(GetVisualName()).arg(xml.lineNumber()).arg(xml.errorString()));
 	}
 	else
 	{
@@ -122,7 +122,7 @@ void PluginTV::OnBunnyConnect(Bunny * b)
 	}
 }
 
-ApiManager::ApiAnswer * PluginTV::ProcessBunnyApiCall(Bunny * b, Account const&, QByteArray const& funcName, HTTPRequest const& r)
+ApiManager::ApiAnswer * PluginTV::ProcessBunnyApiCall(Bunny * b, Account const&, QString const& funcName, HTTPRequest const& r)
 {
 	if(funcName.toLower() == "addwebcast")
 	{
