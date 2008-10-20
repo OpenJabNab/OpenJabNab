@@ -12,7 +12,11 @@ class OpenJabNab : public QCoreApplication
 	
 public:
 	OpenJabNab(int argc, char ** argv);
+	void Close();
 	virtual ~OpenJabNab();
+
+signals:
+	void Quit();
 
 private slots:
 	void NewHTTPConnection();

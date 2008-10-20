@@ -77,3 +77,9 @@ void HttpHandler::HandleBunnyHTTPRequest()
 	incomingHttpSocket->close();
 	deleteLater();
 }
+
+void HttpHandler::Disconnect()
+{
+	incomingHttpSocket->close();
+	deleteLater();
+}

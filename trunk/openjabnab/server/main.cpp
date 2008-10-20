@@ -6,7 +6,8 @@ OpenJabNab * o;
 
 void sigCatcher(int)
 {
-	o->quit();
+	o->Close();
+	QMetaObject::invokeMethod(o, "quit", Qt::QueuedConnection);
 }
 
 int main( int argc, char **argv )
