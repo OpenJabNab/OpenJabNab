@@ -15,6 +15,9 @@ public:
 	HttpHandler(QTcpSocket *, bool, bool);
 	virtual ~HttpHandler();
 
+public slots:
+	void Disconnect();
+
 private slots:
 	void ReceiveData();
 	
