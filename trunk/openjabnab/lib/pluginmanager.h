@@ -36,7 +36,7 @@ public:
 	QList<PluginInterface *> const& GetListOfPlugins() { return listOfPlugins; }
 	PluginInterface * GetPluginByName(QString name) { return listOfPluginsByName.value(name); }
 
-	ApiManager::ApiAnswer * ProcessApiCall(Account const&, QByteArray const& request, HTTPRequest const& hRequest);
+	ApiManager::ApiAnswer * ProcessApiCall(Account const&, QString const& request, HTTPRequest const& hRequest);
 
 private:
 	PluginManager();

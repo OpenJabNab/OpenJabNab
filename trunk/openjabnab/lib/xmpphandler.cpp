@@ -62,7 +62,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 				bunny->SetGlobalSetting("Last JabberConnection", QDateTime::currentDateTime());
 			}
 			else
-				Log::Warning("Unable to parse response message : " + authString);
+				Log::Warning(QString("Unable to parse response message : %1").arg(QString(authString)));
 		}
 	}
 
@@ -103,10 +103,10 @@ void XmppHandler::HandleBunnyXmppMessage()
 				else if (value == 2)
 					handled = bunny->OnClick(PluginInterface::DoubleClick);
 				else
-					Log::Warning("Unable to parse button/click message : " + data);
+					Log::Warning(QString("Unable to parse button/click message : %1").arg(QString(data)));
 			}
 			else
-				Log::Warning("Unable to parse button message : " + data);
+				Log::Warning(QString("Unable to parse button message : %1").arg(QString(data)));
 		}
 		else if (message.startsWith("<ears"))
 		{
@@ -115,10 +115,10 @@ void XmppHandler::HandleBunnyXmppMessage()
 			if (rx.indexIn(message) != -1)
 				handled = bunny->OnEarsMove(rx.cap(1).toInt(), rx.cap(2).toInt());
 			else
-				Log::Warning("Unable to parse ears message : " + data);
+				Log::Warning(QString("Unable to parse ears message : %1").arg(QString(data)));
 		}
 		else
-			Log::Warning("Unknown message from bunny : " + data);
+			Log::Warning(QString("Unknown message from bunny : %1").arg(QString(data)));
 
 		// If the message wasn't handled by a plugin, forward it to Violet
 		if (!handled)
@@ -168,7 +168,7 @@ void XmppHandler::HandleVioletXmppMessage()
 			try
 			{
 				if (rx.cap(1) != "1.0")
-					throw "Unknown packet format : " + msg;
+					throw QString("Unknown packet format : %1").arg(QString(msg));
 
 				try
 				{
@@ -198,12 +198,12 @@ void XmppHandler::HandleVioletXmppMessage()
 							drop = true; // Nothing to send, drop all
 					}
 				}
-				catch (QByteArray const& errorMsg)
+				catch (QString const& errorMsg)
 				{
 					Log::Warning(errorMsg);
 				}
 			}
-			catch (QByteArray const& errorMsg)
+			catch (QString const& errorMsg)
 			{
 				Log::Warning(errorMsg);
 				// Can't handle it so forward it to the bunny
@@ -275,7 +275,7 @@ QList<QByteArray> XmppHandler::XmlParse(QByteArray const& data)
 			}
 			QString tagName = rxTag.cap(1);
 			// Search end tag
-			rxTag.setPattern("(.*</" + tagName + ">)");
+			rxTag.setPattern(QString("(.*</%1>)").arg(tagName));
 			rxTag.setMinimal(true);
 			if (rxTag.indexIn(msgQueue) == -1)
 			{

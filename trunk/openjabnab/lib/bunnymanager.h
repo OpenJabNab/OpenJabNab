@@ -17,7 +17,7 @@ class OJN_EXPORT BunnyManager
 	friend class PluginManager;
 public:
 	static Bunny * GetBunny(PluginInterface *, QByteArray const&);
-	static ApiManager::ApiAnswer * ProcessApiCall(Account const&, QByteArray const& request, HTTPRequest const& hRequest);
+	static ApiManager::ApiAnswer * ProcessApiCall(Account const&, QString const& request, HTTPRequest const& hRequest);
 	static void PluginStateChanged(PluginInterface *);
 	static void Close();
 

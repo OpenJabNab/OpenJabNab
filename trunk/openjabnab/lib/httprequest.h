@@ -14,7 +14,7 @@ public:
 
 	HTTPRequest(QByteArray const&);
 	QByteArray ForwardTo(QString const& server);
-	inline QByteArray const& GetURI() const { return uri; };
+	inline QString const& GetURI() const { return uri; };
 	inline QByteArray const& GetRawURI() const { return rawUri; };
 	inline QString GetArg(QString const& s) const { return getData.value(s, QString()); };
 	inline bool HasArg(QString const& s) const { return getData.contains(s); };
@@ -33,7 +33,7 @@ private:
 	QByteArray rawUri;
 	QByteArray rawHeaders;
 	QByteArray rawPostData;
-	QByteArray uri;
+	QString uri;
 	QMap<QString, QString> getData;
 	QMap<QString, QString> formPostData;
 	RequestType type;

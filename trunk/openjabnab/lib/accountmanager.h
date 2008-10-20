@@ -21,8 +21,8 @@ public:
 
 	Account const& GetAccount(QByteArray const&);
 	static Account const& Guest();
-	QByteArray GetToken(QByteArray login, QByteArray hash);
-	ApiManager::ApiAnswer * ProcessApiCall(Account const&, QByteArray const& request, HTTPRequest const& hRequest);
+	QByteArray GetToken(QString const& login, QByteArray const& hash);
+	ApiManager::ApiAnswer * ProcessApiCall(Account const&, QString const& request, HTTPRequest const& hRequest);
 
 protected:
 	static inline void Init() { Instance().LoadAccounts(); };
@@ -34,7 +34,7 @@ private:
 	void LoadAccounts();
 	void SaveAccounts();
 	QList<Account *> listOfAccounts;
-	QMap<QByteArray, Account *> listOfAccountsByName;
+	QMap<QString, Account *> listOfAccountsByName;
 	QMap<QByteArray, TokenData> listOfTokens;
 };
 

@@ -7,25 +7,13 @@
 
 Q_EXPORT_PLUGIN2(plugin_test, PluginTest)
 
-PluginTest::PluginTest():PluginInterface("test")
+PluginTest::PluginTest():PluginInterface("test", "Test choregraphy generation")
 {
 	angle = 0;
-	Log::Info("Plugin test loaded !");
 }
 
 PluginTest::~PluginTest()
 {
-	Log::Info("Plugin test unloaded !");
-}
-
-void PluginTest::OnBunnyConnect(Bunny * b)
-{
-	Log::Info("New bunny Connected : " + b->GetID());
-}
-
-void PluginTest::OnBunnyDisconnect(Bunny * b)
-{
-	Log::Info("Bunny Disconnected : " + b->GetID());
 }
 
 bool PluginTest::OnClick(Bunny * b, PluginInterface::ClickType type)

@@ -18,8 +18,7 @@ public:
 	Q_DECLARE_FLAGS(Rights, Right);
 
 	inline QByteArray const& GetPasswordHash() const { return passwordHash; }
-	inline void SetPassword(QByteArray const& b) { passwordHash = b; }
-	inline QByteArray const& GetLogin() const { return login; }
+	inline QString const& GetLogin() const { return login; }
 	inline bool IsAdmin() const { return isAdmin; }
 	inline bool HasPluginsAccess(Right r) const { return (isAdmin || PluginsAccess.testFlag(r)); }
 	inline bool HasBunniesAccess(Right r) const { return (isAdmin || BunniesAccess.testFlag(r)); }
@@ -33,12 +32,13 @@ private:
 	Account();
 	Account(SpecialAccount t);
 	Account(QDataStream & in, unsigned int version);
-	Account(QByteArray const& login, QByteArray const& username, QByteArray const& passwordHash);
+	Account(QString const& login, QString const& username, QByteArray const& passwordHash);
 
 	void SetDefault();
+	inline QByteArray AddBunny(QByteArray const& b) { QByteArray id = QByteArray::fromHex(b); listOfBunnies.append(id); return id.toHex(); }
 
-	QByteArray login;
-	QByteArray username;
+	QString login;
+	QString username;
 	QByteArray passwordHash;
 	bool isAdmin;
 	Rights PluginsAccess;

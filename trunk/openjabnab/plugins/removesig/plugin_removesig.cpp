@@ -8,7 +8,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_removesig, PluginRemoveSig)
 
-PluginRemoveSig::PluginRemoveSig():PluginInterface("removesig", "Remove signature from ambient message")
+PluginRemoveSig::PluginRemoveSig():PluginInterface("removesig", "Removes signature from ambient message")
 {
 }
 
@@ -18,9 +18,9 @@ bool PluginRemoveSig::XmppVioletPacketMessage(Bunny * b, Packet const& p)
 	if(QString(p.GetPrintableData()).indexOf(rx) != -1)
 	{
 		QString packet = p.GetPrintableData();
-		Log::Debug("Before removing signature :\n" + packet);
+		Log::Debug(QString("Before removing signature :\n%1").arg(packet));
 		packet = packet.remove(rx);
-		Log::Debug("After removing signature :\n" + packet);
+		Log::Debug(QString("After removing signature :\n%1").arg(packet));
 		b->SendPacket(MessagePacket(packet.toAscii()));
 		return true;
 	}

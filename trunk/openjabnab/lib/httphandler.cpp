@@ -32,7 +32,7 @@ void HttpHandler::ReceiveData()
 void HttpHandler::HandleBunnyHTTPRequest()
 {
 	HTTPRequest request(receivedData);
-	QByteArray uri = request.GetURI();
+	QString uri = request.GetURI();
 	if (uri.startsWith("/ojn_api/"))
 	{
 		if(httpApi)

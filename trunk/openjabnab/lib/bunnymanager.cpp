@@ -80,20 +80,20 @@ void BunnyManager::PluginUnloaded(PluginInterface * p)
 }
 
 
-ApiManager::ApiAnswer * BunnyManager::ProcessApiCall(Account const& account, QByteArray const& request, HTTPRequest const& hRequest)
+ApiManager::ApiAnswer * BunnyManager::ProcessApiCall(Account const& account, QString const& request, HTTPRequest const& hRequest)
 {
 	if (request == "getListOfConnectedBunnies")
 	{
 		if(!account.HasBunniesAccess(Account::Read))
-			return new ApiManager::ApiError(QByteArray("Access denied"));
-		QMap<QByteArray, QByteArray> list;
+			return new ApiManager::ApiError("Access denied");
+		QMap<QString, QString> list;
 		foreach(Bunny * b, listOfBunnies)
 			if (b->IsConnected())
-				list.insert(b->GetID(), b->GetBunnyName().toAscii());
+				list.insert(b->GetID(), b->GetBunnyName());
 		return new ApiManager::ApiMappedList(list);
 	}
 	else
-		return new ApiManager::ApiError("Unknown Bunnies Api Call : " + request + "<br />Request was : " + hRequest.toString());
+		return new ApiManager::ApiError(QString("Unknown Bunnies Api Call : %1<br />Request was : %2").arg(request,hRequest.toString()));
 }
 
 QMap<QByteArray, Bunny *> BunnyManager::listOfBunnies;

@@ -49,7 +49,7 @@ public:
 	void PluginLoaded(PluginInterface *);
 	void PluginUnloaded(PluginInterface *);
 
-	ApiManager::ApiAnswer * ProcessApiCall(QByteArray const& functionName, HTTPRequest const& hRequest);
+	ApiManager::ApiAnswer * ProcessApiCall(QString const& functionName, HTTPRequest const& hRequest);
 
 private slots:
 	void SaveConfig();

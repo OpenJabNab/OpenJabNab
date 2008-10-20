@@ -12,7 +12,7 @@ QList<Packet*> Packet::Parse(QByteArray const& originalBuffer)
 	// Check data
 	const unsigned char * data = (const unsigned char *)buffer.constData();
 	if (data[0] != 0x7F || data[buffer.size() - 1] != 0xFF)
-		throw "Unable to parse packet : " + buffer.toHex();
+		throw QString("Unable to parse packet : %1").arg(QString(buffer.toHex()));
 
 	buffer.remove(0,1); // Removes 1st byte (7F)
 	while(buffer.size() != 1)
@@ -21,7 +21,7 @@ QList<Packet*> Packet::Parse(QByteArray const& originalBuffer)
 		data = (const unsigned char *)buffer.constData();
 		int len = data[1] << 16 | data[2] << 8 | data[3];
 		if (buffer.size() < len + 5) // Type(1) + Len(3) + Trail(1)
-			throw "Bad packet length : " + buffer.toHex() + " / " + originalBuffer.toHex();
+			throw QString("Bad packet length : %1 / %2").arg(QString(buffer.toHex()),QString(originalBuffer.toHex()));
 
 		switch(data[0])
 		{
@@ -38,7 +38,7 @@ QList<Packet*> Packet::Parse(QByteArray const& originalBuffer)
 				break;
 
 			default:
-				throw "Bad packet type : " + buffer.toHex() + " / " + originalBuffer.toHex();
+				throw QString("Bad packet type : %1 / %2").arg(QString(buffer.toHex()),QString(originalBuffer.toHex()));
 		}
 		list.append(p);
 		buffer.remove(0, len + 4); // Type(1) + Len(3)

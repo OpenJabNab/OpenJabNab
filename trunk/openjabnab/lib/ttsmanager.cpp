@@ -60,10 +60,10 @@ bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, b
 	QUrl url("?"+reponse);
 	if(url.hasQueryItem("retour_php"))
 	{
-		Log::Debug("Acapela answer: " + reponse);
+		Log::Debug(QString("Acapela answer : %1").arg(QString(reponse)));
 		QString acapelaFile = url.queryItemValue("retour_php");
-		Log::Info("Downloading MP3 file : " + acapelaFile);
-		http.get("/asTTS/v1-00/" + acapelaFile);
+		Log::Info(QString("Downloading MP3 file : %1").arg(QString(acapelaFile)));
+		http.get(QString("/asTTS/v1-00/%1").arg(acapelaFile));
 		loop.exec();
 		QFile file(fileName);
 		if (!file.open(QIODevice::WriteOnly))
@@ -76,6 +76,6 @@ bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, b
 		return true;
 	}
 	Log::Error("Acapela demo did not return a sound file");
-	Log::Debug("Acapela answer : " + reponse);
+	Log::Debug(QString("Acapela answer : %1").arg(QString(reponse)));
 	return false;
 }

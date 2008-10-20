@@ -13,8 +13,6 @@ public:
 	virtual ~PluginTest();
 	bool OnClick(Bunny *, PluginInterface::ClickType);
 	bool HttpRequestHandle(HTTPRequest &);
-	void OnBunnyConnect(Bunny *);
-	void OnBunnyDisconnect(Bunny *);
 
 private:
 	int angle;

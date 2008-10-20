@@ -5,7 +5,7 @@ AmbientPacket * AmbientPacket::Parse(QByteArray const& buffer)
 {
 	// Size should be a multiple of 2 (4bytes id & 2*N bytes for (ServiceID, ServiceValue))
 	if ((buffer.size() < 6) /*|| ((buffer.size() % 2) != 0)*/)
-		throw "Bad AmbientPacket size : " + buffer.toHex();
+		throw QString("Bad AmbientPacket size : %1").arg(QString(buffer.toHex()));
 
 	AmbientPacket * p = new AmbientPacket();
 	for(int i = 4; i + 2 <= buffer.size(); i += 2)

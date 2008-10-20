@@ -18,7 +18,7 @@ public:
 	virtual ~PluginTV();
 	bool OnClick(Bunny *, PluginInterface::ClickType);
 	void OnCron(QVariant);
-	ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QByteArray const&, HTTPRequest const&);
+	ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QString const&, HTTPRequest const&);
 	void OnBunnyConnect(Bunny *);
 	void AfterBunnyUnregistered(Bunny *) {};
 
