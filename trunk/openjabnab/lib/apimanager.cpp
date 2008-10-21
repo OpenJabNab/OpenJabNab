@@ -108,7 +108,7 @@ ApiManager::ApiAnswer * ApiManager::ProcessBunnyApiCall(Account const& account, 
 	if(!account.HasBunnyAccess(bunnyID))
 		return new ApiManager::ApiError("Access denied to this bunny");
 	
-	return BunnyManager::GetBunny(bunnyID)->ProcessApiCall(functionName, hRequest);
+	return BunnyManager::GetBunny(bunnyID)->ProcessApiCall(account, functionName, hRequest);
 }
 
 QString ApiManager::ApiAnswer::SanitizeXML(QString const& msg)

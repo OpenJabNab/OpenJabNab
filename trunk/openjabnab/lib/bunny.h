@@ -6,13 +6,14 @@
 #include <QString>
 #include <QTimer>
 #include <QVariant>
+#include "apihandler.h"
 #include "apimanager.h"
 #include "global.h"
 #include "packet.h"
 #include "plugininterface.h"
 
 class XmppHandler;
-class OJN_EXPORT Bunny : QObject
+class OJN_EXPORT Bunny : QObject, public ApiHandler<Bunny>
 {
 	friend class BunnyManager;
 	Q_OBJECT
@@ -49,7 +50,9 @@ public:
 	void PluginLoaded(PluginInterface *);
 	void PluginUnloaded(PluginInterface *);
 
-	ApiManager::ApiAnswer * ProcessApiCall(QString const& functionName, HTTPRequest const& hRequest);
+	ApiManager::ApiAnswer * ProcessApiCall_RegisterPlugin(Account const&, QString const&, HTTPRequest const& hRequest);
+	ApiManager::ApiAnswer * ProcessApiCall_UnregisterPlugin(Account const&, QString const&, HTTPRequest const& hRequest);
+	ApiManager::ApiAnswer * ProcessApiCall_GetListOfActivePlugins(Account const&, QString const&, HTTPRequest const& hRequest);
 
 private slots:
 	void SaveConfig();
