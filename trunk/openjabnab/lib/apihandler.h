@@ -2,9 +2,12 @@
 #define _APIHANDLER_H_
 
 #include <QMap>
+#include <QString>
 #include "apimanager.h"
 #include "global.h"
+#include "httprequest.h"
 
+class Account;
 template <class T>
 class OJN_EXPORT ApiHandler
 {
@@ -16,7 +19,7 @@ public:
 	// API
 	ApiManager::ApiAnswer * ProcessApiCall(Account const& account, QString const& request, HTTPRequest const& hRequest)
 	{
-		QMap<QString, ApiCallFunc>::iterator it = apiCalls.find(request);
+		typename QMap<QString, ApiCallFunc>::iterator it = apiCalls.find(request);
 		if(it == apiCalls.end())
 			return new ApiManager::ApiError(QString("Unknown Api Call : %1<br />Request was : %2").arg(request, hRequest.toString()));
 
@@ -26,3 +29,4 @@ public:
 };
 
 #endif
+
