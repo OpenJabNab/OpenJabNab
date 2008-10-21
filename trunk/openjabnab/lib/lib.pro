@@ -39,7 +39,8 @@ HEADERS +=	httphandler.h \
 			cron.h \
 			ttsmanager.h \
 			accountmanager.h \
-			account.h
+			account.h \
+			apihandler.h
 
 SOURCES +=	httphandler.cpp \
 			xmpphandler.cpp \
