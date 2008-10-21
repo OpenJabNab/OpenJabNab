@@ -36,6 +36,7 @@ private:
 
 	void SetDefault();
 	inline QByteArray AddBunny(QByteArray const& b) { QByteArray id = QByteArray::fromHex(b); listOfBunnies.append(id); return id.toHex(); }
+	inline bool RemoveBunny(QByteArray const& b) { QByteArray id = QByteArray::fromHex(b); return (listOfBunnies.removeAll(id) != 0); }
 
 	QString login;
 	QString username;

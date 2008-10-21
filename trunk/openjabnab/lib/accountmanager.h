@@ -6,6 +6,7 @@
 #include <QMap>
 #include "global.h"
 #include "account.h"
+#include "apihandler.h"
 #include "apimanager.h"
 
 typedef struct {
@@ -13,7 +14,7 @@ typedef struct {
 	unsigned int expire_time;
 } TokenData;
 
-class OJN_EXPORT AccountManager
+class OJN_EXPORT AccountManager : public ApiHandler<AccountManager>
 {
 	friend class OpenJabNab;
 public:
@@ -22,10 +23,9 @@ public:
 	Account const& GetAccount(QByteArray const&);
 	static Account const& Guest();
 	QByteArray GetToken(QString const& login, QByteArray const& hash);
-	ApiManager::ApiAnswer * ProcessApiCall(Account const&, QString const& request, HTTPRequest const& hRequest);
 
 protected:
-	static inline void Init() { Instance().LoadAccounts(); };
+	static inline void Init() { Instance().LoadAccounts(); Instance().InitApi(); };
 	static inline void Close() { Instance().SaveAccounts(); };
 	virtual ~AccountManager();
 
@@ -33,9 +33,16 @@ private:
 	AccountManager();
 	void LoadAccounts();
 	void SaveAccounts();
+	void InitApi();
 	QList<Account *> listOfAccounts;
 	QMap<QString, Account *> listOfAccountsByName;
 	QMap<QByteArray, TokenData> listOfTokens;
+
+	// API
+	ApiManager::ApiAnswer * Api_Auth(Account const&, QString const&, HTTPRequest const&);
+	ApiManager::ApiAnswer * Api_RegisterNewAccount(Account const&, QString const&, HTTPRequest const&);
+	ApiManager::ApiAnswer * Api_AddBunny(Account const&, QString const&, HTTPRequest const&);
+	ApiManager::ApiAnswer * Api_RemoveBunny(Account const&, QString const&, HTTPRequest const&);
 };
 
 #endif

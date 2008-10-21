@@ -33,6 +33,10 @@ Bunny::Bunny(QByteArray const& bunnyID)
 	saveTimer = new QTimer(this);
 	connect(saveTimer, SIGNAL(timeout()), this, SLOT(SaveConfig()));
 	saveTimer->start(5*60*1000); // 5min
+
+	apiCalls.insert("registerPlugin", &Bunny::ProcessApiCall_RegisterPlugin);
+	apiCalls.insert("UnregisterPlugin", &Bunny::ProcessApiCall_UnregisterPlugin);
+	apiCalls.insert("getListOfActivePlugins", &Bunny::ProcessApiCall_GetListOfActivePlugins);
 }
 
 Bunny::~Bunny()
@@ -287,50 +291,44 @@ void Bunny::PluginUnloaded(PluginInterface * p)
 		listOfPluginsPtr.removeAll(p);
 }
 
-ApiManager::ApiAnswer * Bunny::ProcessApiCall(QString const& functionName, HTTPRequest const& hRequest)
+ApiManager::ApiAnswer * Bunny::ProcessApiCall_RegisterPlugin(Account const&, QString const&, HTTPRequest const& hRequest)
 {
-	if(functionName == "registerPlugin")
-	{
-		if(hRequest.HasArg("name"))
-		{
-			PluginInterface * plugin = PluginManager::Instance().GetPluginByName(hRequest.GetArg("name"));
-			if(!plugin)
-				return new ApiManager::ApiError(QString("Unknown plugin : %1<br />Request was : %2").arg(hRequest.GetArg("name"),hRequest.toString()));
-
-			if(plugin->GetType() != PluginInterface::BunnyPlugin)
-				return new ApiManager::ApiError(QString("Bad plugin type : %1<br />Request was : %2").arg(hRequest.GetArg("name"),hRequest.toString()));
-
-			AddPlugin(plugin);
-			return new ApiManager::ApiOk(QString("Added '%1' as active plugin").arg(plugin->GetVisualName()));
-		}
+	if(!hRequest.HasArg("name"))
 		return new ApiManager::ApiError(QString("Missing argument in Bunny Api Call 'RegisterPlugin' : %1").arg(hRequest.toString()));
-	}
-	else if(functionName == "unregisterPlugin")
-	{
-		if(hRequest.HasArg("name"))
-		{
-			PluginInterface * plugin = PluginManager::Instance().GetPluginByName(hRequest.GetArg("name"));
-			if(!plugin)
-				return new ApiManager::ApiError(QString("Unknown plugin : %1<br />Request was : %2").arg(hRequest.GetArg("name"),hRequest.toString()));
 
-			if(plugin->GetType() != PluginInterface::BunnyPlugin)
-				return new ApiManager::ApiError(QString("Bad plugin type : %1<br />Request was : %2").arg(hRequest.GetArg("name"),hRequest.toString()));
+	PluginInterface * plugin = PluginManager::Instance().GetPluginByName(hRequest.GetArg("name"));
+	if(!plugin)
+		return new ApiManager::ApiError(QString("Unknown plugin : %1<br />Request was : %2").arg(hRequest.GetArg("name"),hRequest.toString()));
 
-			RemovePlugin(plugin);
-			return new ApiManager::ApiOk(QString("Removed '%1' as active plugin").arg(plugin->GetVisualName()));
-		}
+	if(plugin->GetType() != PluginInterface::BunnyPlugin)
+		return new ApiManager::ApiError(QString("Bad plugin type : %1<br />Request was : %2").arg(hRequest.GetArg("name"),hRequest.toString()));
+
+	AddPlugin(plugin);
+	return new ApiManager::ApiOk(QString("Added '%1' as active plugin").arg(plugin->GetVisualName()));
+}
+
+ApiManager::ApiAnswer * Bunny::ProcessApiCall_UnregisterPlugin(Account const&, QString const&, HTTPRequest const& hRequest)
+{
+	if(!hRequest.HasArg("name"))
 		return new ApiManager::ApiError(QString("Missing argument in Bunny Api Call 'UnregisterPlugin' : %1").arg(hRequest.toString()));
-	}
-	else if(functionName == "getListOfActivePlugins")
-	{
-		QList<QString> list;
-		foreach (PluginInterface * p, listOfPluginsPtr)
-			list.append(p->GetVisualName());
 
-		return new ApiManager::ApiList(list);
-	}
-	else
-	{
-		return new ApiManager::ApiError(QString("Unknown Bunny Api Call : %1").arg(hRequest.toString()));
-	}
+	PluginInterface * plugin = PluginManager::Instance().GetPluginByName(hRequest.GetArg("name"));
+	if(!plugin)
+		return new ApiManager::ApiError(QString("Unknown plugin : %1<br />Request was : %2").arg(hRequest.GetArg("name"),hRequest.toString()));
+
+	if(plugin->GetType() != PluginInterface::BunnyPlugin)
+		return new ApiManager::ApiError(QString("Bad plugin type : %1<br />Request was : %2").arg(hRequest.GetArg("name"),hRequest.toString()));
+
+	RemovePlugin(plugin);
+	return new ApiManager::ApiOk(QString("Removed '%1' as active plugin").arg(plugin->GetVisualName()));
+}
+
+ApiManager::ApiAnswer * Bunny::ProcessApiCall_GetListOfActivePlugins(Account const&, QString const&, HTTPRequest const&)
+{
+	QList<QString> list;
+	foreach (PluginInterface * p, listOfPluginsPtr)
+		list.append(p->GetVisualName());
+
+	return new ApiManager::ApiList(list);
+
 }
