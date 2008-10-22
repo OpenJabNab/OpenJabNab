@@ -3,7 +3,7 @@
 
 #include <QDateTime>
 #include <QList>
-#include <QMap>
+#include <QHash>
 #include "global.h"
 #include "account.h"
 #include "apihandler.h"
@@ -35,8 +35,8 @@ private:
 	void SaveAccounts();
 	void InitApi();
 	QList<Account *> listOfAccounts;
-	QMap<QString, Account *> listOfAccountsByName;
-	QMap<QByteArray, TokenData> listOfTokens;
+	QHash<QString, Account *> listOfAccountsByName;
+	QHash<QByteArray, TokenData> listOfTokens;
 
 	// API
 	ApiManager::ApiAnswer * Api_Auth(Account const&, QString const&, HTTPRequest const&);

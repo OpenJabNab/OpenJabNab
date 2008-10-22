@@ -1,7 +1,7 @@
 #ifndef _HTTPREQUEST_H_
 #define _HTTPREQUEST_H_
 
-#include <QMap>
+#include <QHash>
 #include <QString>
 #include <QStringList>
 #include "global.h"
@@ -21,8 +21,8 @@ public:
 	inline void RemoveArg(QString const& s) { getData.remove(s); };
 	inline QString GetPostArg(QString const& s) const { return formPostData.value(s, QString()); };
 	inline bool HasPostArg(QString const& s) const { return formPostData.contains(s); };
-	inline QMap<QString, QString> const& GetArgs() const { return getData; };
-	inline QMap<QString, QString> const& GetPost() const { return formPostData; };
+	inline QHash<QString, QString> const& GetArgs() const { return getData; };
+	inline QHash<QString, QString> const& GetPost() const { return formPostData; };
 	inline QByteArray const& GetRawPost() const { return rawPostData; };
 	inline RequestType const& GetType() const { return type; };
 	QString toString() const;
@@ -34,8 +34,8 @@ private:
 	QByteArray rawHeaders;
 	QByteArray rawPostData;
 	QString uri;
-	QMap<QString, QString> getData;
-	QMap<QString, QString> formPostData;
+	QHash<QString, QString> getData;
+	QHash<QString, QString> formPostData;
 	RequestType type;
 };
 

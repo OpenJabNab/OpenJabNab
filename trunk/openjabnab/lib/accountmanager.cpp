@@ -99,7 +99,7 @@ Account const& AccountManager::Guest()
 
 Account const& AccountManager::GetAccount(QByteArray const& token)
 {
-	QMap<QByteArray, TokenData>::iterator it = listOfTokens.find(token);
+	QHash<QByteArray, TokenData>::iterator it = listOfTokens.find(token);
 	if(it != listOfTokens.end())
 	{
 		unsigned int now = QDateTime::currentDateTime().toTime_t();
@@ -119,7 +119,7 @@ Account const& AccountManager::GetAccount(QByteArray const& token)
 
 QByteArray AccountManager::GetToken(QString const& login, QByteArray const& hash)
 {
-	QMap<QString, Account *>::const_iterator it = listOfAccountsByName.find(login);
+	QHash<QString, Account *>::const_iterator it = listOfAccountsByName.find(login);
 	if(it != listOfAccountsByName.end())
 	{
 		if((*it)->GetPasswordHash() == hash)
