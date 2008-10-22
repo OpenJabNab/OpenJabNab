@@ -1,7 +1,7 @@
 #ifndef _BUNNYMANAGER_H_
 #define _BUNNYMANAGER_H_
 
-#include <QMap>
+#include <QHash>
 #include <QVector>
 #include "global.h"
 #include "apimanager.h"
@@ -30,7 +30,7 @@ protected:
 
 private:
 	BunnyManager();
-	static QMap<QByteArray, Bunny *> listOfBunnies;
+	static QHash<QByteArray, Bunny *> listOfBunnies;
 };
 
 #endif

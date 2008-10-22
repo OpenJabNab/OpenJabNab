@@ -96,4 +96,4 @@ ApiManager::ApiAnswer * BunnyManager::ProcessApiCall(Account const& account, QSt
 		return new ApiManager::ApiError(QString("Unknown Bunnies Api Call : %1<br />Request was : %2").arg(request,hRequest.toString()));
 }
 
-QMap<QByteArray, Bunny *> BunnyManager::listOfBunnies;
+QHash<QByteArray, Bunny *> BunnyManager::listOfBunnies;

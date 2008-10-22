@@ -50,8 +50,8 @@ private:
 	QList<PluginInterface *> listOfSystemPlugins;
 	QMap<PluginInterface *, QString> listOfPluginsFileName;
 	QMap<PluginInterface *, QPluginLoader *> listOfPluginsLoader;
-	QMap<QString, PluginInterface *> listOfPluginsByName;
-	QMap<QString, PluginInterface *> listOfPluginsByFileName;
+	QHash<QString, PluginInterface *> listOfPluginsByName;
+	QHash<QString, PluginInterface *> listOfPluginsByFileName;
 };
 
 #endif

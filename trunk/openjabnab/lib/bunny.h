@@ -2,7 +2,7 @@
 #define _BUNNY_H_
 
 #include <QByteArray>
-#include <QMap>
+#include <QHash>
 #include <QString>
 #include <QTimer>
 #include <QVariant>
@@ -68,8 +68,8 @@ private:
 	enum State state;
 	QByteArray id;
 	QString configFileName;
-	QMap<QString, QVariant> GlobalSettings;
-	QMap<QString, QMap<QString, QVariant> > PluginsSettings;
+	QHash<QString, QVariant> GlobalSettings;
+	QHash<QString, QHash<QString, QVariant> > PluginsSettings;
 	QList<QString> listOfPlugins;
 	QList<PluginInterface*> listOfPluginsPtr;
 	QTimer * saveTimer;
