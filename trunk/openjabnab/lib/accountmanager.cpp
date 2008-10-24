@@ -44,7 +44,7 @@ void AccountManager::LoadAccounts()
 		if(accountsFile.open(QIODevice::ReadOnly))
 		{
 			QDataStream in(&accountsFile);
-			in.setVersion(QDataStream::Qt_4_4);
+			in.setVersion(QDataStream::Qt_4_3);
 			int version;
 			in >> version;
 			while(!in.atEnd())
@@ -82,7 +82,7 @@ void AccountManager::SaveAccounts()
 	if(accountsFile.open(QIODevice::WriteOnly))
 	{
 		QDataStream out(&accountsFile);
-		out.setVersion(QDataStream::Qt_4_4);
+		out.setVersion(QDataStream::Qt_4_3);
 		out << Account::Version();
 		foreach(Account * a, listOfAccounts)
 			out << *a;
