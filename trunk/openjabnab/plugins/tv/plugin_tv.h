@@ -20,6 +20,7 @@ public:
 	void OnCron(QVariant);
 	ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QString const&, HTTPRequest const&);
 	void OnBunnyConnect(Bunny *);
+	void OnBunnyDisconnect(Bunny *);
 	void AfterBunnyUnregistered(Bunny *) {};
 
 private:
