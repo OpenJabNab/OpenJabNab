@@ -2,6 +2,7 @@
 #include <QCryptographicHash>
 #include <QXmlStreamReader>
 #include <QHttp>
+#include <QMapIterator>
 #include <QRegExp>
 #include <QUrl>
 #include <memory>
@@ -119,6 +120,16 @@ void PluginTV::OnBunnyConnect(Bunny * b)
 		QStringList time = webcast.split(":");
 		int id = Cron::Register(this, 60*24, time[0].toInt(), time[1].toInt(), QVariant::fromValue( b ));
 		webcastList.insert(id, QStringList() << QString(b->GetID()) << webcast);
+	}
+}
+
+void PluginTV::OnBunnyDisconnect(Bunny * b)
+{
+	QMapIterator<int, QStringList> i(webcastList);
+	while (i.hasNext()) {
+		i.next();
+		if(i.value()[0] == QString(b->GetID()))
+			Cron::Unregister(this, i.key());
 	}
 }
 
