@@ -79,7 +79,7 @@ unsigned int Cron::Register(PluginInterface * p, unsigned int interval, unsigned
 	e.next_run = time.toTime_t();
 	theCron.CronElements.append(e);
 
-	Log::Info(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
+	Log::Debug(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
 	return id;
 }
 
@@ -91,7 +91,10 @@ void Cron::Unregister(PluginInterface * p, unsigned int id)
 	{
 		CronElement const& e = i.next();
 		if(e.plugin == p && e.id == id)
+		{
 			i.remove();
+			Log::Debug(QString("Cron Unregister : %1 - next %2").arg(p->GetVisualName(),QDateTime::fromTime_t(e.next_run).toString()));
+		}
 	}
 }
 
