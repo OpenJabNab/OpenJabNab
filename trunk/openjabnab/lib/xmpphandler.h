@@ -25,6 +25,7 @@ private slots:
 	void HandleBunnyXmppMessage();
 	void HandleVioletXmppMessage();
 	void Disconnect();
+	void VioletConnected();
 
 private:
 	QList<QByteArray> XmlParse(QByteArray const&);
