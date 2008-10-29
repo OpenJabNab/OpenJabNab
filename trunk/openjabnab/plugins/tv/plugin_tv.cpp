@@ -66,7 +66,7 @@ void PluginTV::analyseXml()
 		return;
 
 	PluginTV_Worker * p = new PluginTV_Worker(this, bunny, http->readAll());
-	connect(p, SIGNAL("done(bool,Bunny*,QByteArray)"), this, SLOT("analyseDone(bool,Bunny*,QByteArray)"));
+	connect(p, SIGNAL(done(bool,Bunny*,QByteArray)), this, SLOT(analyseDone(bool,Bunny*,QByteArray)));
 	p->start();
 }
 
