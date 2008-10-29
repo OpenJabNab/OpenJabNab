@@ -155,7 +155,7 @@ void XmppHandler::HandleVioletXmppMessage()
 			// Send info to all 'system' plugins only and forward
 			pluginManager.XmppVioletMessage(bunny, msg);
 			WriteToBunny(msg);
-			return;
+			continue;
 		}
 		else
 			bunny->XmppVioletMessage(msg); 	// Send info to all 'system' plugins and bunny's plugins
