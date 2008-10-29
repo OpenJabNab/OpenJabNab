@@ -190,13 +190,14 @@ void XmppHandler::HandleVioletXmppMessage()
 						if(list.count()) // If there is still one packet to send
 						{
 							msg.replace(rx.cap(2), Packet::GetData(list));
-							foreach(Packet * p, list)
-								delete p;
 							drop = false;
 						}
 						else
 							drop = true; // Nothing to send, drop all
 					}
+					// Free Packets
+					foreach(Packet * p, list)
+						delete p;
 				}
 				catch (QString const& errorMsg)
 				{
