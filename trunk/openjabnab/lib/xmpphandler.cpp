@@ -15,13 +15,13 @@ XmppHandler::XmppHandler(QTcpSocket * s):pluginManager(PluginManager::Instance()
 	bunny = 0;
 	
 	// Bunny -> OpenJabNab socket
-	connect(incomingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleBunnyXmppMessage()));
 	connect(incomingXmppSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
 	incomingXmppSocket->setParent(this);
 
 	// OpenJabNab -> Violet socket
 	outgoingXmppSocket = new QTcpSocket(this);
 	outgoingXmppSocket->connectToHost(GlobalSettings::GetString("DefaultVioletServers/XmppServer"), 5222);
+	connect(outgoingXmppSocket, SIGNAL(connected()), this, SLOT(VioletConnected()));
 	connect(outgoingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleVioletXmppMessage()));
 	connect(outgoingXmppSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
 }
@@ -36,6 +36,13 @@ void XmppHandler::Disconnect()
 		bunny = 0;
 	}
 	deleteLater();
+}
+
+void XmppHandler::VioletConnected()
+{
+	if(incomingXmppSocket->bytesAvailable())
+		HandleBunnyXmppMessage();
+	connect(incomingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleBunnyXmppMessage()));
 }
 
 void XmppHandler::HandleBunnyXmppMessage()
