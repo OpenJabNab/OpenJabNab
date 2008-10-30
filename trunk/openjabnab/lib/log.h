@@ -16,10 +16,10 @@ public:
 	static inline void Close() { if (instance) { delete instance; } }
 	~Log();
 	static void LogToFile(QString const&, LogLevel);
-	static void Debug(QString const& data) { LogToFile(data, Log_Debug); }
-	static void Warning(QString const& data) { LogToFile(data, Log_Warn); }
-	static void Error(QString const& data) { LogToFile(data, Log_Error); }
-	static void Info(QString const& data) { LogToFile(data, Log_Info); }
+	static void Debug(QString const& data);
+	static void Warning(QString const& data);
+	static void Error(QString const& data);
+	static void Info(QString const& data);
 	
 private:
 	Log();
@@ -32,4 +32,23 @@ private:
 	QFile * logFile;
 };
 
+inline void Log::Debug(QString const& data)
+{
+	Log::LogToFile(data, Log::Log_Debug);
+}
+
+inline void Log::Warning(QString const& data)
+{
+	Log::LogToFile(data, Log::Log_Warn);
+}
+
+inline void Log::Error(QString const& data)
+{
+	LogToFile(data, Log::Log_Error);
+}
+
+inline void Log::Info(QString const& data)
+{
+	LogToFile(data, Log::Log_Info);
+}
 #endif

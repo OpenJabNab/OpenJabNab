@@ -12,12 +12,12 @@ public:
 	static MessagePacket * Parse(QByteArray const&);
 	virtual ~MessagePacket() {};
 
-	void SetMessage(QByteArray const& s) { message = s; };
-	void AddMessage(QByteArray const& s) { message += s; };
+	void SetMessage(QByteArray const& s);
+	void AddMessage(QByteArray const& s);
 
-	Packet_Types GetType() const { return Packet::Packet_Message; };
-	QByteArray GetPrintableData() const { return message; };
-	QByteArray const& GetMessage() const { return message; };
+	Packet_Types GetType() const;
+	QByteArray GetPrintableData() const;
+	QByteArray const& GetMessage() const;
 	
 protected:
 	MessagePacket();
@@ -27,5 +27,31 @@ protected:
 private:
 	static const unsigned char inversion_table[];
 };
+
+
+inline void MessagePacket::SetMessage(QByteArray const& s)
+{
+	message = s;
+}
+
+inline void MessagePacket::AddMessage(QByteArray const& s)
+{
+	message += s;
+}
+
+inline Packet::Packet_Types MessagePacket::GetType() const
+{
+	return Packet::Packet_Message;
+}
+
+inline QByteArray MessagePacket::GetPrintableData() const
+{
+	return message;
+}
+
+inline QByteArray const& MessagePacket::GetMessage() const
+{
+	return message;
+}
 
 #endif

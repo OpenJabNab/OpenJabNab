@@ -15,15 +15,27 @@ public:
 	static SleepPacket * Parse(QByteArray const&);
 	virtual ~SleepPacket() {};
 
-
 	QByteArray GetPrintableData() const;
-	Packet_Types GetType() const { return Packet::Packet_Sleep; };
-	State GetState() const { return (sleep==true?Sleep:Wake_Up); };
+	Packet_Types GetType() const;
+	State GetState() const;
 
 protected:
 	QByteArray GetInternalData() const;
 	bool sleep;
 
 };
+
+inline Packet::Packet_Types SleepPacket::GetType() const
+{
+	return Packet::Packet_Sleep;
+}
+
+inline SleepPacket::State SleepPacket::GetState() const
+{
+	if(sleep)
+		return Sleep;
+	else
+		return Wake_Up;
+}
 
 #endif

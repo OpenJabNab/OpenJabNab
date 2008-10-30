@@ -15,8 +15,8 @@ class OJN_EXPORT PluginManager : public ApiHandler<PluginManager>
 {
 public:
 	static PluginManager & Instance();
-	static inline void Init() { Instance().LoadPlugins(); };
-	static inline void Close() { Instance().UnloadPlugins(); };
+	static void Init();
+	static void Close();
 
 	// HttpRequests are sent to all 'active' plugins
 	void HttpRequestBefore(HTTPRequest const&);
@@ -34,8 +34,8 @@ public:
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);
 
-	QList<PluginInterface *> const& GetListOfPlugins() { return listOfPlugins; }
-	PluginInterface * GetPluginByName(QString name) { return listOfPluginsByName.value(name); }
+	QList<PluginInterface *> const& GetListOfPlugins() const;
+	PluginInterface * GetPluginByName(QString const& name) const;
 
 	// API
 	static void InitApiCalls();
@@ -67,5 +67,26 @@ private:
 	API_CALL(Api_UnloadPlugin);
 	API_CALL(Api_ReloadPlugin);
 };
+
+inline void PluginManager::Init()
+{
+	Instance().LoadPlugins();
+}
+
+inline void PluginManager::Close()
+{
+	Instance().UnloadPlugins();
+}
+
+inline QList<PluginInterface *> const& PluginManager::GetListOfPlugins() const
+{
+	return listOfPlugins;
+}
+
+inline PluginInterface * PluginManager::GetPluginByName(QString const& name) const
+{
+	return listOfPluginsByName.value(name);
+}
+
 
 #endif

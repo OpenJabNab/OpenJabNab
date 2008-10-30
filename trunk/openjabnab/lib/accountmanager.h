@@ -28,8 +28,8 @@ public:
 	static void InitApiCalls();
 
 protected:
-	static inline void Init() { Instance().LoadAccounts(); };
-	static inline void Close() { Instance().SaveAccounts(); };
+	static inline void Init();
+	static inline void Close();
 	virtual ~AccountManager();
 
 private:
@@ -46,5 +46,15 @@ private:
 	API_CALL(Api_AddBunny);
 	API_CALL(Api_RemoveBunny);
 };
+
+inline void AccountManager::Init()
+{
+	Instance().LoadAccounts();
+}
+
+inline void AccountManager::Close()
+{
+	Instance().SaveAccounts();
+}
 
 #endif

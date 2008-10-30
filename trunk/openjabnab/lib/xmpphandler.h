@@ -16,7 +16,7 @@ class OJN_EXPORT XmppHandler : public QObject
 	
 public:
 	XmppHandler(QTcpSocket *);
-	void WritePacketToBunny(Packet const& p);
+	void WriteDataToBunny(QByteArray const& p);
 
 protected:
 	virtual ~XmppHandler() {};

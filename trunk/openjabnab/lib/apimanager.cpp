@@ -118,3 +118,40 @@ QString ApiManager::ApiAnswer::SanitizeXML(QString const& msg)
 	return msg;
 }
 
+QString ApiManager::ApiError::GetInternalData()
+{
+	return QString("<error>%1</error>").arg(SanitizeXML(error));
+}
+
+QString ApiManager::ApiOk::GetInternalData()
+{
+	return QString("<ok>%1</ok>").arg(SanitizeXML(string));
+}
+
+QString ApiManager::ApiString::GetInternalData()
+{
+	return QString("<value>%1</value>").arg(SanitizeXML(string));
+}
+
+QString ApiManager::ApiList::GetInternalData()
+{ 
+	QString tmp;
+	tmp += "<list>";
+	foreach (QString b, list)
+		tmp += QString("<item>%1</item>").arg(SanitizeXML(b));
+	tmp += "</list>";
+	return tmp;
+}
+
+QString ApiManager::ApiMappedList::GetInternalData()
+{ 
+	QString tmp;
+	tmp += "<list>";
+	QMapIterator<QString, QString> i(list);
+	while (i.hasNext()) {
+		i.next();
+		tmp += QString("<item><key>%1</key><value>%2</value></item>").arg(SanitizeXML(i.key()), SanitizeXML(i.value()));
+	}
+	tmp += "</list>";
+	return tmp;
+}

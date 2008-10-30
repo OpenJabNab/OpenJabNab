@@ -21,14 +21,15 @@ public:
 	enum State { Connected, Disconnected };
 	virtual ~Bunny();
 
-	bool IsConnected() const { return state == Connected; };
-	QByteArray GetID() const { return id.toHex(); };
+	bool IsConnected() const;
+	QByteArray GetID() const;
 	void SetXmppHandler (XmppHandler *);
 	void RemoveXmppHandler (XmppHandler *);
 	void SendPacket(Packet const&);
+	void SendData(QByteArray const&);
 
-	QString GetBunnyName() { return GetGlobalSetting("BunnyName", "Bunny").toString(); };
-	void SetBunnyName(QVariant const& bunnyName) {SetGlobalSetting("BunnyName", bunnyName); };
+	QString GetBunnyName() const;
+	void SetBunnyName(QString const& bunnyName);
 
 	QVariant GetGlobalSetting(QString const&, QVariant const& defaultValue = QVariant()) const;
 	void SetGlobalSetting(QString const&, QVariant const&);
@@ -36,7 +37,7 @@ public:
 	QVariant GetPluginSetting(QString const&, QString const&, QVariant const& defaultValue = QVariant()) const;
 	void SetPluginSetting(QString const&, QString const&, QVariant const&);
 
-	inline bool HasPlugin(PluginInterface * p) { return listOfPluginsPtr.contains(p); };
+	bool HasPlugin(PluginInterface * p) const;
 
 	void XmppBunnyMessage(QByteArray const&);
 	void XmppVioletMessage(QByteArray const&);
@@ -79,6 +80,34 @@ private:
 	QTimer * saveTimer;
 	XmppHandler * xmppHandler;
 };
+
+
+
+
+inline bool Bunny::IsConnected() const
+{
+	return state == Connected;
+}
+
+inline QByteArray Bunny::GetID() const
+{
+	return id.toHex(); 
+}
+
+inline QString Bunny::GetBunnyName() const
+{
+	return GetGlobalSetting("BunnyName", "Bunny").toString();
+}
+
+inline void Bunny::SetBunnyName(QString const& bunnyName)
+{
+	SetGlobalSetting("BunnyName", bunnyName);
+}
+
+inline bool Bunny::HasPlugin(PluginInterface * p) const
+{
+	return listOfPluginsPtr.contains(p);
+}
 
 Q_DECLARE_METATYPE(Bunny*)
 namespace QVariantHelper

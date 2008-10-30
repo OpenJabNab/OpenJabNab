@@ -28,6 +28,7 @@ HEADERS +=	httphandler.h \
 			log.h \
 			pluginmanager.h \
 			plugininterface.h \
+			plugininterface_inline.h \
 			packet.h \
 			ambientpacket.h \
 			messagepacket.h \
