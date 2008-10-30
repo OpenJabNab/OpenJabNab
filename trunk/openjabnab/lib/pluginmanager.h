@@ -5,12 +5,13 @@
 #include <QList>
 #include "global.h"
 #include "plugininterface.h"
+#include "apihandler.h"
 #include "apimanager.h"
 
 class Account;
 class PluginInterface;
 class QPluginLoader;
-class OJN_EXPORT PluginManager
+class OJN_EXPORT PluginManager : public ApiHandler<PluginManager>
 {
 public:
 	static PluginManager & Instance();
@@ -36,7 +37,8 @@ public:
 	QList<PluginInterface *> const& GetListOfPlugins() { return listOfPlugins; }
 	PluginInterface * GetPluginByName(QString name) { return listOfPluginsByName.value(name); }
 
-	ApiManager::ApiAnswer * ProcessApiCall(Account const&, QString const& request, HTTPRequest const& hRequest);
+	// API
+	static void InitApiCalls();
 
 private:
 	PluginManager();
@@ -52,6 +54,18 @@ private:
 	QMap<PluginInterface *, QPluginLoader *> listOfPluginsLoader;
 	QHash<QString, PluginInterface *> listOfPluginsByName;
 	QHash<QString, PluginInterface *> listOfPluginsByFileName;
+
+	// API
+	API_CALL(Api_GetListOfPlugins);
+	API_CALL(Api_GetListOfEnabledPlugins);
+	API_CALL(Api_GetListOfBunnyPlugins);
+	API_CALL(Api_GetListOfSystemPlugins);
+	API_CALL(Api_GetListOfRequiredPlugins);
+	API_CALL(Api_ActivatePlugin);
+	API_CALL(Api_DeactivatePlugin);
+	API_CALL(Api_LoadPlugin);
+	API_CALL(Api_UnloadPlugin);
+	API_CALL(Api_ReloadPlugin);
 };
 
 #endif

@@ -27,12 +27,12 @@ AccountManager::~AccountManager()
 		delete a;
 }
 
-void AccountManager::InitApi()
+void AccountManager::InitApiCalls()
 {
-	apiCalls.insert("auth", &AccountManager::Api_Auth);
-	apiCalls.insert("registerNewAccount", &AccountManager::Api_RegisterNewAccount);
-	apiCalls.insert("addBunny", &AccountManager::Api_AddBunny);
-	apiCalls.insert("removeBunny", &AccountManager::Api_RemoveBunny);
+	DECLARE_API_CALL("auth", &AccountManager::Api_Auth);
+	DECLARE_API_CALL("registerNewAccount", &AccountManager::Api_RegisterNewAccount);
+	DECLARE_API_CALL("addBunny", &AccountManager::Api_AddBunny);
+	DECLARE_API_CALL("removeBunny", &AccountManager::Api_RemoveBunny);
 }
 
 void AccountManager::LoadAccounts()
@@ -140,8 +140,10 @@ QByteArray AccountManager::GetToken(QString const& login, QByteArray const& hash
 }
 
 // API
-ApiManager::ApiAnswer * AccountManager::Api_Auth(Account const&, QString const&, HTTPRequest const& hRequest)
+API_CALL(AccountManager::Api_Auth)
 {
+	Q_UNUSED(account);
+
 	if(!hRequest.HasArg("login") || !hRequest.HasArg("pass"))
 		return new ApiManager::ApiError(QString("Missing arguments<br />Request was : %1").arg(hRequest.toString()));
 
@@ -153,7 +155,7 @@ ApiManager::ApiAnswer * AccountManager::Api_Auth(Account const&, QString const&,
 	return new ApiManager::ApiString(retour);
 }
 
-ApiManager::ApiAnswer * AccountManager::Api_RegisterNewAccount(Account const& account, QString const&, HTTPRequest const& hRequest)
+API_CALL(AccountManager::Api_RegisterNewAccount)
 {
 	if(!account.IsAdmin())
 		return new ApiManager::ApiError("Access denied");
@@ -171,7 +173,7 @@ ApiManager::ApiAnswer * AccountManager::Api_RegisterNewAccount(Account const& ac
 	return new ApiManager::ApiOk(QString("New account created : %1").arg(hRequest.GetArg("login")));
 }
 
-ApiManager::ApiAnswer * AccountManager::Api_AddBunny(Account const& account, QString const&, HTTPRequest const& hRequest)
+API_CALL(AccountManager::Api_AddBunny)
 {
 	// Only admins can add a bunny to an account
 	if(!account.IsAdmin())
@@ -188,7 +190,7 @@ ApiManager::ApiAnswer * AccountManager::Api_AddBunny(Account const& account, QSt
 	return new ApiManager::ApiOk(QString("Bunny '%1' added to account '%2'").arg(QString(id)).arg(login));
 }
 
-ApiManager::ApiAnswer * AccountManager::Api_RemoveBunny(Account const& account, QString const&, HTTPRequest const& hRequest)
+API_CALL(AccountManager::Api_RemoveBunny)
 {
 	if(!hRequest.HasArg("login") || !hRequest.HasArg("bunnyid"))
 		return new ApiManager::ApiError(QString("Missing arguments<br />Request was : %1").arg(hRequest.toString()));

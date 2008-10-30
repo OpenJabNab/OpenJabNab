@@ -4,22 +4,28 @@
 #include <QHash>
 #include <QVector>
 #include "global.h"
+#include "apihandler.h"
 #include "apimanager.h"
 
 class Account;
 class Bunny;
 class HTTPRequest;
 class PluginInterface;
-class OJN_EXPORT BunnyManager
+class OJN_EXPORT BunnyManager : public ApiHandler<BunnyManager>
 {
 	friend class XmppHandler;
 	friend class ApiManager;
 	friend class PluginManager;
 public:
+	static BunnyManager & Instance();
+
 	static Bunny * GetBunny(PluginInterface *, QByteArray const&);
-	static ApiManager::ApiAnswer * ProcessApiCall(Account const&, QString const& request, HTTPRequest const& hRequest);
 	static void PluginStateChanged(PluginInterface *);
+	static inline void Init() {};
 	static void Close();
+
+	// API
+	static void InitApiCalls();
 
 protected:
 	static Bunny * GetBunny(QByteArray const&);
@@ -27,6 +33,9 @@ protected:
 	static QVector<Bunny *> GetConnectedBunnies();
 	static void PluginLoaded(PluginInterface *);
 	static void PluginUnloaded(PluginInterface *);
+
+	// API
+	API_CALL(BunnyManager::Api_GetListOfConnectedBunnies);
 
 private:
 	BunnyManager();

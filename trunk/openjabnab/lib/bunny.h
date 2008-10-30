@@ -50,9 +50,8 @@ public:
 	void PluginLoaded(PluginInterface *);
 	void PluginUnloaded(PluginInterface *);
 
-	ApiManager::ApiAnswer * ProcessApiCall_RegisterPlugin(Account const&, QString const&, HTTPRequest const& hRequest);
-	ApiManager::ApiAnswer * ProcessApiCall_UnregisterPlugin(Account const&, QString const&, HTTPRequest const& hRequest);
-	ApiManager::ApiAnswer * ProcessApiCall_GetListOfActivePlugins(Account const&, QString const&, HTTPRequest const& hRequest);
+	// API
+	static void InitApiCalls();
 
 private slots:
 	void SaveConfig();
@@ -64,6 +63,11 @@ private:
 	void RemovePlugin(PluginInterface * p);
 	void OnConnect();
 	void OnDisconnect();
+
+	// API
+	API_CALL(Api_RegisterPlugin);
+	API_CALL(Api_UnregisterPlugin);
+	API_CALL(Api_GetListOfActivePlugins);
 
 	enum State state;
 	QByteArray id;

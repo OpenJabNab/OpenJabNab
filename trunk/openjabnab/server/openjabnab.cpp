@@ -15,6 +15,7 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 	GlobalSettings::Init();
 	Log::Init();
 	Log::Info("-- OpenJabNab Start --");
+	BunnyManager::Init();
 	PluginManager::Init();
 	AccountManager::Init();
 

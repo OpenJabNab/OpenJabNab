@@ -33,10 +33,13 @@ Bunny::Bunny(QByteArray const& bunnyID)
 	saveTimer = new QTimer(this);
 	connect(saveTimer, SIGNAL(timeout()), this, SLOT(SaveConfig()));
 	saveTimer->start(5*60*1000); // 5min
+}
 
-	apiCalls.insert("registerPlugin", &Bunny::ProcessApiCall_RegisterPlugin);
-	apiCalls.insert("UnregisterPlugin", &Bunny::ProcessApiCall_UnregisterPlugin);
-	apiCalls.insert("getListOfActivePlugins", &Bunny::ProcessApiCall_GetListOfActivePlugins);
+void Bunny::InitApiCalls()
+{
+	DECLARE_API_CALL("registerPlugin", &Bunny::Api_RegisterPlugin);
+	DECLARE_API_CALL("UnregisterPlugin", &Bunny::Api_UnregisterPlugin);
+	DECLARE_API_CALL("getListOfActivePlugins", &Bunny::Api_GetListOfActivePlugins);
 }
 
 Bunny::~Bunny()
@@ -291,8 +294,10 @@ void Bunny::PluginUnloaded(PluginInterface * p)
 		listOfPluginsPtr.removeAll(p);
 }
 
-ApiManager::ApiAnswer * Bunny::ProcessApiCall_RegisterPlugin(Account const&, QString const&, HTTPRequest const& hRequest)
+API_CALL(Bunny::Api_RegisterPlugin)
 {
+	Q_UNUSED(account);
+
 	if(!hRequest.HasArg("name"))
 		return new ApiManager::ApiError(QString("Missing argument in Bunny Api Call 'RegisterPlugin' : %1").arg(hRequest.toString()));
 
@@ -307,8 +312,10 @@ ApiManager::ApiAnswer * Bunny::ProcessApiCall_RegisterPlugin(Account const&, QSt
 	return new ApiManager::ApiOk(QString("Added '%1' as active plugin").arg(plugin->GetVisualName()));
 }
 
-ApiManager::ApiAnswer * Bunny::ProcessApiCall_UnregisterPlugin(Account const&, QString const&, HTTPRequest const& hRequest)
+API_CALL(Bunny::Api_UnregisterPlugin)
 {
+	Q_UNUSED(account);
+
 	if(!hRequest.HasArg("name"))
 		return new ApiManager::ApiError(QString("Missing argument in Bunny Api Call 'UnregisterPlugin' : %1").arg(hRequest.toString()));
 
@@ -323,8 +330,11 @@ ApiManager::ApiAnswer * Bunny::ProcessApiCall_UnregisterPlugin(Account const&, Q
 	return new ApiManager::ApiOk(QString("Removed '%1' as active plugin").arg(plugin->GetVisualName()));
 }
 
-ApiManager::ApiAnswer * Bunny::ProcessApiCall_GetListOfActivePlugins(Account const&, QString const&, HTTPRequest const&)
+API_CALL(Bunny::Api_GetListOfActivePlugins)
 {
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+
 	QList<QString> list;
 	foreach (PluginInterface * p, listOfPluginsPtr)
 		list.append(p->GetVisualName());
