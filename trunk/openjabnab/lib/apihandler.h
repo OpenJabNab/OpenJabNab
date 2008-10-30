@@ -33,13 +33,13 @@ template <class T>
 class OJN_EXPORT ApiHandler
 {
 protected:
-	static ApiCallsMap<typename T> apiCalls;
+	static ApiCallsMap<T> apiCalls;
 
 public:
 	ApiManager::ApiAnswer * ProcessApiCall(Account const& account, QString const& request, HTTPRequest const& hRequest)
 	{
 		// Find an iterator for request
-		typename ApiCallsMap<typename T>::iterator it = apiCalls.find(request);
+		typename ApiCallsMap<T>::iterator it = apiCalls.find(request);
 		// If request wasn't found, return an error
 		if(it == apiCalls.end())
 			return new ApiManager::ApiError(QString("Unknown Api Call : %1<br />Request was : %2").arg(request, hRequest.toString()));
@@ -51,7 +51,7 @@ public:
 };
 
 // ApiCallsMap<T> definition
-template <class T> ApiCallsMap<typename T> ApiHandler<T>::apiCalls;
+template <class T> ApiCallsMap<T> ApiHandler<T>::apiCalls;
 
 // API Call
 #define API_CALL(FUNC_NAME) ApiManager::ApiAnswer * FUNC_NAME(Account const& account, HTTPRequest const& hRequest)
