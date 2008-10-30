@@ -35,7 +35,7 @@ protected:
 	static void PluginUnloaded(PluginInterface *);
 
 	// API
-	API_CALL(BunnyManager::Api_GetListOfConnectedBunnies);
+	API_CALL(Api_GetListOfConnectedBunnies);
 
 private:
 	BunnyManager();
