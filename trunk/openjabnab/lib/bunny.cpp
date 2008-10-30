@@ -106,7 +106,13 @@ void Bunny::RemoveXmppHandler(XmppHandler * x)
 void Bunny::SendPacket(Packet const& p)
 {
 	if (xmppHandler)
-		xmppHandler->WritePacketToBunny(p);
+		xmppHandler->WriteDataToBunny(p.GetData());
+}
+
+void Bunny::SendData(QByteArray const& b)
+{
+	if (xmppHandler)
+		xmppHandler->WriteDataToBunny(b);
 }
 
 QVariant Bunny::GetGlobalSetting(QString const& key, QVariant const& defaultValue) const

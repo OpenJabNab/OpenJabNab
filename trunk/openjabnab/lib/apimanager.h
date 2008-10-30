@@ -34,7 +34,7 @@ public:
 	{
 		public:
 			ApiError(QString s):error(s) {}
-			QString GetInternalData() { return QString("<error>%1</error>").arg(SanitizeXML(error)); }
+			QString GetInternalData();
 		private:
 			QString error;
 	};
@@ -44,7 +44,7 @@ public:
 		public:
 			ApiOk():string(QString()) {}
 			ApiOk(QString s):string(s) {}
-			QString GetInternalData() { return QString("<ok>%1</ok>").arg(SanitizeXML(string)); }
+			QString GetInternalData();
 		private:
 			QString string;
 	};
@@ -53,7 +53,7 @@ public:
 	{
 		public:
 			ApiString(QString s):string(s) {}
-			QString GetInternalData() { return QString("<value>%1</value>").arg(SanitizeXML(string)); }
+			QString GetInternalData();
 		private:
 			QString string;
 	};
@@ -62,14 +62,7 @@ public:
 	{
 		public:
 			ApiList(QList<QString> l):list(l) {}
-			QString GetInternalData() { 
-				QString tmp;
-				tmp += "<list>";
-				foreach (QString b, list)
-					tmp += QString("<item>%1</item>").arg(SanitizeXML(b));
-				tmp += "</list>";
-				return tmp;
-			}
+			QString GetInternalData();
 		private:
 			QList<QString> list;
 	};
@@ -78,17 +71,7 @@ public:
 	{
 		public:
 			ApiMappedList(QMap<QString, QString> l):list(l) {}
-			QString GetInternalData() { 
-				QString tmp;
-				tmp += "<list>";
-				QMapIterator<QString, QString> i(list);
-				while (i.hasNext()) {
-					i.next();
-					tmp += QString("<item><key>%1</key><value>%2</value></item>").arg(SanitizeXML(i.key()), SanitizeXML(i.value()));
-				}
-				tmp += "</list>";
-				return tmp;
-			}
+			QString GetInternalData();
 		private:
 			QMap<QString, QString> list;
 	};

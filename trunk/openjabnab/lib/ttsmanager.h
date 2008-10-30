@@ -7,9 +7,6 @@ class OJN_EXPORT TTSManager
 {
 public:
 	static bool CreateNewSound(QString, QString, QString, bool overwrite = false);
-
-private:
-	TTSManager() {};
 };
 
 #endif

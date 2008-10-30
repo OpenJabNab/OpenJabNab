@@ -23,110 +23,57 @@ public:
 	enum ClickType { SingleClick = 0, DoubleClick};
 	enum PluginType { RequiredPlugin, SystemPlugin, BunnyPlugin};
 
-	PluginInterface(QString name, QString visualName = QString(), PluginType type = BunnyPlugin) {
-		pluginName = name;
-		pluginType = type;
-		// The visual name is more user-friendly (for visual-side only)
-		if(visualName != QString())
-			pluginVisualName = visualName;
-		else
-			pluginVisualName = name;
-		// Create settings object
-		QDir dir = QDir(QCoreApplication::applicationDirPath());
-		dir.cd("plugins");
-		settings = new QSettings(dir.absoluteFilePath("plugin_"+pluginName+".ini"), QSettings::IniFormat);
-		pluginEnable = GetSettings("pluginStatus/Enable", QVariant(true)).toBool();
-		// Compute Plugin's Http path
-		httpFolder = QString("%1/%2/%3").arg(GlobalSettings::GetString("Config/HttpRoot"), GlobalSettings::GetString("Config/HttpPluginsFolder"), pluginName);
-	};
-	virtual ~PluginInterface() { delete settings;};
+	PluginInterface(QString name, QString visualName = QString(), PluginType type = BunnyPlugin);
+	virtual ~PluginInterface();
 
-	virtual void HttpRequestBefore(HTTPRequest const&) {};
+	virtual void HttpRequestBefore(HTTPRequest const&) {}
 	// If the plugin returns true, the plugin should handle the request
-	virtual bool HttpRequestHandle(HTTPRequest &) { return false; };
-	virtual void HttpRequestAfter(HTTPRequest const&) {};
+	virtual bool HttpRequestHandle(HTTPRequest &) { return false; }
+	virtual void HttpRequestAfter(HTTPRequest const&) {}
 	
 	// Raw XMPP Messages
-	virtual void XmppBunnyMessage(Bunny *, QByteArray const&) {};
-	virtual void XmppVioletMessage(Bunny *, QByteArray const&) {};
+	virtual void XmppBunnyMessage(Bunny *, QByteArray const&) {}
+	virtual void XmppVioletMessage(Bunny *, QByteArray const&) {}
 
 	// Violet's Packets
 	// If the plugin returns true, the packet will be dropped
-	virtual bool XmppVioletPacketMessage(Bunny *, Packet const&) { return false; };
+	virtual bool XmppVioletPacketMessage(Bunny *, Packet const&) { return false; }
 
 	// Bunny's Messages
-	virtual bool OnClick(Bunny *, ClickType) { return false; };
-	virtual bool OnEarsMove(Bunny *, int, int) { return false; };
-	virtual bool OnRFID(Bunny *, QByteArray const&) { return false; };
+	virtual bool OnClick(Bunny *, ClickType) { return false; }
+	virtual bool OnEarsMove(Bunny *, int, int) { return false; }
+	virtual bool OnRFID(Bunny *, QByteArray const&) { return false; }
 
 	// Cron system
-	virtual void OnCron(QVariant) {};
+	virtual void OnCron(QVariant) {}
 
 	// Bunny connect/disconnect
-	virtual void OnBunnyConnect(Bunny *) {};
-	virtual void OnBunnyDisconnect(Bunny *) {};
+	virtual void OnBunnyConnect(Bunny *) {}
+	virtual void OnBunnyDisconnect(Bunny *) {}
 	
 	// Settings
-	inline QVariant GetSettings(QString const& key, QVariant const& defaultValue = QVariant()) const { return settings->value(key, defaultValue); };
-	void SetSettings(QString const& key, QVariant const& value) { settings->setValue(key, value); settings->sync(); };
+	QVariant GetSettings(QString const& key, QVariant const& defaultValue = QVariant()) const;
+	void SetSettings(QString const& key, QVariant const& value);
 
 	// Plugin's name
-	inline QString const& GetName() const { return pluginName; }
-	inline QString const& GetVisualName() const { return pluginVisualName; }
+	QString const& GetName() const;
+	QString const& GetVisualName() const;
 
 	// Api Call
-	virtual ApiManager::ApiAnswer * ProcessApiCall(Account const&, QString const&, HTTPRequest const&) { return new ApiManager::ApiError(QString("This plugin doesn't support this api call")); };
-	virtual ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QString const&, HTTPRequest const&) { return new ApiManager::ApiError(QString("This plugin doesn't support this api call")); };
+	virtual ApiManager::ApiAnswer * ProcessApiCall(Account const&, QString const&, HTTPRequest const&);
+	virtual ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QString const&, HTTPRequest const&);
 
 	// Plugin enable/disable functions
-	inline bool GetEnable() { return pluginEnable; }
+	bool GetEnable() const;
 
 	// Plugin type
-	int GetType() { return pluginType; };
+	int GetType() const;
 
 protected:
-	// Plugin enable/disable functions
-	void SetEnable(bool newStatus)
-	{
-		if(newStatus != pluginEnable)
-		{
-			pluginEnable = newStatus;
-			SetSettings("pluginStatus/Enable", QVariant(newStatus)); 
-			Log::Info(QString("Plugin %1 is now %2").arg(GetVisualName(), GetEnable() ? "enabled" : "disabled"));
-			if(pluginType == BunnyPlugin)
-				BunnyManager::PluginStateChanged(this);
-		}
-	}
-	// HTTP Data folder
-	QDir * GetLocalHTTPFolder() const
-	{
-		QDir pluginsFolder(GlobalSettings::GetString("Config/RealHttpRoot"));
-		QString httpPluginsFolder = GlobalSettings::GetString("Config/HttpPluginsFolder");
-		if (!pluginsFolder.cd(httpPluginsFolder))
-		{
-			if (!pluginsFolder.mkdir(httpPluginsFolder))
-			{
-				Log::Error(QString("Unable to create %1 directory !\n").arg(httpPluginsFolder));
-				return NULL;
-			}
-			pluginsFolder.cd(httpPluginsFolder);
-		}
-		if (!pluginsFolder.cd(pluginName))
-		{
-			if (!pluginsFolder.mkdir(pluginName))
-			{
-				Log::Error(QString("Unable to create %1/%2 directory !\n").arg(httpPluginsFolder, pluginName));
-				return NULL;
-			}
-			pluginsFolder.cd("tts");
-		}
-		return new QDir(pluginsFolder);
-	}
+	void SetEnable(bool);
+	QDir * GetLocalHTTPFolder() const;
+	QByteArray GetBroadcastHTTPPath(QString f) const;
 
-	QByteArray GetBroadcastHTTPPath(QString f) const
-	{
-		return QString("broadcast/%1/%2").arg(httpFolder, f).toAscii();
-	}
 	QSettings * settings;
 
 private:
@@ -136,6 +83,8 @@ private:
 	bool pluginEnable;
 	QString httpFolder;
 };
+
+#include "plugininterface_inline.h"
 
 Q_DECLARE_INTERFACE(PluginInterface,"org.toms.openjabnab.PluginInterface/1.0")
 

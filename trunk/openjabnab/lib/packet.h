@@ -13,7 +13,7 @@ public:
 	virtual ~Packet() {};
 	static QList<Packet *> Parse(QByteArray const&);
 	QByteArray GetData() const;
-	QByteArray GetHexData() const { return GetData().toHex(); }
+	QByteArray GetHexData() const;
 	static QByteArray GetData(QList<Packet*> const&);
 	static QByteArray GetHexData(QList<Packet*> const&);
 	virtual QByteArray GetPrintableData() const = 0;
@@ -22,5 +22,10 @@ public:
 protected:
 	virtual QByteArray GetInternalData() const = 0;
 };
+
+inline QByteArray Packet::GetHexData() const
+{
+	return GetData().toHex();
+}
 
 #endif

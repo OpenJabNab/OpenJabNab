@@ -229,7 +229,7 @@ void XmppHandler::WriteToBunny(QByteArray const& data)
 	incomingXmppSocket->flush();
 }
 
-void XmppHandler::WritePacketToBunny(Packet const& p)
+void XmppHandler::WriteDataToBunny(QByteArray const& b)
 {
 	if(bunny)
 	{
@@ -238,7 +238,7 @@ void XmppHandler::WritePacketToBunny(Packet const& p)
 		msg.append("to='" + bunny->GetID() + "@" + GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii() + "/idle' ");
 		msg.append("id='OJaNa-" + QByteArray::number(msgNb) + "'>");
 		msg.append("<packet xmlns='violet:packet' format='1.0' ttl='604800'>");
-		msg.append(p.GetData().toBase64());
+		msg.append(b.toBase64());
 		msg.append("</packet></message>");
 		WriteToBunny(msg);
 		msgNb++;

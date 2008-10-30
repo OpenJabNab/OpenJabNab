@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = system dice removesig test tts tv
+SUBDIRS = system dice removesig test tts tv packet
