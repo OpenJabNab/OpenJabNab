@@ -77,8 +77,8 @@ protected:
 	QSettings * settings;
 
 private:
-	PluginType pluginType;
 	QString pluginName;
+	PluginType pluginType;
 	QString pluginVisualName;
 	bool pluginEnable;
 	QString httpFolder;
