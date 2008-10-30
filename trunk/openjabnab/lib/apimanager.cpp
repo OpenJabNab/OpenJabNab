@@ -44,7 +44,7 @@ ApiManager::ApiAnswer * ApiManager::ProcessApiCall(QString const& request, HTTPR
 		return ProcessPluginApiCall(account, request.mid(7), hRequest);
 
 	if(request.startsWith("bunnies/"))
-		return BunnyManager::ProcessApiCall(account, request.mid(8), hRequest);
+		return BunnyManager::Instance().ProcessApiCall(account, request.mid(8), hRequest);
 
 	if(request.startsWith("bunny/"))
 		return ProcessBunnyApiCall(account, request.mid(6), hRequest);

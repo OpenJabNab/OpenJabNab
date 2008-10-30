@@ -24,8 +24,11 @@ public:
 	static Account const& Guest();
 	QByteArray GetToken(QString const& login, QByteArray const& hash);
 
+	// API
+	static void InitApiCalls();
+
 protected:
-	static inline void Init() { Instance().LoadAccounts(); Instance().InitApi(); };
+	static inline void Init() { Instance().LoadAccounts(); };
 	static inline void Close() { Instance().SaveAccounts(); };
 	virtual ~AccountManager();
 
@@ -33,16 +36,15 @@ private:
 	AccountManager();
 	void LoadAccounts();
 	void SaveAccounts();
-	void InitApi();
 	QList<Account *> listOfAccounts;
 	QHash<QString, Account *> listOfAccountsByName;
 	QHash<QByteArray, TokenData> listOfTokens;
 
 	// API
-	ApiManager::ApiAnswer * Api_Auth(Account const&, QString const&, HTTPRequest const&);
-	ApiManager::ApiAnswer * Api_RegisterNewAccount(Account const&, QString const&, HTTPRequest const&);
-	ApiManager::ApiAnswer * Api_AddBunny(Account const&, QString const&, HTTPRequest const&);
-	ApiManager::ApiAnswer * Api_RemoveBunny(Account const&, QString const&, HTTPRequest const&);
+	API_CALL(Api_Auth);
+	API_CALL(Api_RegisterNewAccount);
+	API_CALL(Api_AddBunny);
+	API_CALL(Api_RemoveBunny);
 };
 
 #endif

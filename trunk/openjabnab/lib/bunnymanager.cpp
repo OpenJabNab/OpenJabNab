@@ -5,6 +5,17 @@
 
 BunnyManager::BunnyManager() {}
 
+BunnyManager & BunnyManager::Instance()
+{
+  static BunnyManager b;
+  return b;
+}
+
+void BunnyManager::InitApiCalls()
+{
+	DECLARE_API_CALL("getListOfConnectedBunnies", &BunnyManager::Api_GetListOfConnectedBunnies);
+}
+
 Bunny * BunnyManager::GetBunny(QByteArray const& bunnyHexID)
 {
 	QByteArray bunnyID = QByteArray::fromHex(bunnyHexID);
@@ -80,20 +91,17 @@ void BunnyManager::PluginUnloaded(PluginInterface * p)
 }
 
 
-ApiManager::ApiAnswer * BunnyManager::ProcessApiCall(Account const& account, QString const& request, HTTPRequest const& hRequest)
+API_CALL(BunnyManager::Api_GetListOfConnectedBunnies)
 {
-	if (request == "getListOfConnectedBunnies")
-	{
-		if(!account.HasBunniesAccess(Account::Read))
-			return new ApiManager::ApiError("Access denied");
-		QMap<QString, QString> list;
-		foreach(Bunny * b, listOfBunnies)
-			if (b->IsConnected())
-				list.insert(b->GetID(), b->GetBunnyName());
-		return new ApiManager::ApiMappedList(list);
-	}
-	else
-		return new ApiManager::ApiError(QString("Unknown Bunnies Api Call : %1<br />Request was : %2").arg(request,hRequest.toString()));
+	Q_UNUSED(hRequest);
+
+	if(!account.HasBunniesAccess(Account::Read))
+		return new ApiManager::ApiError("Access denied");
+	QMap<QString, QString> list;
+	foreach(Bunny * b, listOfBunnies)
+		if (b->IsConnected())
+			list.insert(b->GetID(), b->GetBunnyName());
+	return new ApiManager::ApiMappedList(list);
 }
 
 QHash<QByteArray, Bunny *> BunnyManager::listOfBunnies;
