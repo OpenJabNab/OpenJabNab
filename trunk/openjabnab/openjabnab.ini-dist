@@ -9,9 +9,10 @@ HttpPluginsFolder = plugins
 
 [DefaultVioletServers]
 BootServer=r.nabaztag.com
-BroadServer=193.149.120.33
-PingServer=193.149.120.43
-XmppServer=xmpp.nabaztag.com
+BroadServer=broad.violet.net
+PingServer=tagtag.nabaztag.objects.violet.net
+XmppDomain=xmpp.nabaztag.com
+XmppServerIP=rhoen.violet.net
 
 [OpenJabNabServers]
 PingServer=my.domain.com

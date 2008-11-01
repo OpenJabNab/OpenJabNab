@@ -50,7 +50,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 	QByteArray data = incomingXmppSocket->readAll();
 	
 	// Replace OpenJabNab's domain
-	data.replace(GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii(),GlobalSettings::GetString("DefaultVioletServers/XmppServer").toAscii());
+	data.replace(GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii(),GlobalSettings::GetString("DefaultVioletServers/XmppDomain").toAscii());
 
 	// If we don't already know which bunny is connected, try to find a <response></response> message
 	if (!bunny)
@@ -138,7 +138,7 @@ void XmppHandler::HandleVioletXmppMessage()
 	QByteArray data = outgoingXmppSocket->readAll();
 
 	// Replace Violet's domain
-	data.replace(GlobalSettings::GetString("DefaultVioletServers/XmppServer").toAscii(),GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii());
+	data.replace(GlobalSettings::GetString("DefaultVioletServers/XmppDomain").toAscii(),GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii());
 
 	QList<QByteArray> list = XmlParse(data);
 	foreach(QByteArray msg, list)

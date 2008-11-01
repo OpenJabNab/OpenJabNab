@@ -16,7 +16,7 @@ ApiManager::ApiAnswer * PluginPacket::ProcessBunnyApiCall(Bunny * b, Account con
 {
 	if(funcName == "sendPacket" && r.HasArg("data"))
 	{
-		QByteArray data = QByteArray::fromBase64(r.GetArg("data").toAscii());
+		QByteArray data = QByteArray::fromHex(r.GetArg("data").toAscii());
 		b->SendData(data);
 		return new ApiManager::ApiOk(QString("'%1' sent to bunny").arg(QString(data.toHex())));
 	}
