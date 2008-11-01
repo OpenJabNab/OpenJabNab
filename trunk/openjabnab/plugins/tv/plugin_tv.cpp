@@ -67,6 +67,7 @@ void PluginTV::analyseXml()
 
 	PluginTV_Worker * p = new PluginTV_Worker(this, bunny, http->readAll());
 	connect(p, SIGNAL(done(bool,Bunny*,QByteArray)), this, SLOT(analyseDone(bool,Bunny*,QByteArray)));
+	connect(p, SIGNAL(finished()), p, SLOT(deleteLater()));
 	p->start();
 }
 
@@ -74,8 +75,6 @@ void PluginTV::analyseDone(bool ret, Bunny * b, QByteArray message)
 {
 	if(ret && b->IsConnected())
 		 b->SendPacket(MessagePacket(message));
-
-	delete sender();
 }
 
 void PluginTV::OnBunnyConnect(Bunny * b)
