@@ -12,7 +12,7 @@ BootServer=r.nabaztag.com
 BroadServer=broad.violet.net
 PingServer=tagtag.nabaztag.objects.violet.net
 XmppDomain=xmpp.nabaztag.com
-XmppServerIP=rhoen.violet.net
+XmppServer=rhoen.violet.net
 
 [OpenJabNabServers]
 PingServer=my.domain.com
