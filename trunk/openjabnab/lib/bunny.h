@@ -31,6 +31,9 @@ public:
 	QString GetBunnyName() const;
 	void SetBunnyName(QString const& bunnyName);
 
+	QByteArray GetXmppResource() const;
+	void SetXmppResource(QByteArray const&);
+
 	QVariant GetGlobalSetting(QString const&, QVariant const& defaultValue = QVariant()) const;
 	void SetGlobalSetting(QString const&, QVariant const&);
 
@@ -72,6 +75,7 @@ private:
 
 	enum State state;
 	QByteArray id;
+	QByteArray xmppResource;
 	QString configFileName;
 	QHash<QString, QVariant> GlobalSettings;
 	QHash<QString, QHash<QString, QVariant> > PluginsSettings;
@@ -81,9 +85,6 @@ private:
 	XmppHandler * xmppHandler;
 };
 
-
-
-
 inline bool Bunny::IsConnected() const
 {
 	return state == Connected;
@@ -92,6 +93,16 @@ inline bool Bunny::IsConnected() const
 inline QByteArray Bunny::GetID() const
 {
 	return id.toHex(); 
+}
+
+inline QByteArray Bunny::GetXmppResource() const
+{
+	return xmppResource; 
+}
+
+inline void Bunny::SetXmppResource(QByteArray const& r)
+{
+	xmppResource = r;
 }
 
 inline QString Bunny::GetBunnyName() const

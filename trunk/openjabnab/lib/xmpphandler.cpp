@@ -24,6 +24,9 @@ XmppHandler::XmppHandler(QTcpSocket * s):pluginManager(PluginManager::Instance()
 	connect(outgoingXmppSocket, SIGNAL(connected()), this, SLOT(VioletConnected()));
 	connect(outgoingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleVioletXmppMessage()));
 	connect(outgoingXmppSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
+
+	OjnXmppDomain = GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii();
+	VioletXmppDomain = GlobalSettings::GetString("DefaultVioletServers/XmppDomain").toAscii();
 }
 
 void XmppHandler::Disconnect()
@@ -48,9 +51,10 @@ void XmppHandler::VioletConnected()
 void XmppHandler::HandleBunnyXmppMessage()
 {
 	QByteArray data = incomingXmppSocket->readAll();
+	bool handled = false;
 	
 	// Replace OpenJabNab's domain
-	data.replace(GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii(),GlobalSettings::GetString("DefaultVioletServers/XmppDomain").toAscii());
+	data.replace(OjnXmppDomain, VioletXmppDomain);
 
 	// If we don't already know which bunny is connected, try to find a <response></response> message
 	if (!bunny)
@@ -76,7 +80,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 	// No bunny yet, forward
 	if(!bunny)
 	{
-		// Send info to all 'system' plugins only
+		// Send info to all 'system' plugins only and forward to violet
 		pluginManager.XmppBunnyMessage(bunny, data);
 		outgoingXmppSocket->write(data);
 		return;
@@ -84,19 +88,12 @@ void XmppHandler::HandleBunnyXmppMessage()
 
 	// Send info to all 'system' plugins and bunny's plugins
 	bunny->XmppBunnyMessage(data);
-	
+
 	// Check if the data contains <message></message>
 	QRegExp rx("<message[^>]*>(.*)</message>");
-	if (rx.indexIn(data) == -1)
-	{
-		// Just some signaling informations, forward directly
-		outgoingXmppSocket->write(data);
-	}
-	else
+	if (rx.indexIn(data) != -1)
 	{
 		QString message = rx.cap(1);
-		// Parse message
-		bool handled = false;
 		if (message.startsWith("<button"))
 		{
 			// Single Click : <button xmlns="violet:nabaztag:button"><clic>1</clic></button>
@@ -126,19 +123,21 @@ void XmppHandler::HandleBunnyXmppMessage()
 		}
 		else
 			Log::Warning(QString("Unknown message from bunny : %1").arg(QString(data)));
-
-		// If the message wasn't handled by a plugin, forward it to Violet
-		if (!handled)
-			outgoingXmppSocket->write(data);
 	}
+	else if (rx.setPattern("<bind[^>]*><resource>([^<]*)</resource></bind>"), rx.indexIn(data) != -1)
+	{
+		//<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>idle</resource></bind>
+		bunny->SetXmppResource(rx.cap(1).toAscii());
+	}
+
+	// If the message wasn't handled, forward it to Violet
+	if (!handled)
+		outgoingXmppSocket->write(data);
 }
 
 void XmppHandler::HandleVioletXmppMessage()
 {
 	QByteArray data = outgoingXmppSocket->readAll();
-
-	// Replace Violet's domain
-	data.replace(GlobalSettings::GetString("DefaultVioletServers/XmppDomain").toAscii(),GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii());
 
 	QList<QByteArray> list = XmlParse(data);
 	foreach(QByteArray msg, list)
@@ -163,12 +162,7 @@ void XmppHandler::HandleVioletXmppMessage()
 
 		// Check if the data contains <packet></packet>
 		QRegExp rx("<packet[^>]*format='([^']*)'[^>]*>(.*)</packet>");
-		if (rx.indexIn(msg) == -1)
-		{
-			// Just some signaling informations, forward directly
-			WriteToBunny(msg);
-		}
-		else
+		if (rx.indexIn(msg) != -1)
 		{
 			bool drop = false;
 			// Try to decode it
@@ -220,11 +214,20 @@ void XmppHandler::HandleVioletXmppMessage()
 			if (!drop)
 				WriteToBunny(msg);
 		}
+		else
+		{
+			// Just some signaling informations, forward directly
+			WriteToBunny(msg);
+		}
 	}
 }
 
-void XmppHandler::WriteToBunny(QByteArray const& data)
+void XmppHandler::WriteToBunny(QByteArray const& d)
 {
+	// Replace Violet's domain
+	QByteArray data = d;
+	data.replace(VioletXmppDomain, OjnXmppDomain);
+
 	incomingXmppSocket->write(data);
 	incomingXmppSocket->flush();
 }
@@ -234,8 +237,8 @@ void XmppHandler::WriteDataToBunny(QByteArray const& b)
 	if(bunny)
 	{
 		QByteArray msg;
-		msg.append("<message from='net.openjabnab.platform@" + GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii() + "/services' ");
-		msg.append("to='" + bunny->GetID() + "@" + GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii() + "/idle' ");
+		msg.append("<message from='net.openjabnab.platform@" + OjnXmppDomain + "/services' ");
+		msg.append("to='" + bunny->GetID() + "@" + OjnXmppDomain + "/" + bunny->GetXmppResource() + "' ");
 		msg.append("id='OJaNa-" + QByteArray::number(msgNb) + "'>");
 		msg.append("<packet xmlns='violet:packet' format='1.0' ttl='604800'>");
 		msg.append(b.toBase64());
@@ -250,48 +253,46 @@ QList<QByteArray> XmppHandler::XmlParse(QByteArray const& data)
 	QList<QByteArray> list;
 	msgQueue += data.trimmed();
 
-	QRegExp rxStream("^(<\\?xml[^>]*\\?><stream:stream[^>]*>)");
-	QRegExp rxOne("^(<[^>]*/>)");
-	QRegExp rxEnd("^(</[^>]*>)");
+	QRegExp rx;
 
 	while(!msgQueue.isEmpty())
 	{
-		if (rxStream.indexIn(msgQueue) != -1)
+		if (rx.setPattern("^(<\\?xml[^>]*\\?><stream:stream[^>]*>)"), rx.indexIn(msgQueue) != -1)
 		{
-			list << rxStream.cap(1).toAscii();
-			msgQueue.remove(0, rxStream.matchedLength());
+			list << rx.cap(1).toAscii();
+			msgQueue.remove(0, rx.matchedLength());
 		}
-		else if (rxOne.indexIn(msgQueue) != -1)
+		else if (rx.setPattern("^(<[^>]*/>)"), rx.indexIn(msgQueue) != -1)
 		{
-			list << rxOne.cap(1).toAscii();
-			msgQueue.remove(0, rxOne.matchedLength());
+			list << rx.cap(1).toAscii();
+			msgQueue.remove(0, rx.matchedLength());
 		}
-		else if (rxEnd.indexIn(msgQueue) != -1) // Special case for </stream:stream>
+		else if (rx.setPattern("^(</[^>]*>)"), rx.indexIn(msgQueue) != -1) // Special case for </stream:stream>
 		{
-			list << rxEnd.cap(1).toAscii();
-			msgQueue.remove(0, rxEnd.matchedLength());
+			list << rx.cap(1).toAscii();
+			msgQueue.remove(0, rx.matchedLength());
 		}
 		else
 		{
 			// Full xml message (<xxx>....</xxx>)
 			// Find tag name
-			QRegExp rxTag("^<([^ >]*)");
-			if (rxTag.indexIn(msgQueue) == -1)
+			rx.setPattern("^<([^ >]*)");
+			if (rx.indexIn(msgQueue) == -1)
 			{
 				// Doesn't find the start tag... wait next message
 				break;
 			}
-			QString tagName = rxTag.cap(1);
+			QString tagName = rx.cap(1);
 			// Search end tag
-			rxTag.setPattern(QString("(.*</%1>)").arg(tagName));
-			rxTag.setMinimal(true);
-			if (rxTag.indexIn(msgQueue) == -1)
+			rx.setPattern(QString("(.*</%1>)").arg(tagName));
+			rx.setMinimal(true);
+			if (rx.indexIn(msgQueue) == -1)
 			{
 				// Doesn't find the end tag... wait next message
 				break;
 			}
-			list << rxTag.cap(1).toAscii();
-			msgQueue.remove(0, rxTag.matchedLength());
+			list << rx.cap(1).toAscii();
+			msgQueue.remove(0, rx.matchedLength());
 		}
 	}
 	return list;
