@@ -103,6 +103,8 @@ inline bool Account::HasGeneralPluginAccess(Right r) const
 
 inline bool Account::HasBunnyAccess(QByteArray const& b) const
 {
+	if(isAdmin)
+		return true;
 	return listOfBunnies.contains(QByteArray::fromHex(b));
 }
 
