@@ -23,6 +23,8 @@ class OJN_EXPORT Cron : public QObject
 	
 public:
 	static unsigned int Register(PluginInterface *, unsigned int interval, unsigned int offsetH, unsigned int offsetM, QVariant data = QVariant(), const char * callback = 0);
+	static unsigned int RegisterDaily(PluginInterface * p, QTime const& time, QVariant data, const char * callback);
+	static unsigned int RegisterWeekly(PluginInterface * p, Qt::DayOfWeek day, QTime const& time, QVariant data, const char * callback);
 	static void Unregister(PluginInterface *, unsigned int id);
 	static void UnregisterAll(PluginInterface *);
 	static QList<CronElement> GetByData(PluginInterface *, QVariant);

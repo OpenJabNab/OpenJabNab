@@ -83,6 +83,75 @@ unsigned int Cron::Register(PluginInterface * p, unsigned int interval, unsigned
 	return id;
 }
 
+unsigned int Cron::RegisterDaily(PluginInterface * p, QTime const& time, QVariant data, const char * callback)
+{
+	if(!p)
+	{
+		Log::Error("Cron : pointer is null !");
+		return 0;
+	}
+	
+	Cron & theCron = Instance();
+	unsigned id = ++theCron.lastGivenID;
+	if(!id)
+		Log::Error("Warning Cron::Register : lastGivenID overlapped !");
+
+	CronElement e;
+	e.interval = 24 * 60 * 60; // DAILY
+	e.callback = callback;
+	e.plugin = p;
+	e.data = data;
+	e.id = id;
+
+	// Compute next run
+	QDateTime now = QDateTime::currentDateTime();
+	QDateTime nextTime = now;
+	nextTime.setTime(time);
+	if(nextTime < now)
+		nextTime = nextTime.addDays(1); // Tomorrow
+	
+	e.next_run = nextTime.toTime_t();
+	theCron.CronElements.append(e);
+
+	Log::Debug(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
+	return id;
+}
+
+unsigned int Cron::RegisterWeekly(PluginInterface * p, Qt::DayOfWeek day, QTime const& time, QVariant data, const char * callback)
+{
+	if(!p)
+	{
+		Log::Error("Cron : pointer is null !");
+		return 0;
+	}
+	
+	Cron & theCron = Instance();
+	unsigned id = ++theCron.lastGivenID;
+	if(!id)
+		Log::Error("Warning Cron::Register : lastGivenID overlapped !");
+
+	CronElement e;
+	e.interval = 7 * 24 * 60 * 60; // Weekly
+	e.callback = callback;
+	e.plugin = p;
+	e.data = data;
+	e.id = id;
+
+	// Compute next run
+	QDateTime now = QDateTime::currentDateTime();
+	QDateTime nextTime = now;
+	nextTime.setTime(time);
+	nextTime = nextTime.addDays(day - now.date().dayOfWeek());
+	if(nextTime < now)
+		nextTime = nextTime.addDays(7); // Next week
+
+	e.next_run = nextTime.toTime_t();
+	theCron.CronElements.append(e);
+
+	Log::Debug(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),nextTime.toString()));
+	return id;
+}
+
 void Cron::Unregister(PluginInterface * p, unsigned int id)
 {
 	Cron & theCron = Instance();
