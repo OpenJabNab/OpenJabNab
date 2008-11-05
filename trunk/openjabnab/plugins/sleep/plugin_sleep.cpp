@@ -15,7 +15,7 @@ PluginSleep::PluginSleep():PluginInterface("sleep", "Advanced sleep and wake up"
 
 PluginSleep::~PluginSleep() {}
 
-ApiManager::ApiAnswer * PluginSleep::ProcessBunnyApiCall(Bunny * b, Account const&, QString const& funcName, HTTPRequest const& r)
+ApiManager::ApiAnswer * PluginSleep::ProcessBunnyApiCall(Bunny * b, Account const&, QString const& funcName, HTTPRequest const&)
 {
 	if(funcName == "goodNight")
 	{

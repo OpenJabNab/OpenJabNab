@@ -35,5 +35,5 @@ ApiManager::ApiAnswer * PluginTTS::ProcessBunnyApiCall(Bunny * b, Account const&
 		TTSManager::CreateNewSound(r.GetArg("text"), "claire", filePath);
 
 	b->SendPacket(MessagePacket("MU " + GetBroadcastHTTPPath(fileName) + "\nMW\n"));
-	return new ApiManager::ApiOk(QString("Sending '%1' to bunny '%2'").arg(r.GetArg("text"), r.GetArg("to")));
+	return new ApiManager::ApiOk(QString("Sending '%1' to bunny '%2'").arg(r.GetArg("text"), QString(b->GetID())));
 }
