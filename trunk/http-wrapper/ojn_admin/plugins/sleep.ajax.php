@@ -12,14 +12,14 @@ if(isset($_GET['sleep']))
 }
 ?>
 <script>
-function sendSleep() {
-        $("#setupPluginBunny").load("plugins/sleep.ajax.php?sleep="+$("#plugin_sleep_text").val());
+function sendSleep(sleep) {
+        $("#setupPluginBunny").load("plugins/sleep.ajax.php?sleep="+(sleep ? "sleep" : "wakeup"));
 }
 </script>
 <fieldset>
 <legend>Advanced sleep & wake up</legend>
-Sleep : <input type="text" id="plugin_sleep_text" style="width: 80%">
-<input type="button" value="Action" onclick="sendSleep()">
+<input type="button" value="Coucher le lapin" onclick="sendSleep(true)">&nbsp;
+<input type="button" value="Reveiller le lapin" onclick="sendSleep(false)">
 <?
 if(strlen($retour))
 {
