@@ -19,13 +19,11 @@ ApiManager::ApiAnswer * PluginTTS::ProcessBunnyApiCall(Bunny * b, Account const&
 {
 	if(funcName.toLower() != "say")
 		return new ApiManager::ApiError(QString("Bad function name for plugin TTS"));
-	if(!r.HasArg("to"))
-		return new ApiManager::ApiError(QString("Missing argument 'to' for plugin TTS"));
 	if(!r.HasArg("text"))
 		return new ApiManager::ApiError(QString("Missing argument 'text' for plugin TTS"));
 
 	if(!b->IsConnected())
-		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(r.GetArg("to")));
+		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(QString(b->GetID())));
 
 	std::auto_ptr<QDir> ttsFolder(GetLocalHTTPFolder());
 	if(!ttsFolder.get())
