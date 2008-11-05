@@ -1,5 +1,5 @@
 <?
-if(!isset($_SESSION['connected']) || !isset($_SESSION['admin']))
+if(!isset($_SESSION['connected']))
 	header('Location: index.php');
 ?>
 <script>

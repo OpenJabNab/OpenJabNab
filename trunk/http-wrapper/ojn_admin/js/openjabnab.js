@@ -15,13 +15,19 @@ function doDisconnexion()
      location.href="index.php";
 }
 
+function doAssociate()
+{
+       $.post("request/addbunny.ajax.php", {login: $('#frm_login').val(), serial: $('#frm_serial').val()}, function(data) {
+         $("#association-box").html(data); });
+}
+
 function doRegister()
 {
      // send request
      if($('#frm_pass1').val() != $('#frm_pass2').val())
      	alert("Vos mots de passe ne sont pas identiques");
      else
-       $.post("request/register.ajax.php", {login: $('#frm_login').val(), pass: $('#frm_pass1').val(), bunny: $('#frm_name').val(), serial: $('#frm_serial').val()}, function(data) {
+       $.post("request/register.ajax.php", {login: $('#frm_login').val(), pass: $('#frm_pass1').val(), username: $('#frm_username').val()}, function(data) {
          $("#inscription-box").html(data); });
 }
 
@@ -33,6 +39,13 @@ function doConnexion()
      location.href="index.php";
 }
 
+function reloadPlugin(plugin)
+{
+     // send request
+     $.post("request/pluginServer.ajax.php", {plug: plugin, reload: true}, function(data) {
+       $("#tablePluginServer").html(data); });
+}
+
 function changePluginStatus(plugin, statut)
 {
      // send request
@@ -40,3 +53,14 @@ function changePluginStatus(plugin, statut)
        $("#tablePluginServer").html(data); });
 }
 
+function registerBunnyForPlugin(plugin, statut)
+{
+     // send request
+     $.post("request/pluginBunny.ajax.php", {plug: plugin, stat: statut}, function(data) {
+       $("#tablePluginBunny").html(data); });
+}
+
+function setupPluginForBunny(plugin)
+{
+        $("#setupPluginBunny").load("request/pluginSetup.ajax.php?plugin="+plugin);
+}

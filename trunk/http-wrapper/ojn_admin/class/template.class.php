@@ -14,6 +14,9 @@ class ojnTemplate
         function display($buffer)
         {
                 $template = file_get_contents(ROOT_SITE.'class/template.tpl.php');
+		$ListOfConnectedBunnies = ojnApi::getListOfConnectedBunnies();
+		$ListOfPlugins = ojnApi::getListOfPlugins();
+		$ListOfActivePlugins = ojnApi::getListOfActivePlugins();
 
 		$pattern = array(
 				"|<!!TITLE!!>|",
@@ -30,9 +33,9 @@ class ojnTemplate
 				$this->titre_alt,
 				$this->soustitre,
 				$buffer,
-				count(ojnApi::getListOfConnectedBunnies()),
-				count(ojnApi::getListOfPlugins()),
-				count(ojnApi::getListOfActivePlugins()),
+				is_array($ListOfConnectedBunnies) ? count($ListOfConnectedBunnies) : '-',
+				is_array($ListOfPlugins) ? count($ListOfPlugins) : '-',
+				is_array($ListOfActivePlugins) ? count($ListOfActivePlugins) : '-',
 				$this->makeMenu(),
 			);
 
@@ -44,9 +47,10 @@ class ojnTemplate
 	{
 		$menu = '<a href="index.php">Accueil</a>';
 		if(isset($_SESSION['connected']))
+		{
 			$menu .= ' | <a href="bunny.php">Lapin</a>';
-		if(isset($_SESSION['connected']) && isset($_SESSION['admin']))
 			$menu .= ' | <a href="server.php">Serveur</a>';
+		}
 		return $menu;
 	}
 }

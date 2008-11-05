@@ -4,6 +4,7 @@ if(isset($_POST['logout']))
 	unset($_SESSION['connected']);
 	unset($_SESSION['bunny']);
 	unset($_SESSION['admin']);
+	unset($_SESSION['token']);
 }
 elseif(isset($_POST['login']))
 {
@@ -22,6 +23,10 @@ elseif(isset($_POST['login']))
 
 			$_SESSION[strtolower($key)] = $value;
 		}
+		ojnApi::getListOfConnectedBunnies(true);
+		ojnApi::getListOfPlugins(true);
+		ojnApi::getListOfActivePlugins(true);
+		ojnapi::getListOfSystemPlugins(true);
 	}
 	else
 	{
