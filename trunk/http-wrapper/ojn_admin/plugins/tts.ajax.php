@@ -2,17 +2,18 @@
 $retour = "";
 if(isset($_GET['text']))
 {
-	$register = file_get_contents(ROOT_WWW_API."plugin/tts/say?to=".$_SESSION['serial']."&text=".$_GET['text']);
+	$register = file_get_contents(ROOT_WWW_API."plugin/tts/say?bunny=".$_SESSION['bunny']."&text=".urlencode($_GET['text'])."&".ojnApi::getToken());
 	$register = simplexml_load_string($register);
 	$register = (array)$register;
 	if(isset($register['error']))
 		$retour = "Error : ".$register['error'];
-	$retour = $register['value'];
+	else
+		$retour = $register['ok'];
 }
 ?>
 <script>
 function sendText() {
-        $("#plugin_tts").load("plugins/tts.ajax.php?text="+$("#plugin_tts_text").val());
+        $("#setupPluginBunny").load("plugins/tts.ajax.php?text="+escape($("#plugin_tts_text").val()));
 }
 </script>
 <fieldset>
