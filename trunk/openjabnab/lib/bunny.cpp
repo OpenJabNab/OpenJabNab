@@ -343,7 +343,7 @@ API_CALL(Bunny::Api_GetListOfActivePlugins)
 
 	QList<QString> list;
 	foreach (PluginInterface * p, listOfPluginsPtr)
-		list.append(p->GetVisualName());
+		list.append(p->GetName());
 
 	return new ApiManager::ApiList(list);
 
