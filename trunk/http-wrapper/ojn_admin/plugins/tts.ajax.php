@@ -13,7 +13,7 @@ if(isset($_GET['text']))
 ?>
 <script>
 function sendText() {
-        $("#setupPluginBunny").load("plugins/tts.ajax.php?text="+escape($("#plugin_tts_text").val()));
+        $("#setupPluginBunny").load("plugins/tts.ajax.php?text="+encodeURIComponent($("#plugin_tts_text").val()));
 }
 </script>
 <fieldset>

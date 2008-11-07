@@ -62,7 +62,7 @@ HTTPRequest::HTTPRequest(QByteArray const& data):type(INVALID)
 		QList<QPair<QString, QString> > items = url.queryItems();
 		typedef QPair<QString, QString> queryItemDef;
 		foreach(queryItemDef item, items)
-			getData[item.first] = item.second;
+			getData[QUrl::fromPercentEncoding(item.first.toAscii())] = QUrl::fromPercentEncoding(item.second.toAscii());
 	}
 }
 
