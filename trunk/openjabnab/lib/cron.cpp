@@ -17,22 +17,20 @@ void Cron::OnTimer()
 {
 	unsigned int now = QDateTime::currentDateTime().toTime_t();
 	
-	for(QList<CronElement>::iterator it = CronElements.begin(); it != CronElements.end(); it++)
+	// Find elements to run
+	while(!CronElements.isEmpty() && (CronElements.first().next_run <= now))
 	{
-		if(it->next_run <= now)
-		{
-			it->next_run += it->interval;
-			if(it->callback)
-			{
-				QMetaObject::invokeMethod(it->plugin, it->callback, Q_ARG(QVariant,it->data));
-			}
-			else
-			{
-				it->plugin->OnCron(it->data);
-			}
-		}
+		CronElement e = CronElements.takeFirst();
+
+		if(e.callback)
+			QMetaObject::invokeMethod(e.plugin, e.callback, Q_ARG(QVariant,e.data));
+		else
+			e.plugin->OnCron(e.data);
+
+		e.next_run += e.interval;
+		AddCron(e);
 	}
-	
+
 	// Compute next slot
 	now = QDateTime::currentDateTime().toTime_t();
 	QTimer::singleShot(1000 * (60 - (now%60)), this, SLOT(OnTimer()));
@@ -77,7 +75,7 @@ unsigned int Cron::Register(PluginInterface * p, unsigned int interval, unsigned
 		time = time.addSecs(interval*60);
 	
 	e.next_run = time.toTime_t();
-	theCron.CronElements.append(e);
+	theCron.AddCron(e);
 
 	Log::Debug(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
 	return id;
@@ -111,7 +109,7 @@ unsigned int Cron::RegisterDaily(PluginInterface * p, QTime const& time, QVarian
 		nextTime = nextTime.addDays(1); // Tomorrow
 	
 	e.next_run = nextTime.toTime_t();
-	theCron.CronElements.append(e);
+	theCron.AddCron(e);
 
 	Log::Debug(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
 	return id;
@@ -146,16 +144,24 @@ unsigned int Cron::RegisterWeekly(PluginInterface * p, Qt::DayOfWeek day, QTime 
 		nextTime = nextTime.addDays(7); // Next week
 
 	e.next_run = nextTime.toTime_t();
-	theCron.CronElements.append(e);
+	theCron.AddCron(e);
 
 	Log::Debug(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),nextTime.toString()));
 	return id;
 }
 
+void Cron::AddCron(CronElement const& e)
+{
+	QMutableLinkedListIterator<CronElement> i(CronElements);
+	while(i.hasNext() && i.peekNext().next_run < e.next_run) // Find position
+		i.next();
+	i.insert(e);
+}
+
 void Cron::Unregister(PluginInterface * p, unsigned int id)
 {
 	Cron & theCron = Instance();
-	QMutableListIterator<CronElement> i(theCron.CronElements);
+	QMutableLinkedListIterator<CronElement> i(theCron.CronElements);
 	while(i.hasNext())
 	{
 		CronElement const& e = i.next();
@@ -170,7 +176,7 @@ void Cron::Unregister(PluginInterface * p, unsigned int id)
 void Cron::UnregisterAll(PluginInterface * p)
 {
 	Cron & theCron = Instance();
-	QMutableListIterator<CronElement> i(theCron.CronElements);
+	QMutableLinkedListIterator<CronElement> i(theCron.CronElements);
 	while(i.hasNext())
 	{
 		CronElement const& e = i.next();
