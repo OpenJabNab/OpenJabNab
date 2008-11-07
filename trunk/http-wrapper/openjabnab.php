@@ -28,14 +28,14 @@
 		switch($type)
 		{
 			case 1: // GET
-				$requestdata = $headers . "\x00" . $_SERVER['REQUEST_URI'];
+				$requestdata = $headers . "\x00" . str_replace("+", " ", $_SERVER['REQUEST_URI']);
 				break;
 			case 2: // POST
 				if(isset($_SERVER["CONTENT_TYPE"]))
 					$headers .= "Content-Type: " . $_SERVER["CONTENT_TYPE"] . "\r\n";
 				if(isset($_SERVER["CONTENT_LENGTH"]))
 					$headers .= "Content-Length: " . $_SERVER["CONTENT_LENGTH"] . "\r\n";
-				$postdata_array = array();;
+				$postdata_array = array();
 				foreach($_POST as $key => $value)
 						$postdata_array[] = urlencode($key) . "=" . urlencode($value);
 				$requestdata = $headers . "\x00" . $_SERVER['REQUEST_URI'] . "\x00" . implode($postdata_array, "&");
