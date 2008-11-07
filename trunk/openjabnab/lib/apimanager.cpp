@@ -81,13 +81,20 @@ ApiManager::ApiAnswer * ApiManager::ProcessPluginApiCall(Account const& account,
 	if(!plugin)
 		return new ApiManager::ApiError(QString("Unknown Plugin : %1<br />Request was : %2").arg(pluginName,hRequest.toString()));
 
+	if(!plugin->GetEnable())
+		return new ApiManager::ApiError("This plugin is disabled");
+
 	if(hRequest.HasArg("bunny"))
 	{
 		QByteArray bunnyID = hRequest.GetArg("bunny").toAscii();
 		if(account.HasBunnyAccess(bunnyID))
 		{
 			hRequest.RemoveArg("bunny");
-			return plugin->ProcessBunnyApiCall(BunnyManager::GetBunny(bunnyID), account, functionName, hRequest);
+			Bunny * b = BunnyManager::GetBunny(bunnyID);
+			if(b->HasPlugin(plugin))
+					return plugin->ProcessBunnyApiCall(b, account, functionName, hRequest);
+			else
+				return new ApiManager::ApiError("This plugin is disabled for this bunny");
 		}
 		else
 			return new ApiManager::ApiError("Access denied to this bunny");

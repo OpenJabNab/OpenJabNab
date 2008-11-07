@@ -1,7 +1,7 @@
 #ifndef _CRON_H_
 #define _CRON_H_
 
-#include <QList>
+#include <QLinkedList>
 #include <QObject>
 #include <QVariant>
 #include "global.h"
@@ -27,7 +27,7 @@ public:
 	static unsigned int RegisterWeekly(PluginInterface * p, Qt::DayOfWeek day, QTime const& time, QVariant data, const char * callback);
 	static void Unregister(PluginInterface *, unsigned int id);
 	static void UnregisterAll(PluginInterface *);
-	static QList<CronElement> GetByData(PluginInterface *, QVariant);
+	void AddCron(CronElement const&);
 
 private slots:
 	void OnTimer();
@@ -37,7 +37,7 @@ private:
 	virtual ~Cron() {};
 	static Cron& Instance();
 	unsigned int lastGivenID;
-	QList<CronElement> CronElements;
+	QLinkedList<CronElement> CronElements;
 };
 
 #endif
