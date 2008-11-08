@@ -84,6 +84,9 @@ bool PluginManager::LoadPlugin(QString const& fileName)
 		else
 			BunnyManager::PluginLoaded(plugin);
 
+		// Init Api Calls
+		plugin->InitApiCalls();
+
 		status.append(QString("%1 OK, Enable : %2").arg(plugin->GetName(),plugin->GetEnable() ? "Yes" : "No"));
 		Log::Info(status);
 		return true;

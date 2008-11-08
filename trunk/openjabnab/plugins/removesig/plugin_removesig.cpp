@@ -40,22 +40,28 @@ bool PluginRemoveSig::XmppVioletPacketMessage(Bunny * b, Packet const& p)
 
 PluginRemoveSig::~PluginRemoveSig() {}
 
-ApiManager::ApiAnswer * PluginRemoveSig::ProcessBunnyApiCall(Bunny * b, Account const&, QString const& funcName, HTTPRequest const& r)
+void PluginRemoveSig::InitApiCalls()
 {
-	if(funcName.toLower() == "signature")
-	{
-		if(!r.HasArg("remove"))
-			return new ApiManager::ApiError(QString("Missing argument 'remove' for plugin Remove signature"));
-		b->SetPluginSetting(GetName(), "Remove/Signature", QVariant(r.GetArg("remove")));
-		return new ApiManager::ApiOk(QString("Plugin configuration updated."));
-	}
-	else if(funcName.toLower() == "respiration")
-	{
-		if(!r.HasArg("remove"))
-			return new ApiManager::ApiError(QString("Missing argument 'remove' for plugin Remove signature"));
-		b->SetPluginSetting(GetName(), "Remove/Respiration", QVariant(r.GetArg("remove")));
-		return new ApiManager::ApiOk(QString("Plugin configuration updated."));
-	}
-	else
-		return new ApiManager::ApiError(QString("Bad function name for plugin Remove signature"));
+	DECLARE_PLUGIN_BUNNY_API_CALL("signature", PluginRemoveSig, Api_Signature);
+	DECLARE_PLUGIN_BUNNY_API_CALL("respiration", PluginRemoveSig, Api_Respiration);
+}
+
+PLUGIN_BUNNY_API_CALL(PluginRemoveSig::Api_Signature)
+{
+	Q_UNUSED(account);
+
+	if(!hRequest.HasArg("remove"))
+		return new ApiManager::ApiError(QString("Missing argument 'remove' for plugin Remove signature"));
+	bunny->SetPluginSetting(GetName(), "Remove/Signature", QVariant(hRequest.GetArg("remove")));
+	return new ApiManager::ApiOk(QString("Plugin configuration updated."));
+}
+
+PLUGIN_BUNNY_API_CALL(PluginRemoveSig::Api_Respiration)
+{
+	Q_UNUSED(account);
+
+	if(!hRequest.HasArg("remove"))
+		return new ApiManager::ApiError(QString("Missing argument 'remove' for plugin Remove signature"));
+	bunny->SetPluginSetting(GetName(), "Remove/Respiration", QVariant(hRequest.GetArg("remove")));
+	return new ApiManager::ApiOk(QString("Plugin configuration updated."));
 }

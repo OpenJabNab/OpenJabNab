@@ -8,23 +8,34 @@ PluginPacket::PluginPacket():PluginInterface("packet", "Send raw packets to bunn
 {
 }
 
-PluginPacket::~PluginPacket()
+void PluginPacket::InitApiCalls()
 {
+	DECLARE_PLUGIN_BUNNY_API_CALL("sendPacket", PluginPacket, Api_SendPacket);
+	DECLARE_PLUGIN_BUNNY_API_CALL("sendPacket", PluginPacket, Api_SendMessage);
 }
 
-ApiManager::ApiAnswer * PluginPacket::ProcessBunnyApiCall(Bunny * b, Account const&, QString const& funcName, HTTPRequest const& r)
+PLUGIN_BUNNY_API_CALL(PluginPacket::Api_SendPacket)
 {
-	if(funcName == "sendPacket" && r.HasArg("data"))
+	Q_UNUSED(account);
+
+	if(hRequest.HasArg("data"))
 	{
-		QByteArray data = QByteArray::fromHex(r.GetArg("data").toAscii());
-		b->SendData(data);
+		QByteArray data = QByteArray::fromHex(hRequest.GetArg("data").toAscii());
+		bunny->SendData(data);
 		return new ApiManager::ApiOk(QString("'%1' sent to bunny").arg(QString(data.toHex())));
 	}
-	if(funcName == "sendMessage" && r.HasArg("msg"))
+	return new ApiManager::ApiError("Bad API Call");
+}
+
+PLUGIN_BUNNY_API_CALL(PluginPacket::Api_SendMessage)
+{
+	Q_UNUSED(account);
+
+	if(hRequest.HasArg("msg"))
 	{
-		QByteArray msg = r.GetArg("msg").toAscii();
-		b->SendPacket(MessagePacket(msg));
+		QByteArray msg = hRequest.GetArg("msg").toAscii();
+		bunny->SendPacket(MessagePacket(msg));
 		return new ApiManager::ApiOk(QString("'%1' sent to bunny").arg(QString(msg)));
 	}
-	return new ApiManager::ApiError(QString("Bad API Call"));
+	return new ApiManager::ApiError("Bad API Call");
 }

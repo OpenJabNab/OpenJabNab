@@ -10,13 +10,15 @@
 #include "apimanager.h"
 #include "bunnymanager.h"
 #include "log.h"
+#include "pluginapihandler.h"
 #include "settings.h"
 
 class Account; 
 class Bunny;
 class HTTPRequest;
 class Packet;
-class PluginInterface : public QObject
+
+class PluginInterface : public QObject, public PluginApiHandler
 {
 	friend class PluginManager;
 public:
@@ -58,10 +60,6 @@ public:
 	// Plugin's name
 	QString const& GetName() const;
 	QString const& GetVisualName() const;
-
-	// Api Call
-	virtual ApiManager::ApiAnswer * ProcessApiCall(Account const&, QString const&, HTTPRequest const&);
-	virtual ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QString const&, HTTPRequest const&);
 
 	// Plugin enable/disable functions
 	bool GetEnable() const;

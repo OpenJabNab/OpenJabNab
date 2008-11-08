@@ -14,8 +14,10 @@ public:
 	virtual ~PluginRemoveSig();
 
 	bool XmppVioletPacketMessage(Bunny *, Packet const&);
-	ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QString const&, HTTPRequest const&);
-	
+
+	void InitApiCalls();
+	PLUGIN_BUNNY_API_CALL(Api_Signature);
+	PLUGIN_BUNNY_API_CALL(Api_Respiration);
 };
 
 #endif
