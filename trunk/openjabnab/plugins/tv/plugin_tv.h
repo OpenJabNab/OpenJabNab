@@ -22,10 +22,14 @@ public:
 	virtual ~PluginTV();
 	bool OnClick(Bunny *, PluginInterface::ClickType);
 	void OnCron(QVariant);
-	ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QString const&, HTTPRequest const&);
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);
 	void AfterBunnyUnregistered(Bunny *) {};
+
+	// API
+	void InitApiCalls();
+	PLUGIN_BUNNY_API_CALL(Api_AddWebcast);
+	PLUGIN_BUNNY_API_CALL(Api_RemoveWebcast);
 
 private:
 	void getTVPage(Bunny *);

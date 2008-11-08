@@ -10,8 +10,12 @@ class PluginPacket : public PluginInterface
 
 public:
 	PluginPacket();
-	ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QString const&, HTTPRequest const&);
-	virtual ~PluginPacket();
+	virtual ~PluginPacket() {};
+
+	// API
+	void InitApiCalls();
+	PLUGIN_BUNNY_API_CALL(Api_SendPacket);
+	PLUGIN_BUNNY_API_CALL(Api_SendMessage);
 };
 
 #endif

@@ -43,17 +43,6 @@ inline QString const& PluginInterface::GetVisualName() const
 	return pluginVisualName;
 }
 
-// Api Call
-inline ApiManager::ApiAnswer * PluginInterface::ProcessApiCall(Account const&, QString const&, HTTPRequest const&)
-{
-	return new ApiManager::ApiError(QString("This plugin doesn't support this api call"));
-}
-
-inline ApiManager::ApiAnswer * PluginInterface::ProcessBunnyApiCall(Bunny *, Account const&, QString const&, HTTPRequest const&)
-{
-	return new ApiManager::ApiError(QString("This plugin doesn't support this api call"));
-}
-
 // Plugin enable/disable functions
 inline bool PluginInterface::GetEnable() const
 {

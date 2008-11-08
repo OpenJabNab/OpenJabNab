@@ -102,59 +102,66 @@ void PluginTV::OnBunnyDisconnect(Bunny * b)
 	webcastList.remove(b);
 }
 
-ApiManager::ApiAnswer * PluginTV::ProcessBunnyApiCall(Bunny * b, Account const&, QString const& funcName, HTTPRequest const& r)
+void PluginTV::InitApiCalls()
 {
-	if(funcName.toLower() == "addwebcast")
-	{
-		if(!r.HasArg("time"))
-			return new ApiManager::ApiError(QString("Missing argument 'time' for plugin TV"));
-	
-		if(!b->IsConnected())
-			return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(r.GetArg("to")));
+	DECLARE_PLUGIN_BUNNY_API_CALL("addwebcast", PluginTV, Api_AddWebcast);
+	DECLARE_PLUGIN_BUNNY_API_CALL("removewebcast", PluginTV, Api_RemoveWebcast);
+}
 
-		if(!b->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList().contains(r.GetArg("time")))
-		{
-			QStringList time = r.GetArg("time").split(":");
-			int id = Cron::Register(this, 60*24, time[0].toInt(), time[1].toInt(), QVariant::fromValue( b ));
-			webcastList.insert(b , qMakePair(id, r.GetArg("time")));
-			QStringList bunnyWebcastList = b->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList() << r.GetArg("time");
-			bunnyWebcastList.sort();
-			b->SetPluginSetting(GetName(), "Webcast/List", bunnyWebcastList);
-		}
-		return new ApiManager::ApiString(QString("Add webcast at '%1' to bunny '%2'").arg(r.GetArg("time"), r.GetArg("to")));
-	}
-	else if(funcName.toLower() == "removewebcast")
-	{
-		if(!r.HasArg("time"))
-			return new ApiManager::ApiError(QString("Missing argument 'time' for plugin TV"));
-	
-		if(!b->IsConnected())
-			return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(r.GetArg("to")));
-		
-		int remove = 0;
-		QMultiMap<Bunny*, QPair<int, QString> >::iterator i = webcastList.find(b);
-		while (i != webcastList.end() && i.key() == b)
-		{
-			if(i.value().second == r.GetArg("time"))
-			{
-				Cron::Unregister(this, i->first);
-				i = webcastList.erase(i);
-				remove++;
-			}
-			else
-				++i;
-		}
+PLUGIN_BUNNY_API_CALL(PluginTV::Api_AddWebcast)
+{
+	Q_UNUSED(account);
 
-		QStringList bunnyWebcastList = b->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList();
-		bunnyWebcastList.removeAll(r.GetArg("time"));
+	if(!hRequest.HasArg("time"))
+		return new ApiManager::ApiError(QString("Missing argument 'time' for plugin TV"));
+
+	if(!bunny->IsConnected())
+		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(hRequest.GetArg("to")));
+
+	QString hTime = hRequest.GetArg("time");
+	if(!bunny->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList().contains(hTime))
+	{
+		QStringList time = hTime.split(":");
+		int id = Cron::RegisterDaily(this, QTime(time[0].toInt(), time[1].toInt()), QVariant::fromValue(bunny));
+		webcastList.insert(bunny , qMakePair(id, hTime));
+		QStringList bunnyWebcastList = bunny->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList() << hTime;
 		bunnyWebcastList.sort();
-		b->SetPluginSetting(GetName(), "Webcast/List", bunnyWebcastList);
-		if(remove > 0)
-			return new ApiManager::ApiString(QString("Remove webcast at '%1' for bunny '%2'").arg(r.GetArg("time"), r.GetArg("to")));
-		return new ApiManager::ApiError(QString("No webcast at '%1' for bunny '%2'").arg(r.GetArg("time"), r.GetArg("to")));
+		bunny->SetPluginSetting(GetName(), "Webcast/List", bunnyWebcastList);
 	}
-	else
-		return new ApiManager::ApiError(QString("Bad function name for plugin TV"));
+	return new ApiManager::ApiString(QString("Add webcast at '%1' to bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
+}
+
+PLUGIN_BUNNY_API_CALL(PluginTV::Api_RemoveWebcast)
+{
+	Q_UNUSED(account);
+
+	if(!hRequest.HasArg("time"))
+		return new ApiManager::ApiError(QString("Missing argument 'time' for plugin TV"));
+
+	if(!bunny->IsConnected())
+		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(QString(bunny->GetID())));
+
+	int remove = 0;
+	QMultiMap<Bunny*, QPair<int, QString> >::iterator i = webcastList.find(bunny);
+	while (i != webcastList.end() && i.key() == bunny)
+	{
+		if(i.value().second == hRequest.GetArg("time"))
+		{
+			Cron::Unregister(this, i->first);
+			i = webcastList.erase(i);
+			remove++;
+		}
+		else
+			++i;
+	}
+
+	QStringList bunnyWebcastList = bunny->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList();
+	bunnyWebcastList.removeAll(hRequest.GetArg("time"));
+	bunnyWebcastList.sort();
+	bunny->SetPluginSetting(GetName(), "Webcast/List", bunnyWebcastList);
+	if(remove > 0)
+		return new ApiManager::ApiString(QString("Remove webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
+	return new ApiManager::ApiError(QString("No webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
 }
 
 /* WORKER THREAD */
