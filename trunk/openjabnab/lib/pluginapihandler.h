@@ -29,7 +29,7 @@ private:
 	T * obj;
 
 public:
-	PluginApiSpecificFunctor(T* _obj, ApiManager::ApiAnswer * (T::*_pFunc)(Account const&, HTTPRequest const&)):obj(_obj),pFunc(_pFunc) {};
+	PluginApiSpecificFunctor(T* _obj, ApiManager::ApiAnswer * (T::*_pFunc)(Account const&, HTTPRequest const&)):pFunc(_pFunc),obj(_obj) {};
 	virtual ApiManager::ApiAnswer * call(Account const& a, HTTPRequest const& h) { return (obj->*pFunc)(a, h); };
 	virtual ~PluginApiSpecificFunctor() {};
 };
@@ -41,7 +41,7 @@ private:
 	T * obj;
 
 public:
-	PluginBunnyApiSpecificFunctor(T* _obj, ApiManager::ApiAnswer * (T::*_pFunc)(Bunny*, Account const&, HTTPRequest const&)):obj(_obj),pFunc(_pFunc) {};
+	PluginBunnyApiSpecificFunctor(T* _obj, ApiManager::ApiAnswer * (T::*_pFunc)(Bunny*, Account const&, HTTPRequest const&)):pFunc(_pFunc),obj(_obj) {};
 	virtual ApiManager::ApiAnswer * call(Bunny* b, Account const& a, HTTPRequest const& h) { return (obj->*pFunc)(b, a, h); };
 	virtual ~PluginBunnyApiSpecificFunctor() {};
 };
