@@ -31,8 +31,8 @@ $system = ojnapi::getListOfSystemPlugins();
 ?>
 	<tr<?=$i++ % 2 == 1 ? " class='l2'" : "" ?>>
 		<td><?=$plugins[$plugin] ?></td>
-		<td width="20%"><a href='javascript:registerBunnyForPlugin("<?=$plugin ?>", "<?=in_array($plugin, $bunny) ? "unregister" : "register" ?>")'><?=in_array($plugin, $bunny) ? "Dec" : "C" ?>onnecter le lapin</a></td>
-		<td width="20%"><a href='javascript:setupPluginForBunny("<?=$plugin ?>")'>Configurer / Utiliser</a></td>
+		<td width="20%"><a href='javascript:registerBunnyForPlugin("<?=$plugin ?>", "<?=in_array($plugin, $bunny) ? "unregister" : "register" ?>")'><?=in_array($plugin, $bunny) ? "D&eacute;sa" : "A" ?>ctiver le plugin</a></td>
+		<td width="20%"><?=in_array($plugin, $bunny)?"<a href='javascript:setupPluginForBunny(\"$plugin\")'>Configurer / Utiliser</a>":""?></td>
 	</tr>
 <?
 		}
