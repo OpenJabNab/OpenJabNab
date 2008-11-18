@@ -11,7 +11,7 @@ PluginPacket::PluginPacket():PluginInterface("packet", "Send raw packets to bunn
 void PluginPacket::InitApiCalls()
 {
 	DECLARE_PLUGIN_BUNNY_API_CALL("sendPacket", PluginPacket, Api_SendPacket);
-	DECLARE_PLUGIN_BUNNY_API_CALL("sendPacket", PluginPacket, Api_SendMessage);
+	DECLARE_PLUGIN_BUNNY_API_CALL("sendMessage", PluginPacket, Api_SendMessage);
 }
 
 PLUGIN_BUNNY_API_CALL(PluginPacket::Api_SendPacket)
