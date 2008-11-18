@@ -3,6 +3,7 @@
 #include "bunny.h"
 #include "bunnymanager.h"
 #include "log.h"
+#include "netdump.h"
 #include "openjabnab.h"
 #include "settings.h"
 #include "xmpphandler.h"
@@ -52,6 +53,8 @@ void XmppHandler::HandleBunnyXmppMessage()
 {
 	QByteArray data = incomingXmppSocket->readAll();
 	bool handled = false;
+
+	NetworkDump::Log("XMPP Bunny", data);
 	
 	// Replace OpenJabNab's domain
 	data.replace(OjnXmppDomain, VioletXmppDomain);
@@ -142,6 +145,8 @@ void XmppHandler::HandleVioletXmppMessage()
 	QList<QByteArray> list = XmlParse(data);
 	foreach(QByteArray msg, list)
 	{
+		NetworkDump::Log("XMPP Violet", msg);
+
 		if(msg.startsWith("</stream:stream>"))
 		{
 			// Disconnect as soon as possible
@@ -177,6 +182,7 @@ void XmppHandler::HandleVioletXmppMessage()
 					QList<Packet*>::iterator it = list.begin();
 					while(it != list.end())
 					{
+						NetworkDump::Log("XMPP Violet Packet", (*it)->GetPrintableData());
 						if (bunny->XmppVioletPacketMessage(**it))
 						{
 							delete *it; // Packed used and dropped
@@ -190,7 +196,9 @@ void XmppHandler::HandleVioletXmppMessage()
 					{
 						if(list.count()) // If there is still one packet to send
 						{
-							msg.replace(rx.cap(2), Packet::GetData(list));
+							QByteArray data = Packet::GetData(list);
+							NetworkDump::Log("XMPP Violet PacketSent", data);
+							msg.replace(rx.cap(2), data.toBase64());
 							drop = false;
 						}
 						else
@@ -227,7 +235,7 @@ void XmppHandler::WriteToBunny(QByteArray const& d)
 	// Replace Violet's domain
 	QByteArray data = d;
 	data.replace(VioletXmppDomain, OjnXmppDomain);
-
+	
 	incomingXmppSocket->write(data);
 	incomingXmppSocket->flush();
 }
@@ -243,6 +251,7 @@ void XmppHandler::WriteDataToBunny(QByteArray const& b)
 		msg.append("<packet xmlns='violet:packet' format='1.0' ttl='604800'>");
 		msg.append(b.toBase64());
 		msg.append("</packet></message>");
+		NetworkDump::Log("XMPP To Bunny", msg);
 		WriteToBunny(msg);
 		msgNb++;
 	}

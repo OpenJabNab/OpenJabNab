@@ -4,6 +4,7 @@
 #include "bunny.h"
 #include "log.h"
 #include "httprequest.h"
+#include "netdump.h"
 #include "plugininterface.h"
 #include "pluginmanager.h"
 #include "xmpphandler.h"
@@ -106,13 +107,19 @@ void Bunny::RemoveXmppHandler(XmppHandler * x)
 void Bunny::SendPacket(Packet const& p)
 {
 	if (xmppHandler)
+	{
+		NetworkDump::Log("XMPP SendPacketToBunny", p.GetPrintableData());
 		xmppHandler->WriteDataToBunny(p.GetData());
+	}
 }
 
 void Bunny::SendData(QByteArray const& b)
 {
 	if (xmppHandler)
+	{
+		NetworkDump::Log("XMPP SendDataToBunny", b.toHex());
 		xmppHandler->WriteDataToBunny(b);
+	}
 }
 
 QVariant Bunny::GetGlobalSetting(QString const& key, QVariant const& defaultValue) const

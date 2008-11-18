@@ -6,6 +6,7 @@
 #include "bunnymanager.h"
 #include "httphandler.h"
 #include "log.h"
+#include "netdump.h"
 #include "pluginmanager.h"
 #include "settings.h"
 #include "xmpphandler.h"
@@ -18,6 +19,7 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 	BunnyManager::Init();
 	PluginManager::Init();
 	AccountManager::Init();
+	NetworkDump::Init();
 
 	if(GlobalSettings::Get("Config/HttpListener", true) == true)
 	{
@@ -54,6 +56,7 @@ OpenJabNab::~OpenJabNab()
 	Log::Info("-- OpenJabNab Close --");
 	xmppListener->close();
 	httpListener->close();
+	NetworkDump::Close();
 	AccountManager::Close();
 	PluginManager::Close();
 	BunnyManager::Close();

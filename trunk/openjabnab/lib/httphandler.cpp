@@ -4,8 +4,9 @@
 #include "bunnymanager.h"
 #include "httphandler.h"
 #include "httprequest.h"
-#include "openjabnab.h"
 #include "log.h"
+#include "netdump.h"
+#include "openjabnab.h"
 #include "settings.h"
 
 HttpHandler::HttpHandler(QTcpSocket * s, bool api, bool violet):pluginManager(PluginManager::Instance())
@@ -35,17 +36,20 @@ void HttpHandler::HandleBunnyHTTPRequest()
 	QString uri = request.GetURI();
 	if (uri.startsWith("/ojn_api/"))
 	{
+		NetworkDump::Log("Api Call", request.GetRawURI());
 		if(httpApi)
 		{
-			ApiManager::ApiAnswer * answer = ApiManager::Instance().ProcessApiCall(uri.mid(9), request);
-			incomingHttpSocket->write(answer->GetData());
-			delete answer;
+			std::auto_ptr<ApiManager::ApiAnswer> apianswer(ApiManager::Instance().ProcessApiCall(uri.mid(9), request));
+			QByteArray answer = apianswer->GetData();
+			incomingHttpSocket->write(answer);
+			NetworkDump::Log("Api Answer", answer);
 		}
 		else
 			incomingHttpSocket->write("Api is disabled");
 	}
 	else if(httpViolet)
 	{
+		NetworkDump::Log("HTTP Request", request.GetRawURI());
 		pluginManager.HttpRequestBefore(request);
 		// If none can answer, try to forward it directly to Violet's servers
 		if (!pluginManager.HttpRequestHandle(request))
@@ -67,6 +71,8 @@ void HttpHandler::HandleBunnyHTTPRequest()
 		}
 		pluginManager.HttpRequestAfter(request);
 		incomingHttpSocket->write(request.reply);
+		if(request.reply.size() < 256) // Don't dump too big answers
+			NetworkDump::Log("HTTP Answer", request.reply);
 	}
 	else
 	{
