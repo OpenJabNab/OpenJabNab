@@ -1,4 +1,5 @@
 #include <QByteArray>
+#include <memory>
 #include "apimanager.h"
 #include "bunny.h"
 #include "bunnymanager.h"
@@ -71,7 +72,7 @@ void HttpHandler::HandleBunnyHTTPRequest()
 		}
 		pluginManager.HttpRequestAfter(request);
 		incomingHttpSocket->write(request.reply);
-		if(request.reply.size() < 256) // Don't dump too big answers
+		if(!uri.contains(".mp3") && !uri.contains(".chor") && !uri.contains("bc.jsp") && request.reply.size() < 256) // Don't dump too big answers
 			NetworkDump::Log("HTTP Answer", request.reply);
 	}
 	else
