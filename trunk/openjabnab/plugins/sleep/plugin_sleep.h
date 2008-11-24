@@ -27,8 +27,13 @@ public:
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);
 
-	ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QString const&, HTTPRequest const&);
+//	ApiManager::ApiAnswer * ProcessBunnyApiCall(Bunny *, Account const&, QString const&, HTTPRequest const&);
 
+	void InitApiCalls();
+	PLUGIN_BUNNY_API_CALL(Api_GoodNight);
+	PLUGIN_BUNNY_API_CALL(Api_Hello);
+	PLUGIN_BUNNY_API_CALL(Api_Sleep);
+	PLUGIN_BUNNY_API_CALL(Api_WakeUp);
 private:
 
 	void RegisterCrons(Bunny *);
