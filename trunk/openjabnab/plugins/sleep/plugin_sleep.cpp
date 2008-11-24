@@ -1,9 +1,3 @@
-// typedef QPair<int, QTime> Week[7];
-// QMap<Bunny *, Week>
-// Week const& weekList = map.value( b );
-// for (i = 0; i < 7; i++)
-// 	Cron::Unregister(this, week[i].first);
-
 #include <QDate>
 #include <QMap>
 #include "plugin_sleep.h"
@@ -32,11 +26,18 @@ void PluginSleep::OnBunnyDisconnect(Bunny * b)
 {
 	Week* const sleepList = listOfSleep.value( b );
 	Week* const wakeupList = listOfWakeUp.value( b );
-	for (int i = 0; i < 7; i++)
+	if(sleepList && wakeupList)
 	{
-		Cron::Unregister(this, sleepList->listOfCrons[i]);
-		Cron::Unregister(this, wakeupList->listOfCrons[i]);
+		for (int i = 0; i < 7; i++)
+		{
+			if(sleepList->listOfCrons[i])
+				Cron::Unregister(this, sleepList->listOfCrons[i]);
+			if(wakeupList->listOfCrons[i])
+				Cron::Unregister(this, wakeupList->listOfCrons[i]);
+		}
 	}
+	delete sleepList;
+	delete wakeupList;
 }
 
 void PluginSleep::OnCronSleep()
@@ -50,56 +51,77 @@ void PluginSleep::OnCronWakeUp()
 void PluginSleep::RegisterCrons(Bunny * b)
 {
 	OnBunnyDisconnect(b);
-	Week* const sleepList = listOfSleep.value( b );
-	Week* const wakeupList = listOfWakeUp.value( b );
-	for (int i = 0; i < 7; i++)
+	Week* const sleepList = new Week;
+	Week* const wakeupList = new Week;
 	for(int day = 0; day < 7; day++)
 	{
-		QString WakeUp = b->GetPluginSetting(GetName(), QString("%1/WakeUp").arg(QDate::longDayName(day+1)), QString("08:00")).toString();
-		wakeupList->listOfCrons[day] = Cron::RegisterWeekly(this, (Qt::DayOfWeek)(day+1), QTime::fromString(WakeUp, "hh:mm"), QVariant::fromValue( b ), "OnCronWakeUp");
-		wakeupList->listOfTimes[day] = QTime::fromString(WakeUp, "hh:mm");
-		QString Sleep = b->GetPluginSetting(GetName(), QString("%1/Sleep").arg(QDate::longDayName(day+1)), QString("22:00")).toString();
-		sleepList->listOfCrons[day] = Cron::RegisterWeekly(this, (Qt::DayOfWeek)(day+1), QTime::fromString(Sleep, "hh:mm"), QVariant::fromValue( b ), "OnCronSleep");
-		sleepList->listOfTimes[day] = QTime::fromString(Sleep, "hh:mm");
+		QString WakeUp = b->GetPluginSetting(GetName(), QString("Horaires/WakeUp"), QStringList()).toStringList()[day];
+		if(WakeUp != NULL && WakeUp.length() == 5)
+		{
+			wakeupList->listOfCrons[day] = Cron::RegisterWeekly(this, (Qt::DayOfWeek)(day+1), QTime::fromString(WakeUp, "hh:mm"), QVariant::fromValue( b ), "OnCronWakeUp");
+			wakeupList->listOfTimes[day] = QTime::fromString(WakeUp, "hh:mm");
+		}
+		QString Sleep = b->GetPluginSetting(GetName(), QString("Horaires/Sleep"), QStringList()).toStringList()[day];
+		if(Sleep != NULL && Sleep.length() == 5)
+		{
+			sleepList->listOfCrons[day] = Cron::RegisterWeekly(this, (Qt::DayOfWeek)(day+1), QTime::fromString(Sleep, "hh:mm"), QVariant::fromValue( b ), "OnCronSleep");
+			sleepList->listOfTimes[day] = QTime::fromString(Sleep, "hh:mm");
+		}
 	}
 	listOfWakeUp.insert(b, wakeupList);
 	listOfSleep.insert(b, sleepList);
 }
 
-ApiManager::ApiAnswer * PluginSleep::ProcessBunnyApiCall(Bunny * b, Account const&, QString const& funcName, HTTPRequest const& r)
+void PluginSleep::InitApiCalls()
 {
-	if(funcName == "goodNight")
-	{
-		b->SendPacket(SleepPacket(SleepPacket::Sleep));
-		return new ApiManager::ApiOk(QString("Bunny is going to sleep."));
-	}
-	else if(funcName == "hello")
-	{
-		b->SendPacket(SleepPacket(SleepPacket::Wake_Up));
-		return new ApiManager::ApiOk(QString("Bunny is waking up."));
-	}
-	else if(funcName == "sleep")
-	{
-		if(!r.HasArg("time"))
-			return new ApiManager::ApiError(QString("Missing argument 'time' for plugin " + GetVisualName()));
+	DECLARE_PLUGIN_BUNNY_API_CALL("goodNight", PluginSleep, Api_GoodNight);
+	DECLARE_PLUGIN_BUNNY_API_CALL("hello", PluginSleep, Api_Hello);
+	DECLARE_PLUGIN_BUNNY_API_CALL("sleep", PluginSleep, Api_Sleep);
+	DECLARE_PLUGIN_BUNNY_API_CALL("wakeup", PluginSleep, Api_WakeUp);
+}
 
-		if(!r.HasArg("day"))
-			return new ApiManager::ApiError(QString("Missing argument 'day' for plugin " + GetVisualName()));
+PLUGIN_BUNNY_API_CALL(PluginSleep::Api_GoodNight)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
 
-		b->SetPluginSetting(GetName(), QString("%1/Sleep").arg(r.GetArg("day")), QString(r.GetArg("time")));
-		return new ApiManager::ApiOk(QString("Plugin configuration updated."));
-	}
-	else if(funcName == "wakup")
-	{
-		if(!r.HasArg("time"))
-			return new ApiManager::ApiError(QString("Missing argument 'time' for plugin " + GetVisualName()));
+	bunny->SendPacket(SleepPacket(SleepPacket::Sleep));
+	return new ApiManager::ApiOk(QString("Bunny is going to sleep."));
+}
 
-		if(!r.HasArg("day"))
-			return new ApiManager::ApiError(QString("Missing argument 'day' for plugin " + GetVisualName()));
+PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Hello)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
 
-		b->SetPluginSetting(GetName(), QString("%1/WakeUp").arg(r.GetArg("day")), QString(r.GetArg("time")));
-		return new ApiManager::ApiOk(QString("Plugin configuration updated."));
-	}
-	else
-		return new ApiManager::ApiError(QString("Bad function name for plugin " + GetVisualName()));
+	bunny->SendPacket(SleepPacket(SleepPacket::Wake_Up));
+	return new ApiManager::ApiOk(QString("Bunny is waking up."));
+}
+
+PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Sleep)
+{
+	Q_UNUSED(account);
+
+	if(!hRequest.HasArg("time"))
+		return new ApiManager::ApiError(QString("Missing argument 'time' for plugin " + GetVisualName()));
+
+	if(!hRequest.HasArg("day"))
+		return new ApiManager::ApiError(QString("Missing argument 'day' for plugin " + GetVisualName()));
+
+	bunny->SetPluginSetting(GetName(), QString("%1/Sleep").arg(hRequest.GetArg("day")), QString(hRequest.GetArg("time")));
+	return new ApiManager::ApiOk(QString("Plugin configuration updated."));
+}
+
+PLUGIN_BUNNY_API_CALL(PluginSleep::Api_WakeUp)
+{
+	Q_UNUSED(account);
+
+	if(!hRequest.HasArg("time"))
+		return new ApiManager::ApiError(QString("Missing argument 'time' for plugin " + GetVisualName()));
+
+	if(!hRequest.HasArg("day"))
+		return new ApiManager::ApiError(QString("Missing argument 'day' for plugin " + GetVisualName()));
+
+	bunny->SetPluginSetting(GetName(), QString("%1/WakeUp").arg(hRequest.GetArg("day")), QString(hRequest.GetArg("time")));
+	return new ApiManager::ApiOk(QString("Plugin configuration updated."));
 }
