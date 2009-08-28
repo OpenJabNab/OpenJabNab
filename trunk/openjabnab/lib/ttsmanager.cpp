@@ -57,7 +57,6 @@ bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, b
 	http.request(Header, ContentData);
 	loop.exec();
 	QByteArray reponse = http.readAll();
-	Log::Info(reponse);
 	QUrl url("?"+reponse);
 	if(url.hasQueryItem("retour_php"))
 	{
