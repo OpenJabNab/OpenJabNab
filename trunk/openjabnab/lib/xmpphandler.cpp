@@ -209,9 +209,6 @@ void XmppHandler::HandleBunnyXmppMessage()
 							{
 								QByteArray user = rx.cap(1).toAscii();
 								QByteArray password = rx.cap(2).toAscii();
-								Log::Error("User : " + user);
-								Log::Error("Pass : " + password);
-								Log::Error("Real Pass : " + ComputeXor(user,password));
 								bunny = BunnyManager::GetBunny(user);
 								if(bunny->SetBunnyPassword(ComputeXor(user,password)))
 								{
