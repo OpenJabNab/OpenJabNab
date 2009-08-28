@@ -6,6 +6,8 @@ xmppListener = true
 RealHttpRoot = /var/www/http-wrapper/ojn_local/
 HttpRoot = ojn_local
 HttpPluginsFolder = plugins
+StandAlone = false
+Bootcode = 
 
 [DefaultVioletServers]
 BootServer=r.nabaztag.com

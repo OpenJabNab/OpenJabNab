@@ -15,7 +15,7 @@ class OJN_EXPORT XmppHandler : public QObject
 	Q_OBJECT
 	
 public:
-	XmppHandler(QTcpSocket *);
+	XmppHandler(QTcpSocket *, bool);
 	void WriteDataToBunny(QByteArray const& p);
 
 protected:
@@ -30,6 +30,7 @@ private slots:
 private:
 	QList<QByteArray> XmlParse(QByteArray const&);
 	void WriteToBunny(QByteArray const&);
+	void WriteToBunnyAndLog(QByteArray const&);
 
 	QTcpSocket * incomingXmppSocket;
 	QTcpSocket * outgoingXmppSocket;
@@ -39,6 +40,9 @@ private:
 
 	QByteArray OjnXmppDomain;
 	QByteArray VioletXmppDomain;
+	
+	bool isStandAlone;
+	unsigned int currentAuthStep;
 	
 	static unsigned short msgNb;
 };

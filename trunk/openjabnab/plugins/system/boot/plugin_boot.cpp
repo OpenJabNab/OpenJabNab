@@ -22,9 +22,22 @@ bool PluginBoot::HttpRequestHandle(HTTPRequest & request)
 		b->SetGlobalSetting("Last BootRequest", QDateTime::currentDateTime());
 		
 		Log::Info(QString("Requesting BOOT for tag %1 with version %2").arg(serialnumber,version));
-		request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BootServer"));
-		return true;
-		
+		if(GlobalSettings::Get("Config/StandAlone", true) == false)
+		{
+			request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BootServer"));
+			return true;
+		}
+		else
+		{
+			QFile bootcodeFile(GlobalSettings::Get("Config/Bootcode", "").toString());
+			if(bootcodeFile.open(QFile::ReadOnly))
+			{
+				QByteArray dataByteArray = bootcodeFile.readAll();
+				request.reply = dataByteArray;
+				return true;
+			}
+		}
+		return false;
 	}
 	else
 		return false;

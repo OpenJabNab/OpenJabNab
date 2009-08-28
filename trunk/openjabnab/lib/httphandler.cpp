@@ -10,12 +10,13 @@
 #include "openjabnab.h"
 #include "settings.h"
 
-HttpHandler::HttpHandler(QTcpSocket * s, bool api, bool violet):pluginManager(PluginManager::Instance())
+HttpHandler::HttpHandler(QTcpSocket * s, bool api, bool violet, bool standAlone):pluginManager(PluginManager::Instance())
 {
 	incomingHttpSocket = s;
 	httpApi = api;
 	httpViolet = violet;
 	bytesToReceive = 0;
+	isStandAlone = standAlone;
 	connect(s, SIGNAL(readyRead()), this, SLOT(ReceiveData()));
 }
 
@@ -52,7 +53,7 @@ void HttpHandler::HandleBunnyHTTPRequest()
 	{
 		NetworkDump::Log("HTTP Request", request.GetRawURI());
 		pluginManager.HttpRequestBefore(request);
-		// If none can answer, try to forward it directly to Violet's servers
+		// If none can answer, try to forward it directly to Violet's servers unless we are standalone
 		if (!pluginManager.HttpRequestHandle(request))
 		{
 			if (uri.startsWith("/vl/sendMailXMPP.jsp"))
@@ -60,9 +61,9 @@ void HttpHandler::HandleBunnyHTTPRequest()
 				Log::Warning("Problem with the bunny, he's calling sendMailXMPP.jsp !");
 				request.reply = "Not Allowed !";
 			}
-			else if (uri.startsWith("/vl/"))
+			else if (uri.startsWith("/vl/") && !isStandAlone)
 				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
-			else if (uri.startsWith("/broad/"))
+			else if (uri.startsWith("/broad/") && !isStandAlone)
 				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BroadServer"));
 			else
 			{

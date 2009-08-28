@@ -22,6 +22,8 @@ public:
 	virtual ~Bunny();
 
 	bool IsConnected() const;
+	bool IsAuthenticated() const;
+	
 	QByteArray GetID() const;
 	void SetXmppHandler (XmppHandler *);
 	void RemoveXmppHandler (XmppHandler *);
@@ -30,6 +32,8 @@ public:
 
 	QString GetBunnyName() const;
 	void SetBunnyName(QString const& bunnyName);
+	QByteArray GetBunnyPassword() const;
+	bool SetBunnyPassword(QByteArray const& bunnyName);
 
 	QByteArray GetXmppResource() const;
 	void SetXmppResource(QByteArray const&);
@@ -74,6 +78,8 @@ private:
 	API_CALL(Api_GetListOfActivePlugins);
 
 	enum State state;
+	bool isAuthenticated;
+	
 	QByteArray id;
 	QByteArray xmppResource;
 	QString configFileName;
@@ -88,6 +94,11 @@ private:
 inline bool Bunny::IsConnected() const
 {
 	return state == Connected;
+}
+
+inline bool Bunny::IsAuthenticated() const
+{
+	return isAuthenticated;
 }
 
 inline QByteArray Bunny::GetID() const
@@ -115,6 +126,20 @@ inline void Bunny::SetBunnyName(QString const& bunnyName)
 	SetGlobalSetting("BunnyName", bunnyName);
 }
 
+inline QByteArray Bunny::GetBunnyPassword() const
+{
+	return GetGlobalSetting("BunnyPassword", QByteArray()).toByteArray();
+}
+
+inline bool Bunny::SetBunnyPassword(QByteArray const& bunnyPassword)
+{
+	if(Bunny::GetBunnyPassword() == QByteArray())
+	{
+		SetGlobalSetting("BunnyPassword", bunnyPassword);
+		return true;
+	}
+	return false;
+}
 inline bool Bunny::HasPlugin(PluginInterface * p) const
 {
 	return listOfPluginsPtr.contains(p);
