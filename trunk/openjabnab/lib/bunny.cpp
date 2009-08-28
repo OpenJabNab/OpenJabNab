@@ -24,6 +24,7 @@ Bunny::Bunny(QByteArray const& bunnyID)
 	}
 	id = bunnyID;
 	state = Disconnected;
+	isAuthenticated = false;
 	configFileName = bunniesDir.absoluteFilePath(bunnyID.toHex()+".dat");
 	xmppHandler = 0;
 	
@@ -91,6 +92,7 @@ void Bunny::SetXmppHandler(XmppHandler * x)
 { 
 	state = Connected;
 	xmppHandler = x;
+	isAuthenticated = true;
 	OnConnect();
 }
 
@@ -100,6 +102,7 @@ void Bunny::RemoveXmppHandler(XmppHandler * x)
 	{
 		xmppHandler = 0;
 		state = Disconnected;
+		isAuthenticated = false;
 		OnDisconnect();
 	}
 }

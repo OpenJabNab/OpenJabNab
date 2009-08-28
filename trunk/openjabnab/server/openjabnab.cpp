@@ -42,8 +42,10 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 
 	httpApi = GlobalSettings::Get("Config/HttpApi", true).toBool();
 	httpViolet = GlobalSettings::Get("Config/HttpViolet", true).toBool();
+	standAlone = GlobalSettings::Get("Config/StandAlone", true).toBool();
 	Log::Info(QString("Parsing of HTTP Api is ").append((httpApi == true)?"enabled":"disabled"));
 	Log::Info(QString("Parsing of HTTP Bunny messages is ").append((httpViolet == true)?"enabled":"disabled"));
+	Log::Info(QString("Current mode is ").append((standAlone == true)?"standalone":"connected to Violet"));
 }
 
 void OpenJabNab::Close()
@@ -66,12 +68,12 @@ OpenJabNab::~OpenJabNab()
 
 void OpenJabNab::NewHTTPConnection()
 {
-	HttpHandler * h = new HttpHandler(httpListener->nextPendingConnection(), httpApi, httpViolet);
+	HttpHandler * h = new HttpHandler(httpListener->nextPendingConnection(), httpApi, httpViolet, standAlone);
 	connect(this, SIGNAL(Quit()), h, SLOT(Disconnect()));
 }
 
 void OpenJabNab::NewXMPPConnection()
 {
-	XmppHandler * x = new XmppHandler(xmppListener->nextPendingConnection());
+	XmppHandler * x = new XmppHandler(xmppListener->nextPendingConnection(), standAlone);
 	connect(this, SIGNAL(Quit()), x, SLOT(Disconnect()));
 }

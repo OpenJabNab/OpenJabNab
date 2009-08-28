@@ -43,7 +43,8 @@ HEADERS +=	httphandler.h \
 			accountmanager.h \
 			account.h \
 			apihandler.h \
-			netdump.h
+			netdump.h \
+			iq.h
 
 SOURCES +=	httphandler.cpp \
 			xmpphandler.cpp \
@@ -63,4 +64,5 @@ SOURCES +=	httphandler.cpp \
 			ttsmanager.cpp \
 			accountmanager.cpp \
 			account.cpp \
-			netdump.cpp
+			netdump.cpp \
+			iq.cpp

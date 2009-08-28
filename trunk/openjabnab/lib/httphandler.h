@@ -12,7 +12,7 @@ class OJN_EXPORT HttpHandler : public QObject
 	Q_OBJECT
 	
 public:
-	HttpHandler(QTcpSocket *, bool, bool);
+	HttpHandler(QTcpSocket *, bool, bool, bool);
 	virtual ~HttpHandler();
 
 public slots:
@@ -29,6 +29,7 @@ private:
 	bool httpViolet;
 	QByteArray receivedData;
 	int bytesToReceive;
+	bool isStandAlone;
 };
 
 #endif
