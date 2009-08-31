@@ -4,9 +4,11 @@
 #include "bunnymanager.h"
 #include "iq.h"
 #include "log.h"
+#include "messagepacket.h"
 #include "netdump.h"
 #include "openjabnab.h"
 #include "settings.h"
+#include "ttsmanager.h"
 #include "xmpphandler.h"
 
 unsigned short XmppHandler::msgNb = 0;
@@ -189,14 +191,153 @@ void XmppHandler::HandleBunnyXmppMessage()
 					{
 						// Send success
 						WriteToBunnyAndLog("<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>");
-						bunny->SetXmppHandler(this);
-						bunny->SetGlobalSetting("Last JabberConnection", QDateTime::currentDateTime());
+						currentAuthStep = 4;
 						return;
 					}
 					Log::Error("Bad Auth Step 3, disconnect");
 					Disconnect();
 					return;
 					
+				case 4:
+					// We should receive <?xml version='1.0' encoding='UTF-8'?>
+					if(data.startsWith("<?xml version='1.0' encoding='UTF-8'?>"))
+					{
+						// Send success
+						WriteToBunnyAndLog("<?xml version='1.0'?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' id='1331400675' from='xmpp.nabaztag.com' version='1.0' xml:lang='en'>");
+						WriteToBunnyAndLog("<stream:features><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><required/></bind><unbind xmlns='urn:ietf:params:xml:ns:xmpp-bind'/><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></stream:features>");
+						currentAuthStep = 5;
+						return;
+					}
+					Log::Error("Bad Auth Step 4, disconnect");
+					Disconnect();
+					return;
+
+				case 5:
+					{
+						// We should receive <iq from="<mac_address>@<domain>" to="<domain>" type='set' id='1'>...
+						QRegExp rx("<iq from=\"([^@]*)@"+OjnXmppDomain+"/\" to=\""+OjnXmppDomain+"\" type='set' id='1'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>boot</resource></bind></iq>");
+	                                        if (rx.indexIn(data) != -1)
+	                                        {
+							QByteArray const username = rx.cap(1).toAscii();
+	
+							WriteToBunnyAndLog("<iq id='1' type='result'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><jid>"+username+"@"+VioletXmppDomain+"/boot</jid></bind></iq>");
+							currentAuthStep = 6;
+							return;
+						}
+						Log::Error("Bad Auth Step 5, disconnect");
+						Disconnect();
+						return;
+					}
+				case 6:
+					{
+						// We should receive <iq from="<mac_address>@<domain>/boot" to="<domain>" type='set' id='2'>...
+						QRegExp rx("<iq from='([^@]*)@"+OjnXmppDomain+"/boot' to='"+OjnXmppDomain+"' type='set' id='2'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>");
+	                                        if (rx.indexIn(data) != -1)
+	                                        {
+							QByteArray const username = rx.cap(1).toAscii();
+	
+							WriteToBunnyAndLog("<iq type='result' to='"+username+"@"+OjnXmppDomain+"/boot' from='"+OjnXmppDomain+"' id='2'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>");
+							currentAuthStep = 7;
+							return;
+						}
+						Log::Error("Bad Auth Step 6, disconnect");
+						Disconnect();
+						return;
+					}
+				case 7:
+					{
+						// We should receive <iq from="<mac_address>@<domain>/boot" to="net.violet.platform@<domain>/sources" type='set' id='3'>...
+						QRegExp rx("<iq from='([^@]*)@"+OjnXmppDomain+"/boot' to='net.violet.platform@"+OjnXmppDomain+"/sources' type='get' id='3'><query xmlns=\"violet:iq:sources\"><packet xmlns=\"violet:packet\" format=\"1.0\"/></query></iq>");
+	                                        if (rx.indexIn(data) != -1)
+	                                        {
+							QByteArray const username = rx.cap(1).toAscii();
+							bunny = BunnyManager::GetBunny(username);
+	
+							WriteToBunnyAndLog("<iq from='net.violet.platform@"+OjnXmppDomain+"/sources' to='"+username+"@"+OjnXmppDomain+"/boot' id='3' type='result'><query xmlns='violet:iq:sources'><packet xmlns='violet:packet' format='1.0' ttl='604800'>fwQAAAx////+BBAFAA4oCAALAAABAP8=</packet></query></iq>");
+							currentAuthStep = 8;
+							return;
+						}
+						Log::Error("Bad Auth Step 7, disconnect");
+						Disconnect();
+						return;
+					}
+				case 8:
+					{
+						// We should receive <iq from="<mac_address>@<domain>/boot" to="net.violet.platform" type='set' id='4'>...
+						QRegExp rx("<iq from=\"([^@]*)@"+OjnXmppDomain+"/boot\" to=\""+OjnXmppDomain+"\" type='set' id='4'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>idle</resource></bind></iq>");
+	                                        if (rx.indexIn(data) != -1)
+	                                        {
+							QByteArray const username = rx.cap(1).toAscii();
+							bunny = BunnyManager::GetBunny(username);
+	
+							WriteToBunnyAndLog("<iq id='4' type='result'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><jid>"+username+"@"+OjnXmppDomain+"/idle</jid></bind></iq>");
+							currentAuthStep = 9;
+							return;
+						}
+						Log::Error("Bad Auth Step 8, disconnect");
+						Disconnect();
+						return;
+					}
+				case 9:
+					{
+						// We should receive <iq from="<mac_address>@<domain>/idle" to="<domain>" type='set' id='5'>...
+						QRegExp rx("<iq from='([^@]*)@"+OjnXmppDomain+"/idle' to='"+OjnXmppDomain+"' type='set' id='5'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>");
+	                                        if (rx.indexIn(data) != -1)
+	                                        {
+							QByteArray const username = rx.cap(1).toAscii();
+							bunny = BunnyManager::GetBunny(username);
+	
+							WriteToBunnyAndLog("<iq type='result' to='"+username+"+@"+OjnXmppDomain+"/idle' from='"+OjnXmppDomain+"' id='5'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>");
+							currentAuthStep = 10;
+							return;
+						}
+						Log::Error("Bad Auth Step 9, disconnect");
+						Disconnect();
+						return;
+					}
+				case 10:
+					{
+						// We should receive <presence from="<mac_address>@<domain>/idle" id='5'></presence>
+						QRegExp rx("<presence from='([^@]*)@"+OjnXmppDomain+"/idle' id='6'></presence>");
+	                                        if (rx.indexIn(data) != -1)
+	                                        {
+							QByteArray const username = rx.cap(1).toAscii();
+							bunny = BunnyManager::GetBunny(username);
+	
+							WriteToBunnyAndLog("<presence from='"+username+"@"+OjnXmppDomain+"/idle' to='"+username+"@"+OjnXmppDomain+"/idle' id='6'/>");
+							currentAuthStep = 11;
+							return;
+						}
+						Log::Error("Bad Auth Step 10, disconnect");
+						Disconnect();
+						return;
+					}
+				case 11:
+					{
+						// We should receive <iq from="<mac_address>@<domain>/boot" to="<domain>" type='set' id='7'>...
+						QRegExp rx("<iq from='([^@]*)@"+OjnXmppDomain+"/boot' to='"+OjnXmppDomain+"' type='set' id='7'><unbind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>boot</resource></unbind></iq>");
+	                                        if (rx.indexIn(data) != -1)
+	                                        {
+							QByteArray const username = rx.cap(1).toAscii();
+							bunny = BunnyManager::GetBunny(username);
+	
+							WriteToBunnyAndLog("<iq id='7' type='result'/>");
+							bunny->SetXmppHandler(this);
+							bunny->SetGlobalSetting("Last JabberConnection", QDateTime::currentDateTime());
+							currentAuthStep = 12;
+							if(GlobalSettings::Get("Config/StandAloneWelcome", false) == true)
+							{
+								QDir httpLocalFolder(GlobalSettings::GetString("Config/RealHttpRoot"));
+								TTSManager::CreateNewSound("Bienvenue sur open Jab Nab", "claire", httpLocalFolder.absoluteFilePath("welcome_ojn.mp3"));
+								QByteArray message = "MU broadcast/"+GlobalSettings::GetString("Config/HttpRoot").toAscii()+"/welcome_ojn.mp3 \nPL 3\nMW\n";
+								bunny->SendPacket(MessagePacket(message));
+							}
+							return;
+						}
+						Log::Error("Bad Auth Step 11, disconnect");
+						Disconnect();
+						return;
+					}
 				case 100: // Register Bunny
 					{
 						// We should receive <iq to='xmpp.nabaztag.com' type='set' id='2'><query xmlns="violet:iq:register"><username>0019db01dbd7</username><password>208e6d83bfb2</password></query></iq>
@@ -249,6 +390,28 @@ void XmppHandler::HandleBunnyXmppMessage()
 				}
 				else
 					Log::Warning(QString("Unable to parse response message : %1").arg(QString(authString)));
+
+				// Login hack	
+				authString = authString.replace((char)0, "");
+				rx.setPattern("username=\"([^\"]*)\",nonce=\"([^\"]*)\",cnonce=\"([^\"]*)\",nc=([^,]*),qop=auth,digest-uri=\"([^\"]*)\",response=([^,]*),charset=utf-8");
+				if(rx.indexIn(authString) != -1)
+				{
+					QByteArray const username = rx.cap(1).toAscii();
+					bunny = BunnyManager::GetBunny(username);
+					QByteArray const password = GlobalSettings::GetString("Config/VioletPassword").toAscii();
+					QByteArray const nonce = rx.cap(2).toAscii();
+					QByteArray const cnonce = rx.cap(3).toAscii().append((char)0); // cnonce have a dummy \0 at his end :(
+					QByteArray const nc = rx.cap(4).toAscii();
+					QByteArray const digest_uri = rx.cap(5).toAscii();
+					QByteArray const bunnyResponse = rx.cap(6).toAscii();
+					QByteArray newAuthString = ComputeResponse(username, password, nonce, cnonce, nc, digest_uri, "AUTHENTICATE");
+					newAuthString = "username=\""+username+"\",nonce=\""+nonce+"\",cnonce=\""+cnonce+"\",nc="+nc+",qop=auth,digest-uri=\""+digest_uri+"\",response="+newAuthString+",charset=utf-8";
+					Log::Info(authString+"\n\n"+newAuthString.replace((char)0, "")+"\n\n");
+					newAuthString = "<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>"+newAuthString.toBase64()+"</response>";
+					Log::Info(data+" "+newAuthString);
+					data=newAuthString;
+					Log::Info(data+" "+newAuthString);
+				}
 			}
 		}
 	}
@@ -259,7 +422,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 		// Send info to all 'system' plugins only and forward to violet unless we are in standAlone mode
 		pluginManager.XmppBunnyMessage(bunny, data);
 		if(isStandAlone)
-			Log::Error(QString("Unable to handle xmpp  message : %1").arg(QString(data)));
+			Log::Error(QString("Unable to handle xmpp message : %1").arg(QString(data)));
 		else
 			outgoingXmppSocket->write(data);
 		return;
@@ -308,12 +471,17 @@ void XmppHandler::HandleBunnyXmppMessage()
 		//<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>idle</resource></bind>
 		bunny->SetXmppResource(rx.cap(1).toAscii());
 	}
+	if(isStandAlone && data.length() == 1)
+	{
+		// Bunny is idle
+		handled = true;
+	}
 
 	// If the message wasn't handled, forward it to Violet unless we are in standAlone mode
 	if (!handled)
 	{
 		if(isStandAlone)
-			Log::Error(QString("Unable to handle xmpp  message : %1").arg(QString(data)));
+			Log::Error(QString("Unable to handle bunny xmpp message : %1").arg(QString(data)));
 		else
 			outgoingXmppSocket->write(data);
 	}

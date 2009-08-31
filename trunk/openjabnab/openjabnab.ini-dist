@@ -7,6 +7,7 @@ RealHttpRoot = /var/www/http-wrapper/ojn_local/
 HttpRoot = ojn_local
 HttpPluginsFolder = plugins
 StandAlone = false
+StandAloneWelcome = false
 Bootcode = 
 
 [DefaultVioletServers]
