@@ -8,6 +8,7 @@ HttpRoot = ojn_local
 HttpPluginsFolder = plugins
 StandAlone = false
 StandAloneWelcome = false
+StandAloneAuthBypass=false
 Bootcode = 
 
 [DefaultVioletServers]
