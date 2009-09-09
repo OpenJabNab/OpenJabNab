@@ -147,47 +147,44 @@ void XmppHandler::HandleBunnyXmppMessage()
 						QRegExp rx("<response[^>]*>(.*)</response>");
 						if (rx.indexIn(data) != -1)
 						{
-							if(GlobalSettings::Get("Config/StandAloneAuthBypass", false) == true)
+							QByteArray authString = QByteArray::fromBase64(rx.cap(1).toAscii()).replace((char)0, "");
+							// authString is like : username="",nonce="",cnonce="",nc=,qop=auth,digest-uri="",response=,charset=utf-8
+							// Parse values
+							rx.setPattern("username=\"([^\"]*)\",nonce=\"([^\"]*)\",cnonce=\"([^\"]*)\",nc=([^,]*),qop=auth,digest-uri=\"([^\"]*)\",response=([^,]*),charset=utf-8");
+							if(rx.indexIn(authString) != -1)
 							{
-								// Send success
-								Log::Info("Sending success instead of password verification");
-								WriteToBunnyAndLog("<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>");
-								currentAuthStep = 4;
-								return;
-							}
-							else
-							{
-								QByteArray authString = QByteArray::fromBase64(rx.cap(1).toAscii()).replace((char)0, "");
-								// authString is like : username="",nonce="",cnonce="",nc=,qop=auth,digest-uri="",response=,charset=utf-8
-								// Parse values
-								rx.setPattern("username=\"([^\"]*)\",nonce=\"([^\"]*)\",cnonce=\"([^\"]*)\",nc=([^,]*),qop=auth,digest-uri=\"([^\"]*)\",response=([^,]*),charset=utf-8");
-								if(rx.indexIn(authString) != -1)
+								QByteArray const username = rx.cap(1).toAscii();
+								if(GlobalSettings::Get("Config/StandAloneAuthBypass", false) == true && username == GlobalSettings::GetString("Config/StandAloneAuthBypassBunny"))
 								{
-									QByteArray const username = rx.cap(1).toAscii();
-									bunny = BunnyManager::GetBunny(username);
-									QByteArray const password = bunny->GetBunnyPassword();
-									QByteArray const nonce = rx.cap(2).toAscii();
-									QByteArray const cnonce = rx.cap(3).toAscii().append((char)0); // cnonce have a dummy \0 at his end :(
-									QByteArray const nc = rx.cap(4).toAscii();
-									QByteArray const digest_uri = rx.cap(5).toAscii();
-									QByteArray const bunnyResponse = rx.cap(6).toAscii();
-									if(bunnyResponse == ComputeResponse(username, password, nonce, cnonce, nc, digest_uri, "AUTHENTICATE"))
-									{
-										// Send challenge back
-										// <challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>...</challenge>
-										// rspauth=...
-										QByteArray const rspAuth = "rspauth=" + ComputeResponse(username, password, nonce, cnonce, nc, digest_uri, "");
-										WriteToBunnyAndLog("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>" + rspAuth.toBase64() + "</challenge>");
-										currentAuthStep = 3;
-										return;
-									}
-									else
-									{
-										// Bad password, send failure and restart auth
-										WriteToBunnyAndLog("<failure xmlns='urn:ietf:params:xml:ns:xmpp-sasl'><not-authorized/></failure>");
-										currentAuthStep = 0;
-										return;
-									}
+									// Send success
+									Log::Info("Sending success instead of password verification");
+									WriteToBunnyAndLog("<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>");
+									currentAuthStep = 4;
+									return;
+								}
+								bunny = BunnyManager::GetBunny(username);
+								QByteArray const password = bunny->GetBunnyPassword();
+								QByteArray const nonce = rx.cap(2).toAscii();
+								QByteArray const cnonce = rx.cap(3).toAscii().append((char)0); // cnonce have a dummy \0 at his end :(
+								QByteArray const nc = rx.cap(4).toAscii();
+								QByteArray const digest_uri = rx.cap(5).toAscii();
+								QByteArray const bunnyResponse = rx.cap(6).toAscii();
+								if(bunnyResponse == ComputeResponse(username, password, nonce, cnonce, nc, digest_uri, "AUTHENTICATE"))
+								{
+									// Send challenge back
+									// <challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>...</challenge>
+									// rspauth=...
+									QByteArray const rspAuth = "rspauth=" + ComputeResponse(username, password, nonce, cnonce, nc, digest_uri, "");
+									WriteToBunnyAndLog("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>" + rspAuth.toBase64() + "</challenge>");
+									currentAuthStep = 3;
+									return;
+								}
+								else
+								{
+									// Bad password, send failure and restart auth
+									WriteToBunnyAndLog("<failure xmlns='urn:ietf:params:xml:ns:xmpp-sasl'><not-authorized/></failure>");
+									currentAuthStep = 0;
+									return;
 								}
 							}
 						}
