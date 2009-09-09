@@ -9,6 +9,7 @@ HttpPluginsFolder = plugins
 StandAlone = false
 StandAloneWelcome = false
 StandAloneAuthBypass=false
+StandAloneAuthBypassBunny=
 Bootcode = 
 
 [DefaultVioletServers]
