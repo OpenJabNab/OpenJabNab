@@ -44,6 +44,7 @@ private:
 	
 	bool isStandAlone;
 	unsigned int currentAuthStep;
+	unsigned int currentSleepStep;
 	
 	static unsigned short msgNb;
 };
