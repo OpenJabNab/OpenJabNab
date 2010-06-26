@@ -41,7 +41,7 @@ void PluginEphemeride::OnCron(QVariant v)
 
 bool PluginEphemeride::OnClick(Bunny * b, PluginInterface::ClickType type)
 {
-	if (type == PluginInterface::SingleClick)
+	if (type == PluginInterface::SingleClick && b->GetGlobalSetting("singleClickPlugin", "").toByteArray() == GetName())
 	{
 		getEphemeridePage(b);
 		return true;
@@ -54,8 +54,9 @@ void PluginEphemeride::getEphemeridePage(Bunny * b)
 	QHttp* http = new QHttp(this);
 	http->setProperty("BunnyID", b->GetID());
 	connect(http, SIGNAL(done(bool)), this, SLOT(analyseXml()));
-	http->setHost("www.ephemeride.name");
-	http->get("/rss/rss_saints.php");
+//http://www.net-pratique.fr/services/saintdujour.php
+	http->setHost("www.net-pratique.fr");
+	http->get("/services/saintdujour.php");
 }
 
 void PluginEphemeride::analyseXml()
@@ -79,6 +80,7 @@ void PluginEphemeride::analyseDone(bool ret, Bunny * b, QByteArray message)
 
 void PluginEphemeride::OnBunnyConnect(Bunny * b)
 {
+	b->SetGlobalSetting("singleClickPlugin", "music");
 	if(!webcastList.contains(b))
 	{
 		QStringList webcasts = b->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList();
@@ -171,39 +173,16 @@ PluginEphemeride_Worker::PluginEphemeride_Worker(PluginEphemeride * p, Bunny * b
 
 void PluginEphemeride_Worker::run()
 {
-	QXmlStreamReader xml;
-	xml.clear();
-	xml.addData(buffer);
-
-	QString currentTag;
-	QString prenom;
 	QByteArray message = "MU "+plugin->GetBroadcastHTTPPath("aujourdhui.mp3")+"\nPL 3\nMW\n";
-	while (!xml.atEnd())
+	QRegExp rx(">(.*)</span>");
+	if(rx.indexIn(buffer) != -1)
 	{
-		xml.readNext();
-		if (xml.isStartElement())
-		{
-			currentTag = xml.name().toString();
-		}
-		else if (xml.isCharacters() && !xml.isWhitespace())
-		{
-			if (currentTag == "title")
-			{
-				QString title = xml.text().toString();
-				QRegExp rx("tons, les (.*)\\.");
-				if(rx.indexIn(title) != -1)
-				{
-					QString prenomFile = rx.cap(1);
-					prenomFile = prenomFile.replace(" ", "").trimmed().append(".mp3").toLower();
-					TTSManager::CreateNewSound(rx.cap(1).trimmed(), "claire", plugin->ephemerideFolder.absoluteFilePath(prenomFile));
-					message += "MU "+plugin->GetBroadcastHTTPPath(prenomFile)+"\nPL 3\nMW\n";
-				}
-			}
-		}
-	}
-
-	if (xml.error() && xml.error() != QXmlStreamReader::PrematureEndOfDocumentError)
-		emit done(false, bunny, QByteArray());
-	else
+		QString prenomFile = rx.cap(1);
+		prenomFile = prenomFile.replace(" ", "").replace("-", "").trimmed().append(".mp3").toLower();
+		TTSManager::CreateNewSound(rx.cap(1).trimmed(), "claire", plugin->ephemerideFolder.absoluteFilePath(prenomFile));
+		message += "MU "+plugin->GetBroadcastHTTPPath(prenomFile)+"\nPL 3\nMW\n";
 		emit done(true, bunny, message);
+	}
+	else
+		emit done(false, bunny, QByteArray());
 }
