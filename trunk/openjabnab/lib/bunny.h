@@ -28,6 +28,7 @@ public:
 	QByteArray GetID() const;
 	void SetXmppHandler (XmppHandler *);
 	void RemoveXmppHandler (XmppHandler *);
+	void SetDisconnected();
 	void SendPacket(Packet const&);
 	void SendData(QByteArray const&);
 
@@ -100,6 +101,11 @@ private:
 inline QList<QString> Bunny::GetListOfPlugins()
 {
 	return listOfPlugins;
+}
+
+inline void Bunny::SetDisconnected()
+{
+	isAuthenticated = false;
 }
 
 inline bool Bunny::IsIdle() const
