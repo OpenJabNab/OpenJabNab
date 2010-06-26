@@ -23,6 +23,7 @@ public:
 
 	bool IsConnected() const;
 	bool IsAuthenticated() const;
+	bool IsIdle() const;
 	
 	QByteArray GetID() const;
 	void SetXmppHandler (XmppHandler *);
@@ -34,6 +35,7 @@ public:
 	void SetBunnyName(QString const& bunnyName);
 	QByteArray GetBunnyPassword() const;
 	bool SetBunnyPassword(QByteArray const& bunnyName);
+	bool ClearBunnyPassword();
 
 	QByteArray GetXmppResource() const;
 	void SetXmppResource(QByteArray const&);
@@ -45,6 +47,7 @@ public:
 	void SetPluginSetting(QString const&, QString const&, QVariant const&);
 
 	bool HasPlugin(PluginInterface * p) const;
+	QList<QString> GetListOfPlugins();
 
 	void XmppBunnyMessage(QByteArray const&);
 	void XmppVioletMessage(QByteArray const&);
@@ -76,6 +79,9 @@ private:
 	API_CALL(Api_RegisterPlugin);
 	API_CALL(Api_UnregisterPlugin);
 	API_CALL(Api_GetListOfActivePlugins);
+	API_CALL(Api_SetSingleClickPlugin);
+	API_CALL(Api_SetDoubleClickPlugin);
+	API_CALL(Api_GetClickPlugins);
 
 	enum State state;
 	bool isAuthenticated;
@@ -90,6 +96,16 @@ private:
 	QTimer * saveTimer;
 	XmppHandler * xmppHandler;
 };
+
+inline QList<QString> Bunny::GetListOfPlugins()
+{
+	return listOfPlugins;
+}
+
+inline bool Bunny::IsIdle() const
+{
+	return (bool)(xmppResource == "idle");
+}
 
 inline bool Bunny::IsConnected() const
 {
@@ -131,6 +147,11 @@ inline QByteArray Bunny::GetBunnyPassword() const
 	return GetGlobalSetting("BunnyPassword", QByteArray()).toByteArray();
 }
 
+inline bool Bunny::ClearBunnyPassword()
+{
+	SetGlobalSetting("BunnyPassword", "");
+	return true;
+}
 inline bool Bunny::SetBunnyPassword(QByteArray const& bunnyPassword)
 {
 	if(Bunny::GetBunnyPassword() == QByteArray())

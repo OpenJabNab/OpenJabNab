@@ -197,6 +197,7 @@ void Bunny::OnDisconnect()
 		if(p->GetEnable())
 			p->OnBunnyDisconnect(this);
 	}
+	SaveConfig();
 }
 
 void Bunny::XmppBunnyMessage(QByteArray const& data)
@@ -358,3 +359,50 @@ API_CALL(Bunny::Api_GetListOfActivePlugins)
 	return new ApiManager::ApiList(list);
 
 }
+
+API_CALL(Bunny::Api_SetSingleClickPlugin)
+{
+	Q_UNUSED(account);
+
+	if(!hRequest.HasArg("name"))
+		return new ApiManager::ApiError(QString("Missing argument in Bunny Api Call 'SetSingleClickPlugin' : %1").arg(hRequest.toString()));
+
+	PluginInterface * plugin = PluginManager::Instance().GetPluginByName(hRequest.GetArg("name"));
+	if(!plugin)
+		return new ApiManager::ApiError(QString("Unknown plugin : %1<br />Request was : %2").arg(hRequest.GetArg("name"),hRequest.toString()));
+
+	if(plugin->GetType() != PluginInterface::BunnyPlugin)
+		return new ApiManager::ApiError(QString("Bad plugin type : %1<br />Request was : %2").arg(hRequest.GetArg("name"),hRequest.toString()));
+
+	SetGlobalSetting("singleClickPlugin", plugin->GetName());
+	return new ApiManager::ApiOk(QString("Set '%1' as single click plugin").arg(plugin->GetVisualName()));
+}
+API_CALL(Bunny::Api_SetDoubleClickPlugin)
+{
+	Q_UNUSED(account);
+
+	if(!hRequest.HasArg("name"))
+		return new ApiManager::ApiError(QString("Missing argument in Bunny Api Call 'SetSingleClickPlugin' : %1").arg(hRequest.toString()));
+
+	PluginInterface * plugin = PluginManager::Instance().GetPluginByName(hRequest.GetArg("name"));
+	if(!plugin)
+		return new ApiManager::ApiError(QString("Unknown plugin : %1<br />Request was : %2").arg(hRequest.GetArg("name"),hRequest.toString()));
+
+	if(plugin->GetType() != PluginInterface::BunnyPlugin)
+		return new ApiManager::ApiError(QString("Bad plugin type : %1<br />Request was : %2").arg(hRequest.GetArg("name"),hRequest.toString()));
+
+	SetGlobalSetting("doubleClickPlugin", plugin->GetName());
+	return new ApiManager::ApiOk(QString("Set '%1' as double click plugin").arg(plugin->GetVisualName()));
+}
+API_CALL(Bunny::Api_GetClickPlugins)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+
+	QList<QString> list;
+	list.append(GetGlobalSetting("singleClickPlugin", "").toString());
+	list.append(GetGlobalSetting("doubleClickPlugin", "").toString());
+
+	return new ApiManager::ApiList(list);
+}
+
