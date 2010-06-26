@@ -19,6 +19,7 @@ XmppHandler::XmppHandler(QTcpSocket * s, bool standAlone):pluginManager(PluginMa
 	connectionCount = 0;
 	bunny = 0;
 	currentAuthStep = 0;
+	currentSleepStep = 0;
 	
 	isStandAlone = standAlone;
 	
@@ -451,9 +452,80 @@ void XmppHandler::HandleBunnyXmppMessage()
 	// Send info to all 'system' plugins and bunny's plugins
 	bunny->XmppBunnyMessage(data);
 
+	// Sleep process
+	QRegExp rx("<iq[^>]* type='set' id='([^>]*)'><bind[^>]*><resource>([^<]*)</resource></bind></iq>");
+	if (currentSleepStep > 0 || rx.indexIn(data) != -1)
+	{
+		if(isStandAlone)
+		{
+			switch(currentSleepStep)
+			{
+				case 0:
+					{
+                				bunny->SetXmppResource(rx.cap(2).toAscii());
+				                WriteToBunnyAndLog("<iq id='"+rx.cap(1).toAscii()+"' type='result'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><jid>"+bunny->GetID()+"@"+OjnXmppDomain+"/"+rx.cap(2).toAscii()+"</jid></bind></iq>");
+						currentSleepStep = 1;
+						return;
+					}
+				case 1:
+					{
+						rx.setPattern("<iq [^>]* type='set' id='([^>]*)'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>");
+                                                if (rx.indexIn(data) != -1)
+                                                {
+                					WriteToBunnyAndLog("<iq type='result' to='"+bunny->GetID()+"@"+OjnXmppDomain+"/"+rx.cap(2).toAscii()+"' from='"+OjnXmppDomain+"' id='"+rx.cap(1).toAscii()+"'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>");
+							currentSleepStep = 2;
+                                                        return;
+                                                }
+                                                Log::Error("Bad Sleep Step 1");
+						return;
+					}
+				case 2:
+					{
+						rx.setPattern("<presence from='"+bunny->GetID()+"@"+OjnXmppDomain+"/([^\']*)' id='([^>]*)'></presence>");
+                                                if (rx.indexIn(data) != -1)
+                                                {
+							if(rx.cap(2).toAscii() == "asleep")
+							{
+								WriteToBunnyAndLog("<presence from='"+bunny->GetID()+"@"+OjnXmppDomain+"/asleep' to='"+bunny->GetID()+"@"+OjnXmppDomain+"/idle' id='"+rx.cap(2).toAscii()+"'/>");
+								WriteToBunnyAndLog("<presence from='"+bunny->GetID()+"@"+OjnXmppDomain+"/asleep' to='"+bunny->GetID()+"@"+OjnXmppDomain+"/asleep' id='"+rx.cap(2).toAscii()+"'/>");
+								WriteToBunnyAndLog("<presence from='"+bunny->GetID()+"@"+OjnXmppDomain+"/idle' to='"+bunny->GetID()+"@"+OjnXmppDomain+"/asleep' id='"+rx.cap(2).toAscii()+"'/>");
+							}
+							else
+							{
+								WriteToBunnyAndLog("<presence from='"+bunny->GetID()+"@"+OjnXmppDomain+"/idle' to='"+bunny->GetID()+"@"+OjnXmppDomain+"/idle' id='"+rx.cap(2).toAscii()+"'/>");
+								WriteToBunnyAndLog("<presence from='"+bunny->GetID()+"@"+OjnXmppDomain+"/idle' to='"+bunny->GetID()+"@"+OjnXmppDomain+"/asleep' id='"+rx.cap(2).toAscii()+"'/>");
+								WriteToBunnyAndLog("<presence from='"+bunny->GetID()+"@"+OjnXmppDomain+"/idle' to='"+bunny->GetID()+"@"+OjnXmppDomain+"/idle' id='"+rx.cap(2).toAscii()+"'/>");
+							}
+							currentSleepStep = 3;
+                                                        return;
+                                                }
+                                                Log::Error("Bad Sleep Step 2");
+						return;
+					}
+				case 3:
+					{
+						rx.setPattern("<iq [^>]* type='set' id='([^>]*)'><unbind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>([^<]*)</resource></unbind></iq>");
+                                                if (rx.indexIn(data) != -1)
+                                                {
+							WriteToBunnyAndLog("<iq id='"+rx.cap(1).toAscii()+"' type='result'/>");
+							WriteToBunnyAndLog("<presence from='"+bunny->GetID()+"@"+OjnXmppDomain+"/idle' to='"+bunny->GetID()+"@"+OjnXmppDomain+"/asleep' type='unavailable'/>");
+
+							Log::Debug("Bunny is now sleeping");
+							currentSleepStep = 0;
+                                                        return;
+                                                }
+                                                Log::Error("Bad Sleep Step 3");
+						return;
+					}
+			}
+		}
+		else
+			outgoingXmppSocket->write(data);
+	}
+
+
 	// Check if the data contains <message></message>
-	QRegExp rx("<message[^>]*>(.*)</message>");
-	if (rx.indexIn(data) != -1)
+	if (rx.setPattern("<message[^>]*>(.*)</message>"), rx.indexIn(data) != -1)
 	{
 		QString message = rx.cap(1);
 		if (message.startsWith("<button"))
@@ -492,6 +564,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 		Log::Info(QString("Bunny is now in state : %1").arg(QString(rx.cap(1).toAscii())));
 		bunny->SetXmppResource(rx.cap(1).toAscii());
 	}
+
 	if(isStandAlone && data.length() == 1)
 	{
 		// Bunny is idle
