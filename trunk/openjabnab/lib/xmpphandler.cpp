@@ -168,6 +168,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 									return;
 								}
 								bunny = BunnyManager::GetBunny(username);
+								bunny->SetDisconnected();
 								QByteArray password = bunny->GetBunnyPassword();
 
 								// Check if password detection is activated :
