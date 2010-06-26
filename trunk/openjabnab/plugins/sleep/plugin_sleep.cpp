@@ -53,19 +53,26 @@ void PluginSleep::RegisterCrons(Bunny * b)
 	OnBunnyDisconnect(b);
 	Week* const sleepList = new Week;
 	Week* const wakeupList = new Week;
+	QStringList LWakeUp = b->GetPluginSetting(GetName(), QString("Horaires/WakeUp"), QStringList()).toStringList();	/* On fait les listes avant la boucle */
+	QStringList LSleep = b->GetPluginSetting(GetName(), QString("Horaires/Sleep"), QStringList()).toStringList();
+	QString WakeUp,Sleep;
 	for(int day = 0; day < 7; day++)
 	{
-		QString WakeUp = b->GetPluginSetting(GetName(), QString("Horaires/WakeUp"), QStringList()).toStringList()[day];
-		if(WakeUp != NULL && WakeUp.length() == 5)
-		{
-			wakeupList->listOfCrons[day] = Cron::RegisterWeekly(this, (Qt::DayOfWeek)(day+1), QTime::fromString(WakeUp, "hh:mm"), QVariant::fromValue( b ), "OnCronWakeUp");
-			wakeupList->listOfTimes[day] = QTime::fromString(WakeUp, "hh:mm");
+		if(LWakeUp.size() > day) { /* Si y'a plus d'items dans la liste que c'qu'on veut accéder, on peut l'faire */
+			WakeUp = LWakeUp[day];
+			if(WakeUp != NULL && WakeUp.length() == 5)
+			{
+				wakeupList->listOfCrons[day] = Cron::RegisterWeekly(this, (Qt::DayOfWeek)(day+1), QTime::fromString(WakeUp, "hh:mm"), QVariant::fromValue( b ), "OnCronWakeUp");
+				wakeupList->listOfTimes[day] = QTime::fromString(WakeUp, "hh:mm");
+			}
 		}
-		QString Sleep = b->GetPluginSetting(GetName(), QString("Horaires/Sleep"), QStringList()).toStringList()[day];
-		if(Sleep != NULL && Sleep.length() == 5)
-		{
-			sleepList->listOfCrons[day] = Cron::RegisterWeekly(this, (Qt::DayOfWeek)(day+1), QTime::fromString(Sleep, "hh:mm"), QVariant::fromValue( b ), "OnCronSleep");
-			sleepList->listOfTimes[day] = QTime::fromString(Sleep, "hh:mm");
+		if(LSleep.size() > day) {
+			Sleep = LSleep[day];
+			if(Sleep != NULL && Sleep.length() == 5)
+			{
+				sleepList->listOfCrons[day] = Cron::RegisterWeekly(this, (Qt::DayOfWeek)(day+1), QTime::fromString(Sleep, "hh:mm"), QVariant::fromValue( b ), "OnCronSleep");
+				sleepList->listOfTimes[day] = QTime::fromString(Sleep, "hh:mm");
+			}
 		}
 	}
 	listOfWakeUp.insert(b, wakeupList);
