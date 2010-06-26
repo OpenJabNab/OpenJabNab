@@ -25,17 +25,105 @@ bool PluginBoot::HttpRequestHandle(HTTPRequest & request)
 		if(GlobalSettings::Get("Config/StandAlone", true) == false)
 		{
 			request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BootServer"));
+
+			if(GlobalSettings::Get("Config/SaveBootcode", false) == true)
+			{
+				QFile bootcodeFile("bin/boot/bootcode.bin.current");
+				if(bootcodeFile.open(QFile::WriteOnly))
+				{
+					bootcodeFile.write(request.reply);
+				}
+			}
 			return true;
 		}
 		else
 		{
-			QFile bootcodeFile(GlobalSettings::Get("Config/Bootcode", "").toString());
-			if(bootcodeFile.open(QFile::ReadOnly))
+			if(GlobalSettings::Get("Config/StandAloneUseLocalBootcode", true) == true)
 			{
-				QByteArray dataByteArray = bootcodeFile.readAll();
-				request.reply = dataByteArray;
-				return true;
+				QFile bootcodeFile(GlobalSettings::Get("Config/Bootcode", "").toString());
+				if(bootcodeFile.open(QFile::ReadOnly))
+				{
+					QByteArray dataByteArray = bootcodeFile.readAll();
+					request.reply = dataByteArray;
+				}
 			}
+			else
+			{
+				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BootServer"));
+			}
+			if(b->GetBunnyPassword() == "" && GlobalSettings::Get("Config/StandAlonePatchBootcode", false) == true)
+			{
+				Log::Debug("Analyzing firmware for patch application");
+
+				long address1 = 0x00011A4A;
+				long address2 = 0x00011A91;
+				long address3 = 0x00011AC9;
+				long address4 = 0x00011AEB;
+				
+				int size1 = 3;
+				int size2 = 6;
+				int size3 = 6;
+				int size4 = 1;
+			
+				QByteArray origin1;
+				QByteArray origin2;
+				QByteArray origin3;
+				QByteArray origin4;
+
+				QByteArray patch1;
+				QByteArray patch2;
+				QByteArray patch3;
+				QByteArray patch4;
+
+			        origin1.append((char)0x02).append((char)0x3D).append((char)0x00);
+			        origin2.append((char)0x02).append((char)0x3D).append((char)0x00).append((char)0x02).append((char)0x3E).append((char)0x00);
+			        origin3.append((char)0x02).append((char)0x3D).append((char)0x00).append((char)0x02).append((char)0x3E).append((char)0x00);
+			        origin4.append((char)0x02);
+
+			        patch1.append((char)0x07).append((char)0x00).append((char)0x05);
+			        patch2.append((char)0x04).append((char)0x05).append((char)0x04).append((char)0x05).append((char)0x04).append((char)0x05);
+			        patch3.append((char)0x04).append((char)0x05).append((char)0x04).append((char)0x05).append((char)0x04).append((char)0x05);
+			        patch4.append((char)0x01);
+				
+				bool patch = true;
+				if(request.reply.indexOf(origin1, address1) != address1)
+				{
+					Log::Debug("Part 1 : KO");
+					patch = false;
+				}
+				else
+					Log::Debug("Part 1 : OK");
+				if(request.reply.indexOf(origin2, address2) != address2)
+				{
+					Log::Debug("Part 2 : KO");
+					patch = false;
+				}
+				else
+					Log::Debug("Part 2 : OK");
+				if(request.reply.indexOf(origin3, address3) != address3)
+				{
+					Log::Debug("Part 3 : KO");
+					patch = false;
+				}
+				else
+					Log::Debug("Part 3 : OK");
+				if(request.reply.indexOf(origin4, address4) != address4)
+				{
+					Log::Debug("Part 4 : KO");
+					patch = false;
+				}
+				else
+					Log::Debug("Part 4 : OK");
+				if(patch)
+				{
+					Log::Debug("Patching firmware");
+					request.reply.replace(address1, size1, patch1);
+					request.reply.replace(address2, size2, patch2);
+					request.reply.replace(address3, size3, patch3);
+					request.reply.replace(address4, size4, patch4);
+				}
+			}
+			return true;
 		}
 		return false;
 	}

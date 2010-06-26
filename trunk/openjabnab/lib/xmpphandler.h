@@ -37,6 +37,7 @@ private:
 	PluginManager & pluginManager;
 	Bunny * bunny;
 	QByteArray msgQueue;
+	int connectionCount;
 
 	QByteArray OjnXmppDomain;
 	QByteArray VioletXmppDomain;

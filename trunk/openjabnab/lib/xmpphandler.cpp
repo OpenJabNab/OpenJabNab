@@ -16,6 +16,7 @@ unsigned short XmppHandler::msgNb = 0;
 XmppHandler::XmppHandler(QTcpSocket * s, bool standAlone):pluginManager(PluginManager::Instance())
 {
 	incomingXmppSocket = s;
+	connectionCount = 0;
 	bunny = 0;
 	currentAuthStep = 0;
 	
@@ -130,12 +131,15 @@ void XmppHandler::HandleBunnyXmppMessage()
 						currentAuthStep = 2;
 						return;
 					}
+					// For the moment, we skip this part because we want to keep the initial password
 					if (data.startsWith("<iq type='get' id='1'><query xmlns='violet:iq:register'/></iq>")) // Bunny request a register
 					{
+						/*
 						// Send the request
 						WriteToBunnyAndLog("<iq from='" + OjnXmppDomain + "' id='1' type='result'><query xmlns='violet:iq:register'><instructions>Choose a username and password to register with this server</instructions><username/><password/></query></iq>");
 						currentAuthStep = 100;
 						return;
+						*/
 					}
 					Log::Error("Bad Auth Step 1, disconnect");
 					Disconnect();
@@ -154,6 +158,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 							if(rx.indexIn(authString) != -1)
 							{
 								QByteArray const username = rx.cap(1).toAscii();
+								// If this bunny doesn't need to authenticate
 								if(GlobalSettings::Get("Config/StandAloneAuthBypass", false) == true && username == GlobalSettings::GetString("Config/StandAloneAuthBypassBunny"))
 								{
 									// Send success
@@ -163,9 +168,30 @@ void XmppHandler::HandleBunnyXmppMessage()
 									return;
 								}
 								bunny = BunnyManager::GetBunny(username);
-								QByteArray const password = bunny->GetBunnyPassword();
+								QByteArray password = bunny->GetBunnyPassword();
+
+								// Check if password detection is activated :
+								// - password is empty
+								// - response is decoded by patched firmware
+								if(password == "")
+								{
+									rx.setPattern("response=([^:]*)::([^:]*):");
+									// If password is there, store it then
+									// authenticate the bunny (because patched firmware
+									// can't authenticate the bunny)
+									if(rx.indexIn(authString) != -1)
+									{
+										password = rx.cap(2).toAscii();
+										bunny->SetBunnyPassword(password);
+										Log::Info("Storing new password for bunny");
+										WriteToBunnyAndLog("<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>");
+										currentAuthStep = 4;
+										return;
+									}
+								}
 								QByteArray const nonce = rx.cap(2).toAscii();
 								QByteArray const cnonce = rx.cap(3).toAscii().append((char)0); // cnonce have a dummy \0 at his end :(
+
 								QByteArray const nc = rx.cap(4).toAscii();
 								QByteArray const digest_uri = rx.cap(5).toAscii();
 								QByteArray const bunnyResponse = rx.cap(6).toAscii();
@@ -181,9 +207,15 @@ void XmppHandler::HandleBunnyXmppMessage()
 								}
 								else
 								{
-									// Bad password, send failure and restart auth
+									if(connectionCount == 0)
+									{
+										Log::Info("Clearing password");
+										bunny->ClearBunnyPassword();
+									}
+									connectionCount++;
 									WriteToBunnyAndLog("<failure xmlns='urn:ietf:params:xml:ns:xmpp-sasl'><not-authorized/></failure>");
 									currentAuthStep = 0;
+									Disconnect();
 									return;
 								}
 							}
@@ -456,6 +488,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 	else if (rx.setPattern("<bind[^>]*><resource>([^<]*)</resource></bind>"), rx.indexIn(data) != -1)
 	{
 		//<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>idle</resource></bind>
+		Log::Info(QString("Bunny is now in state : %1").arg(QString(rx.cap(1).toAscii())));
 		bunny->SetXmppResource(rx.cap(1).toAscii());
 	}
 	if(isStandAlone && data.length() == 1)

@@ -10,7 +10,10 @@ StandAlone = false
 StandAloneWelcome = false
 StandAloneAuthBypass=false
 StandAloneAuthBypassBunny=
+StandAloneUseLocalBootcode=true
+StandAlonePatchBootcode=false
 Bootcode = 
+SaveBootcode=false
 
 [DefaultVioletServers]
 BootServer=r.nabaztag.com
