@@ -508,12 +508,12 @@ void XmppHandler::HandleBunnyXmppMessage()
 						WriteToBunnyAndLog("<iq id='"+rx.cap(1).toAscii()+"' type='result'/>");
 						if(rx.cap(2).toAscii() == "asleep")
 						{
-							WriteToBunnyAndLog("<presence from='"+bunny->GetID()+"@"+OjnXmppDomain+"/idle' to='"+bunny->GetID()+"@"+OjnXmppDomain+"/asleep' type='unavailable'/>");
+							WriteToBunnyAndLog("<presence from='"+bunny->GetID()+"@"+OjnXmppDomain+"/asleep' to='"+bunny->GetID()+"@"+OjnXmppDomain+"/idle' type='unavailable'/>");
 							Log::Debug("Bunny is now idle");
 						}
 						else
 						{
-							WriteToBunnyAndLog("<presence from='"+bunny->GetID()+"@"+OjnXmppDomain+"/asleep' to='"+bunny->GetID()+"@"+OjnXmppDomain+"/idle' type='unavailable'/>");
+							WriteToBunnyAndLog("<presence from='"+bunny->GetID()+"@"+OjnXmppDomain+"/idle' to='"+bunny->GetID()+"@"+OjnXmppDomain+"/asleep' type='unavailable'/>");
 							Log::Debug("Bunny is now sleeping");
 						}
 
