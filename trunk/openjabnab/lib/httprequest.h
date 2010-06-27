@@ -21,6 +21,8 @@ public:
 	void RemoveArg(QString const& s);
 	QString GetPostArg(QString const& s) const;
 	bool HasPostArg(QString const& s) const;
+	QByteArray GetPostRaw() const;
+	bool HasPostRaw() const;
 	QHash<QString, QString> const& GetArgs() const;
 	QHash<QString, QString> const& GetPost() const;
 	QByteArray const& GetRawPost() const;
@@ -63,6 +65,16 @@ inline QString HTTPRequest::GetArg(QString const& s) const
 inline void HTTPRequest::RemoveArg(QString const& s)
 {
 	getData.remove(s);
+}
+
+inline QByteArray HTTPRequest::GetPostRaw() const
+{
+	return rawPostData;
+}
+
+inline bool HTTPRequest::HasPostRaw() const
+{
+	return rawPostData.length() > 0;
 }
 
 inline QString HTTPRequest::GetPostArg(QString const& s) const
