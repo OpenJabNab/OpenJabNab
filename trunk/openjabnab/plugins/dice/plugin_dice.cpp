@@ -16,7 +16,7 @@ PluginDice::PluginDice():PluginInterface("dice", "Dice roll")
 
 bool PluginDice::OnClick(Bunny * b, PluginInterface::ClickType type)
 {
-	if (type == PluginInterface::SingleClick)
+	if (type == PluginInterface::SingleClick && b->GetGlobalSetting("singleClickPlugin", "").toByteArray() == GetName())
 	{
 		// Language
 		QByteArray Language = b->GetPluginSetting("dice", "PluginConfiguration/Language", "fr").toByteArray();
@@ -26,7 +26,7 @@ bool PluginDice::OnClick(Bunny * b, PluginInterface::ClickType type)
 		// Send packet to bunny with mp3 to be played
 		b->SendPacket(MessagePacket("MU "+GetBroadcastHTTPPath(Language + "/get.mp3")+"\nMW\nMU "+GetBroadcastHTTPPath(Language + "/" + QString::number(value) + ".mp3")+"\nMW\n"));
 	}
-	else
+	else if (type == PluginInterface::DoubleClick && b->GetGlobalSetting("doubleClickPlugin", "").toByteArray() == GetName())
 	{
 		// Shutdown of the plugin on Dbl click
 		// To be done when activation / deactivation is OK

@@ -18,7 +18,7 @@ PluginTest::~PluginTest()
 
 bool PluginTest::OnClick(Bunny * b, PluginInterface::ClickType type)
 {
-	if (type == PluginInterface::SingleClick)
+	if (type == PluginInterface::SingleClick && b->GetGlobalSetting("singleClickPlugin", "").toByteArray() == GetName())
 	{
 		// AmbientPacket Test
 		angle++;
@@ -26,7 +26,7 @@ bool PluginTest::OnClick(Bunny * b, PluginInterface::ClickType type)
 		p.SetEarsPosition(angle%18, 0);
 		b->SendPacket(p);
 	}
-	else
+	else if (type == PluginInterface::DoubleClick && b->GetGlobalSetting("doubleClickPlugin", "").toByteArray() == GetName())
 	{
 		// Chor test
 		b->SendPacket(MessagePacket("CH broadcast/openjabnab/plugin_test/chor1.chor\n"));
