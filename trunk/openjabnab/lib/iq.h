@@ -15,9 +15,6 @@ public:
 	IQ::Iq_Types Type() const;
 	QByteArray const& Content() const;
 	QByteArray const& From() const;
-/*	QByteArray Reply(Iq_Types);
-	QByteArray Reply(Iq_Types, QByteArray const&);
-	QByteArray Reply(Iq_Types, QByteArray const&, QByteArray const&);*/
 	// %1 = id, %2 = from, %3 = to, %4 = result
 	QByteArray Reply(Iq_Types type, QByteArray const&, QByteArray const& content);
 	
@@ -53,6 +50,5 @@ inline QByteArray const& IQ::From() const
 {
 	return from;
 }
-
 
 #endif
