@@ -66,6 +66,19 @@ IQ::IQ(QByteArray const& data)
 		isValid = false;
 }
 
+/*QByteArray IQ::Reply(Iq_Types type)
+{
+	// <iq from='...' to='...' type='...' id='...'>...</iq>
+	QByteArray response("<iq");
+	if(to != QByteArray())
+		response.append(" from='" + to + "'");
+	if(from != QByteArray())
+		response.append(" to='" + from + "'");
+	response.append(" type='" + toString(type) + "'");
+	response.append(" id='" + id + "'/>");
+	return response;
+}
+
 QByteArray IQ::Reply(Iq_Types type, QByteArray const& content)
 {
 	// <iq from='...' to='...' type='...' id='...'>...</iq>
@@ -80,3 +93,43 @@ QByteArray IQ::Reply(Iq_Types type, QByteArray const& content)
 	response.append("</iq>");
 	return response;
 }
+
+QByteArray IQ::Reply(Iq_Types type, QByteArray const& sender, QByteArray const& content)
+{
+	// <iq from='...' to='...' type='...' id='...'>...</iq>
+	QByteArray response("<iq");
+	response.append(" from='" + sender + "'");
+	if(from != QByteArray())
+		response.append(" to='" + from + "'");
+	response.append(" type='" + toString(type) + "'");
+	response.append(" id='" + id + "'>");
+	response.append(content);
+	response.append("</iq>");
+	return response;
+}*/
+
+// %1 = id, %2 = from, %3 = to, %4 = result
+QByteArray IQ::Reply(Iq_Types newType, QByteArray const& format, QByteArray const& content)
+{
+	// IQ Parameters, from & to are swapped (reply)
+	QString sid = "id='" + id + "'";
+	QString stype = "type='" + toString(newType) + "'";
+	QString sfrom = "from='" + to + "'";
+	QString sto = "to='" + from + "'";
+
+	QByteArray reply = QString("<iq ").append(QString(format).replace("%1", sid).replace("%2", sfrom).replace("%3", sto).replace("%4", stype)).toAscii();
+
+	if(content.isNull())
+	{
+		reply.append("/>");
+	}
+	else
+	{
+		reply.append(">");
+		reply.append(content);
+		reply.append("</iq>");
+	}
+
+	return reply;
+}
+

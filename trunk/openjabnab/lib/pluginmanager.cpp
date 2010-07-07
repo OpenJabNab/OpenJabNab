@@ -425,3 +425,23 @@ API_CALL(PluginManager::Api_ReloadPlugin)
 	else
 		return new ApiManager::ApiError(QString("Can't reload '%1'!").arg(name));
 }
+
+/********************
+ * Required Plugins *
+ ********************/
+ 
+void PluginManager::RegisterAuthPlugin(PluginAuthInterface * p)
+{
+	if(!authPlugin)
+		authPlugin = p;
+	else
+		Log::Warning("An authentication plugin is already registered.");
+}
+
+void PluginManager::UnregisterAuthPlugin(PluginAuthInterface * p)
+{
+	if(authPlugin == p)
+		authPlugin = 0;
+	else
+		Log::Warning("Bad plugin during UnregisterAuthPlugin");
+}

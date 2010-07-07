@@ -18,17 +18,14 @@ class OJN_EXPORT Bunny : QObject, public ApiHandler<Bunny>
 	friend class BunnyManager;
 	Q_OBJECT
 public:
-	enum State { Connected, Disconnected };
+	enum State { State_Disconnected, State_Authenticating, State_Authenticated, State_Ready};
 	virtual ~Bunny();
 
-	bool IsConnected() const;
-	bool IsAuthenticated() const;
 	bool IsIdle() const;
 	
 	QByteArray GetID() const;
 	void SetXmppHandler (XmppHandler *);
 	void RemoveXmppHandler (XmppHandler *);
-	void SetDisconnected();
 	void SendPacket(Packet const&);
 	void SendData(QByteArray const&);
 
@@ -53,6 +50,13 @@ public:
 	void XmppBunnyMessage(QByteArray const&);
 	void XmppVioletMessage(QByteArray const&);
 	bool XmppVioletPacketMessage(Packet const& p);
+	
+	void Authenticating();
+	void Authenticated();
+	void Ready();
+
+	bool IsAuthenticated() const;
+	bool IsConnected() const;
 	
 	bool OnClick(PluginInterface::ClickType);
 	bool OnEarsMove(int, int);
@@ -85,7 +89,6 @@ private:
 	API_CALL(Api_GetClickPlugins);
 
 	enum State state;
-	bool isAuthenticated;
 	
 	QByteArray id;
 	QByteArray xmppResource;
@@ -103,11 +106,6 @@ inline QList<QString> Bunny::GetListOfPlugins()
 	return listOfPlugins;
 }
 
-inline void Bunny::SetDisconnected()
-{
-	isAuthenticated = false;
-}
-
 inline bool Bunny::IsIdle() const
 {
 	return (bool)(xmppResource == "idle");
@@ -115,12 +113,12 @@ inline bool Bunny::IsIdle() const
 
 inline bool Bunny::IsConnected() const
 {
-	return state == Connected;
+	return state == State_Ready;
 }
 
 inline bool Bunny::IsAuthenticated() const
 {
-	return isAuthenticated;
+	return (state == State_Ready) || (state == State_Authenticated);
 }
 
 inline QByteArray Bunny::GetID() const
@@ -167,6 +165,7 @@ inline bool Bunny::SetBunnyPassword(QByteArray const& bunnyPassword)
 	}
 	return false;
 }
+
 inline bool Bunny::HasPlugin(PluginInterface * p) const
 {
 	return listOfPluginsPtr.contains(p);

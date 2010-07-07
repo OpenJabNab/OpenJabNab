@@ -23,8 +23,7 @@ Bunny::Bunny(QByteArray const& bunnyID)
 		bunniesDir.cd("bunnies");
 	}
 	id = bunnyID;
-	state = Disconnected;
-	isAuthenticated = false;
+	state = State_Disconnected;
 	configFileName = bunniesDir.absoluteFilePath(bunnyID.toHex()+".dat");
 	xmppHandler = 0;
 	
@@ -40,7 +39,7 @@ Bunny::Bunny(QByteArray const& bunnyID)
 void Bunny::InitApiCalls()
 {
 	DECLARE_API_CALL("registerPlugin", &Bunny::Api_RegisterPlugin);
-	DECLARE_API_CALL("UnregisterPlugin", &Bunny::Api_UnregisterPlugin);
+	DECLARE_API_CALL("unregisterPlugin", &Bunny::Api_UnregisterPlugin);
 	DECLARE_API_CALL("getListOfActivePlugins", &Bunny::Api_GetListOfActivePlugins);
 }
 
@@ -90,10 +89,7 @@ void Bunny::SaveConfig()
 
 void Bunny::SetXmppHandler(XmppHandler * x)
 { 
-	state = Connected;
 	xmppHandler = x;
-	isAuthenticated = true;
-	OnConnect();
 }
 
 void Bunny::RemoveXmppHandler(XmppHandler * x)
@@ -101,10 +97,33 @@ void Bunny::RemoveXmppHandler(XmppHandler * x)
 	if (xmppHandler == x)
 	{
 		xmppHandler = 0;
-		state = Disconnected;
-		isAuthenticated = false;
+		state = State_Disconnected;
 		OnDisconnect();
 	}
+}
+
+// Called when the bunny start an authenticating process
+void Bunny::Authenticating()
+{
+	if(xmppHandler)
+	{
+		xmppHandler->Disconnect();
+		xmppHandler = 0;
+	}
+	state = State_Authenticating;
+}
+
+// Called when the bunny succeed an auth
+void Bunny::Authenticated()
+{
+	state = State_Authenticated;
+}
+
+// Called when the bunny is ready (auth/boot finished)
+void Bunny::Ready()
+{
+	state = State_Ready;
+	OnConnect();
 }
 
 void Bunny::SendPacket(Packet const& p)
@@ -286,7 +305,7 @@ bool Bunny::OnRFID(QByteArray const& tag)
 
 void Bunny::PluginStateChanged(PluginInterface * p)
 {
-	if(listOfPluginsPtr.contains(p) && state == Connected)
+	if(listOfPluginsPtr.contains(p) && IsConnected())
 	{
 		if(p->GetEnable())
 			p->OnBunnyConnect(this);
@@ -300,7 +319,7 @@ void Bunny::PluginLoaded(PluginInterface * p)
 	if(listOfPlugins.contains(p->GetName()))
 	{
 		listOfPluginsPtr.append(p);
-		if(p->GetEnable() && state == Connected)
+		if(p->GetEnable() && IsConnected())
 			p->OnBunnyConnect(this);
 	}
 }

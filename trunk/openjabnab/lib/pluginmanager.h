@@ -10,6 +10,7 @@
 
 class Account;
 class PluginInterface;
+class PluginAuthInterface;
 class QPluginLoader;
 class OJN_EXPORT PluginManager : public ApiHandler<PluginManager>
 {
@@ -39,6 +40,12 @@ public:
 
 	// API
 	static void InitApiCalls();
+	
+	// Required Plugins
+	// Auth
+	void RegisterAuthPlugin(PluginAuthInterface *);
+	void UnregisterAuthPlugin(PluginAuthInterface *);
+	PluginAuthInterface * GetAuthPlugin() const;
 
 private:
 	PluginManager();
@@ -54,6 +61,8 @@ private:
 	QMap<PluginInterface *, QPluginLoader *> listOfPluginsLoader;
 	QHash<QString, PluginInterface *> listOfPluginsByName;
 	QHash<QString, PluginInterface *> listOfPluginsByFileName;
+	
+	PluginAuthInterface * authPlugin;
 
 	// API
 	API_CALL(Api_GetListOfPlugins);
@@ -88,5 +97,17 @@ inline PluginInterface * PluginManager::GetPluginByName(QString const& name) con
 	return listOfPluginsByName.value(name);
 }
 
+#include "pluginauthinterface.h"
+
+inline PluginAuthInterface * PluginManager::GetAuthPlugin() const
+{
+	if(authPlugin)
+		return authPlugin;
+	else
+	{
+		Log::Warning("No Auth Plugin available, authentication is not possible for the moment");
+		return PluginAuthInterface::DummyPlugin();
+	}
+}
 
 #endif
