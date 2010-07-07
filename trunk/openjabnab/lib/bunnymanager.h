@@ -13,7 +13,7 @@ class HTTPRequest;
 class PluginInterface;
 class OJN_EXPORT BunnyManager : public ApiHandler<BunnyManager>
 {
-	friend class XmppHandler;
+	friend class PluginAuth;
 	friend class ApiManager;
 	friend class PluginManager;
 public:

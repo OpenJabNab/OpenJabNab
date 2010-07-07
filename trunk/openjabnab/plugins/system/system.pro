@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = boot locate record rfid 
+SUBDIRS = auth boot locate record rfid

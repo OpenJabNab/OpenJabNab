@@ -28,6 +28,7 @@ HEADERS +=	httphandler.h \
 			log.h \
 			pluginmanager.h \
 			pluginapihandler.h \
+			pluginauthinterface.h \
 			plugininterface.h \
 			plugininterface_inline.h \
 			packet.h \
@@ -52,6 +53,7 @@ SOURCES +=	httphandler.cpp \
 			settings.cpp \
 			log.cpp \
 			pluginmanager.cpp \
+			pluginauthinterface.cpp \
 			packet.cpp \
 			ambientpacket.cpp \
 			messagepacket.cpp \
