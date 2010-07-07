@@ -66,48 +66,6 @@ IQ::IQ(QByteArray const& data)
 		isValid = false;
 }
 
-/*QByteArray IQ::Reply(Iq_Types type)
-{
-	// <iq from='...' to='...' type='...' id='...'>...</iq>
-	QByteArray response("<iq");
-	if(to != QByteArray())
-		response.append(" from='" + to + "'");
-	if(from != QByteArray())
-		response.append(" to='" + from + "'");
-	response.append(" type='" + toString(type) + "'");
-	response.append(" id='" + id + "'/>");
-	return response;
-}
-
-QByteArray IQ::Reply(Iq_Types type, QByteArray const& content)
-{
-	// <iq from='...' to='...' type='...' id='...'>...</iq>
-	QByteArray response("<iq");
-	if(to != QByteArray())
-		response.append(" from='" + to + "'");
-	if(from != QByteArray())
-		response.append(" to='" + from + "'");
-	response.append(" type='" + toString(type) + "'");
-	response.append(" id='" + id + "'>");
-	response.append(content);
-	response.append("</iq>");
-	return response;
-}
-
-QByteArray IQ::Reply(Iq_Types type, QByteArray const& sender, QByteArray const& content)
-{
-	// <iq from='...' to='...' type='...' id='...'>...</iq>
-	QByteArray response("<iq");
-	response.append(" from='" + sender + "'");
-	if(from != QByteArray())
-		response.append(" to='" + from + "'");
-	response.append(" type='" + toString(type) + "'");
-	response.append(" id='" + id + "'>");
-	response.append(content);
-	response.append("</iq>");
-	return response;
-}*/
-
 // %1 = id, %2 = from, %3 = to, %4 = result
 QByteArray IQ::Reply(Iq_Types newType, QByteArray const& format, QByteArray const& content)
 {
