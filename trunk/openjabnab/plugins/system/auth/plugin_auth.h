@@ -3,7 +3,9 @@
 
 #include "pluginauthinterface.h"
 #include "httprequest.h"
-	
+
+#include <QMap>
+
 class PluginAuth : public PluginAuthInterface
 {
 	Q_OBJECT
@@ -14,6 +16,21 @@ public:
 	virtual ~PluginAuth() {};
 
 	virtual bool DoAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray & answer);
+
+	void InitApiCalls();
+	PLUGIN_API_CALL(Api_SelectAuth);
+	PLUGIN_API_CALL(Api_GetListOfAuths);
+	
+private:
+	static bool DummyAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray & answer);
+	static bool ProxyAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray & answer);
+	static bool FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray & answer);
+
+	typedef bool (*pAuthFunction)(XmppHandler *, QByteArray const&, Bunny **, QByteArray &);
+
+	pAuthFunction currentAuthFunction;
+	
+	QMap<QString, pAuthFunction> listOfAuthFunctions;
 };
 
 #endif

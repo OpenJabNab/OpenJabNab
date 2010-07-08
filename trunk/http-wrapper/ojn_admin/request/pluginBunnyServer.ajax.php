@@ -19,19 +19,16 @@ else
 		<tr>
 			<th style="width: 40%">Plugin</th>
 			<th colspan="2" style="width: 40%">Statut</th>
-			<th>Lapins connect&eacute;s</th>
 		</tr>
 <?
-	$system = ojnapi::getListOfRequiredPlugins();
 	$i = 0;
-	foreach(ojnapi::getListOfPlugins() as $plugin => $name)
+	foreach(ojnapi::getListOfBunnyPlugins() as $name)
 	{
 ?>
 		<tr<?=$i++ % 2 == 1 ? " class='l2'" : "" ?>>
 			<td><?=$name ?></td>
-			<td><?=!in_array($plugin, $system) ? "<a href='javascript:reloadPlugin(\"$plugin\")'>Recharger</a>" : "" ?></td>
-			<td><?=in_array($plugin, $system) ? "Actif (plugin n&eacute;cessaire)" : (in_array($plugin, $actifs) ? "<a href='javascript:changePluginStatus(\"$plugin\", \"deactivate\")'>D&eacute;sactiver</a>" : "<a href='javascript:changePluginStatus(\"$plugin\", \"activate\")'>Activer</a>") ?></td>
-			<td><?=isset($actifs[$plugin]) ? $actifs[$plugin] : "N/A" ?></td>
+			<td><a href='javascript:reloadBunnyPlugin("<?=$name?>")'>Recharger</a></td>
+			<td><?=in_array($name, $actifs) ? "<a href='javascript:changeBunnyPluginStatus(\"$name\", \"deactivate\")'>D&eacute;sactiver</a>" : "<a href='javascript:changeBunnyPluginStatus(\"$name\", \"activate\")'>Activer</a>" ?></td>
 		</tr>
 <?
 	}

@@ -39,25 +39,43 @@ function doConnexion()
      location.href="index.php";
 }
 
-function reloadPlugin(plugin)
+function reloadSystemPlugin(plugin)
 {
      // send request
-     $.post("request/pluginServer.ajax.php", {plug: plugin, reload: true}, function(data) {
-       $("#tablePluginServer").html(data); });
+     $.post("request/pluginSystemServer.ajax.php", {plug: plugin, reload: true}, function(data) {
+       $("#tableSystemPluginServer").html(data); });
 }
 
-function changePluginStatus(plugin, statut)
+function reloadBunnyPlugin(plugin)
 {
      // send request
-     $.post("request/pluginServer.ajax.php", {plug: plugin, stat: statut}, function(data) {
-       $("#tablePluginServer").html(data); });
+     $.post("request/pluginBunnyServer.ajax.php", {plug: plugin, reload: true}, function(data) {
+       $("#tableBunnyPluginServer").html(data); });
 }
 
+function changeSystemPluginStatus(plugin, statut)
+{
+     // send request
+     $.post("request/pluginSystemServer.ajax.php", {plug: plugin, stat: statut}, function(data) {
+       $("#tableSystemPluginServer").html(data); });
+}
+
+function changeBunnyPluginStatus(plugin, statut)
+{
+     // send request
+     $.post("request/pluginBunnyServer.ajax.php", {plug: plugin, stat: statut}, function(data) {
+       $("#tableBunnyPluginServer").html(data); });
+}
 function registerBunnyForPlugin(plugin, statut)
 {
      // send request
      $.post("request/pluginBunny.ajax.php", {plug: plugin, stat: statut}, function(data) {
        $("#tablePluginBunny").html(data); });
+}
+
+function setupPlugin(plugin)
+{
+        $("#setupPlugin").load("request/pluginGeneralSetup.ajax.php?plugin="+plugin);
 }
 
 function setupPluginForBunny(plugin)

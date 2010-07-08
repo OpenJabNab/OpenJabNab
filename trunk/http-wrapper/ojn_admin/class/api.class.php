@@ -158,18 +158,18 @@ class ojnApi
 		}
 	}
 
-	static function getListOfBunnyPlugins($bunny, $reload = false)
+	static function getListOfBunnyPlugins($reload = false)
 	{
-		if(file_exists(ROOT_SITE.'cache/plugins_'.$bunny.'.cache.php') && time() - filemtime(ROOT_SITE.'cache/plugins_'.$bunny.'.cache.php') < ojnApi::mtimeMini && !$reload)
+		if(file_exists(ROOT_SITE.'cache/plugins_bunny.cache.php') && time() - filemtime(ROOT_SITE.'cache/plugins_bunny.cache.php') < ojnApi::mtimeMini && !$reload)
 		{
-			require(ROOT_SITE.'cache/plugins_'.$bunny.'.cache.php');
-			return ${"plugins_".$bunny};
+			require(ROOT_SITE.'cache/plugins_bunny.cache.php');
+			return ${"plugins_bunny"};
 		}
 		else
 		{
-			$plugins = file_get_contents(ROOT_WWW_API."bunny/$bunny/getListOfActivePlugins?".ojnApi::getToken());
+			$plugins = file_get_contents(ROOT_WWW_API."plugins/getListOfBunnyPlugins?".ojnApi::getToken());
 			$plugins = ojnApi::transformList(ojnApi::loadXmlString($plugins));
-			file_put_contents(ROOT_SITE.'cache/plugins_'.$bunny.'.cache.php', '<?php'."\n".'$plugins_'.$bunny.' = '.var_export($plugins, true)."\n".'?>');
+			file_put_contents(ROOT_SITE.'cache/plugins_bunny.cache.php', '<?php'."\n".'$plugins_bunny = '.var_export($plugins, true)."\n".'?>');
 			return $plugins;
 		}
 	}
@@ -204,6 +204,11 @@ class ojnApi
 			file_put_contents(ROOT_SITE.'cache/plugins.cache.php', '<?php'."\n".'$plugins = '.var_export($plugins, true).";\n".'?>');
 			return $plugins;
 		}
+	}
+	
+	static function getMappedList($url)
+	{
+		return $map = ojnApi::transformMappedList(ojnApi::loadXmlString(file_get_contents(ROOT_WWW_API.$url.ojnApi::getToken())));
 	}
 
 	static function loadXmlString($string)
