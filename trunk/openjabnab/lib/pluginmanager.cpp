@@ -306,9 +306,8 @@ API_CALL(PluginManager::Api_GetListOfSystemPlugins)
 		return new ApiManager::ApiError("Access denied");
 
 	QList<QString> list;
-	foreach (PluginInterface * p, listOfPlugins)
-		if(p->GetType() == PluginInterface::SystemPlugin)
-			list.append(p->GetName());
+	foreach (PluginInterface * p, listOfSystemPlugins)
+		list.append(p->GetName());
 
 	return new ApiManager::ApiList(list);
 }
