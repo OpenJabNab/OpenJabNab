@@ -175,14 +175,17 @@ void XmppHandler::HandleBunnyXmppMessage()
 					handled = true;
 				}
 			}
-			else if(iq.Content() == "<unbind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>boot</resource></unbind>")
+			else if(rx.setPattern("<unbind[^>]*><resource>([^<]*)</resource></unbind>"), rx.indexIn(iq.Content()) != -1)
 			{
-				// Boot process finished
-				bunny->Ready();
-				if(isStandAlone)
+				if(rx.cap(1) == "boot")
 				{
-					WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%1 %4", QByteArray()));
-					handled = true;
+					// Boot process finished
+					bunny->Ready();
+					if(isStandAlone)
+					{
+						WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%1 %4", QByteArray()));
+						handled = true;
+					}
 				}
 			}
 			else
