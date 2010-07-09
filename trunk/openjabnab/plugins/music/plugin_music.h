@@ -14,9 +14,10 @@ class PluginMusic : public PluginInterface
 	
 public:
 	PluginMusic();
-	virtual ~PluginMusic();
+	virtual ~PluginMusic() {}
+	virtual bool Init();
+	
 	bool OnClick(Bunny *, PluginInterface::ClickType);
-	void AfterBunnyUnregistered(Bunny *) {};
 
 private:
 	void getMusicList(Bunny *);
