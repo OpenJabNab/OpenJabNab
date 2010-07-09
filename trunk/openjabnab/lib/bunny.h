@@ -108,7 +108,7 @@ inline QList<QString> Bunny::GetListOfPlugins()
 
 inline bool Bunny::IsIdle() const
 {
-	return (bool)(xmppResource == "idle");
+	return IsConnected() && ((bool)(xmppResource == "idle"));
 }
 
 inline bool Bunny::IsConnected() const

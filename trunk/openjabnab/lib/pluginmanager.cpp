@@ -74,6 +74,17 @@ bool PluginManager::LoadPlugin(QString const& fileName)
 	PluginInterface * plugin = qobject_cast<PluginInterface *>(p);
 	if (plugin)
 	{
+		if(plugin->Init() == false)
+		{
+			delete plugin;
+			loader->unload();
+			delete loader;
+
+			status.append(QString("%1 OK, Initialisation failed").arg(plugin->GetName())); 
+			Log::Info(status);
+			return false;
+		}
+		
 		listOfPlugins.append(plugin);
 		listOfPluginsFileName.insert(plugin, fileName);
 		listOfPluginsLoader.insert(plugin, loader);
