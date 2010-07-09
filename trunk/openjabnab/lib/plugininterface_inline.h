@@ -89,7 +89,7 @@ inline QDir * PluginInterface::GetLocalHTTPFolder() const
 			Log::Error(QString("Unable to create %1/%2 directory !\n").arg(httpPluginsFolder, pluginName));
 			return NULL;
 		}
-		pluginsFolder.cd("tts");
+		pluginsFolder.cd(pluginName);
 	}
 	return new QDir(pluginsFolder);
 }
