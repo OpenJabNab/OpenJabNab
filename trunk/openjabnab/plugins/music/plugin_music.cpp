@@ -18,21 +18,20 @@
 
 Q_EXPORT_PLUGIN2(plugin_music, PluginMusic)
 
-PluginMusic::PluginMusic():PluginInterface("music", "Music")
+PluginMusic::PluginMusic():PluginInterface("music", "Music") {}
+
+bool PluginMusic::Init()
 {
 	std::auto_ptr<QDir> dir(GetLocalHTTPFolder());
-        if(dir.get())
-        {
+	if(dir.get())
+	{
 		QStringList filters;
 		filters << "*.mp3";
-                musicFolder = *dir;
+		musicFolder = *dir;
 		musicFolder.setNameFilters(filters);
+		return true;
 	}
-}
-
-PluginMusic::~PluginMusic()
-{
-	Cron::UnregisterAll(this);
+	return false;
 }
 
 bool PluginMusic::OnClick(Bunny * b, PluginInterface::ClickType type)
@@ -47,6 +46,12 @@ bool PluginMusic::OnClick(Bunny * b, PluginInterface::ClickType type)
 
 void PluginMusic::getMusicList(Bunny * b)
 {
+	if(!b->IsIdle())
+	{
+		Log::Error("PluginMusic::getMusicList but bunny is not idle");
+		return;
+	}
+	
 	QStringList musics = musicFolder.entryList();
 	int index = 0;
 	if(musics.count() > 1)
@@ -54,9 +59,8 @@ void PluginMusic::getMusicList(Bunny * b)
 		index = qrand() % musics.count();
 	}
 	QString music = musics.at(index);
-	Log::Info(QString("Will now play : ") + music);
+	Log::Info(QString("Will now play : %1").arg(music));
 
-        QByteArray message = "ST "+GetBroadcastHTTPPath(music)+"\nPL "+QString::number(qrand() % 8).toAscii()+"\nMW\n";
-	if(b->IsConnected())
-		 b->SendPacket(MessagePacket(message));
+	QByteArray message = "ST "+GetBroadcastHTTPPath(music)+"\nPL "+QString::number(qrand() % 8).toAscii()+"\nMW\n";
+	b->SendPacket(MessagePacket(message));
 }
