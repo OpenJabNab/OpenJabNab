@@ -21,8 +21,6 @@ public:
 	enum State { State_Disconnected, State_Authenticating, State_Authenticated, State_Ready};
 	virtual ~Bunny();
 
-	bool IsIdle() const;
-	
 	QByteArray GetID() const;
 	void SetXmppHandler (XmppHandler *);
 	void RemoveXmppHandler (XmppHandler *);
@@ -54,6 +52,9 @@ public:
 	void Authenticating();
 	void Authenticated();
 	void Ready();
+
+	bool IsIdle() const;
+	bool IsSleeping() const;
 
 	bool IsAuthenticated() const;
 	bool IsConnected() const;
@@ -109,6 +110,11 @@ inline QList<QString> Bunny::GetListOfPlugins()
 inline bool Bunny::IsIdle() const
 {
 	return IsConnected() && ((bool)(xmppResource == "idle"));
+}
+
+inline bool Bunny::IsSleeping() const
+{
+	return IsConnected() && ((bool)(xmppResource == "asleep"));
 }
 
 inline bool Bunny::IsConnected() const

@@ -91,6 +91,9 @@ PLUGIN_BUNNY_API_CALL(PluginSleep::Api_GoodNight)
 {
 	Q_UNUSED(account);
 	Q_UNUSED(hRequest);
+	
+	if(!bunny->IsIdle())
+		return new ApiManager::ApiError(QString("PluginSleep::Api_GoodNight : bunny is not idle"));
 
 	bunny->SendPacket(SleepPacket(SleepPacket::Sleep));
 	return new ApiManager::ApiOk(QString("Bunny is going to sleep."));
@@ -100,6 +103,9 @@ PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Hello)
 {
 	Q_UNUSED(account);
 	Q_UNUSED(hRequest);
+
+	if(!bunny->IsSleeping())
+		return new ApiManager::ApiError(QString("PluginSleep::Api_Hello : bunny is not sleeping"));
 
 	bunny->SendPacket(SleepPacket(SleepPacket::Wake_Up));
 	return new ApiManager::ApiOk(QString("Bunny is waking up."));
