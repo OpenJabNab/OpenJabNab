@@ -27,6 +27,9 @@ public:
 
 	PluginInterface(QString name, QString visualName = QString(), PluginType type = BunnyPlugin);
 	virtual ~PluginInterface();
+	
+	// Called to init plugin, return false if something is wrong
+	virtual bool Init() { return true; };
 
 	virtual void HttpRequestBefore(HTTPRequest const&) {}
 	// If the plugin returns true, the plugin should handle the request

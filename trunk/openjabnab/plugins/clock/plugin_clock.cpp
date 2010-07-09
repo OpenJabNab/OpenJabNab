@@ -19,16 +19,24 @@ Q_EXPORT_PLUGIN2(plugin_clock, PluginClock)
 
 PluginClock::PluginClock():PluginInterface("clock", "Clock")
 {
-	std::auto_ptr<QDir> dir(GetLocalHTTPFolder());
-	if(dir.get())
-	{
-		clockFolder = *dir;
-	}
 }
 
 PluginClock::~PluginClock()
 {
 	Cron::UnregisterAll(this);
+}
+
+bool PluginClock::Init()
+{
+	QDir * dir = GetLocalHTTPFolder();
+	if(dir)
+	{
+		clockFolder = *dir;
+		delete dir;
+		return true;
+	}
+	// Init failed
+	return false;
 }
 
 void PluginClock::OnCron(QVariant v)

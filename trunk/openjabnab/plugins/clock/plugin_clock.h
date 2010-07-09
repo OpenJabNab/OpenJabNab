@@ -15,10 +15,10 @@ class PluginClock : public PluginInterface
 public:
 	PluginClock();
 	virtual ~PluginClock();
+	virtual bool Init();
 	void OnCron(QVariant);
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);
-	void AfterBunnyUnregistered(Bunny *) {};
 
 private:
 	QMultiMap<Bunny*, int> webcastList;
