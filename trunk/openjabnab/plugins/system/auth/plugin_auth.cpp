@@ -15,7 +15,13 @@ PluginAuth::PluginAuth():PluginAuthInterface("auth", "Manage Authentication proc
 	listOfAuthFunctions.insert("proxy", &ProxyAuth);
 	listOfAuthFunctions.insert("full", &FullAuth);
 
-	currentAuthFunction = &DummyAuth;
+	// Load authFunction from config
+	currentAuthFunction = listOfAuthFunctions.value(GetSettings("global/authMethod", QString()).toString(), NULL);
+	if(currentAuthFunction == NULL)
+	{
+		Log::Error("Bad authentication method or not set. Authentication will not work.");
+		currentAuthFunction = &DummyAuth;
+	}
 }
 
 // Helpers
@@ -267,6 +273,8 @@ PLUGIN_API_CALL(PluginAuth::Api_SelectAuth)
 	if(f)
 	{
 		currentAuthFunction = f;
+		// Save current auth Method
+		SetSettings("global/authMethod", name);
 		return new ApiManager::ApiOk(QString("Authentication method switched to '%1'").arg(name));
 	}
 	else
