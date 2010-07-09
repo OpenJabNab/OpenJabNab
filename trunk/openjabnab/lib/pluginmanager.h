@@ -70,6 +70,7 @@ private:
 	API_CALL(Api_GetListOfBunnyPlugins);
 	API_CALL(Api_GetListOfSystemPlugins);
 	API_CALL(Api_GetListOfRequiredPlugins);
+	API_CALL(Api_GetListOfBunnyEnabledPlugins);
 	API_CALL(Api_ActivatePlugin);
 	API_CALL(Api_DeactivatePlugin);
 	API_CALL(Api_LoadPlugin);

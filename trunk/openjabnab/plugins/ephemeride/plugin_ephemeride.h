@@ -20,11 +20,12 @@ private slots:
 public:
 	PluginEphemeride();
 	virtual ~PluginEphemeride();
+	virtual bool Init();
+	
 	bool OnClick(Bunny *, PluginInterface::ClickType);
 	void OnCron(QVariant);
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);
-	void AfterBunnyUnregistered(Bunny *) {};
 
 	// API
 	void InitApiCalls();

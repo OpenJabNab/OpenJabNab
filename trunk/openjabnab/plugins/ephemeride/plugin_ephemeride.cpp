@@ -18,19 +18,23 @@
 
 Q_EXPORT_PLUGIN2(plugin_ephemeride, PluginEphemeride)
 
-PluginEphemeride::PluginEphemeride():PluginInterface("ephemeride", "Ephemeride")
+PluginEphemeride::PluginEphemeride():PluginInterface("ephemeride", "Ephemeride") {}
+
+PluginEphemeride::~PluginEphemeride()
+{
+	Cron::UnregisterAll(this);
+}
+
+bool PluginEphemeride::Init()
 {
 	std::auto_ptr<QDir> dir(GetLocalHTTPFolder());
 	if(dir.get())
 	{
 		ephemerideFolder = *dir;
 		TTSManager::CreateNewSound("Aujourd'hui nous fetons les", "claire", ephemerideFolder.absoluteFilePath("aujourdhui.mp3"));
+		return true;
 	}
-}
-
-PluginEphemeride::~PluginEphemeride()
-{
-	Cron::UnregisterAll(this);
+	return false;
 }
 
 void PluginEphemeride::OnCron(QVariant v)
@@ -54,7 +58,7 @@ void PluginEphemeride::getEphemeridePage(Bunny * b)
 	QHttp* http = new QHttp(this);
 	http->setProperty("BunnyID", b->GetID());
 	connect(http, SIGNAL(done(bool)), this, SLOT(analyseXml()));
-//http://www.net-pratique.fr/services/saintdujour.php
+	//http://www.net-pratique.fr/services/saintdujour.php
 	http->setHost("www.net-pratique.fr");
 	http->get("/services/saintdujour.php");
 }
@@ -80,7 +84,6 @@ void PluginEphemeride::analyseDone(bool ret, Bunny * b, QByteArray message)
 
 void PluginEphemeride::OnBunnyConnect(Bunny * b)
 {
-	b->SetGlobalSetting("singleClickPlugin", "music");
 	if(!webcastList.contains(b))
 	{
 		QStringList webcasts = b->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList();

@@ -57,7 +57,7 @@ class ojnApi
 
 	static function bunnyRegisterPlugin($serial, $plugin)
 	{
-		$register = file_get_contents(ROOT_WWW_API."bunny/$serial/registerPlugin?name=$plugin");
+		$register = file_get_contents(ROOT_WWW_API."bunny/$serial/registerPlugin?name=$plugin&".ojnApi::getToken());
 		$register = ojnApi::loadXmlString($register);
 		$register = (array)$register;
 		if(isset($register['error']))
@@ -67,7 +67,7 @@ class ojnApi
 
 	static function bunnyUnregisterPlugin($serial, $plugin)
 	{
-		$register = file_get_contents(ROOT_WWW_API."bunny/$serial/unregisterPlugin?name=$plugin");
+		$register = file_get_contents(ROOT_WWW_API."bunny/$serial/unregisterPlugin?name=$plugin&".ojnApi::getToken());
 		$register = ojnApi::loadXmlString($register);
 		$register = (array)$register;
 		if(isset($register['error']))
@@ -77,7 +77,7 @@ class ojnApi
 
 	static function bunnyListOfPlugins($serial)
 	{
-		$list = file_get_contents(ROOT_WWW_API."bunny/$serial/getListOfActivePlugins");
+		$list = file_get_contents(ROOT_WWW_API."bunny/$serial/getListOfActivePlugins?".ojnApi::getToken());
 		$list = ojnApi::transformList(ojnApi::loadXmlString($list));
 		return $list;
 	}
@@ -170,6 +170,22 @@ class ojnApi
 			$plugins = file_get_contents(ROOT_WWW_API."plugins/getListOfBunnyPlugins?".ojnApi::getToken());
 			$plugins = ojnApi::transformList(ojnApi::loadXmlString($plugins));
 			file_put_contents(ROOT_SITE.'cache/plugins_bunny.cache.php', '<?php'."\n".'$plugins_bunny = '.var_export($plugins, true)."\n".'?>');
+			return $plugins;
+		}
+	}
+
+	static function getListOfBunnyActivePlugins($reload = false)
+	{
+		if(file_exists(ROOT_SITE.'cache/plugins_bunny_active.cache.php') && time() - filemtime(ROOT_SITE.'cache/plugins_bunny_active.cache.php') < ojnApi::mtimeMini && !$reload)
+		{
+			require(ROOT_SITE.'cache/plugins_bunny_active.cache.php');
+			return ${"plugins_bunny_active"};
+		}
+		else
+		{
+			$plugins = file_get_contents(ROOT_WWW_API."plugins/getListOfBunnyEnabledPlugins?".ojnApi::getToken());
+			$plugins = ojnApi::transformList(ojnApi::loadXmlString($plugins));
+			file_put_contents(ROOT_SITE.'cache/plugins_bunny_active.cache.php', '<?php'."\n".'$plugins_bunny_active = '.var_export($plugins, true)."\n".'?>');
 			return $plugins;
 		}
 	}

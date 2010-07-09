@@ -1,19 +1,10 @@
 <?
 if(isset($_POST['plug']) && isset($_POST['stat']))
 {
-	$function = $_POST['stat'] == 'register' ? 'register' : 'Unregister';
+	$function = $_POST['stat'] == 'register' ? 'register' : 'unregister';
 	file_get_contents(ROOT_WWW_API."bunny/".$_SESSION['bunny']."/".$function."Plugin?name=".$_POST['plug']."&".ojnapi::getToken());
-	$actifs = ojnapi::getListOfActivePlugins(true);
-	$bunny = ojnApi::getListOfBunnyPlugins($_SESSION['bunny'], true);
+	$actifs = ojnapi::bunnyListOfPlugins($_SESSION['bunny']);
 }
-else
-{
-	$actifs = ojnapi::getListOfActivePlugins();
-	$bunny = ojnApi::getListOfBunnyPlugins($_SESSION['bunny']);
-}
-$plugins = ojnapi::getListOfPlugins();
-$required = ojnapi::getListOfRequiredPlugins();
-$system = ojnapi::getListOfSystemPlugins();
 ?>
 <center>
 <table style="width: 80%">
@@ -23,19 +14,18 @@ $system = ojnapi::getListOfSystemPlugins();
 	</tr>
 <?
 	$i = 0;
-	$actifs = ojnapi::getListOfActivePlugins();
-	foreach($actifs as $plugin)
+	$plugins = ojnapi::getListOfPlugins();
+	$bunnyPlugins = ojnapi::getListOfBunnyActivePlugins(true);
+	$actifs = ojnapi::bunnyListOfPlugins($_SESSION['bunny']);
+	foreach($bunnyPlugins as $plugin)
 	{
-		if(!in_array($plugin, $required) && !in_array($plugin, $system))
-		{
 ?>
 	<tr<?=$i++ % 2 == 1 ? " class='l2'" : "" ?>>
 		<td><?=$plugins[$plugin] ?></td>
-		<td width="20%"><a href='javascript:registerBunnyForPlugin("<?=$plugin ?>", "<?=in_array($plugin, $bunny) ? "unregister" : "register" ?>")'><?=in_array($plugin, $bunny) ? "D&eacute;sa" : "A" ?>ctiver le plugin</a></td>
-		<td width="20%"><?=in_array($plugin, $bunny)?"<a href='javascript:setupPluginForBunny(\"$plugin\")'>Configurer / Utiliser</a>":""?></td>
+		<td width="20%"><a href='javascript:registerBunnyForPlugin("<?=$plugin ?>", "<?=in_array($plugin, $actifs) ? "unregister" : "register" ?>")'><?=in_array($plugin, $actifs) ? "D&eacute;sa" : "A" ?>ctiver le plugin</a></td>
+		<td width="20%"><?=in_array($plugin, $actifs)?"<a href='javascript:setupPluginForBunny(\"$plugin\")'>Configurer / Utiliser</a>":""?></td>
 	</tr>
 <?
-		}
 	}
 ?>
 </table>

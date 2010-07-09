@@ -30,6 +30,7 @@ void PluginManager::InitApiCalls()
 	DECLARE_API_CALL("getListOfBunnyPlugins", &PluginManager::Api_GetListOfBunnyPlugins);
 	DECLARE_API_CALL("getListOfSystemPlugins", &PluginManager::Api_GetListOfSystemPlugins);
 	DECLARE_API_CALL("getListOfRequiredPlugins", &PluginManager::Api_GetListOfRequiredPlugins);
+	DECLARE_API_CALL("getListOfBunnyEnabledPlugins", &PluginManager::Api_GetListOfBunnyEnabledPlugins);
 	DECLARE_API_CALL("activatePlugin", &PluginManager::Api_ActivatePlugin);
 	DECLARE_API_CALL("deactivatePlugin", &PluginManager::Api_DeactivatePlugin);
 	DECLARE_API_CALL("loadPlugin", &PluginManager::Api_LoadPlugin);
@@ -333,6 +334,21 @@ API_CALL(PluginManager::Api_GetListOfRequiredPlugins)
 	QList<QString> list;
 	foreach (PluginInterface * p, listOfPlugins)
 		if(p->GetType() == PluginInterface::RequiredPlugin)
+			list.append(p->GetName());
+
+	return new ApiManager::ApiList(list);
+}
+
+API_CALL(PluginManager::Api_GetListOfBunnyEnabledPlugins)
+{
+	Q_UNUSED(hRequest);
+
+	if(!account.HasPluginsAccess(Account::Read))
+		return new ApiManager::ApiError("Access denied");
+
+	QList<QString> list;
+	foreach (PluginInterface * p, listOfPlugins)
+		if(p->GetType() == PluginInterface::BunnyPlugin && p->GetEnable())
 			list.append(p->GetName());
 
 	return new ApiManager::ApiList(list);

@@ -8,7 +8,7 @@ if(!isset($_GET['bunny']) && (!isset($_SESSION['bunny']) || $_SESSION['bunny'] =
 <h1>Choix du lapin &agrave; configurer</h1>
 <ul>
 <?
-	foreach(ojnapi::getListOfConnectedBunnies() as $bunny => $nom)
+	foreach(ojnapi::getListOfConnectedBunnies(true) as $bunny => $nom)
 	{
 ?>
 	<li><?=$nom ?> (<?=$bunny ?>) <a href="bunny.php?bunny=<?=$bunny ?>">>></a></li>		
