@@ -181,11 +181,11 @@ void XmppHandler::HandleBunnyXmppMessage()
 				{
 					// Boot process finished
 					bunny->Ready();
-					if(isStandAlone)
-					{
-						WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%1 %4", QByteArray()));
-						handled = true;
-					}
+				}
+				if(isStandAlone)
+				{
+					WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%1 %4", QByteArray()));
+					handled = true;
 				}
 			}
 			else
