@@ -4,9 +4,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_packet, PluginPacket)
 
-PluginPacket::PluginPacket():PluginInterface("packet", "Send raw packets to bunny")
-{
-}
+PluginPacket::PluginPacket():PluginInterface("packet", "Send raw packets to bunny") {}
 
 void PluginPacket::InitApiCalls()
 {
@@ -24,7 +22,7 @@ PLUGIN_BUNNY_API_CALL(PluginPacket::Api_SendPacket)
 		bunny->SendData(data);
 		return new ApiManager::ApiOk(QString("'%1' sent to bunny").arg(QString(data.toHex())));
 	}
-	return new ApiManager::ApiError("Bad API Call");
+	return new ApiManager::ApiError("PluginPacket::Api_SendPacket : argument 'data' is missing.");
 }
 
 PLUGIN_BUNNY_API_CALL(PluginPacket::Api_SendMessage)
@@ -37,5 +35,5 @@ PLUGIN_BUNNY_API_CALL(PluginPacket::Api_SendMessage)
 		bunny->SendPacket(MessagePacket(msg));
 		return new ApiManager::ApiOk(QString("'%1' sent to bunny").arg(QString(msg)));
 	}
-	return new ApiManager::ApiError("Bad API Call");
+	return new ApiManager::ApiError("PluginPacket::Api_SendMessage : argument 'msg' is missing.");
 }
