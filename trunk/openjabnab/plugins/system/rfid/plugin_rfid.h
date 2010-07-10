@@ -13,6 +13,10 @@ public:
 	PluginRFID();
 	virtual ~PluginRFID() {};
 	virtual bool HttpRequestHandle(HTTPRequest &);
+
+	// API
+	void InitApiCalls();
+	PLUGIN_BUNNY_API_CALL(Api_NameRFID);
 };
 
 #endif
