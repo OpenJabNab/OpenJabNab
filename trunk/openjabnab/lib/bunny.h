@@ -38,9 +38,11 @@ public:
 
 	QVariant GetGlobalSetting(QString const&, QVariant const& defaultValue = QVariant()) const;
 	void SetGlobalSetting(QString const&, QVariant const&);
+	void RemoveGlobalSetting(QString const&);
 
 	QVariant GetPluginSetting(QString const&, QString const&, QVariant const& defaultValue = QVariant()) const;
 	void SetPluginSetting(QString const&, QString const&, QVariant const&);
+	void RemovePluginSetting(QString const&, QString const&);
 
 	bool HasPlugin(PluginInterface * p) const;
 	QList<QString> GetListOfPlugins();
