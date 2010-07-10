@@ -157,6 +157,11 @@ void Bunny::SetGlobalSetting(QString const& key, QVariant const& value)
 	GlobalSettings.insert(key, value);
 }
 
+void Bunny::RemoveGlobalSetting(QString const& key)
+{
+	GlobalSettings.remove(key);
+}
+
 QVariant Bunny::GetPluginSetting(QString const& pluginName, QString const& key, QVariant const& defaultValue) const
 {
 	if (PluginsSettings[pluginName].contains(key))
@@ -168,6 +173,11 @@ QVariant Bunny::GetPluginSetting(QString const& pluginName, QString const& key, 
 void Bunny::SetPluginSetting(QString const& pluginName, QString const& key, QVariant const& value)
 {
 	PluginsSettings[pluginName].insert(key, value);
+}
+
+void Bunny::RemovePluginSetting(QString const& pluginName, QString const& key)
+{
+	PluginsSettings[pluginName].remove(key);
 }
 
 void Bunny::AddPlugin(PluginInterface * p)
