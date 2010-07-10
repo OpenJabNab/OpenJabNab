@@ -16,8 +16,14 @@ public:
 	PluginMusic();
 	virtual ~PluginMusic() {}
 	virtual bool Init();
+	virtual bool OnRFID(Bunny *, QByteArray const&);
 	
 	bool OnClick(Bunny *, PluginInterface::ClickType);
+
+	// API
+	void InitApiCalls();
+	PLUGIN_BUNNY_API_CALL(Api_AddRFID);
+	PLUGIN_BUNNY_API_CALL(Api_RemoveRFID);
 
 private:
 	void getMusicList(Bunny *);
