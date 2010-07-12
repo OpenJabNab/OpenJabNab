@@ -13,7 +13,7 @@ void NetworkDump::Init()
 	QFile * dumpFile = new QFile(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("dump.log"));
 	if(!dumpFile->open(QIODevice::Append))
 	{
-		Log::Error(QString("Error opening file : %1").arg(dumpFile->fileName()));
+		LogError(QString("Error opening file : %1").arg(dumpFile->fileName()));
 		return;
 	}
 	Instance().dumpStream.setDevice(dumpFile);

@@ -38,7 +38,7 @@ Account::Account(QDataStream & in, unsigned int version)
 		in >> login >> username >> passwordHash >> isAdmin >> PluginsAccess >> BunniesAccess >> GlobalAccess >> GeneralPluginAccess >> listOfBunnies;
 	}
 	else
-		Log::Error(QString("Can't load account with version %1").arg(version));
+		LogError(QString("Can't load account with version %1").arg(version));
 }
 
 Account::Account(QString const& l, QString const& u, QByteArray const& p)

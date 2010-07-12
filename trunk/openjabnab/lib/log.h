@@ -8,18 +8,12 @@
 class QFile;
 class OJN_EXPORT Log
 {
-private:
-	enum LogLevel { Log_None = 0, Log_Info, Log_Error, Log_Warn, Log_Debug};
-
 public:
 	static inline void Init() { if(!instance) instance = new Log(); }
-	static inline void Close() { if (instance) { delete instance; } }
+	static inline void Close() { if(instance) { delete instance; } }
 	~Log();
+	enum LogLevel { Log_None = 0, Log_Info, Log_Error, Log_Warn, Log_Debug};
 	static void LogToFile(QString const&, LogLevel);
-	static void Debug(QString const& data);
-	static void Warning(QString const& data);
-	static void Error(QString const& data);
-	static void Info(QString const& data);
 	
 private:
 	Log();
@@ -32,23 +26,9 @@ private:
 	QFile * logFile;
 };
 
-inline void Log::Debug(QString const& data)
-{
-	Log::LogToFile(data, Log::Log_Debug);
-}
+#define LogInfo(data) Log::LogToFile(data, Log::Log_Info)
+#define LogError(data) Log::LogToFile(QString("%1 : %2").arg(__PRETTY_FUNCTION__,data), Log::Log_Error)
+#define LogWarning(data) Log::LogToFile(QString("%1 : %2").arg(__PRETTY_FUNCTION__,data), Log::Log_Warn)
+#define LogDebug(data) Log::LogToFile(QString("%1 : %2").arg(__PRETTY_FUNCTION__,data), Log::Log_Debug)
 
-inline void Log::Warning(QString const& data)
-{
-	Log::LogToFile(data, Log::Log_Warn);
-}
-
-inline void Log::Error(QString const& data)
-{
-	LogToFile(data, Log::Log_Error);
-}
-
-inline void Log::Info(QString const& data)
-{
-	LogToFile(data, Log::Log_Info);
-}
 #endif

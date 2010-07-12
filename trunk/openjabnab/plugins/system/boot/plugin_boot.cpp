@@ -19,9 +19,9 @@ bool PluginBoot::HttpRequestHandle(HTTPRequest & request)
 		QString serialnumber = request.GetArg("m").remove(':');
 		
 		Bunny * b = BunnyManager::GetBunny(this, serialnumber.toAscii());
-		b->SetGlobalSetting("Last BootRequest", QDateTime::currentDateTime());
-		
-		Log::Info(QString("Requesting BOOT for tag %1 with version %2").arg(serialnumber,version));
+		b->Booting();
+	
+		LogInfo(QString("Requesting BOOT for tag %1 with version %2").arg(serialnumber,version));
 		if(GlobalSettings::Get("Config/StandAlone", true) == false)
 		{
 			request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BootServer"));
@@ -53,7 +53,7 @@ bool PluginBoot::HttpRequestHandle(HTTPRequest & request)
 			}
 			if(b->GetBunnyPassword() == "" && GlobalSettings::Get("Config/StandAlonePatchBootcode", false) == true)
 			{
-				Log::Debug("Analyzing firmware for patch application");
+				LogDebug("Analyzing firmware for patch application");
 
 				long address1 = 0x00011A4A;
 				long address2 = 0x00011A91;
@@ -88,35 +88,35 @@ bool PluginBoot::HttpRequestHandle(HTTPRequest & request)
 				bool patch = true;
 				if(request.reply.indexOf(origin1, address1) != address1)
 				{
-					Log::Debug("Part 1 : KO");
+					LogDebug("Part 1 : KO");
 					patch = false;
 				}
 				else
-					Log::Debug("Part 1 : OK");
+					LogDebug("Part 1 : OK");
 				if(request.reply.indexOf(origin2, address2) != address2)
 				{
-					Log::Debug("Part 2 : KO");
+					LogDebug("Part 2 : KO");
 					patch = false;
 				}
 				else
-					Log::Debug("Part 2 : OK");
+					LogDebug("Part 2 : OK");
 				if(request.reply.indexOf(origin3, address3) != address3)
 				{
-					Log::Debug("Part 3 : KO");
+					LogDebug("Part 3 : KO");
 					patch = false;
 				}
 				else
-					Log::Debug("Part 3 : OK");
+					LogDebug("Part 3 : OK");
 				if(request.reply.indexOf(origin4, address4) != address4)
 				{
-					Log::Debug("Part 4 : KO");
+					LogDebug("Part 4 : KO");
 					patch = false;
 				}
 				else
-					Log::Debug("Part 4 : OK");
+					LogDebug("Part 4 : OK");
 				if(patch)
 				{
-					Log::Debug("Patching firmware");
+					LogDebug("Patching firmware");
 					request.reply.replace(address1, size1, patch1);
 					request.reply.replace(address2, size2, patch2);
 					request.reply.replace(address3, size3, patch3);

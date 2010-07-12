@@ -60,22 +60,22 @@ bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, b
 	QUrl url("?"+reponse);
 	if(url.hasQueryItem("retour_php"))
 	{
-		Log::Debug(QString("Acapela answer : %1").arg(QString(reponse)));
+		LogDebug(QString("Acapela answer : %1").arg(QString(reponse)));
 		QString acapelaFile = url.queryItemValue("retour_php");
-		Log::Info(QString("Downloading MP3 file : %1").arg(QString(acapelaFile)));
+		LogInfo(QString("Downloading MP3 file : %1").arg(QString(acapelaFile)));
 		http.get(acapelaFile);
 		loop.exec();
 		QFile file(fileName);
 		if (!file.open(QIODevice::WriteOnly))
 		{
-			Log::Error("Cannot open sound file for writing");
+			LogError("Cannot open sound file for writing");
 			return false;
 		}
 		file.write(http.readAll());
 		file.close();
 		return true;
 	}
-	Log::Error("Acapela demo did not return a sound file");
-	Log::Debug(QString("Acapela answer : %1").arg(QString(reponse)));
+	LogError("Acapela demo did not return a sound file");
+	LogDebug(QString("Acapela answer : %1").arg(QString(reponse)));
 	return false;
 }

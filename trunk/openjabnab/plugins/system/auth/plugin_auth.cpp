@@ -19,7 +19,7 @@ PluginAuth::PluginAuth():PluginAuthInterface("auth", "Manage Authentication proc
 	currentAuthFunction = listOfAuthFunctions.value(GetSettings("global/authMethod", QString()).toString(), NULL);
 	if(currentAuthFunction == NULL)
 	{
-		Log::Error("Bad authentication method or not set. Authentication will not work.");
+		LogError("Bad authentication method or not set. Authentication will not work.");
 		currentAuthFunction = &DummyAuth;
 	}
 }
@@ -60,7 +60,7 @@ bool PluginAuth::DoAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBu
 
 bool PluginAuth::DummyAuth(XmppHandler *, QByteArray const&, Bunny **, QByteArray &)
 {
-	Log::Error("Authentication plugin not configured");
+	LogError("Authentication plugin not configured");
 	return false;
 }
 
@@ -78,7 +78,7 @@ bool PluginAuth::FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** p
 				xmpp->currentAuthStep = 1;
 				return true;
 			}
-			Log::Error("Bad Auth Step 0, disconnect");
+			LogError("Bad Auth Step 0, disconnect");
 			return false;
 			
 		case 1:
@@ -104,7 +104,7 @@ bool PluginAuth::FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** p
 					xmpp->currentAuthStep = 2;
 					return true;
 				}
-				Log::Error("Bad Auth Step 1, disconnect");
+				LogError("Bad Auth Step 1, disconnect");
 				return false;
 			}
 			
@@ -127,7 +127,7 @@ bool PluginAuth::FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** p
 						if((GlobalSettings::Get("Config/StandAloneAuthBypass", false)) == true && (username == GlobalSettings::GetString("Config/StandAloneAuthBypassBunny")))
 						{
 							// Send success
-							Log::Info("Sending success instead of password verification");
+							LogInfo("Sending success instead of password verification");
 							answer.append("<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>");
 
 							bunny->Authenticating();
@@ -158,14 +158,14 @@ bool PluginAuth::FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** p
 							return true;
 						}
 
-						Log::Error("Authentication failure for bunny");
+						LogError("Authentication failure for bunny");
 						// Bad password, send failure and restart auth
 						answer.append("<failure xmlns='urn:ietf:params:xml:ns:xmpp-sasl'><not-authorized/></failure>");
 						xmpp->currentAuthStep = 0;
 						return true;
 					}
 				}
-				Log::Error("Bad Auth Step 2, disconnect");
+				LogError("Bad Auth Step 2, disconnect");
 				return false;
 			}
 			
@@ -178,7 +178,7 @@ bool PluginAuth::FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** p
 				xmpp->currentAuthStep = 4;
 				return true;
 			}
-			Log::Error("Bad Auth Step 3, disconnect");
+			LogError("Bad Auth Step 3, disconnect");
 			return false;
 			
 		case 4:
@@ -189,13 +189,12 @@ bool PluginAuth::FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** p
 				answer.append("<?xml version='1.0'?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' id='1331400675' from='xmpp.nabaztag.com' version='1.0' xml:lang='en'>");
 				answer.append("<stream:features><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><required/></bind><unbind xmlns='urn:ietf:params:xml:ns:xmpp-bind'/><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></stream:features>");
 				xmpp->currentAuthStep = 0;
-				(*pBunny)->SetGlobalSetting("Last JabberConnection", QDateTime::currentDateTime());
 				(*pBunny)->Authenticated();
 				(*pBunny)->SetXmppHandler(xmpp);
 				// Bunny is now authenticated
 				return true;
 			}
-			Log::Error("Bad Auth Step 4, disconnect");
+			LogError("Bad Auth Step 4, disconnect");
 			return false;
 
 
@@ -218,16 +217,16 @@ bool PluginAuth::FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** p
 							xmpp->currentAuthStep = 1;
 							return true;
 						}
-						Log::Error("Password already set for bunny " + user);
+						LogError(QString("Password already set for bunny : ").append(QString(user)));
 						return false;
 					}
 				}
-				Log::Error("Bad Register, disconnect");
+				LogError("Bad Register, disconnect");
 				return false;
 			}
 			
 		default:
-			Log::Error("Unknown Auth Step, disconnect");
+			LogError("Unknown Auth Step, disconnect");
 			return false;
 	}
 }
@@ -244,13 +243,12 @@ bool PluginAuth::ProxyAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** 
 		{
 			QByteArray bunnyID = rx.cap(1).toAscii();
 			Bunny * bunny = BunnyManager::GetBunny(bunnyID);
-			bunny->SetGlobalSetting("Last JabberConnection", QDateTime::currentDateTime());
 			bunny->Authenticated();
 			bunny->SetXmppHandler(xmpp);
 			*pBunny = bunny;
 		}
 		else
-			Log::Warning(QString("Unable to parse response message : %1").arg(QString(authString)));
+			LogWarning(QString("Unable to parse response message : %1").arg(QString(authString)));
 	}
 	return true;
 }

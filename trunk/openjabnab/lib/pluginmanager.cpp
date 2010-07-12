@@ -51,7 +51,7 @@ void PluginManager::UnloadPlugins()
 
 void PluginManager::LoadPlugins()
 {
-	Log::Info(QString("Finding plugins in : %1").arg(pluginsDir.path()));
+	LogInfo(QString("Finding plugins in : %1").arg(pluginsDir.path()));
 	foreach (QString fileName, pluginsDir.entryList(QDir::Files)) 
 		LoadPlugin(fileName);
 }
@@ -60,7 +60,7 @@ bool PluginManager::LoadPlugin(QString const& fileName)
 {
 	if(listOfPluginsByFileName.contains(fileName))
 	{
-		Log::Error(QString("Plugin '%1' already loaded !").arg(fileName));
+		LogError(QString("Plugin '%1' already loaded !").arg(fileName));
 		return false;
 	}
 
@@ -82,7 +82,7 @@ bool PluginManager::LoadPlugin(QString const& fileName)
 			delete loader;
 
 			status.append(QString("%1 OK, Initialisation failed").arg(plugin->GetName())); 
-			Log::Info(status);
+			LogInfo(status);
 			return false;
 		}
 		
@@ -100,11 +100,11 @@ bool PluginManager::LoadPlugin(QString const& fileName)
 		plugin->InitApiCalls();
 
 		status.append(QString("%1 OK, Enable : %2").arg(plugin->GetName(),plugin->GetEnable() ? "Yes" : "No"));
-		Log::Info(status);
+		LogInfo(status);
 		return true;
 	}
 	status.append("Failed, ").append(loader->errorString()); 
-	Log::Info(status);
+	LogInfo(status);
 	return false;
 }
 
@@ -126,10 +126,10 @@ bool PluginManager::UnloadPlugin(QString const& name)
 		delete p;
 		loader->unload();
 		delete loader;
-		Log::Info(QString("Plugin %1 unloaded.").arg(name));
+		LogInfo(QString("Plugin %1 unloaded.").arg(name));
 		return true;
 	}
-	Log::Info(QString("Can't unload plugin %1").arg(name));
+	LogInfo(QString("Can't unload plugin %1").arg(name));
 	return false;
 }
 
@@ -461,7 +461,7 @@ void PluginManager::RegisterAuthPlugin(PluginAuthInterface * p)
 	if(!authPlugin)
 		authPlugin = p;
 	else
-		Log::Warning("An authentication plugin is already registered.");
+		LogWarning("An authentication plugin is already registered.");
 }
 
 void PluginManager::UnregisterAuthPlugin(PluginAuthInterface * p)
@@ -469,5 +469,5 @@ void PluginManager::UnregisterAuthPlugin(PluginAuthInterface * p)
 	if(authPlugin == p)
 		authPlugin = 0;
 	else
-		Log::Warning("Bad plugin during UnregisterAuthPlugin");
+		LogWarning("Bad plugin during UnregisterAuthPlugin");
 }

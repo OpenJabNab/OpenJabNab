@@ -39,7 +39,7 @@ bool PluginMusic::OnRFID(Bunny * b, QByteArray const& tag)
 	QString music = b->GetPluginSetting(GetName(), QString("RFIDPlay/%1").arg(QString(tag)), QString()).toString();
 	if(music != "")
 	{
-		Log::Info(QString("Will now play (user choice) : %1").arg(music));
+		LogInfo(QString("Will now play (user choice) : %1").arg(music));
 
 		QByteArray message = "ST "+GetBroadcastHTTPPath(music)+"\nPL "+QString::number(qrand() % 8).toAscii()+"\nMW\n";
 		b->SendPacket(MessagePacket(message));
@@ -50,7 +50,7 @@ bool PluginMusic::OnRFID(Bunny * b, QByteArray const& tag)
 
 bool PluginMusic::OnClick(Bunny * b, PluginInterface::ClickType type)
 {
-	if (type == PluginInterface::SingleClick && b->GetGlobalSetting("singleClickPlugin", "").toByteArray() == GetName())
+	if (type == PluginInterface::SingleClick)
 	{
 		getMusicList(b);
 		return true;
@@ -62,7 +62,7 @@ void PluginMusic::getMusicList(Bunny * b)
 {
 	if(!b->IsIdle())
 	{
-		Log::Error("PluginMusic::getMusicList but bunny is not idle");
+		LogError("PluginMusic::getMusicList but bunny is not idle");
 		return;
 	}
 	
@@ -73,7 +73,7 @@ void PluginMusic::getMusicList(Bunny * b)
 		index = qrand() % musics.count();
 	}
 	QString music = musics.at(index);
-	Log::Info(QString("Will now play (random) : %1").arg(music));
+	LogInfo(QString("Will now play (random) : %1").arg(music));
 
 	QByteArray message = "ST "+GetBroadcastHTTPPath(music)+"\nPL "+QString::number(qrand() % 8).toAscii()+"\nMW\n";
 	b->SendPacket(MessagePacket(message));

@@ -58,7 +58,7 @@ void HttpHandler::HandleBunnyHTTPRequest()
 		{
 			if (uri.startsWith("/vl/sendMailXMPP.jsp"))
 			{
-				Log::Warning("Problem with the bunny, he's calling sendMailXMPP.jsp !");
+				LogWarning("Problem with the bunny, he's calling sendMailXMPP.jsp !");
 				request.reply = "Not Allowed !";
 			}
 			else if (uri.startsWith("/vl/") && !isStandAlone)
@@ -67,7 +67,7 @@ void HttpHandler::HandleBunnyHTTPRequest()
 				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BroadServer"));
 			else
 			{
-				Log::Error(QString("Unable to handle HTTP Request : ") + request.toString());
+				LogError(QString("Unable to handle HTTP Request : ") + request.toString());
 				request.reply = "404 Not Found";
 			}
 		}

@@ -18,7 +18,7 @@ class OJN_EXPORT Bunny : QObject, public ApiHandler<Bunny>
 	friend class BunnyManager;
 	Q_OBJECT
 public:
-	enum State { State_Disconnected, State_Authenticating, State_Authenticated, State_Ready};
+	enum State { State_Disconnected, State_Booting, State_Authenticating, State_Authenticated, State_Ready};
 	virtual ~Bunny();
 
 	QByteArray GetID() const;
@@ -36,10 +36,6 @@ public:
 	QByteArray GetXmppResource() const;
 	void SetXmppResource(QByteArray const&);
 
-	QVariant GetGlobalSetting(QString const&, QVariant const& defaultValue = QVariant()) const;
-	void SetGlobalSetting(QString const&, QVariant const&);
-	void RemoveGlobalSetting(QString const&);
-
 	QVariant GetPluginSetting(QString const&, QString const&, QVariant const& defaultValue = QVariant()) const;
 	void SetPluginSetting(QString const&, QString const&, QVariant const&);
 	void RemovePluginSetting(QString const&, QString const&);
@@ -51,15 +47,16 @@ public:
 	void XmppVioletMessage(QByteArray const&);
 	bool XmppVioletPacketMessage(Packet const& p);
 	
+	void Booting();
 	void Authenticating();
 	void Authenticated();
 	void Ready();
 
-	bool IsIdle() const;
-	bool IsSleeping() const;
-
 	bool IsAuthenticated() const;
 	bool IsConnected() const;
+
+	bool IsIdle() const;
+	bool IsSleeping() const;
 	
 	bool OnClick(PluginInterface::ClickType);
 	bool OnEarsMove(int, int);
@@ -82,14 +79,18 @@ private:
 	void RemovePlugin(PluginInterface * p);
 	void OnConnect();
 	void OnDisconnect();
+	
+	QString CheckPlugin(PluginInterface *, bool isAssociated = false);
 
 	// API
-	API_CALL(Api_RegisterPlugin);
-	API_CALL(Api_UnregisterPlugin);
-	API_CALL(Api_GetListOfActivePlugins);
+	API_CALL(Api_AddPlugin);
+	API_CALL(Api_RemovePlugin);
+	API_CALL(Api_GetListOfAssociatedPlugins);
 	API_CALL(Api_SetSingleClickPlugin);
 	API_CALL(Api_SetDoubleClickPlugin);
 	API_CALL(Api_GetClickPlugins);
+	API_CALL(Api_GetListOfKnownRFIDTags);
+	API_CALL(Api_SetRFIDTagName);
 
 	enum State state;
 	
@@ -102,6 +103,16 @@ private:
 	QList<PluginInterface*> listOfPluginsPtr;
 	QTimer * saveTimer;
 	XmppHandler * xmppHandler;
+	
+	PluginInterface * singleClickPlugin;
+	PluginInterface * doubleClickPlugin;
+	
+	QVariant GetGlobalSetting(QString const&, QVariant const& defaultValue = QVariant()) const;
+	void SetGlobalSetting(QString const&, QVariant const&);
+	void RemoveGlobalSetting(QString const&);
+	
+	// RFID Tags
+	QHash<QByteArray, QString> knownRFIDTags;
 };
 
 inline QList<QString> Bunny::GetListOfPlugins()
@@ -161,7 +172,7 @@ inline QByteArray Bunny::GetBunnyPassword() const
 
 inline bool Bunny::ClearBunnyPassword()
 {
-	SetGlobalSetting("BunnyPassword", "");
+	RemoveGlobalSetting("BunnyPassword");
 	return true;
 }
 inline bool Bunny::SetBunnyPassword(QByteArray const& bunnyPassword)

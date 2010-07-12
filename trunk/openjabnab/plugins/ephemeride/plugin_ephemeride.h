@@ -23,7 +23,7 @@ public:
 	virtual bool Init();
 	
 	bool OnClick(Bunny *, PluginInterface::ClickType);
-	void OnCron(QVariant);
+	void OnCron(Bunny *, QVariant);
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);
 
@@ -34,7 +34,6 @@ public:
 
 private:
 	void getEphemeridePage(Bunny *);
-	QMultiMap<Bunny*, QPair<int, QString> > webcastList;
 	QDir ephemerideFolder;
 
 };
