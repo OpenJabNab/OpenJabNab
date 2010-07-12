@@ -170,8 +170,8 @@ void XmppHandler::HandleBunnyXmppMessage()
 			{
 				if(isStandAlone)
 				{
-					QByteArray status = "fwQAAAx////+BBAFAA4oCAALAAABAP8=";
-					WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%2 %3 %1 %4", "<query xmlns='violet:iq:sources'><packet xmlns='violet:packet' format='1.0' ttl='604800'>"+status+"</packet></query>"));
+					QByteArray status = bunny->GetInitPacket();
+					WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%2 %3 %1 %4", "<query xmlns='violet:iq:sources'><packet xmlns='violet:packet' format='1.0' ttl='604800'>"+(status.toBase64())+"</packet></query>"));
 					handled = true;
 				}
 			}

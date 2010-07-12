@@ -2,12 +2,14 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
+#include "ambientpacket.h"
 #include "bunny.h"
 #include "log.h"
 #include "httprequest.h"
 #include "netdump.h"
 #include "plugininterface.h"
 #include "pluginmanager.h"
+#include "sleeppacket.h"
 #include "xmpphandler.h"
 
 #define SINGLE_CLICK_PLUGIN_SETTINGNAME "singleClickPlugin"
@@ -200,6 +202,30 @@ void Bunny::Ready()
 {
 	state = State_Ready;
 	OnConnect();
+}
+
+// Called when the bunny is requesting init packet (during boot)
+QByteArray Bunny::GetInitPacket() const
+{
+	// Create minimal packet
+	AmbientPacket a(AmbientPacket::Service_Noze, AmbientPacket::Noze_No);
+	a.SetEarsPosition(0,0);
+
+	SleepPacket s(SleepPacket::Wake_Up);
+	
+	// Pass AmbientPacket to all bunny's plugins
+	foreach(PluginInterface * p, listOfPluginsPtr)
+	{
+		if(p->GetEnable())
+			p->OnInitPacket(this, a, s);
+	}
+	
+	// Create packetList and return packet's data
+	QList<Packet *> l;
+	l.append(&a);
+	l.append(&s);
+	
+	return Packet::GetData(l);
 }
 
 void Bunny::SendPacket(Packet const& p)

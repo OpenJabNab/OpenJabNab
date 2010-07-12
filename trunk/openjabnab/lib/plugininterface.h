@@ -14,9 +14,11 @@
 #include "settings.h"
 
 class Account; 
+class AmbientPacket;
 class Bunny;
 class HTTPRequest;
 class Packet;
+class SleepPacket;
 
 class PluginInterface : public QObject, public PluginApiHandler
 {
@@ -45,6 +47,7 @@ public:
 	virtual bool XmppVioletPacketMessage(Bunny *, Packet const&) { return false; }
 
 	// Bunny's Messages
+	virtual void OnInitPacket(const Bunny *, AmbientPacket &, SleepPacket &) {}
 	virtual bool OnClick(Bunny *, ClickType) { return false; }
 	virtual bool OnEarsMove(Bunny *, int, int) { return false; }
 	virtual bool OnRFID(Bunny *, QByteArray const&) { return false; }

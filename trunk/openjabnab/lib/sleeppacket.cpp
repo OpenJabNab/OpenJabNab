@@ -3,10 +3,7 @@
 
 SleepPacket::SleepPacket(State s)
 {
-	if (s == Sleep)
-		sleep = true;
-	else
-		sleep = false;
+	SetState(s);
 }
 
 SleepPacket * SleepPacket::Parse(QByteArray const& buffer)

@@ -17,8 +17,10 @@ public:
 
 	QByteArray GetPrintableData() const;
 	Packet_Types GetType() const;
-	State GetState() const;
 
+	State GetState() const;
+	void SetState(State);
+	
 protected:
 	QByteArray GetInternalData() const;
 	bool sleep;
@@ -36,6 +38,14 @@ inline SleepPacket::State SleepPacket::GetState() const
 		return Sleep;
 	else
 		return Wake_Up;
+}
+
+inline void SleepPacket::SetState(State s)
+{
+	if (s == Sleep)
+		sleep = true;
+	else
+		sleep = false;
 }
 
 #endif

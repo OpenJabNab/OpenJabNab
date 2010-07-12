@@ -58,6 +58,8 @@ public:
 	bool IsIdle() const;
 	bool IsSleeping() const;
 	
+	QByteArray GetInitPacket() const;
+	
 	bool OnClick(PluginInterface::ClickType);
 	bool OnEarsMove(int, int);
 	bool OnRFID(QByteArray const&);
