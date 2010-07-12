@@ -17,10 +17,7 @@ bool PluginLocate::HttpRequestHandle(HTTPRequest & request)
 	{
 		QString serialnumber = request.GetArg("sn").remove(':');
 		
-		Bunny * b = BunnyManager::GetBunny(this, serialnumber.toAscii());
-		b->SetGlobalSetting("Last LocateRequest", QDateTime::currentDateTime());
-		
-		Log::Info(QString("Requesting LOCATE for tag %1").arg(serialnumber));
+		LogInfo(QString("Requesting LOCATE for tag %1").arg(serialnumber));
 		
 		if(GlobalSettings::Get("Config/StandAlone", true) == false)
 		{
@@ -39,7 +36,7 @@ bool PluginLocate::HttpRequestHandle(HTTPRequest & request)
 				{}
 				else
 					if (line.size() != 0)
-						Log::Error(QString("Unknown locate server : ") + line);
+						LogError(QString("Unknown locate server : ") + line);
 			}
 		}
 		QString locateString;

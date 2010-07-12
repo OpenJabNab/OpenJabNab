@@ -11,11 +11,12 @@
 
 Q_EXPORT_PLUGIN2(plugin_sleep, PluginSleep)
 
-PluginSleep::PluginSleep():PluginInterface("sleep", "Advanced sleep and wake up")
-{
-}
+PluginSleep::PluginSleep():PluginInterface("sleep", "Advanced sleep and wake up") {}
 
-PluginSleep::~PluginSleep() {}
+PluginSleep::~PluginSleep()
+{
+	Cron::UnregisterAll(this);
+}
 
 void PluginSleep::OnBunnyConnect(Bunny * b)
 {
@@ -24,67 +25,67 @@ void PluginSleep::OnBunnyConnect(Bunny * b)
 
 void PluginSleep::OnBunnyDisconnect(Bunny * b)
 {
-	Week* const sleepList = listOfSleep.value( b );
-	Week* const wakeupList = listOfWakeUp.value( b );
-	if(sleepList && wakeupList)
+	CleanCrons(b);
+}
+
+void PluginSleep::OnCronWakeUp(Bunny * bunny, QVariant)
+{
+	if(!bunny->IsSleeping())
 	{
-		for (int i = 0; i < 7; i++)
-		{
-			if(sleepList->listOfCrons[i])
-				Cron::Unregister(this, sleepList->listOfCrons[i]);
-			if(wakeupList->listOfCrons[i])
-				Cron::Unregister(this, wakeupList->listOfCrons[i]);
-		}
+		LogWarning("WakeUp but not sleeping.");
+		return;
 	}
-	delete sleepList;
-	delete wakeupList;
+
+	bunny->SendPacket(SleepPacket(SleepPacket::Wake_Up));
 }
 
-void PluginSleep::OnCronSleep()
+
+void PluginSleep::OnCronSleep(Bunny * bunny, QVariant)
 {
+	if(!bunny->IsIdle())
+	{
+		LogWarning("Sleep but not idle.");
+		return;
+	}
+
+	bunny->SendPacket(SleepPacket(SleepPacket::Wake_Up));
 }
 
-void PluginSleep::OnCronWakeUp()
+void PluginSleep::CleanCrons(Bunny * b)
 {
+	Cron::UnregisterAllForBunny(this, b);
 }
 
 void PluginSleep::RegisterCrons(Bunny * b)
 {
-	OnBunnyDisconnect(b);
-	Week* const sleepList = new Week;
-	Week* const wakeupList = new Week;
-	QStringList LWakeUp = b->GetPluginSetting(GetName(), QString("Horaires/WakeUp"), QStringList()).toStringList();	/* On fait les listes avant la boucle */
-	QStringList LSleep = b->GetPluginSetting(GetName(), QString("Horaires/Sleep"), QStringList()).toStringList();
-	QString WakeUp,Sleep;
+	QStringList wakeupList = b->GetPluginSetting(GetName(), QString("wakeupList"), QStringList()).toStringList();
+	QStringList sleepList = b->GetPluginSetting(GetName(), QString("sleepList"), QStringList()).toStringList();
+
+	if(wakeupList.count() == 0 && sleepList.count() == 0) // Nothing configured
+		return;
+
+	if(wakeupList.count() != 7 || sleepList.count() != 7)
+	{
+		LogError("Bad list size");
+		return;
+	}
+
 	for(int day = 0; day < 7; day++)
 	{
-		if(LWakeUp.size() > day) { /* Si y'a plus d'items dans la liste que c'qu'on veut accéder, on peut l'faire */
-			WakeUp = LWakeUp[day];
-			if(WakeUp != NULL && WakeUp.length() == 5)
-			{
-				wakeupList->listOfCrons[day] = Cron::RegisterWeekly(this, (Qt::DayOfWeek)(day+1), QTime::fromString(WakeUp, "hh:mm"), QVariant::fromValue( b ), "OnCronWakeUp");
-				wakeupList->listOfTimes[day] = QTime::fromString(WakeUp, "hh:mm");
-			}
-		}
-		if(LSleep.size() > day) {
-			Sleep = LSleep[day];
-			if(Sleep != NULL && Sleep.length() == 5)
-			{
-				sleepList->listOfCrons[day] = Cron::RegisterWeekly(this, (Qt::DayOfWeek)(day+1), QTime::fromString(Sleep, "hh:mm"), QVariant::fromValue( b ), "OnCronSleep");
-				sleepList->listOfTimes[day] = QTime::fromString(Sleep, "hh:mm");
-			}
-		}
+		Cron::RegisterWeekly(this, (Qt::DayOfWeek)(day+1), QTime::fromString(wakeupList.at(day), "hh:mm"), b, QVariant(), "OnCronWakeUp");
+		Cron::RegisterWeekly(this, (Qt::DayOfWeek)(day+1), QTime::fromString(sleepList.at(day), "hh:mm"), b, QVariant(), "OnCronSleep");
 	}
-	listOfWakeUp.insert(b, wakeupList);
-	listOfSleep.insert(b, sleepList);
 }
 
+/*******
+ * API *
+ *******/
+ 
 void PluginSleep::InitApiCalls()
 {
 	DECLARE_PLUGIN_BUNNY_API_CALL("goodNight", PluginSleep, Api_GoodNight);
 	DECLARE_PLUGIN_BUNNY_API_CALL("hello", PluginSleep, Api_Hello);
-	DECLARE_PLUGIN_BUNNY_API_CALL("sleep", PluginSleep, Api_Sleep);
-	DECLARE_PLUGIN_BUNNY_API_CALL("wakeup", PluginSleep, Api_WakeUp);
+	DECLARE_PLUGIN_BUNNY_API_CALL("setup", PluginSleep, Api_Setup);
 }
 
 PLUGIN_BUNNY_API_CALL(PluginSleep::Api_GoodNight)
@@ -93,7 +94,7 @@ PLUGIN_BUNNY_API_CALL(PluginSleep::Api_GoodNight)
 	Q_UNUSED(hRequest);
 	
 	if(!bunny->IsIdle())
-		return new ApiManager::ApiError(QString("PluginSleep::Api_GoodNight : bunny is not idle"));
+		return new ApiManager::ApiError(QString("Bunny is not idle"));
 
 	bunny->SendPacket(SleepPacket(SleepPacket::Sleep));
 	return new ApiManager::ApiOk(QString("Bunny is going to sleep."));
@@ -105,36 +106,33 @@ PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Hello)
 	Q_UNUSED(hRequest);
 
 	if(!bunny->IsSleeping())
-		return new ApiManager::ApiError(QString("PluginSleep::Api_Hello : bunny is not sleeping"));
+		return new ApiManager::ApiError(QString("Bunny is not sleeping"));
 
 	bunny->SendPacket(SleepPacket(SleepPacket::Wake_Up));
 	return new ApiManager::ApiOk(QString("Bunny is waking up."));
 }
 
-PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Sleep)
+PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Setup)
 {
 	Q_UNUSED(account);
 
-	if(!hRequest.HasArg("time"))
-		return new ApiManager::ApiError(QString("Missing argument 'time' for plugin " + GetVisualName()));
+	if(!hRequest.HasArg("wakeupList"))
+		return new ApiManager::ApiError(QString("Missing argument 'wakeupList'"));
 
-	if(!hRequest.HasArg("day"))
-		return new ApiManager::ApiError(QString("Missing argument 'day' for plugin " + GetVisualName()));
-
-	bunny->SetPluginSetting(GetName(), QString("%1/Sleep").arg(hRequest.GetArg("day")), QString(hRequest.GetArg("time")));
-	return new ApiManager::ApiOk(QString("Plugin configuration updated."));
-}
-
-PLUGIN_BUNNY_API_CALL(PluginSleep::Api_WakeUp)
-{
-	Q_UNUSED(account);
-
-	if(!hRequest.HasArg("time"))
-		return new ApiManager::ApiError(QString("Missing argument 'time' for plugin " + GetVisualName()));
-
-	if(!hRequest.HasArg("day"))
-		return new ApiManager::ApiError(QString("Missing argument 'day' for plugin " + GetVisualName()));
-
-	bunny->SetPluginSetting(GetName(), QString("%1/WakeUp").arg(hRequest.GetArg("day")), QString(hRequest.GetArg("time")));
+	if(!hRequest.HasArg("sleepList"))
+		return new ApiManager::ApiError(QString("Missing argument 'sleepList'"));
+		
+	QStringList wakeupList =  hRequest.GetArg("wakeupList").split(',');
+	QStringList sleepList = hRequest.GetArg("sleepList").split(',');
+	
+	if(wakeupList.count() != 7 || sleepList.count() != 7)
+		return new ApiManager::ApiError(QString("Bad list size"));
+	
+	bunny->SetPluginSetting(GetName(), "wakeupList", wakeupList);
+	bunny->SetPluginSetting(GetName(), "sleepList", sleepList);
+	
+	CleanCrons(bunny);
+	RegisterCrons(bunny);
+	
 	return new ApiManager::ApiOk(QString("Plugin configuration updated."));
 }

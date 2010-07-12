@@ -20,20 +20,21 @@ private slots:
 public:
 	PluginTV();
 	virtual ~PluginTV();
-	bool OnClick(Bunny *, PluginInterface::ClickType);
-	void OnCron(QVariant);
-	void OnBunnyConnect(Bunny *);
-	void OnBunnyDisconnect(Bunny *);
-	void AfterBunnyUnregistered(Bunny *) {};
+	
+	virtual bool Init();
+	
+	virtual bool OnClick(Bunny *, PluginInterface::ClickType);
+	virtual void OnCron(Bunny * b, QVariant);
+	virtual void OnBunnyConnect(Bunny *);
+	virtual void OnBunnyDisconnect(Bunny *);
 
 	// API
-	void InitApiCalls();
+	virtual void InitApiCalls();
 	PLUGIN_BUNNY_API_CALL(Api_AddWebcast);
 	PLUGIN_BUNNY_API_CALL(Api_RemoveWebcast);
 
 private:
 	void getTVPage(Bunny *);
-	QMultiMap<Bunny*, QPair<int, QString> > webcastList;
 	QDir tvFolder;
 
 };

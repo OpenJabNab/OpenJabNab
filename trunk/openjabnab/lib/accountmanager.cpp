@@ -57,18 +57,18 @@ void AccountManager::LoadAccounts()
 				}
 				else
 				{
-					Log::Error("Bad account file, stop parsing");
+					LogError("Bad account file, stop parsing");
 					delete a;
 					break;
 				}
 			}
 		}
 		else
-			Log::Error("Can't open accounts.dat");
+			LogError("Can't open accounts.dat");
 	}
 	if(listOfAccounts.count() == 0)
 	{
-		Log::Warning("No account loaded ... inserting default admin");
+		LogWarning("No account loaded ... inserting default admin");
 		Account * a = new Account(Account::DefaultAdmin);
 		listOfAccounts.append(new Account(Account::DefaultAdmin));
 		listOfAccountsByName.insert(a->GetLogin(), a);
@@ -88,7 +88,7 @@ void AccountManager::SaveAccounts()
 			out << *a;
 	}
 	else
-		Log::Error("Can't open accounts.dat, accounts will not be saved");
+		LogError("Can't open accounts.dat, accounts will not be saved");
 }
 
 Account const& AccountManager::Guest()
@@ -132,10 +132,10 @@ QByteArray AccountManager::GetToken(QString const& login, QByteArray const& hash
 			listOfTokens.insert(token, t);
 			return token;
 		}
-		Log::Error(QString("Bad login : user=%1, hash=%2, proposed hash=%3").arg(login,QString((*it)->GetPasswordHash().toHex()),QString(hash.toHex())));
+		LogError(QString("Bad login : user=%1, hash=%2, proposed hash=%3").arg(login,QString((*it)->GetPasswordHash().toHex()),QString(hash.toHex())));
 		return QByteArray();
 	}
-	Log::Error(QString("Bad login : user=%1").arg(QString(login)));
+	LogError(QString("Bad login : user=%1").arg(QString(login)));
 	return QByteArray();
 }
 
@@ -151,7 +151,7 @@ API_CALL(AccountManager::Api_Auth)
 	if(retour == QByteArray())
 		return new ApiManager::ApiError("Access denied");
 
-	Log::Info(QString("User login : %1").arg(hRequest.GetArg("login")));
+	LogInfo(QString("User login : %1").arg(hRequest.GetArg("login")));
 	return new ApiManager::ApiString(retour);
 }
 

@@ -6,7 +6,7 @@
 #include "log.h"
 
 Cron::Cron() {
-	Log::Info("Cron Started...");
+	LogInfo("Cron Started...");
 	// Conmpute next slot
 	int now = QDateTime::currentDateTime().toTime_t();
 	QTimer::singleShot(1000 * (60 - (now%60)), this, SLOT(OnTimer()));
@@ -23,9 +23,11 @@ void Cron::OnTimer()
 		CronElement e = CronElements.takeFirst();
 
 		if(e.callback)
-			QMetaObject::invokeMethod(e.plugin, e.callback, Q_ARG(QVariant,e.data));
+			QMetaObject::invokeMethod(e.plugin, e.callback, Q_ARG(Bunny*, e.bunny), Q_ARG(QVariant, e.data));
 		else
-			e.plugin->OnCron(e.data);
+		{
+			e.plugin->OnCron(e.bunny, e.data);
+		}
 
 		e.next_run += e.interval;
 		AddCron(e);
@@ -36,33 +38,42 @@ void Cron::OnTimer()
 	QTimer::singleShot(1000 * (60 - (now%60)), this, SLOT(OnTimer()));
 }
 
-unsigned int Cron::Register(PluginInterface * p, unsigned int interval, unsigned int offsetH, unsigned int offsetM, QVariant data, const char * callback)
+void Cron::AddCron(CronElement const& e)
+{
+	QMutableLinkedListIterator<CronElement> i(CronElements);
+	while(i.hasNext() && i.peekNext().next_run < e.next_run) // Find position
+		i.next();
+	i.insert(e);
+}
+
+unsigned int Cron::Register(PluginInterface * p, unsigned int interval, unsigned int offsetH, unsigned int offsetM, Bunny * b, QVariant data, const char * callback)
 {
 	if(interval > 24*60)
 	{
-		Log::Error("Cron : Interval should be <= 1 day");
+		LogError("Cron : Interval should be <= 1 day");
 		return 0;
 	}
 	if(!interval)
 	{
-		Log::Error("Cron : Interval should be >= 1 minute");
+		LogError("Cron : Interval should be >= 1 minute");
 		return 0;
 	}
 	if(!p)
 	{
-		Log::Error("Cron : pointer is null !");
+		LogError("Cron : pointer is null !");
 		return 0;
 	}
 	
 	Cron & theCron = Instance();
 	unsigned id = ++theCron.lastGivenID;
 	if(!id)
-		Log::Error("Warning Cron::Register : lastGivenID overlapped !");
+		LogError("Warning Cron::Register : lastGivenID overlapped !");
 
 	CronElement e;
 	e.interval = interval * 60;
 	e.callback = callback;
 	e.plugin = p;
+	e.bunny = b;
 	e.data = data;
 	e.id = id;
 
@@ -77,27 +88,28 @@ unsigned int Cron::Register(PluginInterface * p, unsigned int interval, unsigned
 	e.next_run = time.toTime_t();
 	theCron.AddCron(e);
 
-	Log::Debug(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
+	LogInfo(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
 	return id;
 }
 
-unsigned int Cron::RegisterDaily(PluginInterface * p, QTime const& time, QVariant data, const char * callback)
+unsigned int Cron::RegisterDaily(PluginInterface * p, QTime const& time, Bunny * b, QVariant data, const char * callback)
 {
 	if(!p)
 	{
-		Log::Error("Cron : pointer is null !");
+		LogError("Cron : pointer is null !");
 		return 0;
 	}
 	
 	Cron & theCron = Instance();
 	unsigned id = ++theCron.lastGivenID;
 	if(!id)
-		Log::Error("Warning Cron::Register : lastGivenID overlapped !");
+		LogError("Warning Cron::Register : lastGivenID overlapped !");
 
 	CronElement e;
 	e.interval = 24 * 60 * 60; // DAILY
 	e.callback = callback;
 	e.plugin = p;
+	e.bunny = b;
 	e.data = data;
 	e.id = id;
 
@@ -111,27 +123,28 @@ unsigned int Cron::RegisterDaily(PluginInterface * p, QTime const& time, QVarian
 	e.next_run = nextTime.toTime_t();
 	theCron.AddCron(e);
 
-	Log::Debug(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
+	LogDebug(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
 	return id;
 }
 
-unsigned int Cron::RegisterWeekly(PluginInterface * p, Qt::DayOfWeek day, QTime const& time, QVariant data, const char * callback)
+unsigned int Cron::RegisterWeekly(PluginInterface * p, Qt::DayOfWeek day, QTime const& time, Bunny * b, QVariant data, const char * callback)
 {
 	if(!p)
 	{
-		Log::Error("Cron : pointer is null !");
+		LogError("Cron : pointer is null !");
 		return 0;
 	}
 	
 	Cron & theCron = Instance();
 	unsigned id = ++theCron.lastGivenID;
 	if(!id)
-		Log::Error("Warning Cron::Register : lastGivenID overlapped !");
+		LogError("Warning Cron::Register : lastGivenID overlapped !");
 
 	CronElement e;
 	e.interval = 7 * 24 * 60 * 60; // Weekly
 	e.callback = callback;
 	e.plugin = p;
+	e.bunny = b;
 	e.data = data;
 	e.id = id;
 
@@ -146,16 +159,8 @@ unsigned int Cron::RegisterWeekly(PluginInterface * p, Qt::DayOfWeek day, QTime 
 	e.next_run = nextTime.toTime_t();
 	theCron.AddCron(e);
 
-	Log::Debug(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),nextTime.toString()));
+	LogDebug(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),nextTime.toString()));
 	return id;
-}
-
-void Cron::AddCron(CronElement const& e)
-{
-	QMutableLinkedListIterator<CronElement> i(CronElements);
-	while(i.hasNext() && i.peekNext().next_run < e.next_run) // Find position
-		i.next();
-	i.insert(e);
 }
 
 void Cron::Unregister(PluginInterface * p, unsigned int id)
@@ -168,7 +173,22 @@ void Cron::Unregister(PluginInterface * p, unsigned int id)
 		if(e.plugin == p && e.id == id)
 		{
 			i.remove();
-			Log::Debug(QString("Cron Unregister : %1 - next %2").arg(p->GetVisualName(),QDateTime::fromTime_t(e.next_run).toString()));
+			LogInfo(QString("Cron Unregister : %1 - next %2").arg(p->GetVisualName(),QDateTime::fromTime_t(e.next_run).toString()));
+		}
+	}
+}
+
+void Cron::UnregisterAllForBunny(PluginInterface * p, Bunny * b)
+{
+	Cron & theCron = Instance();
+	QMutableLinkedListIterator<CronElement> i(theCron.CronElements);
+	while(i.hasNext())
+	{
+		CronElement const& e = i.next();
+		if(e.plugin == p && e.bunny == b)
+		{
+			i.remove();
+			LogDebug(QString("Cron Unregister : %1 - next %2").arg(p->GetVisualName(),QDateTime::fromTime_t(e.next_run).toString()));
 		}
 	}
 }

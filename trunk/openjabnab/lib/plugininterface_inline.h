@@ -62,7 +62,7 @@ inline void PluginInterface::SetEnable(bool newStatus)
 	{
 		pluginEnable = newStatus;
 		SetSettings("pluginStatus/Enable", QVariant(newStatus)); 
-		Log::Info(QString("Plugin %1 is now %2").arg(GetVisualName(), GetEnable() ? "enabled" : "disabled"));
+		LogInfo(QString("Plugin %1 is now %2").arg(GetVisualName(), GetEnable() ? "enabled" : "disabled"));
 		if(pluginType == BunnyPlugin)
 			BunnyManager::PluginStateChanged(this);
 	}
@@ -77,7 +77,7 @@ inline QDir * PluginInterface::GetLocalHTTPFolder() const
 	{
 		if (!pluginsFolder.mkdir(httpPluginsFolder))
 		{
-			Log::Error(QString("Unable to create %1 directory !\n").arg(httpPluginsFolder));
+			LogError(QString("Unable to create %1 directory !\n").arg(httpPluginsFolder));
 			return NULL;
 		}
 		pluginsFolder.cd(httpPluginsFolder);
@@ -86,7 +86,7 @@ inline QDir * PluginInterface::GetLocalHTTPFolder() const
 	{
 		if (!pluginsFolder.mkdir(pluginName))
 		{
-			Log::Error(QString("Unable to create %1/%2 directory !\n").arg(httpPluginsFolder, pluginName));
+			LogError(QString("Unable to create %1/%2 directory !\n").arg(httpPluginsFolder, pluginName));
 			return NULL;
 		}
 		pluginsFolder.cd(pluginName);

@@ -16,14 +16,13 @@ public:
 	PluginClock();
 	virtual ~PluginClock();
 	virtual bool Init();
-	void OnCron(QVariant);
+	void OnCron(Bunny*, QVariant);
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);
 
 private:
-	QMultiMap<Bunny*, int> webcastList;
 	QDir clockFolder;
-
+	QList<Bunny*> bunnyList;
 };
 
 #endif

@@ -50,7 +50,7 @@ public:
 	virtual bool OnRFID(Bunny *, QByteArray const&) { return false; }
 
 	// Cron system
-	virtual void OnCron(QVariant) {}
+	virtual void OnCron(Bunny*, QVariant) {}
 
 	// Bunny connect/disconnect
 	virtual void OnBunnyConnect(Bunny *) {}

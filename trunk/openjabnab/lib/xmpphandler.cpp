@@ -99,7 +99,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 		if(!isStandAlone)
 			outgoingXmppSocket->write(data);
 		else
-			Log::Error(QString("Unable to handle xmpp message : %1").arg(QString(data)));
+			LogError(QString("Unable to handle xmpp message : %1").arg(QString(data)));
 		return;
 	}
 
@@ -125,10 +125,10 @@ void XmppHandler::HandleBunnyXmppMessage()
 				else if (value == 2)
 					handled = bunny->OnClick(PluginInterface::DoubleClick);
 				else
-					Log::Warning(QString("Unable to parse button/click message : %1").arg(QString(data)));
+					LogWarning(QString("Unable to parse button/click message : %1").arg(QString(data)));
 			}
 			else
-				Log::Warning(QString("Unable to parse button message : %1").arg(QString(data)));
+				LogWarning(QString("Unable to parse button message : %1").arg(QString(data)));
 		}
 		else if (message.startsWith("<ears"))
 		{
@@ -137,10 +137,10 @@ void XmppHandler::HandleBunnyXmppMessage()
 			if (rx.indexIn(message) != -1)
 				handled = bunny->OnEarsMove(rx.cap(1).toInt(), rx.cap(2).toInt());
 			else
-				Log::Warning(QString("Unable to parse ears message : %1").arg(QString(data)));
+				LogWarning(QString("Unable to parse ears message : %1").arg(QString(data)));
 		}
 		else
-			Log::Warning(QString("Unknown message from bunny : %1").arg(QString(data)));
+			LogWarning(QString("Unknown message from bunny : %1").arg(QString(data)));
 	}
 	else if (rx.setPattern("<iq.*/iq>"), rx.indexIn(data) != -1)
 	{
@@ -190,12 +190,12 @@ void XmppHandler::HandleBunnyXmppMessage()
 			}
 			else
 			{
-				Log::Error(QString("Unknown IQ : %1").arg(QString(iq.Content())));
+				LogError(QString("Unknown IQ : %1").arg(QString(iq.Content())));
 			}
 		}
 		else
 		{
-			Log::Error(QString("Invalid IQ : %1").arg(QString(data)));
+			LogError(QString("Invalid IQ : %1").arg(QString(data)));
 		}
 	}
 	else if(rx.setPattern("<presence from='(.*)' id='(.*)'></presence>"), rx.indexIn(data) != -1)
@@ -220,7 +220,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 		if(!isStandAlone)
 			outgoingXmppSocket->write(data);
 		else
-			Log::Error(QString("Unable to handle bunny xmpp message : %1").arg(QString(data)));
+			LogError(QString("Unable to handle bunny xmpp message : %1").arg(QString(data)));
 	}
 }
 
@@ -296,12 +296,12 @@ void XmppHandler::HandleVioletXmppMessage()
 				}
 				catch (QString const& errorMsg)
 				{
-					Log::Warning(errorMsg);
+					LogWarning(errorMsg);
 				}
 			}
 			catch (QString const& errorMsg)
 			{
-				Log::Warning(errorMsg);
+				LogWarning(errorMsg);
 				// Can't handle it so forward it to the bunny
 				WriteToBunny(msg);
 			}

@@ -15,7 +15,7 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 {
 	GlobalSettings::Init();
 	Log::Init();
-	Log::Info("-- OpenJabNab Start --");
+	LogInfo("-- OpenJabNab Start --");
 	BunnyManager::Init();
 	PluginManager::Init();
 	AccountManager::Init();
@@ -29,7 +29,7 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 		connect(httpListener, SIGNAL(newConnection()), this, SLOT(NewHTTPConnection()));
 	}
 	else
-		Log::Warning("Warning : HTTP Listener is disabled !");
+		LogWarning("Warning : HTTP Listener is disabled !");
 
 	if(GlobalSettings::Get("Config/XmppListener", true) == true)
 	{
@@ -38,14 +38,14 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 		connect(xmppListener, SIGNAL(newConnection()), this, SLOT(NewXMPPConnection()));
 	}
 	else
-		Log::Warning("Warning : XMPP Listener is disabled !");
+		LogWarning("Warning : XMPP Listener is disabled !");
 
 	httpApi = GlobalSettings::Get("Config/HttpApi", true).toBool();
 	httpViolet = GlobalSettings::Get("Config/HttpViolet", true).toBool();
 	standAlone = GlobalSettings::Get("Config/StandAlone", true).toBool();
-	Log::Info(QString("Parsing of HTTP Api is ").append((httpApi == true)?"enabled":"disabled"));
-	Log::Info(QString("Parsing of HTTP Bunny messages is ").append((httpViolet == true)?"enabled":"disabled"));
-	Log::Info(QString("Current mode is ").append((standAlone == true)?"standalone":"connected to Violet"));
+	LogInfo(QString("Parsing of HTTP Api is ").append((httpApi == true)?"enabled":"disabled"));
+	LogInfo(QString("Parsing of HTTP Bunny messages is ").append((httpViolet == true)?"enabled":"disabled"));
+	LogInfo(QString("Current mode is ").append((standAlone == true)?"standalone":"connected to Violet"));
 }
 
 void OpenJabNab::Close()
@@ -55,7 +55,7 @@ void OpenJabNab::Close()
 
 OpenJabNab::~OpenJabNab()
 {
-	Log::Info("-- OpenJabNab Close --");
+	LogInfo("-- OpenJabNab Close --");
 	xmppListener->close();
 	httpListener->close();
 	NetworkDump::Close();

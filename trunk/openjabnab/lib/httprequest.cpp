@@ -11,7 +11,7 @@ HTTPRequest::HTTPRequest(QByteArray const& data):type(INVALID)
 {
 	if (data.size() < 4 || *(int*)data.left(4).constData() != data.size())
 	{
-		Log::Error("HTTP Request : Invalid data");
+		LogError("HTTP Request : Invalid data");
 		return;
 	}
 	RequestType t = (RequestType)data.at(4);
@@ -51,7 +51,7 @@ HTTPRequest::HTTPRequest(QByteArray const& data):type(INVALID)
 			break;
 	
 		default:
-			Log::Error("HTTP Request : Invalid type");
+			LogError("HTTP Request : Invalid type");
 			return;
 	}
 	// Parse URI

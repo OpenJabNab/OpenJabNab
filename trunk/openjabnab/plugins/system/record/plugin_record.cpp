@@ -31,7 +31,7 @@ bool PluginRecord::HttpRequestHandle(HTTPRequest & request)
 		}
 		else
 		{
-			Log::Error("Impossible to write record file");
+			LogError("Impossible to write record file");
 		}
 	}
 	return false;

@@ -18,24 +18,33 @@
 
 Q_EXPORT_PLUGIN2(plugin_tv, PluginTV)
 
-PluginTV::PluginTV():PluginInterface("tv", "Programme TV")
-{
-	std::auto_ptr<QDir> dir(GetLocalHTTPFolder());
-	if(dir.get())
-	{
-		tvFolder = *dir;
-		TTSManager::CreateNewSound("Programme télé de ce soir", "claire", tvFolder.absoluteFilePath("cesoir.mp3"));
-	}
-}
+PluginTV::PluginTV():PluginInterface("tv", "Programme TV") {}
 
 PluginTV::~PluginTV()
 {
 	Cron::UnregisterAll(this);
 }
 
-void PluginTV::OnCron(QVariant v)
+bool PluginTV::Init()
 {
-	Bunny * b = QVariantHelper::ToBunnyPtr(v);
+	std::auto_ptr<QDir> dir(GetLocalHTTPFolder());
+	if(dir.get())
+	{
+		tvFolder = *dir;
+		TTSManager::CreateNewSound("Programme télé de ce soir", "claire", tvFolder.absoluteFilePath("cesoir.mp3"));
+		return true;
+	}
+	return false;
+}
+
+void PluginTV::InitApiCalls()
+{
+	DECLARE_PLUGIN_BUNNY_API_CALL("addwebcast", PluginTV, Api_AddWebcast);
+	DECLARE_PLUGIN_BUNNY_API_CALL("removewebcast", PluginTV, Api_RemoveWebcast);
+}
+
+void PluginTV::OnCron(Bunny * b, QVariant)
+{
 	getTVPage(b);
 }
 
@@ -79,33 +88,16 @@ void PluginTV::analyseDone(bool ret, Bunny * b, QByteArray message)
 
 void PluginTV::OnBunnyConnect(Bunny * b)
 {
-	if(!webcastList.contains(b))
+	QStringList webcasts = b->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList();
+	foreach(QString webcast, webcasts)
 	{
-		QStringList webcasts = b->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList();
-		foreach(QString webcast, webcasts)
-		{
-			QStringList time = webcast.split(":");
-			int id = Cron::Register(this, 60*24, time[0].toInt(), time[1].toInt(), QVariant::fromValue( b ));
-			webcastList.insert(b , qMakePair(id, webcast));
-		}
+		Cron::RegisterDaily(this, QTime::fromString(webcast, "hh:mm"), b);
 	}
 }
 
 void PluginTV::OnBunnyDisconnect(Bunny * b)
 {
-	typedef QPair<int, QString> listElement;
-	QList<listElement> listOfWebcasts = webcastList.values(b);
-	foreach(listElement l, listOfWebcasts)
-	{
-		Cron::Unregister(this, l.first);
-	}
-	webcastList.remove(b);
-}
-
-void PluginTV::InitApiCalls()
-{
-	DECLARE_PLUGIN_BUNNY_API_CALL("addwebcast", PluginTV, Api_AddWebcast);
-	DECLARE_PLUGIN_BUNNY_API_CALL("removewebcast", PluginTV, Api_RemoveWebcast);
+	Cron::UnregisterAllForBunny(this, b);
 }
 
 PLUGIN_BUNNY_API_CALL(PluginTV::Api_AddWebcast)
@@ -121,14 +113,13 @@ PLUGIN_BUNNY_API_CALL(PluginTV::Api_AddWebcast)
 	QString hTime = hRequest.GetArg("time");
 	if(!bunny->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList().contains(hTime))
 	{
-		QStringList time = hTime.split(":");
-		int id = Cron::RegisterDaily(this, QTime(time[0].toInt(), time[1].toInt()), QVariant::fromValue(bunny));
-		webcastList.insert(bunny , qMakePair(id, hTime));
+		Cron::RegisterDaily(this, QTime::fromString(hTime, "hh:mm"), bunny);
 		QStringList bunnyWebcastList = bunny->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList() << hTime;
 		bunnyWebcastList.sort();
 		bunny->SetPluginSetting(GetName(), "Webcast/List", bunnyWebcastList);
+		return new ApiManager::ApiString(QString("Add webcast at '%1' to bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
 	}
-	return new ApiManager::ApiString(QString("Add webcast at '%1' to bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
+	return new ApiManager::ApiError(QString("Webcast at '%1' already exists for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
 }
 
 PLUGIN_BUNNY_API_CALL(PluginTV::Api_RemoveWebcast)
@@ -141,26 +132,20 @@ PLUGIN_BUNNY_API_CALL(PluginTV::Api_RemoveWebcast)
 	if(!bunny->IsConnected())
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(QString(bunny->GetID())));
 
-	int remove = 0;
-	QMultiMap<Bunny*, QPair<int, QString> >::iterator i = webcastList.find(bunny);
-	while (i != webcastList.end() && i.key() == bunny)
-	{
-		if(i.value().second == hRequest.GetArg("time"))
-		{
-			Cron::Unregister(this, i->first);
-			i = webcastList.erase(i);
-			remove++;
-		}
-		else
-			++i;
-	}
-
 	QStringList bunnyWebcastList = bunny->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList();
-	bunnyWebcastList.removeAll(hRequest.GetArg("time"));
-	bunnyWebcastList.sort();
-	bunny->SetPluginSetting(GetName(), "Webcast/List", bunnyWebcastList);
-	if(remove > 0)
+	QString time = hRequest.GetArg("time");
+	if(bunnyWebcastList.contains(time))
+	{
+		bunnyWebcastList.removeAll(time);
+		bunnyWebcastList.sort();
+		bunny->SetPluginSetting(GetName(), "Webcast/List", bunnyWebcastList);
+		
+		// Recreate crons
+		OnBunnyDisconnect(bunny);
+		OnBunnyConnect(bunny);
+		
 		return new ApiManager::ApiString(QString("Remove webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
+	}
 	return new ApiManager::ApiError(QString("No webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
 }
 
@@ -198,7 +183,7 @@ void PluginTV_Worker::run()
 						chaine = rx.cap(4);
 						QString chaineFile = chaine;
 						chaineFile = chaineFile.replace(" ", "").trimmed().append(".mp3").toLower();
-						// Log::Debug(rx.cap(4) +" : "+rx.cap(3));
+						// LogDebug(rx.cap(4) +" : "+rx.cap(3));
 						QByteArray fileName = QCryptographicHash::hash(rx.cap(3).trimmed().toAscii(), QCryptographicHash::Md5).toHex().append(".mp3");
 						TTSManager::CreateNewSound(rx.cap(4).trimmed(), "claire", plugin->tvFolder.absoluteFilePath(chaineFile));
 						TTSManager::CreateNewSound(rx.cap(3).trimmed(), "julie", plugin->tvFolder.absoluteFilePath(fileName));

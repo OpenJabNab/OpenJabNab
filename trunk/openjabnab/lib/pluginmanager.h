@@ -106,7 +106,7 @@ inline PluginAuthInterface * PluginManager::GetAuthPlugin() const
 		return authPlugin;
 	else
 	{
-		Log::Warning("No Auth Plugin available, authentication is not possible for the moment");
+		LogWarning("No Auth Plugin available, authentication is not possible for the moment");
 		return PluginAuthInterface::DummyPlugin();
 	}
 }

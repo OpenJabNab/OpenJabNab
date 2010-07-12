@@ -17,12 +17,12 @@ QByteArray Choregraphy::GetData()
 	unsigned char t;
 	if (tempo > 2550)
 	{
-		Log::Warning("Choregraphy::GetData, tempo too big !");
+		LogWarning("Choregraphy::GetData, tempo too big !");
 		t = 0xFF;
 	}
 	else if (tempo < 10)
 	{
-		Log::Warning("Choregraphy::GetData, tempo too small !");
+		LogWarning("Choregraphy::GetData, tempo too small !");
 		t = 0x01;
 	}
 	else
@@ -41,7 +41,7 @@ QByteArray Choregraphy::GetData()
 		unsigned int currentIndex = i.key() - lastIndex;
 		if (currentIndex > 255)
 		{
-			Log::Warning("Choregraphy::GetData, wait too long !");
+			LogWarning("Choregraphy::GetData, wait too long !");
 			currentIndex = 255;
 		}
 		tmp.append((unsigned char)currentIndex);
