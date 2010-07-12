@@ -24,6 +24,7 @@ public:
 
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);
+	void OnInitPacket(const Bunny * b, AmbientPacket &, SleepPacket &);
 
 	void InitApiCalls();
 
@@ -34,6 +35,9 @@ public:
 private:
 	void RegisterCrons(Bunny *);
 	void CleanCrons(Bunny *);
+	void UpdateState(Bunny *);
+
+	bool IsConfigValid(QList<QVariant> const& wakeupList, QList<QVariant> const& sleepList);
 };
 
 #endif

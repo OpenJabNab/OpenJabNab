@@ -123,7 +123,7 @@ unsigned int Cron::RegisterDaily(PluginInterface * p, QTime const& time, Bunny *
 	e.next_run = nextTime.toTime_t();
 	theCron.AddCron(e);
 
-	LogDebug(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
+	LogInfo(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
 	return id;
 }
 
@@ -159,7 +159,7 @@ unsigned int Cron::RegisterWeekly(PluginInterface * p, Qt::DayOfWeek day, QTime 
 	e.next_run = nextTime.toTime_t();
 	theCron.AddCron(e);
 
-	LogDebug(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),nextTime.toString()));
+	LogInfo(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),nextTime.toString()));
 	return id;
 }
 
@@ -188,7 +188,7 @@ void Cron::UnregisterAllForBunny(PluginInterface * p, Bunny * b)
 		if(e.plugin == p && e.bunny == b)
 		{
 			i.remove();
-			LogDebug(QString("Cron Unregister : %1 - next %2").arg(p->GetVisualName(),QDateTime::fromTime_t(e.next_run).toString()));
+			LogInfo(QString("Cron Unregister : %1 - next %2").arg(p->GetVisualName(),QDateTime::fromTime_t(e.next_run).toString()));
 		}
 	}
 }
