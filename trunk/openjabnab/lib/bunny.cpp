@@ -326,7 +326,7 @@ void Bunny::PluginLoaded(PluginInterface * p)
 	if(listOfPlugins.contains(p->GetName()))
 	{
 		listOfPluginsPtr.append(p);
-		if(p->GetEnable() && IsConnected())
+		if(p->GetEnable())
 			p->OnBunnyConnect(this);
 	}
 }
@@ -335,7 +335,11 @@ void Bunny::PluginLoaded(PluginInterface * p)
 void Bunny::PluginUnloaded(PluginInterface * p)
 {
 	if(listOfPluginsPtr.contains(p))
+	{
 		listOfPluginsPtr.removeAll(p);
+		if(p->GetEnable())
+			p->OnBunnyConnect(this);
+	}
 }
 
 // Bunny is connected
