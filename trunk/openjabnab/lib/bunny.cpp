@@ -54,6 +54,8 @@ void Bunny::InitApiCalls()
 
 	DECLARE_API_CALL("getListOfKnownRFIDTags", &Bunny::Api_GetListOfKnownRFIDTags);
 	DECLARE_API_CALL("setRFIDTagName", &Bunny::Api_SetRFIDTagName);
+	
+	DECLARE_API_CALL("setService", &Bunny::Api_SetService);
 }
 
 Bunny::~Bunny()
@@ -594,7 +596,6 @@ API_CALL(Bunny::Api_GetListOfKnownRFIDTags)
 API_CALL(Bunny::Api_SetRFIDTagName)
 {
 	Q_UNUSED(account);
-	Q_UNUSED(hRequest);
 
 	if(!hRequest.HasArg("tag"))
 		return new ApiManager::ApiError(QString("Missing 'tag' argument in Bunny Api Call 'SetRFIDTagName' : %1").arg(hRequest.toString()));
@@ -609,4 +610,23 @@ API_CALL(Bunny::Api_SetRFIDTagName)
 	knownRFIDTags[tagName] = hRequest.GetArg("name");
 	
 	return new ApiManager::ApiOk(QString("Name '%1' associated to tag '%2'").arg(hRequest.GetArg("name"), hRequest.GetArg("tag")));
+}
+
+API_CALL(Bunny::Api_SetService)
+{
+	Q_UNUSED(account);
+
+	if(!hRequest.HasArg("service"))
+		return new ApiManager::ApiError(QString("Missing 'tag' argument in Bunny Api Call 'SetRFIDTagName' : %1").arg(hRequest.toString()));
+
+	if(!hRequest.HasArg("value"))
+		return new ApiManager::ApiError(QString("Missing 'name' argument in Bunny Api Call 'SetRFIDTagName' : %1").arg(hRequest.toString()));
+	
+	int service = hRequest.GetArg("service").toInt();
+	int value = hRequest.GetArg("value").toInt();
+	
+	AmbientPacket a((AmbientPacket::Services)service, value);
+	SendPacket(a);
+	
+	return new ApiManager::ApiOk(QString("Set value '%2' for service '%1'").arg(service, value));
 }
