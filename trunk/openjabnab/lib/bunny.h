@@ -93,6 +93,7 @@ private:
 	API_CALL(Api_GetClickPlugins);
 	API_CALL(Api_GetListOfKnownRFIDTags);
 	API_CALL(Api_SetRFIDTagName);
+	API_CALL(Api_SetService);
 
 	enum State state;
 	
