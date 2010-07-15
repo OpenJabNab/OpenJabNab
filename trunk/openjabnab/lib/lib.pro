@@ -53,7 +53,6 @@ SOURCES +=	httphandler.cpp \
 			settings.cpp \
 			log.cpp \
 			pluginmanager.cpp \
-			pluginauthinterface.cpp \
 			packet.cpp \
 			ambientpacket.cpp \
 			messagepacket.cpp \

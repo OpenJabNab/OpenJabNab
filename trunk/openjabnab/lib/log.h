@@ -1,6 +1,7 @@
 #ifndef _LOG_H_
 #define _LOG_H_
 
+#include <QtGlobal>
 #include <QString>
 #include <QTextStream>
 #include "global.h"
@@ -27,8 +28,8 @@ private:
 };
 
 #define LogInfo(data) Log::LogToFile(data, Log::Log_Info)
-#define LogError(data) Log::LogToFile(QString("%1 : %2").arg(__PRETTY_FUNCTION__,data), Log::Log_Error)
-#define LogWarning(data) Log::LogToFile(QString("%1 : %2").arg(__PRETTY_FUNCTION__,data), Log::Log_Warn)
-#define LogDebug(data) Log::LogToFile(QString("%1 : %2").arg(__PRETTY_FUNCTION__,data), Log::Log_Debug)
+#define LogError(data) Log::LogToFile(QString("%1 : %2").arg(Q_FUNC_INFO,data), Log::Log_Error)
+#define LogWarning(data) Log::LogToFile(QString("%1 : %2").arg(Q_FUNC_INFO,data), Log::Log_Warn)
+#define LogDebug(data) Log::LogToFile(QString("%1 : %2").arg(Q_FUNC_INFO,data), Log::Log_Debug)
 
 #endif
