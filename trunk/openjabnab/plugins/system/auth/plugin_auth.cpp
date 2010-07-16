@@ -47,12 +47,6 @@ static QByteArray ComputeXor(QByteArray const& v1, QByteArray const& v2)
 	return t1.toHex();
 }
 
-void PluginAuth::InitApiCalls()
-{
-	DECLARE_PLUGIN_API_CALL("setAuthMethod", PluginAuth, Api_SelectAuth);
-	DECLARE_PLUGIN_API_CALL("getListOfAuthMethods", PluginAuth, Api_GetListOfAuths);
-}
-
 bool PluginAuth::DoAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray & answer)
 {
 	return (currentAuthFunction)(xmpp, data, pBunny, answer);
@@ -256,14 +250,17 @@ bool PluginAuth::ProxyAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** 
 /*******/
 /* API */
 /*******/
+void PluginAuth::InitApiCalls()
+{
+	DECLARE_PLUGIN_API_CALL("setAuthMethod(name)", PluginAuth, Api_SelectAuth);
+	DECLARE_PLUGIN_API_CALL("getListOfAuthMethods()", PluginAuth, Api_GetListOfAuths);
+}
+
 PLUGIN_API_CALL(PluginAuth::Api_SelectAuth)
 {
 	if(!account.IsAdmin())
 		return new ApiManager::ApiError("Access denied");
 
-	if(!hRequest.HasArg("name"))
-		return new ApiManager::ApiError(QString("Missing 'name' argument<br />Request was : %1").arg(hRequest.toString()));
-		
 	QString name = hRequest.GetArg("name");
 	
 	pAuthFunction f = listOfAuthFunctions.value(name, NULL);

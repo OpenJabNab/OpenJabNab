@@ -37,12 +37,6 @@ bool PluginTV::Init()
 	return false;
 }
 
-void PluginTV::InitApiCalls()
-{
-	DECLARE_PLUGIN_BUNNY_API_CALL("addwebcast", PluginTV, Api_AddWebcast);
-	DECLARE_PLUGIN_BUNNY_API_CALL("removewebcast", PluginTV, Api_RemoveWebcast);
-}
-
 void PluginTV::OnCron(Bunny * b, QVariant)
 {
 	getTVPage(b);
@@ -100,12 +94,19 @@ void PluginTV::OnBunnyDisconnect(Bunny * b)
 	Cron::UnregisterAllForBunny(this, b);
 }
 
+/*******
+ * API *
+ *******/
+
+void PluginTV::InitApiCalls()
+{
+	DECLARE_PLUGIN_BUNNY_API_CALL("addwebcast(time)", PluginTV, Api_AddWebcast);
+	DECLARE_PLUGIN_BUNNY_API_CALL("removewebcast(time)", PluginTV, Api_RemoveWebcast);
+}
+
 PLUGIN_BUNNY_API_CALL(PluginTV::Api_AddWebcast)
 {
 	Q_UNUSED(account);
-
-	if(!hRequest.HasArg("time"))
-		return new ApiManager::ApiError(QString("Missing argument 'time' for plugin TV"));
 
 	if(!bunny->IsConnected())
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(hRequest.GetArg("to")));
@@ -125,9 +126,6 @@ PLUGIN_BUNNY_API_CALL(PluginTV::Api_AddWebcast)
 PLUGIN_BUNNY_API_CALL(PluginTV::Api_RemoveWebcast)
 {
 	Q_UNUSED(account);
-
-	if(!hRequest.HasArg("time"))
-		return new ApiManager::ApiError(QString("Missing argument 'time' for plugin TV"));
 
 	if(!bunny->IsConnected())
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(QString(bunny->GetID())));

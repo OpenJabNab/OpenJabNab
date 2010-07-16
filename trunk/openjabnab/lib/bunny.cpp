@@ -42,22 +42,6 @@ Bunny::Bunny(QByteArray const& bunnyID)
 	saveTimer->start(5*60*1000); // 5min
 }
 
-void Bunny::InitApiCalls()
-{
-	DECLARE_API_CALL("registerPlugin", &Bunny::Api_AddPlugin);
-	DECLARE_API_CALL("unregisterPlugin", &Bunny::Api_RemovePlugin);
-	DECLARE_API_CALL("getListOfActivePlugins", &Bunny::Api_GetListOfAssociatedPlugins);
-
-	DECLARE_API_CALL("setSingleClickPlugin", &Bunny::Api_SetSingleClickPlugin);
-	DECLARE_API_CALL("setDoubleClickPlugin", &Bunny::Api_SetDoubleClickPlugin);
-	DECLARE_API_CALL("getClickPlugins", &Bunny::Api_GetClickPlugins);
-
-	DECLARE_API_CALL("getListOfKnownRFIDTags", &Bunny::Api_GetListOfKnownRFIDTags);
-	DECLARE_API_CALL("setRFIDTagName", &Bunny::Api_SetRFIDTagName);
-	
-	DECLARE_API_CALL("setService", &Bunny::Api_SetService);
-}
-
 Bunny::~Bunny()
 {
 	SaveConfig();
@@ -471,12 +455,25 @@ bool Bunny::OnRFID(QByteArray const& tag)
 /* API */
 /*******/
 
+void Bunny::InitApiCalls()
+{
+	DECLARE_API_CALL("registerPlugin(name)", &Bunny::Api_AddPlugin);
+	DECLARE_API_CALL("unregisterPlugin(name)", &Bunny::Api_RemovePlugin);
+	DECLARE_API_CALL("getListOfActivePlugins()", &Bunny::Api_GetListOfAssociatedPlugins);
+
+	DECLARE_API_CALL("setSingleClickPlugin(name)", &Bunny::Api_SetSingleClickPlugin);
+	DECLARE_API_CALL("setDoubleClickPlugin(name)", &Bunny::Api_SetDoubleClickPlugin);
+	DECLARE_API_CALL("getClickPlugins()", &Bunny::Api_GetClickPlugins);
+
+	DECLARE_API_CALL("getListOfKnownRFIDTags()", &Bunny::Api_GetListOfKnownRFIDTags);
+	DECLARE_API_CALL("setRFIDTagName(tag,name)", &Bunny::Api_SetRFIDTagName);
+	
+	DECLARE_API_CALL("setService(service,value)", &Bunny::Api_SetService);
+}
+
 API_CALL(Bunny::Api_AddPlugin)
 {
 	Q_UNUSED(account);
-
-	if(!hRequest.HasArg("name"))
-		return new ApiManager::ApiError(QString("Missing argument in Bunny Api Call 'RegisterPlugin' : %1").arg(hRequest.toString()));
 
 	PluginInterface * plugin = PluginManager::Instance().GetPluginByName(hRequest.GetArg("name"));
 	
@@ -491,9 +488,6 @@ API_CALL(Bunny::Api_AddPlugin)
 API_CALL(Bunny::Api_RemovePlugin)
 {
 	Q_UNUSED(account);
-
-	if(!hRequest.HasArg("name"))
-		return new ApiManager::ApiError(QString("Missing argument in Bunny Api Call 'UnregisterPlugin' : %1").arg(hRequest.toString()));
 
 	PluginInterface * plugin = PluginManager::Instance().GetPluginByName(hRequest.GetArg("name"));
 	QString error = CheckPlugin(plugin);
@@ -521,9 +515,6 @@ API_CALL(Bunny::Api_SetSingleClickPlugin)
 {
 	Q_UNUSED(account);
 
-	if(!hRequest.HasArg("name"))
-		return new ApiManager::ApiError(QString("Missing argument in Bunny Api Call 'SetSingleClickPlugin' : %1").arg(hRequest.toString()));
-
 	if(hRequest.GetArg("name") == "none")
 	{
 		RemoveGlobalSetting(SINGLE_CLICK_PLUGIN_SETTINGNAME);
@@ -545,9 +536,6 @@ API_CALL(Bunny::Api_SetSingleClickPlugin)
 API_CALL(Bunny::Api_SetDoubleClickPlugin)
 {
 	Q_UNUSED(account);
-
-	if(!hRequest.HasArg("name"))
-		return new ApiManager::ApiError(QString("Missing argument in Bunny Api Call 'SetSingleClickPlugin' : %1").arg(hRequest.toString()));
 		
 	if(hRequest.GetArg("name") == "none")
 	{
@@ -596,12 +584,6 @@ API_CALL(Bunny::Api_GetListOfKnownRFIDTags)
 API_CALL(Bunny::Api_SetRFIDTagName)
 {
 	Q_UNUSED(account);
-
-	if(!hRequest.HasArg("tag"))
-		return new ApiManager::ApiError(QString("Missing 'tag' argument in Bunny Api Call 'SetRFIDTagName' : %1").arg(hRequest.toString()));
-
-	if(!hRequest.HasArg("name"))
-		return new ApiManager::ApiError(QString("Missing 'name' argument in Bunny Api Call 'SetRFIDTagName' : %1").arg(hRequest.toString()));
 	
 	QByteArray tagName = hRequest.GetArg("tag").toAscii();
 	if(!knownRFIDTags.contains(tagName))
@@ -616,12 +598,6 @@ API_CALL(Bunny::Api_SetService)
 {
 	Q_UNUSED(account);
 
-	if(!hRequest.HasArg("service"))
-		return new ApiManager::ApiError(QString("Missing 'tag' argument in Bunny Api Call 'SetRFIDTagName' : %1").arg(hRequest.toString()));
-
-	if(!hRequest.HasArg("value"))
-		return new ApiManager::ApiError(QString("Missing 'name' argument in Bunny Api Call 'SetRFIDTagName' : %1").arg(hRequest.toString()));
-	
 	int service = hRequest.GetArg("service").toInt();
 	int value = hRequest.GetArg("value").toInt();
 	

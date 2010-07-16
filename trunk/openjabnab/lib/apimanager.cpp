@@ -51,7 +51,7 @@ ApiManager::ApiAnswer * ApiManager::ProcessApiCall(QString const& request, HTTPR
 	
 	if(request.startsWith("accounts/"))
 		return AccountManager::Instance().ProcessApiCall(account, request.mid(9), hRequest);
-	
+
 	return new ApiManager::ApiError(QString("Unknown Api Call : %1").arg(hRequest.toString()));
 }
 
@@ -63,6 +63,10 @@ ApiManager::ApiAnswer * ApiManager::ProcessGlobalApiCall(Account const& account,
 	if(request == "about")
 	{
 		return new ApiManager::ApiString("OpenJabNab v0.01 - (Build " __DATE__ " / " __TIME__ ")");
+	}
+	else if (request == "getListOfApiCalls")
+	{
+		// Todo send a list with available api calls
 	}
 	return new ApiManager::ApiError(QString("Unknown Global Api Call : %1").arg(hRequest.toString()));
 }
@@ -84,21 +88,6 @@ ApiManager::ApiAnswer * ApiManager::ProcessPluginApiCall(Account const& account,
 	if(!plugin->GetEnable())
 		return new ApiManager::ApiError("This plugin is disabled");
 
-	if(hRequest.HasArg("bunny"))
-	{
-		QByteArray bunnyID = hRequest.GetArg("bunny").toAscii();
-		if(account.HasBunnyAccess(bunnyID))
-		{
-			hRequest.RemoveArg("bunny");
-			Bunny * b = BunnyManager::GetBunny(bunnyID);
-			if(b->HasPlugin(plugin))
-					return plugin->ProcessBunnyApiCall(b, account, functionName, hRequest);
-			else
-				return new ApiManager::ApiError("This plugin is disabled for this bunny");
-		}
-		else
-			return new ApiManager::ApiError("Access denied to this bunny");
-	}
 	return plugin->ProcessApiCall(account, functionName, hRequest);
 }
 
@@ -106,16 +95,37 @@ ApiManager::ApiAnswer * ApiManager::ProcessBunnyApiCall(Account const& account, 
 {
 	QStringList list = QString(request).split('/', QString::SkipEmptyParts);
 	
-	if(list.size() != 2)
+	if(list.size() < 2)
 		return new ApiManager::ApiError(QString("Malformed Bunny Api Call : %1").arg(hRequest.toString()));
 		
 	QByteArray const& bunnyID = list.at(0).toAscii();
-	QString const& functionName = list.at(1);
 	
 	if(!account.HasBunnyAccess(bunnyID))
 		return new ApiManager::ApiError("Access denied to this bunny");
-	
-	return BunnyManager::GetBunny(bunnyID)->ProcessApiCall(account, functionName, hRequest);
+
+	Bunny * b = BunnyManager::GetBunny(bunnyID);
+
+	if(list.size() == 2)
+	{
+		QByteArray const& functionName = list.at(1).toAscii();
+		return b->ProcessApiCall(account, functionName, hRequest);
+	}
+	else if(list.size() == 3)
+	{
+			PluginInterface * plugin = PluginManager::Instance().GetPluginByName(list.at(1).toAscii());
+			if(!plugin)
+				return new ApiManager::ApiError(QString("Unknown Plugin : '%1'").arg(list.at(1)));
+
+			if(b->HasPlugin(plugin))
+			{
+				QByteArray const& functionName = list.at(2).toAscii();
+				return plugin->ProcessBunnyApiCall(b, account, functionName, hRequest);
+			}
+		else
+			return new ApiManager::ApiError("Access denied to this bunny");
+	}
+	else
+		return new ApiManager::ApiError(QString("Malformed Plugin Api Call : %1").arg(hRequest.toString()));
 }
 
 QString ApiManager::ApiAnswer::SanitizeXML(QString const& msg)

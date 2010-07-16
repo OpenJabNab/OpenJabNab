@@ -13,7 +13,7 @@ BunnyManager & BunnyManager::Instance()
 
 void BunnyManager::InitApiCalls()
 {
-	DECLARE_API_CALL("getListOfConnectedBunnies", &BunnyManager::Api_GetListOfConnectedBunnies);
+	DECLARE_API_CALL("getListOfConnectedBunnies()", &BunnyManager::Api_GetListOfConnectedBunnies);
 }
 
 Bunny * BunnyManager::GetBunny(QByteArray const& bunnyHexID)
@@ -97,10 +97,12 @@ API_CALL(BunnyManager::Api_GetListOfConnectedBunnies)
 
 	if(!account.HasBunniesAccess(Account::Read))
 		return new ApiManager::ApiError("Access denied");
+
 	QMap<QString, QString> list;
 	foreach(Bunny * b, listOfBunnies)
 		if (b->IsConnected())
 			list.insert(b->GetID(), b->GetBunnyName());
+
 	return new ApiManager::ApiMappedList(list);
 }
 

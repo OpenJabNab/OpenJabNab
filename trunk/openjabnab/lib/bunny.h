@@ -21,6 +21,8 @@ public:
 	enum State { State_Disconnected, State_Booting, State_Authenticating, State_Authenticated, State_Ready};
 	virtual ~Bunny();
 
+	static void Init() { InitApiCalls(); }
+
 	QByteArray GetID() const;
 	void SetXmppHandler (XmppHandler *);
 	void RemoveXmppHandler (XmppHandler *);

@@ -28,17 +28,14 @@ Log::Log()
 		logStream.setDevice(logFile);
 }
 
-Log::~Log()
-{
-	delete logFile;
-}
-
 void Log::LogToFile(QString const& data, LogLevel level)
 {	
-	if (level <= instance->maxFileLogLevel)
-		instance->logStream << QDateTime::currentDateTime().toString("[dd/MM/yyyy hh:mm:ss] ") << data << endl;
+	static Log instance;
 
-	if (level <= instance->maxScreenLogLevel)
+	if (level <= instance.maxFileLogLevel)
+		instance.logStream << QDateTime::currentDateTime().toString("[dd/MM/yyyy hh:mm:ss] ") << data << endl;
+
+	if (level <= instance.maxScreenLogLevel)
 		std::cout << qPrintable(data) << std::endl;
 }
 
@@ -54,5 +51,3 @@ Log::LogLevel Log::GetLevel(QString const& level)
 		return Log_Info;
 	return Log_None;
 }
-
-Log * Log::instance = 0;

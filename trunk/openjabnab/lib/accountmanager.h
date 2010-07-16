@@ -24,9 +24,6 @@ public:
 	static Account const& Guest();
 	QByteArray GetToken(QString const& login, QByteArray const& hash);
 
-	// API
-	static void InitApiCalls();
-
 protected:
 	static inline void Init();
 	static inline void Close();
@@ -36,6 +33,7 @@ private:
 	AccountManager();
 	void LoadAccounts();
 	void SaveAccounts();
+	static void InitApiCalls();
 	QList<Account *> listOfAccounts;
 	QHash<QString, Account *> listOfAccountsByName;
 	QHash<QByteArray, TokenData> listOfTokens;
@@ -51,6 +49,7 @@ private:
 inline void AccountManager::Init()
 {
 	Instance().LoadAccounts();
+	InitApiCalls();
 }
 
 inline void AccountManager::Close()
