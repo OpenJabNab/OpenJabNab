@@ -57,7 +57,7 @@ protected:
 		{
 			QString funcName = rx.cap(1);
 			QStringList args = rx.cap(2).split(',');
-			apiCalls.insert(funcSig, qMakePair(f, args));
+			apiCalls.insert(funcName, qMakePair(f, args));
 		}
 		else
 		{
