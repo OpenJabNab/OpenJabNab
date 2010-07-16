@@ -604,5 +604,5 @@ API_CALL(Bunny::Api_SetService)
 	AmbientPacket a((AmbientPacket::Services)service, value);
 	SendPacket(a);
 	
-	return new ApiManager::ApiOk(QString("Set value '%2' for service '%1'").arg(service, value));
+	return new ApiManager::ApiOk(QString("Set value '%2' for service '%1'").arg(QString::number(service), QString::number(value)));
 }

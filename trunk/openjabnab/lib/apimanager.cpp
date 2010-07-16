@@ -122,7 +122,7 @@ ApiManager::ApiAnswer * ApiManager::ProcessBunnyApiCall(Account const& account, 
 				return plugin->ProcessBunnyApiCall(b, account, functionName, hRequest);
 			}
 		else
-			return new ApiManager::ApiError("Access denied to this bunny");
+			return new ApiManager::ApiError("This plugin is not enabled for this bunny");
 	}
 	else
 		return new ApiManager::ApiError(QString("Malformed Plugin Api Call : %1").arg(hRequest.toString()));
