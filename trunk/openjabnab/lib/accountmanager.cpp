@@ -30,6 +30,7 @@ AccountManager::~AccountManager()
 void AccountManager::InitApiCalls()
 {
 	DECLARE_API_CALL("auth", &AccountManager::Api_Auth);
+	DECLARE_API_CALL("changePassword", &AccountManager::Api_ChangePasswd);
 	DECLARE_API_CALL("registerNewAccount", &AccountManager::Api_RegisterNewAccount);
 	DECLARE_API_CALL("addBunny", &AccountManager::Api_AddBunny);
 	DECLARE_API_CALL("removeBunny", &AccountManager::Api_RemoveBunny);
@@ -153,6 +154,25 @@ API_CALL(AccountManager::Api_Auth)
 
 	LogInfo(QString("User login : %1").arg(hRequest.GetArg("login")));
 	return new ApiManager::ApiString(retour);
+}
+
+API_CALL(AccountManager::Api_ChangePasswd)
+{
+	
+	if(!hRequest.HasArg("pass"))
+		return new ApiManager::ApiError(QString("Missing arguments<br />Request was : %1").arg(hRequest.toString()));
+	
+	QHash<QString, Account *>::iterator it = listOfAccountsByName.find(account.GetLogin());
+	if(it != listOfAccountsByName.end())
+	{
+		it.value()->passwordHash = QByteArray::fromHex(hRequest.GetArg("pass").toAscii());
+		SaveAccounts();
+		LogInfo(QString("Password change for user '%1'").arg(hRequest.GetArg("login")));
+		return new ApiManager::ApiString("Password changed");
+	}
+	
+	LogError("Account not found");
+	return new ApiManager::ApiError("Access denied");
 }
 
 API_CALL(AccountManager::Api_RegisterNewAccount)
