@@ -126,7 +126,7 @@ protected:
 		{
 			QString funcName = rx.cap(1);
 			QStringList args = rx.cap(2).split(',', QString::SkipEmptyParts);
-			apiList.insert(funcSig, qMakePair(f, args));
+			apiList.insert(funcName, qMakePair(f, args));
 		}
 		else
 		{
