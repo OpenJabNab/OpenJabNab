@@ -27,15 +27,6 @@ AccountManager::~AccountManager()
 		delete a;
 }
 
-void AccountManager::InitApiCalls()
-{
-	DECLARE_API_CALL("auth", &AccountManager::Api_Auth);
-	DECLARE_API_CALL("changePassword", &AccountManager::Api_ChangePasswd);
-	DECLARE_API_CALL("registerNewAccount", &AccountManager::Api_RegisterNewAccount);
-	DECLARE_API_CALL("addBunny", &AccountManager::Api_AddBunny);
-	DECLARE_API_CALL("removeBunny", &AccountManager::Api_RemoveBunny);
-}
-
 void AccountManager::LoadAccounts()
 {
 	QDir appDir(QCoreApplication::applicationDirPath());
@@ -140,13 +131,22 @@ QByteArray AccountManager::GetToken(QString const& login, QByteArray const& hash
 	return QByteArray();
 }
 
-// API
+/*******
+ * API *
+ *******/
+
+void AccountManager::InitApiCalls()
+{
+	DECLARE_API_CALL("auth(login,pass)", &AccountManager::Api_Auth);
+	DECLARE_API_CALL("changePassword(pass)", &AccountManager::Api_ChangePasswd);
+	DECLARE_API_CALL("registerNewAccount(login,username,pass)", &AccountManager::Api_RegisterNewAccount);
+	DECLARE_API_CALL("addBunny(login,bunnyid)", &AccountManager::Api_AddBunny);
+	DECLARE_API_CALL("removeBunny(login,bunnyid)", &AccountManager::Api_RemoveBunny);
+}
+
 API_CALL(AccountManager::Api_Auth)
 {
 	Q_UNUSED(account);
-
-	if(!hRequest.HasArg("login") || !hRequest.HasArg("pass"))
-		return new ApiManager::ApiError(QString("Missing arguments<br />Request was : %1").arg(hRequest.toString()));
 
 	QByteArray retour = GetToken(hRequest.GetArg("login"), QCryptographicHash::hash(hRequest.GetArg("pass").toAscii(), QCryptographicHash::Md5));
 	if(retour == QByteArray())
@@ -158,10 +158,6 @@ API_CALL(AccountManager::Api_Auth)
 
 API_CALL(AccountManager::Api_ChangePasswd)
 {
-	
-	if(!hRequest.HasArg("pass"))
-		return new ApiManager::ApiError(QString("Missing arguments<br />Request was : %1").arg(hRequest.toString()));
-	
 	QHash<QString, Account *>::iterator it = listOfAccountsByName.find(account.GetLogin());
 	if(it != listOfAccountsByName.end())
 	{
@@ -180,9 +176,6 @@ API_CALL(AccountManager::Api_RegisterNewAccount)
 	if(!account.IsAdmin())
 		return new ApiManager::ApiError("Access denied");
 
-	if(!hRequest.HasArg("login") || !hRequest.HasArg("username") || !hRequest.HasArg("pass"))
-		return new ApiManager::ApiError(QString("Missing arguments<br />Request was : %1").arg(hRequest.toString()));
-
 	QString login = hRequest.GetArg("login");
 	if(listOfAccountsByName.contains(login))
 		return new ApiManager::ApiError(QString("Account '%1' already exists").arg(hRequest.GetArg("login")));
@@ -199,9 +192,6 @@ API_CALL(AccountManager::Api_AddBunny)
 	if(!account.IsAdmin())
 		return new ApiManager::ApiError("Access denied");
 
-	if(!hRequest.HasArg("login") || !hRequest.HasArg("bunnyid"))
-		return new ApiManager::ApiError(QString("Missing arguments<br />Request was : %1").arg(hRequest.toString()));
-
 	QString login = hRequest.GetArg("login");
 	if(!listOfAccountsByName.contains(login))
 		return new ApiManager::ApiError(QString("Account '%1' doesn't exist").arg(hRequest.GetArg("login")));
@@ -212,9 +202,6 @@ API_CALL(AccountManager::Api_AddBunny)
 
 API_CALL(AccountManager::Api_RemoveBunny)
 {
-	if(!hRequest.HasArg("login") || !hRequest.HasArg("bunnyid"))
-		return new ApiManager::ApiError(QString("Missing arguments<br />Request was : %1").arg(hRequest.toString()));
-
 	// Only admin can remove bunny to any accounts, else an auth user can remove a bunny from his account
 	QString login = hRequest.GetArg("login");
 	if(account.IsAdmin() && !listOfAccountsByName.contains(login))

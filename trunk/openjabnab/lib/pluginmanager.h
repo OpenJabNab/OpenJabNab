@@ -81,6 +81,7 @@ private:
 inline void PluginManager::Init()
 {
 	Instance().LoadPlugins();
+	InitApiCalls();
 }
 
 inline void PluginManager::Close()

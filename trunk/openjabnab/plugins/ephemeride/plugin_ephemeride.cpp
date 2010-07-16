@@ -97,16 +97,13 @@ void PluginEphemeride::OnBunnyDisconnect(Bunny * b)
 
 void PluginEphemeride::InitApiCalls()
 {
-	DECLARE_PLUGIN_BUNNY_API_CALL("addwebcast", PluginEphemeride, Api_AddWebcast);
-	DECLARE_PLUGIN_BUNNY_API_CALL("removewebcast", PluginEphemeride, Api_RemoveWebcast);
+	DECLARE_PLUGIN_BUNNY_API_CALL("addwebcast(time)", PluginEphemeride, Api_AddWebcast);
+	DECLARE_PLUGIN_BUNNY_API_CALL("removewebcast(time)", PluginEphemeride, Api_RemoveWebcast);
 }
 
 PLUGIN_BUNNY_API_CALL(PluginEphemeride::Api_AddWebcast)
 {
 	Q_UNUSED(account);
-
-	if(!hRequest.HasArg("time"))
-		return new ApiManager::ApiError(QString("Missing argument 'time' for plugin Ephemeride"));
 
 	if(!bunny->IsConnected())
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(hRequest.GetArg("to")));
@@ -126,9 +123,6 @@ PLUGIN_BUNNY_API_CALL(PluginEphemeride::Api_AddWebcast)
 PLUGIN_BUNNY_API_CALL(PluginEphemeride::Api_RemoveWebcast)
 {
 	Q_UNUSED(account);
-
-	if(!hRequest.HasArg("time"))
-		return new ApiManager::ApiError(QString("Missing argument 'time' for plugin Ephemeride"));
 
 	if(!bunny->IsConnected())
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(QString(bunny->GetID())));

@@ -10,12 +10,6 @@ PluginTaichi::PluginTaichi():PluginInterface("taichi", "Manage Bunny's Taichi")
 
 PluginTaichi::~PluginTaichi() {}
 
-void PluginTaichi::InitApiCalls()
-{
-	DECLARE_PLUGIN_BUNNY_API_CALL("setFrequency", PluginTaichi, Api_SetFrequency);
-	DECLARE_PLUGIN_BUNNY_API_CALL("getFrequency", PluginTaichi, Api_GetFrequency);
-}
-
 void PluginTaichi::OnBunnyConnect(Bunny * b)
 {
 	SendTaichiFrequency(b);
@@ -47,12 +41,19 @@ void PluginTaichi::SendTaichiFrequency(Bunny * b)
 	b->SendPacket(AmbientPacket(AmbientPacket::Service_TaiChi,frequency));
 }
 
+/*******
+ * API *
+ *******/
+
+void PluginTaichi::InitApiCalls()
+{
+	DECLARE_PLUGIN_BUNNY_API_CALL("setFrequency(value)", PluginTaichi, Api_SetFrequency);
+	DECLARE_PLUGIN_BUNNY_API_CALL("getFrequency()", PluginTaichi, Api_GetFrequency);
+}
+
 PLUGIN_BUNNY_API_CALL(PluginTaichi::Api_SetFrequency)
 {
 	Q_UNUSED(account);
-
-	if(!hRequest.HasArg("value"))
-		return new ApiManager::ApiError(QString("Missing argument 'value' for plugin Taichi"));
 
 	bunny->SetPluginSetting(GetName(), "frequency", QVariant(hRequest.GetArg("value").toInt()));
 	SendTaichiFrequency(bunny);

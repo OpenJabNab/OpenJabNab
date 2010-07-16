@@ -21,7 +21,7 @@ public:
 
 	static Bunny * GetBunny(PluginInterface *, QByteArray const&);
 	static void PluginStateChanged(PluginInterface *);
-	static inline void Init() {};
+	static inline void Init() { InitApiCalls(); };
 	static void Close();
 
 	// API

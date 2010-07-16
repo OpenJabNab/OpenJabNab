@@ -15,17 +15,18 @@ PluginTTS::PluginTTS():PluginInterface("tts", "TTS Plugin, Send Text to Bunny")
 {
 }
 
+/*******
+ * API *
+ *******/
+
 void PluginTTS::InitApiCalls()
 {
-	DECLARE_PLUGIN_BUNNY_API_CALL("say", PluginTTS, Api_Say);
+	DECLARE_PLUGIN_BUNNY_API_CALL("say(text)", PluginTTS, Api_Say);
 }
 
 PLUGIN_BUNNY_API_CALL(PluginTTS::Api_Say)
 {
 	Q_UNUSED(account);
-
-	if(!hRequest.HasArg("text"))
-		return new ApiManager::ApiError(QString("Missing argument 'text' for plugin TTS"));
 
 	if(!bunny->IsConnected())
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(QString(bunny->GetID())));

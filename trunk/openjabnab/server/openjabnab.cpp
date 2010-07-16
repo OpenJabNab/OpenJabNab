@@ -3,6 +3,7 @@
 
 #include "openjabnab.h"
 #include "accountmanager.h"
+#include "bunny.h"
 #include "bunnymanager.h"
 #include "httphandler.h"
 #include "log.h"
@@ -14,9 +15,9 @@
 OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 {
 	GlobalSettings::Init();
-	Log::Init();
 	LogInfo("-- OpenJabNab Start --");
 	BunnyManager::Init();
+	Bunny::Init();
 	PluginManager::Init();
 	AccountManager::Init();
 	NetworkDump::Init();
@@ -62,7 +63,6 @@ OpenJabNab::~OpenJabNab()
 	AccountManager::Close();
 	PluginManager::Close();
 	BunnyManager::Close();
-	Log::Close();
 	GlobalSettings::Close();
 }
 

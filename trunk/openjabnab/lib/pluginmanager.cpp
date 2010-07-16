@@ -23,21 +23,6 @@ PluginManager & PluginManager::Instance()
   return p;
 }
 
-void PluginManager::InitApiCalls()
-{
-	DECLARE_API_CALL("getListOfPlugins", &PluginManager::Api_GetListOfPlugins);
-	DECLARE_API_CALL("getListOfEnabledPlugins", &PluginManager::Api_GetListOfEnabledPlugins);
-	DECLARE_API_CALL("getListOfBunnyPlugins", &PluginManager::Api_GetListOfBunnyPlugins);
-	DECLARE_API_CALL("getListOfSystemPlugins", &PluginManager::Api_GetListOfSystemPlugins);
-	DECLARE_API_CALL("getListOfRequiredPlugins", &PluginManager::Api_GetListOfRequiredPlugins);
-	DECLARE_API_CALL("getListOfBunnyEnabledPlugins", &PluginManager::Api_GetListOfBunnyEnabledPlugins);
-	DECLARE_API_CALL("activatePlugin", &PluginManager::Api_ActivatePlugin);
-	DECLARE_API_CALL("deactivatePlugin", &PluginManager::Api_DeactivatePlugin);
-	DECLARE_API_CALL("loadPlugin", &PluginManager::Api_LoadPlugin);
-	DECLARE_API_CALL("unloadPlugin", &PluginManager::Api_UnloadPlugin);
-	DECLARE_API_CALL("reloadPlugin", &PluginManager::Api_ReloadPlugin);
-}
-
 void PluginManager::UnloadPlugins()
 {
 	foreach(PluginInterface * p, listOfPlugins)
@@ -263,9 +248,25 @@ void PluginManager::OnBunnyDisconnect(Bunny * b)
 			plugin->OnBunnyDisconnect(b);
 }
 
-/*******/
-/* API */
-/*******/
+/*******
+ * API *
+ *******/
+
+void PluginManager::InitApiCalls()
+{
+	DECLARE_API_CALL("getListOfPlugins()", &PluginManager::Api_GetListOfPlugins);
+	DECLARE_API_CALL("getListOfEnabledPlugins()", &PluginManager::Api_GetListOfEnabledPlugins);
+	DECLARE_API_CALL("getListOfBunnyPlugins()", &PluginManager::Api_GetListOfBunnyPlugins);
+	DECLARE_API_CALL("getListOfSystemPlugins()", &PluginManager::Api_GetListOfSystemPlugins);
+	DECLARE_API_CALL("getListOfRequiredPlugins()", &PluginManager::Api_GetListOfRequiredPlugins);
+	DECLARE_API_CALL("getListOfBunnyEnabledPlugins()", &PluginManager::Api_GetListOfBunnyEnabledPlugins);
+	DECLARE_API_CALL("activatePlugin(name)", &PluginManager::Api_ActivatePlugin);
+	DECLARE_API_CALL("deactivatePlugin(name)", &PluginManager::Api_DeactivatePlugin);
+	DECLARE_API_CALL("loadPlugin(filename)", &PluginManager::Api_LoadPlugin);
+	DECLARE_API_CALL("unloadPlugin(name)", &PluginManager::Api_UnloadPlugin);
+	DECLARE_API_CALL("reloadPlugin(name)", &PluginManager::Api_ReloadPlugin);
+}
+
 API_CALL(PluginManager::Api_GetListOfPlugins)
 {
 	Q_UNUSED(hRequest);
@@ -361,9 +362,6 @@ API_CALL(PluginManager::Api_ActivatePlugin)
 	if(!account.HasPluginsAccess(Account::Write))
 		return new ApiManager::ApiError("Access denied");
 
-	if(!hRequest.HasArg("name"))
-		return new ApiManager::ApiError(QString("Missing 'name' argument<br />Request was : %1").arg(hRequest.toString()));
-
 	PluginInterface * p = listOfPluginsByName.value(hRequest.GetArg("name"));
 	if(!p)
 		return new ApiManager::ApiError(QString("Unknown plugin '%1'<br />Request was : %2").arg(hRequest.GetArg("name"),hRequest.toString()));
@@ -381,9 +379,6 @@ API_CALL(PluginManager::Api_DeactivatePlugin)
 
 	if(!account.HasPluginsAccess(Account::Write))
 		return new ApiManager::ApiError("Access denied");
-
-	if(!hRequest.HasArg("name"))
-		return new ApiManager::ApiError(QString("Missing 'name' argument<br />Request was : %1").arg(hRequest.toString()));
 
 	PluginInterface * p = listOfPluginsByName.value(hRequest.GetArg("name"));
 	if(!p)
@@ -406,9 +401,6 @@ API_CALL(PluginManager::Api_UnloadPlugin)
 	if(!account.HasPluginsAccess(Account::Write))
 		return new ApiManager::ApiError("Access denied");
 
-	if(!hRequest.HasArg("name"))
-		return new ApiManager::ApiError(QString("Missing 'name' argument<br />Request was : %1").arg(hRequest.toString()));
-
 	QString name = hRequest.GetArg("name");
 	if(UnloadPlugin(name))
 	{
@@ -425,9 +417,6 @@ API_CALL(PluginManager::Api_LoadPlugin)
 	if(!account.HasPluginsAccess(Account::Write))
 		return new ApiManager::ApiError("Access denied");
 
-	if(!hRequest.HasArg("filename"))
-		return new ApiManager::ApiError(QString("Missing 'filename' argument<br />Request was : %1").arg(hRequest.toString()));
-
 	QString filename = hRequest.GetArg("filename");
 	if(LoadPlugin(filename))
 		return new ApiManager::ApiOk(QString("'%1' is now loaded").arg(filename));
@@ -441,9 +430,6 @@ API_CALL(PluginManager::Api_ReloadPlugin)
 
 	if(!account.HasPluginsAccess(Account::Write))
 		return new ApiManager::ApiError("Access denied");
-
-	if(!hRequest.HasArg("name"))
-		return new ApiManager::ApiError(QString("Missing 'name' argument<br />Request was : %1").arg(hRequest.toString()));
 
 	QString name = hRequest.GetArg("name");
 	if(ReloadPlugin(name))

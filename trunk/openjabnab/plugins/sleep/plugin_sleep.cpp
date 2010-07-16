@@ -132,12 +132,12 @@ void PluginSleep::RegisterCrons(Bunny * b)
  
 void PluginSleep::InitApiCalls()
 {
-	DECLARE_PLUGIN_BUNNY_API_CALL("goodNight", PluginSleep, Api_GoodNight);
-	DECLARE_PLUGIN_BUNNY_API_CALL("hello", PluginSleep, Api_Hello);
-	DECLARE_PLUGIN_BUNNY_API_CALL("setup", PluginSleep, Api_Setup);
+	DECLARE_PLUGIN_BUNNY_API_CALL("sleep()", PluginSleep, Api_Sleep);
+	DECLARE_PLUGIN_BUNNY_API_CALL("wakeup()", PluginSleep, Api_Wakeup);
+	DECLARE_PLUGIN_BUNNY_API_CALL("setup(wakeupList,sleepList)", PluginSleep, Api_Setup);
 }
 
-PLUGIN_BUNNY_API_CALL(PluginSleep::Api_GoodNight)
+PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Sleep)
 {
 	Q_UNUSED(account);
 	Q_UNUSED(hRequest);
@@ -149,7 +149,7 @@ PLUGIN_BUNNY_API_CALL(PluginSleep::Api_GoodNight)
 	return new ApiManager::ApiOk(QString("Bunny is going to sleep."));
 }
 
-PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Hello)
+PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Wakeup)
 {
 	Q_UNUSED(account);
 	Q_UNUSED(hRequest);
@@ -165,12 +165,6 @@ PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Setup)
 {
 	Q_UNUSED(account);
 
-	if(!hRequest.HasArg("wakeupList"))
-		return new ApiManager::ApiError(QString("Missing argument 'wakeupList'"));
-
-	if(!hRequest.HasArg("sleepList"))
-		return new ApiManager::ApiError(QString("Missing argument 'sleepList'"));
-		
 	QStringList wakeupList =  hRequest.GetArg("wakeupList").split(',');
 	QStringList sleepList = hRequest.GetArg("sleepList").split(',');
 	

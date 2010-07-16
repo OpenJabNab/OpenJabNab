@@ -79,21 +79,19 @@ void PluginMusic::getMusicList(Bunny * b)
 	b->SendPacket(MessagePacket(message));
 }
 
+/*******
+ * API *
+ *******/
+
 void PluginMusic::InitApiCalls()
 {
-	DECLARE_PLUGIN_BUNNY_API_CALL("addrfid", PluginMusic, Api_AddRFID);
-	DECLARE_PLUGIN_BUNNY_API_CALL("removerfid", PluginMusic, Api_RemoveRFID);
+	DECLARE_PLUGIN_BUNNY_API_CALL("addrfid(tag,music)", PluginMusic, Api_AddRFID);
+	DECLARE_PLUGIN_BUNNY_API_CALL("removerfid(tag)", PluginMusic, Api_RemoveRFID);
 }
 
 PLUGIN_BUNNY_API_CALL(PluginMusic::Api_AddRFID)
 {
 	Q_UNUSED(account);
-
-	if(!hRequest.HasArg("music"))
-		return new ApiManager::ApiError(QString("Missing argument 'music' for plugin Music"));
-
-	if(!hRequest.HasArg("tag"))
-		return new ApiManager::ApiError(QString("Missing argument 'tag' for plugin Music"));
 
 	if(!bunny->IsConnected())
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(hRequest.GetArg("to")));
@@ -106,9 +104,6 @@ PLUGIN_BUNNY_API_CALL(PluginMusic::Api_AddRFID)
 PLUGIN_BUNNY_API_CALL(PluginMusic::Api_RemoveRFID)
 {
 	Q_UNUSED(account);
-
-	if(!hRequest.HasArg("tag"))
-		return new ApiManager::ApiError(QString("Missing argument 'tag' for plugin Music"));
 
 	if(!bunny->IsConnected())
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(hRequest.GetArg("to")));
