@@ -18,10 +18,15 @@ public:
 	void OnCron(Bunny*, QVariant);
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);
+	
+	void InitApiCalls();
+	PLUGIN_BUNNY_API_CALL(Api_SetVoice);
+	PLUGIN_BUNNY_API_CALL(Api_GetVoiceList);
 
 private:
 	QDir clockFolder;
-	QList<Bunny*> bunnyList;
+	QMap<Bunny*, QString> bunnyList;
+	QStringList availableVoices;
 };
 
 #endif
