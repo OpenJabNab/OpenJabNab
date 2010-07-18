@@ -27,14 +27,12 @@ PluginTV::~PluginTV()
 
 bool PluginTV::Init()
 {
-	std::auto_ptr<QDir> dir(GetLocalHTTPFolder());
-	if(dir.get())
-	{
-		tvFolder = *dir;
-		TTSManager::CreateNewSound("Programme télé de ce soir", "claire", tvFolder.absoluteFilePath("cesoir.mp3"));
-		return true;
-	}
-	return false;
+	QByteArray ceSoir = TTSManager::CreateNewSound("Programme télé de ce soir", "claire");
+	if(ceSoir.isNull())
+		return false;
+	
+	ceSoirMessage = "MU " + ceSoir + "\nPL 3\nMW\n";
+	return true;
 }
 
 void PluginTV::OnCron(Bunny * b, QVariant)
@@ -160,7 +158,7 @@ void PluginTV_Worker::run()
 
 	QString currentTag;
 	QString chaine;
-	QByteArray message = "MU "+plugin->GetBroadcastHTTPPath("cesoir.mp3")+"\nPL 3\nMW\n";
+	QByteArray message = plugin->ceSoirMessage;
 	while (!xml.atEnd())
 	{
 		xml.readNext();
@@ -178,14 +176,10 @@ void PluginTV_Worker::run()
 				{
 					if(chaine != rx.cap(4))
 					{
-						chaine = rx.cap(4);
-						QString chaineFile = chaine;
-						chaineFile = chaineFile.replace(" ", "").trimmed().append(".mp3").toLower();
 						// LogDebug(rx.cap(4) +" : "+rx.cap(3));
-						QByteArray fileName = QCryptographicHash::hash(rx.cap(3).trimmed().toAscii(), QCryptographicHash::Md5).toHex().append(".mp3");
-						TTSManager::CreateNewSound(rx.cap(4).trimmed(), "claire", plugin->tvFolder.absoluteFilePath(chaineFile));
-						TTSManager::CreateNewSound(rx.cap(3).trimmed(), "julie", plugin->tvFolder.absoluteFilePath(fileName));
-						message += "MU "+plugin->GetBroadcastHTTPPath(chaineFile)+"\nPL 3\nMW\nMU "+plugin->GetBroadcastHTTPPath(fileName)+"\nMW\n";
+						QByteArray file1 = TTSManager::CreateNewSound(rx.cap(4).trimmed(), "claire");
+						QByteArray file2 = TTSManager::CreateNewSound(rx.cap(3).trimmed(), "julie");
+						message += "MU " + file1 + "\nPL 3\nMW\nMU " + file2 + "\nMW\n";
 					}
 				}
 			}

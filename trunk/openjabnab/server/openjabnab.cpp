@@ -10,17 +10,19 @@
 #include "netdump.h"
 #include "pluginmanager.h"
 #include "settings.h"
+#include "ttsmanager.h"
 #include "xmpphandler.h"
 
 OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 {
 	GlobalSettings::Init();
 	LogInfo("-- OpenJabNab Start --");
+	TTSManager::Init();
 	BunnyManager::Init();
 	Bunny::Init();
-	PluginManager::Init();
 	AccountManager::Init();
 	NetworkDump::Init();
+	PluginManager::Init();
 
 	if(GlobalSettings::Get("Config/HttpListener", true) == true)
 	{
