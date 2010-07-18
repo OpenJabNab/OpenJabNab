@@ -15,7 +15,6 @@ class PluginClock : public PluginInterface
 public:
 	PluginClock();
 	virtual ~PluginClock();
-	virtual bool Init();
 	void OnCron(Bunny*, QVariant);
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);

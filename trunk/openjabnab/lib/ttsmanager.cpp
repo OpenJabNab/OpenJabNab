@@ -1,3 +1,4 @@
+#include <QCryptographicHash>
 #include <QDataStream>
 #include <QEventLoop>
 #include <QFile>
@@ -10,10 +11,14 @@
 #include "settings.h"
 #include "ttsmanager.h"
 
-bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, bool forceOverwrite)
+QStringList TTSManager::voiceList;
+QDir TTSManager::ttsFolder;
+QString TTSManager::ttsHTTPUrl;
+
+#define TTS_FOLDER "tts"
+
+void TTSManager::Init()
 {
-	QStringList voiceList;
-	QEventLoop loop;
 	// French voices
 	voiceList << "claire" << "alice" << "bruno" << "julie";
 	// Canadian French voices
@@ -26,13 +31,50 @@ bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, b
 	voiceList << "graham" << "lucy" << "peter" << "rachel";
 	// US English voices
 	voiceList << "heather" << "kenny" << "laura" << "nelly" << "ryan";
+	
+	// Folder
+	QDir folder(GlobalSettings::GetString("Config/RealHttpRoot"));
+	// Try to create tts subfolder
+	if (!folder.cd(TTS_FOLDER))
+	{
+		if (!folder.mkdir(TTS_FOLDER))
+		{
+			LogError(QString("Unable to create "TTS_FOLDER" directory !\n"));
+			return;
+		}
+		folder.cd(TTS_FOLDER);
+	}
+	ttsFolder = folder;
+	ttsHTTPUrl = "broadcast/ojn_local/"TTS_FOLDER"/%1/%2"; // %1 For voice, %2 for FileName
+}
 
-	if(!forceOverwrite && QFile::exists(fileName))
-		return true;
+// Creatte TTS Song in /broadcast/tts/voice/[md5].mp3
+QByteArray TTSManager::CreateNewSound(QString text, QString voice, bool forceOverwrite)
+{
+	QEventLoop loop;
 
 	if(!voiceList.contains(voice))
 		voice = "claire";
 
+	// Check (and create if needed) output folder
+	QDir outputFolder = ttsFolder;
+	if(!outputFolder.exists(voice))
+		outputFolder.mkdir(voice);
+	
+	if(!outputFolder.cd(voice))
+	{
+		LogError(QString("Cant create TTS Folder : %1").arg(ttsFolder.absoluteFilePath(voice)));
+		return QByteArray();
+	}
+	
+	// Compute fileName
+	QString fileName = QCryptographicHash::hash(text.toAscii(), QCryptographicHash::Md5).toHex().append(".mp3");
+	QString filePath = outputFolder.absoluteFilePath(fileName);
+
+	if(!forceOverwrite && QFile::exists(filePath))
+		return ttsHTTPUrl.arg(voice, fileName).toAscii();
+
+	// Fetch MP3
 	QHttp http("vaas3.acapela-group.com");
 	QObject::connect(&http, SIGNAL(done(bool)), &loop, SLOT(quit()));
 
@@ -65,17 +107,17 @@ bool TTSManager::CreateNewSound(QString text, QString voice, QString fileName, b
 		LogInfo(QString("Downloading MP3 file : %1").arg(QString(acapelaFile)));
 		http.get(acapelaFile);
 		loop.exec();
-		QFile file(fileName);
+		QFile file(filePath);
 		if (!file.open(QIODevice::WriteOnly))
 		{
 			LogError("Cannot open sound file for writing");
-			return false;
+			return QByteArray();
 		}
 		file.write(http.readAll());
 		file.close();
-		return true;
+		return ttsHTTPUrl.arg(voice, fileName).toAscii();
 	}
 	LogError("Acapela demo did not return a sound file");
 	LogDebug(QString("Acapela answer : %1").arg(QString(reponse)));
-	return false;
+	return QByteArray();
 }

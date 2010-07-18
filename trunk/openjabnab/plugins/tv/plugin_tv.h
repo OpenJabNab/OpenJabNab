@@ -35,8 +35,7 @@ public:
 
 private:
 	void getTVPage(Bunny *);
-	QDir tvFolder;
-
+	QByteArray ceSoirMessage;
 };
 
 class PluginTV_Worker : public QThread

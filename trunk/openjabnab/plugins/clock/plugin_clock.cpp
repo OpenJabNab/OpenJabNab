@@ -19,19 +19,6 @@ PluginClock::~PluginClock()
 	Cron::UnregisterAll(this);
 }
 
-bool PluginClock::Init()
-{
-	QDir * dir = GetLocalHTTPFolder();
-	if(dir)
-	{
-		clockFolder = *dir;
-		delete dir;
-		return true;
-	}
-	// Init failed
-	return false;
-}
-
 void PluginClock::OnCron(Bunny *, QVariant)
 {
 	foreach(Bunny * b, bunnyList)
@@ -39,9 +26,12 @@ void PluginClock::OnCron(Bunny *, QVariant)
 		if(b->IsIdle())
 		{
 			QString hour = QDateTime::currentDateTime().toString("h");
-			TTSManager::CreateNewSound("Il est "+hour+" heure", "julie", clockFolder.absoluteFilePath(hour+".mp3"));
-			QByteArray message = "MU "+GetBroadcastHTTPPath(hour+".mp3")+"\nPL 3\nMW\n";
-			b->SendPacket(MessagePacket(message));
+			QByteArray file = TTSManager::CreateNewSound("Il est " + hour + " heure", "julie");
+			if(!file.isNull())
+			{
+				QByteArray message = "MU "+file+"\nPL 3\nMW\n";
+				b->SendPacket(MessagePacket(message));
+			}
 		}
 	}
 }

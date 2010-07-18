@@ -34,7 +34,7 @@ public:
 
 private:
 	void getEphemeridePage(Bunny *);
-	QDir ephemerideFolder;
+	QByteArray aujourdhuiMessage;
 
 };
 

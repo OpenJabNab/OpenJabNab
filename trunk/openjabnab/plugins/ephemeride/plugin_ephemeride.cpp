@@ -27,14 +27,12 @@ PluginEphemeride::~PluginEphemeride()
 
 bool PluginEphemeride::Init()
 {
-	std::auto_ptr<QDir> dir(GetLocalHTTPFolder());
-	if(dir.get())
-	{
-		ephemerideFolder = *dir;
-		TTSManager::CreateNewSound("Aujourd'hui nous fetons les", "claire", ephemerideFolder.absoluteFilePath("aujourdhui.mp3"));
-		return true;
-	}
-	return false;
+	QByteArray aujourdhui = TTSManager::CreateNewSound("Aujourd'hui nous fetons les", "claire");
+	if(aujourdhui.isNull())
+		return false;
+	
+	aujourdhuiMessage = "MU " + aujourdhui + "\nPL 3\nMW\n";
+	return true;
 }
 
 void PluginEphemeride::OnCron(Bunny * b, QVariant)
@@ -151,14 +149,12 @@ PluginEphemeride_Worker::PluginEphemeride_Worker(PluginEphemeride * p, Bunny * b
 
 void PluginEphemeride_Worker::run()
 {
-	QByteArray message = "MU "+plugin->GetBroadcastHTTPPath("aujourdhui.mp3")+"\nPL 3\nMW\n";
+	QByteArray message = plugin->aujourdhuiMessage;
 	QRegExp rx(">(.*)</span>");
 	if(rx.indexIn(buffer) != -1)
 	{
-		QString prenomFile = rx.cap(1);
-		prenomFile = prenomFile.replace(" ", "").replace("-", "").trimmed().append(".mp3").toLower();
-		TTSManager::CreateNewSound(rx.cap(1).trimmed(), "claire", plugin->ephemerideFolder.absoluteFilePath(prenomFile));
-		message += "MU "+plugin->GetBroadcastHTTPPath(prenomFile)+"\nPL 3\nMW\n";
+		QByteArray prenomFile = TTSManager::CreateNewSound(rx.cap(1).trimmed(), "claire");
+		message += "MU " + prenomFile + "\nPL 3\nMW\n";
 		emit done(true, bunny, message);
 	}
 	else

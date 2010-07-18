@@ -31,15 +31,8 @@ PLUGIN_BUNNY_API_CALL(PluginTTS::Api_Say)
 	if(!bunny->IsConnected())
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(QString(bunny->GetID())));
 
-	std::auto_ptr<QDir> ttsFolder(GetLocalHTTPFolder());
-	if(!ttsFolder.get())
-			return new ApiManager::ApiError(QString("Can't create output folder, please check logs"));
+	QByteArray fileName = TTSManager::CreateNewSound(hRequest.GetArg("text"), "claire");
 
-	QByteArray fileName = QCryptographicHash::hash(hRequest.GetArg("text").toAscii(), QCryptographicHash::Md5).toHex().append(".mp3");
-	QString filePath = ttsFolder->absoluteFilePath(fileName);
-	if(!QFile::exists(filePath))
-		TTSManager::CreateNewSound(hRequest.GetArg("text"), "claire", filePath);
-
-	bunny->SendPacket(MessagePacket("MU " + GetBroadcastHTTPPath(fileName) + "\nMW\n"));
+	bunny->SendPacket(MessagePacket("MU " + fileName + "\nMW\n"));
 	return new ApiManager::ApiOk(QString("Sending '%1' to bunny '%2'").arg(hRequest.GetArg("text"), QString(bunny->GetID())));
 }
