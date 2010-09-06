@@ -29,8 +29,11 @@ void Cron::OnTimer()
 			e.plugin->OnCron(e.bunny, e.data);
 		}
 
-		e.next_run += e.interval;
-		AddCron(e);
+		if(e.interval != 0)
+		{
+			e.next_run += e.interval;
+			AddCron(e);
+		}
 	}
 
 	// Compute next slot
@@ -86,6 +89,37 @@ unsigned int Cron::Register(PluginInterface * p, unsigned int interval, unsigned
 		time = time.addSecs(interval*60);
 	
 	e.next_run = time.toTime_t();
+	theCron.AddCron(e);
+
+	LogInfo(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
+	return id;
+}
+
+unsigned int Cron::RegisterOneShot(PluginInterface * p, unsigned int interval, Bunny * b, QVariant data, const char * callback)
+{
+	if(!p)
+	{
+		LogError("Cron : pointer is null !");
+		return 0;
+	}
+	
+	Cron & theCron = Instance();
+	unsigned id = ++theCron.lastGivenID;
+	if(!id)
+		LogError("Warning Cron::Register : lastGivenID overlapped !");
+
+	CronElement e;
+	e.interval = 0;
+	e.callback = callback;
+	e.plugin = p;
+	e.bunny = b;
+	e.data = data;
+	e.id = id;
+
+	// Compute next run
+	QDateTime time = QDateTime::currentDateTime();
+	
+	e.next_run = time.toTime_t() + (interval*60);
 	theCron.AddCron(e);
 
 	LogInfo(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
