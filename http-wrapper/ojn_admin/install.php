@@ -1,9 +1,21 @@
 <?
-$dir = realpath(dirname(__FILE__));
-$hostname = "<HOSTNAME>";
-if($hostname == "<HOSTNAME>")
+if(defined("ROOT_SITE"))
 {
-	echo 'The $hostname variable must be filled with your hostname'."\n";
+	echo "Correctly configured";
+	die();
+}
+
+$dir = realpath(dirname(__FILE__));
+if(!isset($_POST['domain']))
+{
+	?>
+	Please verify that the values are correct:
+	<form method='post'>
+		<label for='domain'>Domain name:</label>
+		<input type='text' name='domain' value='<?=$_SERVER['HTTP_HOST']?>' />
+		<input type='submit' value='OK' />
+	</form>
+	<?
 }
 else
 {
@@ -11,6 +23,8 @@ else
 	$htaccess .= 'php_value auto_append_file "'.$dir.'/include/autoappend.php"'."\n";
 	file_put_contents(".htaccess", $htaccess);
 
-	file_put_contents("include/autoprepend.php", preg_replace("|<HOSTNAME>|", "$hostname", file_get_contents("include/autoprepend.php")));
+	file_put_contents("include/autoprepend.php", preg_replace("|<HOSTNAME>|", $_POST['domain'], file_get_contents("include/autoprepend-default.php")));
+	echo "Configuration done";
 }
+
 ?>
