@@ -45,7 +45,7 @@ void PluginSurprise::OnCron(Bunny * b, QVariant)
 		QDir * dir = GetLocalHTTPFolder();
 		if(dir)
 		{
-			QString surprise = b->GetPluginSetting(GetName(), "list", QString()).toString();
+			QString surprise = b->GetPluginSetting(GetName(), "folder", QString()).toString();
 			
 			if(!surprise.isNull() && dir->cd(surprise))
 			{
@@ -67,4 +67,46 @@ void PluginSurprise::OnCron(Bunny * b, QVariant)
 	}
 	// Restart Timer
 	createCron(b);
+}
+
+/*******
+ * API *
+ *******/
+ 
+void PluginSurprise::InitApiCalls()
+{
+	DECLARE_PLUGIN_BUNNY_API_CALL("setFolder(name)", PluginSurprise, Api_SetFolder);
+	DECLARE_PLUGIN_BUNNY_API_CALL("getFolderList()", PluginSurprise, Api_GetFolderList);
+}
+
+PLUGIN_BUNNY_API_CALL(PluginSurprise::Api_SetFolder)
+{
+	Q_UNUSED(account);
+	
+	QString folder = hRequest.GetArg("name");
+	if(availableSurprises.contains(folder))
+	{
+		// Save new config
+		bunny->SetPluginSetting(GetName(), "folder", folder);
+
+		return new ApiManager::ApiOk(QString("Folder changed to '%1'").arg(folder));
+	}
+	return new ApiManager::ApiError(QString("Unknown '%1' folder").arg(folder));
+}
+
+PLUGIN_BUNNY_API_CALL(PluginSurprise::Api_GetFolderList)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(bunny);
+	Q_UNUSED(hRequest);
+
+	// Check available folders and cache them
+	QDir * httpFolder = GetLocalHTTPFolder();
+	if(httpFolder)
+	{
+		availableSurprises = httpFolder->entryList(QDir::Dirs|QDir::NoDotAndDotDot);
+		delete httpFolder;
+	}
+
+	return new ApiManager::ApiList(availableSurprises);
 }

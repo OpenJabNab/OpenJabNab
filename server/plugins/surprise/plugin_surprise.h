@@ -16,8 +16,14 @@ public:
 	void OnBunnyDisconnect(Bunny *);
 	virtual void OnCron(Bunny *, QVariant);
 	
+	void InitApiCalls();
+	
 protected:
 	void createCron(Bunny * b);
+	PLUGIN_BUNNY_API_CALL(Api_GetFolderList);
+	PLUGIN_BUNNY_API_CALL(Api_SetFolder);
+
+	QStringList availableSurprises;
 };
 
 #endif
