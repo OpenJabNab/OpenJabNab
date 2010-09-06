@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 CONFIG += ordered
-SUBDIRS = lib server plugins
+SUBDIRS = lib main plugins
