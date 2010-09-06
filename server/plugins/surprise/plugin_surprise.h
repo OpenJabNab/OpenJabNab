@@ -14,7 +14,10 @@ public:
 
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);
-	void OnInitPacket(const Bunny *, AmbientPacket &, SleepPacket &);
+	virtual void OnCron(Bunny *, QVariant);
+	
+protected:
+	void createCron(Bunny * b);
 };
 
 #endif
