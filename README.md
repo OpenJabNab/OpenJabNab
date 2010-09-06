@@ -20,26 +20,26 @@ This initial version has no true feature.
 Its main use is understanding the dialog between the Nabaztag/tag and the Violet's servers : every call can be logged in a log files or printed on the screen.
 
 OpenJabNab is composed of 2 distinct parts :
-	- An Http-Wrapper written in PHP to redirect all Http calls to the server
-	- A server written in C++ to handle all http calls & xmpp communications
+* An Http-Wrapper written in PHP to redirect all Http calls to the server
+* A server written in C++ to handle all http calls & xmpp communications
 
  
 III) Requirements
 -----------------
 
-	- A Nabaztag/tag
-	- An Apache server (use of RewriteEngine in .htaccess file) with PHP scripting
-	- Qt 4 correctly installed (with dev libraries)
+* A Nabaztag/tag
+* An Apache server (use of RewriteEngine in .htaccess file) with PHP scripting
+* Qt 4 correctly installed (with dev libraries)
 
 IV) Installation
 ----------------
 
-	- Drop the PHP files into a web server folder. This folder must the root of a domain or subdomain (e.g. my.domain.com)
-	- Configure the Nabaztag/tag to use 'my.domain.com/vl' in advanced settings
-	- Generate Makefiles with qmake -r, then make
-	- Edit the openjabnab.ini file and move it to the bin folder (you have to change all "my.domain.com" strings)
-	- Execute openjabnab builded in the bin folder
-
+1. Drop the PHP files into a web server folder. This folder must the root of a domain or subdomain (e.g. my.domain.com)
+2. Generate Makefiles with qmake -r, then make
+3. Edit the openjabnab.ini file and move it to the bin folder (you have to change all "my.domain.com" strings)
+4. Execute openjabnab builded in the bin folder
+5. Configure the Nabaztag/tag to use 'my.domain.com/vl' in advanced settings
+6. Restart the Nabaztag/tag
 
 V) History
 ----------
