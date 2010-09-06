@@ -1,3 +1,10 @@
+<?php
+if(!defined("ROOT_SITE"))
+{
+	echo "Please go to the <a href='install.php'>Installation page</a>";
+	die();
+}
+?>
       <h1 id="accueil">Accueil</h1>
       <p>Bienvenue sur la page de configuration de votre nabaztag sur <span class="titleTip"
          title="serveur open-source pour le nabaztag">openJabNab</span>. Vous avez la possibilit&eacute;
