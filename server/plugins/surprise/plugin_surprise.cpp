@@ -77,6 +77,7 @@ void PluginSurprise::InitApiCalls()
 {
 	DECLARE_PLUGIN_BUNNY_API_CALL("setFolder(name)", PluginSurprise, Api_SetFolder);
 	DECLARE_PLUGIN_BUNNY_API_CALL("getFolderList()", PluginSurprise, Api_GetFolderList);
+	DECLARE_PLUGIN_BUNNY_API_CALL("setFrequency(value)", PluginSurprise, Api_SetFrequency);
 }
 
 PLUGIN_BUNNY_API_CALL(PluginSurprise::Api_SetFolder)
@@ -92,6 +93,16 @@ PLUGIN_BUNNY_API_CALL(PluginSurprise::Api_SetFolder)
 		return new ApiManager::ApiOk(QString("Folder changed to '%1'").arg(folder));
 	}
 	return new ApiManager::ApiError(QString("Unknown '%1' folder").arg(folder));
+}
+
+PLUGIN_BUNNY_API_CALL(PluginSurprise::Api_SetFrequency)
+{
+	Q_UNUSED(account);
+
+	bunny->SetPluginSetting(GetName(), "frequency", QVariant(hRequest.GetArg("value").toInt()));
+	OnBunnyDisconnect(bunny);
+	OnBunnyConnect(bunny);
+	return new ApiManager::ApiOk(QString("Plugin configuration updated."));
 }
 
 PLUGIN_BUNNY_API_CALL(PluginSurprise::Api_GetFolderList)
