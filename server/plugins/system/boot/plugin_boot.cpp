@@ -40,12 +40,15 @@ bool PluginBoot::HttpRequestHandle(HTTPRequest & request)
 		{
 			if(GlobalSettings::Get("Config/StandAloneUseLocalBootcode", true) == true)
 			{
-				QFile bootcodeFile(GlobalSettings::Get("Config/Bootcode", "").toString());
+				QString bcFileName = GlobalSettings::Get("Config/Bootcode", "").toString();
+				QFile bootcodeFile(bcFileName);
 				if(bootcodeFile.open(QFile::ReadOnly))
 				{
 					QByteArray dataByteArray = bootcodeFile.readAll();
 					request.reply = dataByteArray;
 				}
+				else
+					LogError("Bootcode not found : " + bcFileName);
 			}
 			else
 			{
