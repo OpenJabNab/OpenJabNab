@@ -101,6 +101,12 @@ QByteArray HTTPRequest::ForwardTo(QString const& server)
 		http.request(header, rawPostData);
 	}
 	loop.exec();
+	if(http.error() != QHttp::NoError)
+	{
+		LogError(http.errorString());
+		http.close();
+		return QByteArray();
+	}
 	answer = http.readAll();
 	http.close();
 	return answer;
