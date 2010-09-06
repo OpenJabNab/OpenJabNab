@@ -1,8 +1,6 @@
 OpenJabNab
 ==========
-An open PHP/C++-based proxy framework for the Nabaztag/Tag™ (http://www.nabaztag.com/) electronic pet with jabber protocol.
-
-Copyright (c) 2007 OpenJabNab team - http://sourceforge.net/project/memberlist.php?group_id=215394
+An open PHP/C++-based proxy framework for the Nabaztag/Tagâ„¢ (http://www.nabaztag.com/) electronic pet with jabber protocol.
 
 Nabaztag is a trade mark of Violet. OpenJabNab is not owned by or affiliated with Violet.
 
