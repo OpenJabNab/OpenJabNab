@@ -52,7 +52,7 @@ QString Bunny::CheckPlugin(PluginInterface * plugin, bool isAssociated)
 	if(!plugin)
 		return QString("Unknown plugin : %1");
 
-	if(plugin->GetType() != PluginInterface::BunnyPlugin)
+	if(plugin->GetType() != PluginInterface::BunnyPlugin && plugin->GetType() != PluginInterface::BunnyZtampPlugin)
 		return QString("Bad plugin type : %1");
 		
 	if(!plugin->GetEnable())
@@ -317,7 +317,7 @@ void Bunny::PluginLoaded(PluginInterface * p)
 	}
 }
 
-// Plogin unloaded
+// Plugin unloaded
 void Bunny::PluginUnloaded(PluginInterface * p)
 {
 	if(listOfPluginsPtr.contains(p))

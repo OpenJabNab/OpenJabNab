@@ -218,6 +218,20 @@ bool PluginManager::OnEarsMove(Bunny * b, int left, int right)
 	return false;
 }
 
+bool PluginManager::OnRFID(Ztamp * z, Bunny * b)
+{
+	// Call OnRFID for all 'system' plugins until one returns true
+	foreach(PluginInterface * plugin, listOfSystemPlugins)
+	{
+		if(plugin->GetEnable())
+		{
+			if(plugin->OnRFID(z, b))
+				return true;
+		}
+	}
+	return false;
+}
+
 bool PluginManager::OnRFID(Bunny * b, QByteArray const& id)
 {
 	// Call OnRFID for all 'system' plugins until one returns true
@@ -246,6 +260,22 @@ void PluginManager::OnBunnyDisconnect(Bunny * b)
 	foreach(PluginInterface * plugin, listOfSystemPlugins)
 		if(plugin->GetEnable())
 			plugin->OnBunnyDisconnect(b);
+}
+
+// Ztamp Connect
+void PluginManager::OnZtampConnect(Ztamp * b)
+{
+	foreach(PluginInterface * plugin, listOfSystemPlugins)
+		if(plugin->GetEnable())
+			plugin->OnZtampConnect(b);
+}
+
+// Ztamp Disconnect
+void PluginManager::OnZtampDisconnect(Ztamp * b)
+{
+	foreach(PluginInterface * plugin, listOfSystemPlugins)
+		if(plugin->GetEnable())
+			plugin->OnZtampDisconnect(b);
 }
 
 /*******

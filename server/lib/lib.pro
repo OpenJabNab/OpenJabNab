@@ -38,6 +38,8 @@ HEADERS +=	httphandler.h \
 			choregraphy.h \
 			bunnymanager.h \
 			bunny.h \
+			ztampmanager.h \
+			ztamp.h \
 			apimanager.h \
 			cron.h \
 			ttsmanager.h \
@@ -60,6 +62,8 @@ SOURCES +=	httphandler.cpp \
 			choregraphy.cpp \
 			bunnymanager.cpp \
 			bunny.cpp \
+			ztampmanager.cpp \
+			ztamp.cpp \
 			apimanager.cpp \
 			cron.cpp \
 			ttsmanager.cpp \
