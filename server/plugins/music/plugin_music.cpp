@@ -18,7 +18,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_music, PluginMusic)
 
-PluginMusic::PluginMusic():PluginInterface("music", "Music") {}
+PluginMusic::PluginMusic():PluginInterface("music", "Music", BunnyZtampPlugin) {}
 
 bool PluginMusic::Init()
 {
@@ -29,6 +29,20 @@ bool PluginMusic::Init()
 		filters << "*.mp3";
 		musicFolder = *dir;
 		musicFolder.setNameFilters(filters);
+		return true;
+	}
+	return false;
+}
+
+bool PluginMusic::OnRFID(Ztamp * z, Bunny * b)
+{
+	QString music = z->GetPluginSetting(GetName(), QString("Play"), QString()).toString();
+	if(music != "")
+	{
+		LogInfo(QString("Will now play from ztamp (user choice) : %1").arg(music));
+
+		QByteArray message = "ST "+GetBroadcastHTTPPath(music)+"\nPL "+QString::number(qrand() % 8).toAscii()+"\nMW\n";
+		b->SendPacket(MessagePacket(message));
 		return true;
 	}
 	return false;
