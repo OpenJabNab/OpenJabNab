@@ -17,6 +17,7 @@ public:
 	virtual ~PluginMusic() {}
 	virtual bool Init();
 	virtual bool OnRFID(Bunny *, QByteArray const&);
+	virtual bool OnRFID(Ztamp *, Bunny *);
 	
 	bool OnClick(Bunny *, PluginInterface::ClickType);
 
