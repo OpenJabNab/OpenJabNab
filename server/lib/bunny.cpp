@@ -324,7 +324,7 @@ void Bunny::PluginUnloaded(PluginInterface * p)
 	{
 		listOfPluginsPtr.removeAll(p);
 		if(p->GetEnable())
-			p->OnBunnyConnect(this);
+			p->OnBunnyDisconnect(this);
 	}
 }
 
