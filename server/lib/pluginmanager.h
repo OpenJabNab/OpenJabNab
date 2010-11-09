@@ -31,9 +31,13 @@ public:
 	bool OnClick(Bunny *, PluginInterface::ClickType);
 	bool OnEarsMove(Bunny *, int, int);
 	bool OnRFID(Bunny *, QByteArray const&);
+	bool OnRFID(Ztamp *, Bunny *);
 	
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);
+
+	void OnZtampConnect(Ztamp *);
+	void OnZtampDisconnect(Ztamp *);
 
 	QList<PluginInterface *> const& GetListOfPlugins() const;
 	PluginInterface * GetPluginByName(QString const& name) const;

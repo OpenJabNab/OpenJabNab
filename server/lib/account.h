@@ -22,6 +22,7 @@ public:
 	bool IsAdmin() const;
 	bool HasPluginsAccess(Right r) const;
 	bool HasBunniesAccess(Right r) const;
+	bool HasZtampsAccess(Right r) const;
 	bool HasGlobalAccess(Right r) const;
 	bool HasGeneralPluginAccess(Right r) const;
 	bool HasBunnyAccess(QByteArray const& b) const;
@@ -43,6 +44,7 @@ private:
 	bool isAdmin;
 	Rights PluginsAccess;
 	Rights BunniesAccess;
+	Rights ZtampsAccess;
 	Rights GlobalAccess;
 	Rights GeneralPluginAccess;
 	QList<QByteArray> listOfBunnies;
@@ -78,6 +80,13 @@ inline bool Account::HasPluginsAccess(Right r) const
 	if(isAdmin)
 		return true;
 	return PluginsAccess.testFlag(r);
+}
+
+inline bool Account::HasZtampsAccess(Right r) const
+{
+	if(isAdmin)
+		return true;
+	return ZtampsAccess.testFlag(r);
 }
 
 inline bool Account::HasBunniesAccess(Right r) const

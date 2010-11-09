@@ -5,6 +5,8 @@
 #include "accountmanager.h"
 #include "bunny.h"
 #include "bunnymanager.h"
+#include "ztamp.h"
+#include "ztampmanager.h"
 #include "httphandler.h"
 #include "log.h"
 #include "netdump.h"
@@ -20,6 +22,8 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 	TTSManager::Init();
 	BunnyManager::Init();
 	Bunny::Init();
+	ZtampManager::Init();
+	Ztamp::Init();
 	AccountManager::Init();
 	NetworkDump::Init();
 	PluginManager::Init();
@@ -64,6 +68,7 @@ OpenJabNab::~OpenJabNab()
 	NetworkDump::Close();
 	AccountManager::Close();
 	PluginManager::Close();
+	ZtampManager::Close();
 	BunnyManager::Close();
 	GlobalSettings::Close();
 }
