@@ -25,6 +25,7 @@ private:
 	static bool DummyAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray & answer);
 	static bool ProxyAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray & answer);
 	static bool FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray & answer);
+	static bool PatchedAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray & answer);
 
 	typedef bool (*pAuthFunction)(XmppHandler *, QByteArray const&, Bunny **, QByteArray &);
 
