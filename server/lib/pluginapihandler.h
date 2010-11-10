@@ -24,6 +24,13 @@ public:
 	virtual ~PluginBunnyApiFunctor() {};
 };
 
+class PluginZtampApiFunctor
+{
+public:
+	virtual ApiManager::ApiAnswer * call(Ztamp *, Account const&, HTTPRequest const&) = 0;
+	virtual ~PluginZtampApiFunctor() {};
+};
+
 template <class T> class PluginApiSpecificFunctor : public PluginApiFunctor
 {
 private:
@@ -57,6 +64,7 @@ struct function
 
 
 typedef function<PluginBunnyApiFunctor>::Type bunnyApiFunction;
+typedef function<PluginZtampApiFunctor>::Type ztampApiFunction;
 typedef function<PluginApiFunctor>::Type apiFunction;
 
 class PluginApiHandler
@@ -115,6 +123,28 @@ public:
 
 	};
 
+	ApiManager::ApiAnswer * ProcessZtampApiCall(Ztamp * ztamp, Account const& account, QString const& request, HTTPRequest const& hRequest)
+	{
+		// Find an iterator for request
+		QHash<QString, ztampApiFunction>::iterator it = ztampApiCalls.find(request);
+		// If request wasn't found, return an error
+		if(it == ztampApiCalls.end())
+			return new ApiManager::ApiError(QString("This plugin doesn't support this api call"));
+
+		// Check args
+		foreach(QString arg, it->second)
+		{
+			if(!hRequest.HasArg(arg))
+			{
+				return new ApiManager::ApiError(QString("Argument '%1' is missing").arg(arg));
+			}
+		}
+
+		// Call method
+		return it.value().first->call(ztamp, account, hRequest);
+
+	};
+
 	virtual void InitApiCalls() {};
 
 protected:
@@ -136,11 +166,14 @@ protected:
 
 	QHash<QString, apiFunction> apiCalls;
 	QHash<QString, bunnyApiFunction> bunnyApiCalls;
+	QHash<QString, ztampApiFunction> ztampApiCalls;
 };
 
 #define DECLARE_PLUGIN_BUNNY_API_CALL(API_NAME, CLASS_NAME, FUNC_NAME) createApiCall<PluginBunnyApiFunctor>(bunnyApiCalls, API_NAME, new PluginBunnyApiSpecificFunctor<CLASS_NAME>(this, &CLASS_NAME::FUNC_NAME))
+#define DECLARE_PLUGIN_ZTAMP_API_CALL(API_NAME, CLASS_NAME, FUNC_NAME) createApiCall<PluginZtampApiFunctor>(ztampApiCalls, API_NAME, new PluginZtampApiSpecificFunctor<CLASS_NAME>(this, &CLASS_NAME::FUNC_NAME))
 #define DECLARE_PLUGIN_API_CALL(API_NAME, CLASS_NAME, FUNC_NAME) createApiCall<PluginApiFunctor>(apiCalls, API_NAME, new PluginApiSpecificFunctor<CLASS_NAME>(this, &CLASS_NAME::FUNC_NAME))
 
 #define PLUGIN_API_CALL(FUNC_NAME) ApiManager::ApiAnswer * FUNC_NAME(Account const& account, HTTPRequest const& hRequest)
 #define PLUGIN_BUNNY_API_CALL(FUNC_NAME) ApiManager::ApiAnswer * FUNC_NAME(Bunny * bunny, Account const& account, HTTPRequest const& hRequest)
+#define PLUGIN_ZTAMP_API_CALL(FUNC_NAME) ApiManager::ApiAnswer * FUNC_NAME(Ztamp * ztamp, Account const& account, HTTPRequest const& hRequest)
 #endif

@@ -76,7 +76,7 @@ bool PluginManager::LoadPlugin(QString const& fileName)
 		listOfPluginsLoader.insert(plugin, loader);
 		listOfPluginsByName.insert(plugin->GetName(), plugin);
 		listOfPluginsByFileName.insert(fileName, plugin);
-		if(plugin->GetType() != PluginInterface::BunnyPlugin)
+		if(plugin->GetType() != PluginInterface::BunnyPlugin && plugin->GetType() != PluginInterface::BunnyZtampPlugin && plugin->GetType() != PluginInterface::ZtampPlugin )
 			listOfSystemPlugins.append(plugin);
 		else
 			BunnyManager::PluginLoaded(plugin);
@@ -98,7 +98,7 @@ bool PluginManager::UnloadPlugin(QString const& name)
 	if(listOfPluginsByName.contains(name))
 	{
 		PluginInterface * p = listOfPluginsByName.value(name);
-		if(p->GetType() == PluginInterface::BunnyPlugin)
+		if(p->GetType() == PluginInterface::BunnyPlugin || p->GetType() == PluginInterface::BunnyZtampPlugin || p->GetType() == PluginInterface::ZtampPlugin)
 			BunnyManager::PluginUnloaded(p);
 		QString fileName = listOfPluginsFileName.value(p);
 		QPluginLoader * loader = listOfPluginsLoader.value(p);
@@ -335,7 +335,7 @@ API_CALL(PluginManager::Api_GetListOfBunnyPlugins)
 
 	QList<QString> list;
 	foreach (PluginInterface * p, listOfPlugins)
-		if(p->GetType() == PluginInterface::BunnyPlugin)
+		if(p->GetType() == PluginInterface::BunnyPlugin || p->GetType() == PluginInterface::BunnyZtampPlugin)
 			list.append(p->GetName());
 
 	return new ApiManager::ApiList(list);
@@ -379,7 +379,7 @@ API_CALL(PluginManager::Api_GetListOfBunnyEnabledPlugins)
 
 	QList<QString> list;
 	foreach (PluginInterface * p, listOfPlugins)
-		if(p->GetType() == PluginInterface::BunnyPlugin && p->GetEnable())
+		if((p->GetType() == PluginInterface::BunnyPlugin || p->GetType() == PluginInterface::BunnyZtampPlugin) && p->GetEnable())
 			list.append(p->GetName());
 
 	return new ApiManager::ApiList(list);

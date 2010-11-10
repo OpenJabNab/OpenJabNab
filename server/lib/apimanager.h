@@ -81,5 +81,6 @@ private:
 	ApiAnswer * ProcessGlobalApiCall(Account const&, QString const&, HTTPRequest const&);
 	ApiAnswer * ProcessPluginApiCall(Account const&, QString const&, HTTPRequest &);
 	ApiAnswer * ProcessBunnyApiCall(Account const&, QString const&, HTTPRequest const&);
+	ApiAnswer * ProcessZtampApiCall(Account const&, QString const&, HTTPRequest const&);
 };
 #endif
