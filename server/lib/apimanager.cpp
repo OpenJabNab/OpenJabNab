@@ -49,6 +49,12 @@ ApiManager::ApiAnswer * ApiManager::ProcessApiCall(QString const& request, HTTPR
 	if(request.startsWith("bunny/"))
 		return ProcessBunnyApiCall(account, request.mid(6), hRequest);
 	
+	if(request.startsWith("ztamps/"))
+		return ZtampManager::Instance().ProcessApiCall(account, request.mid(8), hRequest);
+
+	if(request.startsWith("stamp/"))
+		return ProcessZtampApiCall(account, request.mid(6), hRequest);
+	
 	if(request.startsWith("accounts/"))
 		return AccountManager::Instance().ProcessApiCall(account, request.mid(9), hRequest);
 
@@ -123,6 +129,43 @@ ApiManager::ApiAnswer * ApiManager::ProcessBunnyApiCall(Account const& account, 
 			}
 		else
 			return new ApiManager::ApiError("This plugin is not enabled for this bunny");
+	}
+	else
+		return new ApiManager::ApiError(QString("Malformed Plugin Api Call : %1").arg(hRequest.toString()));
+}
+
+ApiManager::ApiAnswer * ApiManager::ProcessZtampApiCall(Account const& account, QString const& request, HTTPRequest const& hRequest)
+{
+	QStringList list = QString(request).split('/', QString::SkipEmptyParts);
+	
+	if(list.size() < 2)
+		return new ApiManager::ApiError(QString("Malformed Ztamp Api Call : %1").arg(hRequest.toString()));
+		
+	QByteArray const& ztampID = list.at(0).toAscii();
+	
+	if(!account.HasZtampAccess(ztampID))
+		return new ApiManager::ApiError("Access denied to this ztamp");
+
+	Ztamp * z = ZtampManager::GetZtamp(ztampID);
+
+	if(list.size() == 2)
+	{
+		QByteArray const& functionName = list.at(1).toAscii();
+		return z->ProcessApiCall(account, functionName, hRequest);
+	}
+	else if(list.size() == 3)
+	{
+			PluginInterface * plugin = PluginManager::Instance().GetPluginByName(list.at(1).toAscii());
+			if(!plugin)
+				return new ApiManager::ApiError(QString("Unknown Plugin : '%1'").arg(list.at(1)));
+
+			if(z->HasPlugin(plugin))
+			{
+				QByteArray const& functionName = list.at(2).toAscii();
+				return plugin->ProcessZtampApiCall(z, account, functionName, hRequest);
+			}
+		else
+			return new ApiManager::ApiError("This plugin is not enabled for this ztamp");
 	}
 	else
 		return new ApiManager::ApiError(QString("Malformed Plugin Api Call : %1").arg(hRequest.toString()));

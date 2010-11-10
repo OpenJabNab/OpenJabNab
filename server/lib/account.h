@@ -26,6 +26,7 @@ public:
 	bool HasGlobalAccess(Right r) const;
 	bool HasGeneralPluginAccess(Right r) const;
 	bool HasBunnyAccess(QByteArray const& b) const;
+	bool HasZtampAccess(QByteArray const& b) const;
 	static int Version();
 
 private:
@@ -37,6 +38,8 @@ private:
 	void SetDefault();
 	QByteArray AddBunny(QByteArray const& b);
 	bool RemoveBunny(QByteArray const& b);
+	QByteArray AddZtamp(QByteArray const& z);
+	bool RemoveZtamp(QByteArray const& z);
 
 	QString login;
 	QString username;
@@ -48,6 +51,7 @@ private:
 	Rights GlobalAccess;
 	Rights GeneralPluginAccess;
 	QList<QByteArray> listOfBunnies;
+	QList<QByteArray> listOfZtamps;
 
 	friend QDataStream & operator<< (QDataStream & out, const Account & a);
 };
@@ -110,6 +114,13 @@ inline bool Account::HasGeneralPluginAccess(Right r) const
 	return GeneralPluginAccess.testFlag(r);
 }
 
+inline bool Account::HasZtampAccess(QByteArray const& b) const
+{
+	if(isAdmin)
+		return true;
+	return listOfZtamps.contains(QByteArray::fromHex(b));
+}
+
 inline bool Account::HasBunnyAccess(QByteArray const& b) const
 {
 	if(isAdmin)
@@ -133,6 +144,19 @@ inline bool Account::RemoveBunny(QByteArray const& b)
 {
 	QByteArray id = QByteArray::fromHex(b);
 	return (listOfBunnies.removeAll(id) != 0);
+}
+
+inline QByteArray Account::AddZtamp(QByteArray const& z)
+{
+		QByteArray id = QByteArray::fromHex(z);
+		listOfZtamps.append(id);
+		return id.toHex();
+}
+
+inline bool Account::RemoveZtamp(QByteArray const& z)
+{
+	QByteArray id = QByteArray::fromHex(z);
+	return (listOfZtamps.removeAll(id) != 0);
 }
 
 #endif
