@@ -14,6 +14,8 @@ StandAloneUseLocalBootcode=true
 StandAlonePatchBootcode=false
 Bootcode = 
 SaveBootcode=false
+AllowAnonymousRegistration=false
+AllowUserManageBunny=false
 
 [DefaultVioletServers]
 BootServer=r.nabaztag.com

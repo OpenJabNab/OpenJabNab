@@ -10,6 +10,7 @@
 #include "apimanager.h"
 #include "log.h"
 #include "httprequest.h"
+#include "settings.h"
 
 AccountManager::AccountManager()
 {
@@ -173,7 +174,7 @@ API_CALL(AccountManager::Api_ChangePasswd)
 
 API_CALL(AccountManager::Api_RegisterNewAccount)
 {
-	if(!account.IsAdmin())
+	if(GlobalSettings::Get("Config/AllowAnonymousRegistration", false) == false && !account.IsAdmin())
 		return new ApiManager::ApiError("Access denied");
 
 	QString login = hRequest.GetArg("login");
@@ -189,7 +190,7 @@ API_CALL(AccountManager::Api_RegisterNewAccount)
 API_CALL(AccountManager::Api_AddBunny)
 {
 	// Only admins can add a bunny to an account
-	if(!account.IsAdmin())
+	if(GlobalSettings::Get("Config/AllowUserManageBunny", false) == false && !account.IsAdmin())
 		return new ApiManager::ApiError("Access denied");
 
 	QString login = hRequest.GetArg("login");
@@ -204,7 +205,7 @@ API_CALL(AccountManager::Api_RemoveBunny)
 {
 	// Only admin can remove bunny to any accounts, else an auth user can remove a bunny from his account
 	QString login = hRequest.GetArg("login");
-	if(account.IsAdmin() && !listOfAccountsByName.contains(login))
+	if((account.IsAdmin() || GlobalSettings::Get("Config/AllowUserManageBunny", false) == true) && !listOfAccountsByName.contains(login))
 			return new ApiManager::ApiError(QString("Account '%1' doesn't exist").arg(hRequest.GetArg("login")));
 	else if(account.GetLogin() != login)
 			return new ApiManager::ApiError(QString("Access denied to user '%1'").arg(login));
