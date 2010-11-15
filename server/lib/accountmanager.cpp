@@ -98,7 +98,7 @@ Account const& AccountManager::GetAccount(QByteArray const& token)
 		unsigned int now = QDateTime::currentDateTime().toTime_t();
 		if(now < it->expire_time)
 		{
-			it->expire_time = now + 300; // 5min
+			it->expire_time = now + GlobalSettings::GetInt("Config/SessionTimeout", 300); // default : 5min
 			return *(it->account);
 		}
 		else
@@ -121,7 +121,7 @@ QByteArray AccountManager::GetToken(QString const& login, QByteArray const& hash
 			QByteArray token = QCryptographicHash::hash(QUuid::createUuid().toString().toAscii(), QCryptographicHash::Md5).toHex();
 			TokenData t;
 			t.account = *it;
-			t.expire_time = QDateTime::currentDateTime().toTime_t() + 300;
+			t.expire_time = QDateTime::currentDateTime().toTime_t() + GlobalSettings::GetInt("Config/SessionTimeout", 300);
 			listOfTokens.insert(token, t);
 			return token;
 		}
