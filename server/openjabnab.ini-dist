@@ -16,6 +16,7 @@ Bootcode =
 SaveBootcode=false
 AllowAnonymousRegistration=false
 AllowUserManageBunny=false
+SessionTimeout=300
 
 [DefaultVioletServers]
 BootServer=r.nabaztag.com
