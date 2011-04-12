@@ -132,7 +132,7 @@ bool PluginManager::ReloadPlugin(QString const& name)
 /**************************************************/
 /* HTTP requests are sent to ALL 'active' plugins */
 /**************************************************/
-void PluginManager::HttpRequestBefore(HTTPRequest const& request)
+void PluginManager::HttpRequestBefore(HTTPRequest & request)
 {
 	// Call RequestBefore for all plugins
 	foreach(PluginInterface * plugin, listOfPlugins)
@@ -151,7 +151,7 @@ bool PluginManager::HttpRequestHandle(HTTPRequest & request)
 	return false;
 }
 
-void PluginManager::HttpRequestAfter(HTTPRequest const& request)
+void PluginManager::HttpRequestAfter(HTTPRequest & request)
 {
 	// Call RequestAfter for all plugins
 	foreach(PluginInterface * plugin, listOfPlugins)

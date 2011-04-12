@@ -20,9 +20,9 @@ public:
 	static void Close();
 
 	// HttpRequests are sent to all 'active' plugins
-	void HttpRequestBefore(HTTPRequest const&);
+	void HttpRequestBefore(HTTPRequest &);
 	bool HttpRequestHandle(HTTPRequest &);
-	void HttpRequestAfter(HTTPRequest const&);
+	void HttpRequestAfter(HTTPRequest &);
 	
 	void XmppBunnyMessage(Bunny *, QByteArray const&);
 	void XmppVioletMessage(Bunny *, QByteArray const&);
