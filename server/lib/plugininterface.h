@@ -34,10 +34,10 @@ public:
 	// Called to init plugin, return false if something is wrong
 	virtual bool Init() { return true; };
 
-	virtual void HttpRequestBefore(HTTPRequest const&) {}
+	virtual void HttpRequestBefore(HTTPRequest &) {}
 	// If the plugin returns true, the plugin should handle the request
 	virtual bool HttpRequestHandle(HTTPRequest &) { return false; }
-	virtual void HttpRequestAfter(HTTPRequest const&) {}
+	virtual void HttpRequestAfter(HTTPRequest &) { }
 	
 	// Raw XMPP Messages
 	virtual void XmppBunnyMessage(Bunny *, QByteArray const&) {}
