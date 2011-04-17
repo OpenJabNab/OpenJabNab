@@ -44,6 +44,7 @@ private:
 	API_CALL(Api_RegisterNewAccount);
 	API_CALL(Api_AddBunny);
 	API_CALL(Api_RemoveBunny);
+	API_CALL(Api_SetToken);
 };
 
 inline void AccountManager::Init()

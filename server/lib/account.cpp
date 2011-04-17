@@ -78,3 +78,25 @@ QDataStream & operator<< (QDataStream & out, const Account::Rights & r)
 	out << (int)r;
 	return out;
 }
+
+
+void Account::InitApiCalls()
+{
+	DECLARE_API_CALL("info()", &Account::Api_Info);
+}
+
+API_CALL(Account::Api_Info)
+{
+	Q_UNUSED(hRequest);
+
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	QMap<QString, QString> list;
+	list.insert("login", account.GetLogin());
+	list.insert("token", account.GetToken());
+	list.insert("admin", account.IsAdmin() ? "true" : "false" );
+
+	return new ApiManager::ApiMappedList(list);
+}
+
