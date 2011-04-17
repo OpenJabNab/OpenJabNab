@@ -77,6 +77,9 @@ public:
 
 		foreach(bunnyApiFunction f, bunnyApiCalls.values())
 			delete f.first;
+
+		foreach(ztampApiFunction f, ztampApiCalls.values())
+			delete f.first;
 	}
 
 	// Api Call
