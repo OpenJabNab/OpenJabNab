@@ -94,13 +94,6 @@ ApiManager::ApiAnswer * ApiManager::ProcessPluginApiCall(Account const& account,
 	if(!plugin->GetEnable())
 		return new ApiManager::ApiError("This plugin is disabled");
 
-        QString serialnumber = hRequest.GetArg("bunny");
-        Bunny * b = BunnyManager::GetConnectedBunny(serialnumber.toAscii());
-	if(b != NULL)
-	{
-		return plugin->ProcessBunnyApiCall(b, account, functionName, hRequest);
-	}
-
 	return plugin->ProcessApiCall(account, functionName, hRequest);
 }
 
