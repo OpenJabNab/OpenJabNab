@@ -7,9 +7,10 @@
 #include <QList>
 #include <QString>
 #include "apimanager.h"
+#include "apihandler.h"
 #include "global.h"
 
-class OJN_EXPORT Account
+class OJN_EXPORT Account : public ApiHandler<Account>
 {
 	friend class AccountManager;
 public:
@@ -17,8 +18,12 @@ public:
 	enum Right { None = 0x0, Read = 0x1, Write = 0x2};
 	Q_DECLARE_FLAGS(Rights, Right);
 
+	static void Init() { InitApiCalls(); }
+
 	QByteArray const& GetPasswordHash() const;
 	QString const& GetLogin() const;
+	QByteArray const& GetToken() const;
+	void SetToken(QByteArray);
 	bool IsAdmin() const;
 	bool HasPluginsAccess(Right r) const;
 	bool HasBunniesAccess(Right r) const;
@@ -41,9 +46,12 @@ private:
 	QByteArray AddZtamp(QByteArray const& z);
 	bool RemoveZtamp(QByteArray const& z);
 
+	static void InitApiCalls();
+
 	QString login;
 	QString username;
 	QByteArray passwordHash;
+	QByteArray token;
 	bool isAdmin;
 	Rights PluginsAccess;
 	Rights BunniesAccess;
@@ -52,6 +60,9 @@ private:
 	Rights GeneralPluginAccess;
 	QList<QByteArray> listOfBunnies;
 	QList<QByteArray> listOfZtamps;
+
+	// API
+	API_CALL(Api_Info);
 
 	friend QDataStream & operator<< (QDataStream & out, const Account & a);
 };
@@ -72,6 +83,16 @@ inline QByteArray const& Account::GetPasswordHash() const
 inline QString const& Account::GetLogin() const
 {
 	return login;
+}
+
+inline QByteArray const& Account::GetToken() const
+{
+	return token;
+}
+
+inline void Account::SetToken(QByteArray t)
+{
+	token = t;
 }
 
 inline bool Account::IsAdmin() const

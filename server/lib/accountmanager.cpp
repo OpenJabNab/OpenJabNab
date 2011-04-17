@@ -143,6 +143,7 @@ void AccountManager::InitApiCalls()
 	DECLARE_API_CALL("registerNewAccount(login,username,pass)", &AccountManager::Api_RegisterNewAccount);
 	DECLARE_API_CALL("addBunny(login,bunnyid)", &AccountManager::Api_AddBunny);
 	DECLARE_API_CALL("removeBunny(login,bunnyid)", &AccountManager::Api_RemoveBunny);
+	DECLARE_API_CALL("settoken(tk)", &AccountManager::Api_SetToken);
 }
 
 API_CALL(AccountManager::Api_Auth)
@@ -216,3 +217,18 @@ API_CALL(AccountManager::Api_RemoveBunny)
 	else
 		return new ApiManager::ApiError(QString("Can't remove bunny '%1' from to account '%2'").arg(bunnyID).arg(login));
 }
+
+API_CALL(AccountManager::Api_SetToken)
+{
+	QHash<QString, Account *>::iterator it = listOfAccountsByName.find(account.GetLogin());
+	if(it != listOfAccountsByName.end())
+	{
+		it.value()->SetToken(hRequest.GetArg("tk").toAscii());
+		SaveAccounts();
+		return new ApiManager::ApiString("Token changed");
+	}
+	
+	LogError("Account not found");
+	return new ApiManager::ApiError("Access denied");
+}
+
