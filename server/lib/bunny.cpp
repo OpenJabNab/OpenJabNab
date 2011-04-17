@@ -107,6 +107,10 @@ void Bunny::LoadConfig()
 		else
 			LogError(error.arg(pluginName));
 	}
+	else
+	{
+		singleClickPlugin = NULL;
+	}
 	if(GlobalSettings.contains(DOUBLE_CLICK_PLUGIN_SETTINGNAME))
 	{
 		QString pluginName = GlobalSettings.value(DOUBLE_CLICK_PLUGIN_SETTINGNAME).toString();
@@ -116,6 +120,10 @@ void Bunny::LoadConfig()
 			doubleClickPlugin = plugin;
 		else
 			LogError(error.arg(pluginName));
+	}
+	else
+	{
+		doubleClickPlugin = NULL;
 	}
 	
 	// Added to config file, listOfRFIDTags
