@@ -15,6 +15,13 @@ body {
   padding: 0;
 }
 
+dt {
+	float: left;
+	width: 95px;
+}
+dd {
+	margin-left: 100px;
+}
 table {
   display:table;
   background: #c3d3e5;
@@ -375,4 +382,18 @@ dd {
 
 #footer a:hover {
   text-decoration: none;
+}
+
+.three_cols {
+	width: 31%;
+	margin-left: 10px;
+	margin-right: 10px;
+	float: left;
+}
+
+.two_cols {
+	width: 45%;
+	margin-left: 10px;
+	margin-right: 10px;
+	float: left;
 }
