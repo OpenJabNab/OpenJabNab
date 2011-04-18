@@ -3,7 +3,6 @@
 
 #include <QHash>
 #include <QString>
-#include "account.h"
 #include "apimanager.h"
 #include "global.h"
 #include "httprequest.h"
