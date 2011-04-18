@@ -1,6 +1,7 @@
 #include <QDateTime>
 #include <QStringList>
 #include "plugin_auth.h"
+#include "account.h"
 #include "bunny.h"
 #include "bunnymanager.h"
 #include "iq.h"
