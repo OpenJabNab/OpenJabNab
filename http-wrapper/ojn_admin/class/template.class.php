@@ -27,6 +27,7 @@ class ojnTemplate
 				"|<!!PLUGINS!!>|",
 				"|<!!ACTIF!!>|",
 				"|<!!MENU!!>|",
+				"|<!!BUNNIES!!>|",
 			);
 		$replace = array(
 				$this->titre,
@@ -37,6 +38,7 @@ class ojnTemplate
 				is_array($ListOfPlugins) ? count($ListOfPlugins) : '-',
 				is_array($ListOfActivePlugins) ? count($ListOfActivePlugins) : '-',
 				$this->makeMenu(),
+				$this->makeBunnyMenu(),
 			);
 
 		$template = preg_replace($pattern, $replace, $template);
@@ -50,6 +52,16 @@ class ojnTemplate
 		{
 			$menu .= ' | <a href="bunny.php">Lapin</a>';
 			$menu .= ' | <a href="server.php">Serveur</a>';
+		}
+		return $menu;
+	}
+
+	function makeBunnyMenu()
+	{
+		$bunny = "";
+		foreach(ojnApi::getListOfConnectedBunnies() as $mac => $bunny)
+		{
+			$menu .= '<li><a href="bunny.php?b='.$mac.'" alt="'.$mac.'" title="'.$mac.'">'.($bunny != "Bunny" ? $bunny : $mac).'</a></li>';
 		}
 		return $menu;
 	}
