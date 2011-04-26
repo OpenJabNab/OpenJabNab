@@ -17,6 +17,7 @@ SaveBootcode=false
 AllowAnonymousRegistration=false
 AllowUserManageBunny=false
 SessionTimeout=300
+TTS=acapela
 
 [DefaultVioletServers]
 BootServer=r.nabaztag.com
