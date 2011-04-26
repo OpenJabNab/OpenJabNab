@@ -5,6 +5,7 @@
 #include <QHttp>
 #include <QHttpRequestHeader>
 #include <QObject>
+#include <QPluginLoader>
 #include <QStringList>
 #include <QUrl>
 #include "log.h"
@@ -15,109 +16,126 @@ QStringList TTSManager::voiceList;
 QDir TTSManager::ttsFolder;
 QString TTSManager::ttsHTTPUrl;
 
-#define TTS_FOLDER "tts"
 
-void TTSManager::Init()
+TTSManager::TTSManager()
 {
-	// French voices
-	voiceList << "claire" << "alice" << "bruno" << "julie";
-	// Canadian French voices
-	voiceList << "louise";
-	// German voices
-	voiceList << "klaus" << "sarah";
-	// Spanish voices
-	voiceList << "maria";
-	// UK English voices
-	voiceList << "graham" << "lucy" << "peter" << "rachel";
-	// US English voices
-	voiceList << "heather" << "kenny" << "laura" << "nelly" << "ryan";
-	
-	// Folder
-	QDir folder(GlobalSettings::GetString("Config/RealHttpRoot"));
-	// Try to create tts subfolder
-	if (!folder.cd(TTS_FOLDER))
-	{
-		if (!folder.mkdir(TTS_FOLDER))
-		{
-			LogError(QString("Unable to create "TTS_FOLDER" directory !\n"));
-			return;
-		}
-		folder.cd(TTS_FOLDER);
-	}
-	ttsFolder = folder;
-	ttsHTTPUrl = "broadcast/ojn_local/"TTS_FOLDER"/%1/%2"; // %1 For voice, %2 for FileName
+        // Load all tts
+        ttsDir = QCoreApplication::applicationDirPath();
+        ttsDir.cd("tts");
 }
 
-// Creatte TTS Song in /broadcast/tts/voice/[md5].mp3
+TTSManager & TTSManager::Instance()
+{
+  static TTSManager p;
+  return p;
+}
+
+void TTSManager::UnloadTTSs()
+{
+        foreach(TTSInterface * p, listOfTTSs)
+                delete p;
+        foreach(QPluginLoader * l, listOfTTSsLoader.values())
+        {
+                l->unload();
+                delete l;
+        }
+}
+
+void TTSManager::LoadTTSs()
+{
+        LogInfo(QString("Finding tts in : %1").arg(ttsDir.path()));
+        foreach (QString fileName, ttsDir.entryList(QDir::Files))
+                LoadTTS(fileName);
+}
+
+bool TTSManager::LoadTTS(QString const& fileName)
+{
+        if(listOfTTSsByFileName.contains(fileName))
+        {
+                LogError(QString("TTS '%1' already loaded !").arg(fileName));
+                return false;
+        }
+
+        QString file = ttsDir.absoluteFilePath(fileName);
+        if (!QLibrary::isLibrary(file))
+                return false;
+
+        QString status = QString("Loading %1 : ").arg(fileName);
+
+        QPluginLoader * loader = new QPluginLoader(file);
+        QObject * p = loader->instance();
+        TTSInterface * tts = qobject_cast<TTSInterface *>(p);
+        if (tts)
+        {
+                if(tts->Init() == false)
+                {
+                        delete tts;
+                        loader->unload();
+                        delete loader;
+
+                        status.append(QString("%1 OK, Initialisation failed").arg(tts->GetName()));
+                        LogInfo(status);
+                        return false;
+                }
+
+                listOfTTSs.append(tts);
+                listOfTTSsFileName.insert(tts, fileName);
+                listOfTTSsLoader.insert(tts, loader);
+                listOfTTSsByName.insert(tts->GetName(), tts);
+                listOfTTSsByFileName.insert(fileName, tts);
+
+                status.append(QString("%1 OK, Enable : %2").arg(tts->GetName(),tts->GetEnable() ? "Yes" : "No"));
+                LogInfo(status);
+                return true;
+        }
+        status.append("Failed, ").append(loader->errorString());
+        LogInfo(status);
+        return false;
+}
+
+bool TTSManager::UnloadTTS(QString const& name)
+{
+        if(listOfTTSsByName.contains(name))
+        {
+                TTSInterface * p = listOfTTSsByName.value(name);
+                QString fileName = listOfTTSsFileName.value(p);
+                QPluginLoader * loader = listOfTTSsLoader.value(p);
+                listOfTTSsByFileName.remove(fileName);
+                listOfTTSsFileName.remove(p);
+                listOfTTSsLoader.remove(p);
+                listOfTTSsByName.remove(name);
+                listOfTTSs.removeAll(p);
+                delete p;
+                loader->unload();
+                delete loader;
+                LogInfo(QString("TTS %1 unloaded.").arg(name));
+                return true;
+        }
+        LogInfo(QString("Can't unload tts %1").arg(name));
+        return false;
+}
+
+bool TTSManager::ReloadTTS(QString const& name)
+{
+        if(listOfTTSsByName.contains(name))
+        {
+                TTSInterface * p = listOfTTSsByName.value(name);
+                QString file = listOfTTSsFileName.value(p);
+                return (UnloadTTS(name) && LoadTTS(file));
+        }
+        return false;
+}
+
+// Creatte TTS Song in /broadcast/tts/<name>/<voice>/[md5].mp3
+QByteArray TTSManager::CreateNewSound(QString text, QString voice, QString name, bool forceOverwrite)
+{
+	TTSInterface * tts = Instance().GetTTSByName(name);
+	return tts->CreateNewSound(text, voice, forceOverwrite);
+}
+
 QByteArray TTSManager::CreateNewSound(QString text, QString voice, bool forceOverwrite)
 {
-	QEventLoop loop;
-
-	if(!voiceList.contains(voice))
-		voice = "claire";
-
-	// Check (and create if needed) output folder
-	QDir outputFolder = ttsFolder;
-	if(!outputFolder.exists(voice))
-		outputFolder.mkdir(voice);
-	
-	if(!outputFolder.cd(voice))
-	{
-		LogError(QString("Cant create TTS Folder : %1").arg(ttsFolder.absoluteFilePath(voice)));
-		return QByteArray();
-	}
-	
-	// Compute fileName
-	QString fileName = QCryptographicHash::hash(text.toAscii(), QCryptographicHash::Md5).toHex().append(".mp3");
-	QString filePath = outputFolder.absoluteFilePath(fileName);
-
-	if(!forceOverwrite && QFile::exists(filePath))
-		return ttsHTTPUrl.arg(voice, fileName).toAscii();
-
-	// Fetch MP3
-	QHttp http("vaas3.acapela-group.com");
-	QObject::connect(&http, SIGNAL(done(bool)), &loop, SLOT(quit()));
-
-	QByteArray ContentData;
-	ContentData += "client%5Ftext=" + QUrl::toPercentEncoding(text) + "&client%5Fvoice=" + voice + "22k&client%5Frequest%5Ftype=CREATE%5FREQUEST&client%5Fpassword=demo_web&client%5Flogin=asTTS&client%5Fversion=1%2D00&actionscript%5Fversion=3";
-
-	QHttpRequestHeader Header;
-	Header.addValue("Host", "vaas3.acapela-group.com");
-	Header.addValue("User-Agent", "Mozilla/5.0 (X11; U; Linux i686; fr; rv:1.9.0.1) Gecko/2008072820 Firefox/3.0.1");
-	Header.addValue("Referer", "http://www.acapela-group.com/Flash/Demo_Web_AS3/demo_web.swf?path=http://vaas3.acapela-group.com/connector/1-20/&lang=FR");
-	Header.addValue("Content-type", "application/x-www-form-urlencoded");
-	Header.addValue("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-	Header.addValue("Accept-Language", "fr,fr-fr;q=0.8,en-us;q=0.5,en;q=0.3");
-	Header.addValue("Accept-Encoding", "gzip,deflate");
-	Header.addValue("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
-	Header.addValue("Keep-Alive", "300");
-	Header.addValue("Connection", "keep-alive");
-
-	Header.setContentLength(ContentData.length());
-	Header.setRequest("POST", "/connector/1-20/textToMP3.php", 1, 1);
-
-	http.request(Header, ContentData);
-	loop.exec();
-	QByteArray reponse = http.readAll();
-	QUrl url("?"+reponse);
-	if(url.hasQueryItem("retour_php"))
-	{
-		LogDebug(QString("Acapela answer : %1").arg(QString(reponse)));
-		QString acapelaFile = url.queryItemValue("retour_php");
-		LogInfo(QString("Downloading MP3 file : %1").arg(QString(acapelaFile)));
-		http.get(acapelaFile);
-		loop.exec();
-		QFile file(filePath);
-		if (!file.open(QIODevice::WriteOnly))
-		{
-			LogError("Cannot open sound file for writing");
-			return QByteArray();
-		}
-		file.write(http.readAll());
-		file.close();
-		return ttsHTTPUrl.arg(voice, fileName).toAscii();
-	}
-	LogError("Acapela demo did not return a sound file");
-	LogDebug(QString("Acapela answer : %1").arg(QString(reponse)));
-	return QByteArray();
+	TTSInterface * tts = Instance().GetTTSByName(GlobalSettings::Get("Config/TTS", "acapela").toString());
+	return tts->CreateNewSound(text, voice, forceOverwrite);
 }
+
