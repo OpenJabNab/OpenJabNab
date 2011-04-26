@@ -252,8 +252,6 @@ bool PluginAuth::PatchedAuth(XmppHandler * xmpp, QByteArray const& data, Bunny *
 				IQ iq(data);
 				if(iq.IsValid() && iq.Type() == IQ::Iq_Get && iq.Content() == "<query xmlns='violet:iq:register'/>")
 				{
-				LogError("Bad Auth Step 1, disconnect");
-				return false;
 					// Send the request
 /*
 					answer = iq.Reply(IQ::Iq_Result, "from='" + xmpp->GetXmppDomain() + "' %1 %4", "<query xmlns='violet:iq:register'><instructions>Choose a username and password to register with this server</instructions><username/><password/></query>");
