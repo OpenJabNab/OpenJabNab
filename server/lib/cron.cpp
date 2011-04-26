@@ -120,6 +120,7 @@ unsigned int Cron::RegisterOneShot(PluginInterface * p, unsigned int interval, B
 	QDateTime time = QDateTime::currentDateTime();
 	
 	e.next_run = time.toTime_t() + (interval*60);
+	time = time.addSecs(interval*60);
 	theCron.AddCron(e);
 
 	LogInfo(QString("Cron Register : %1 - %2").arg(p->GetVisualName(),time.toString()));
