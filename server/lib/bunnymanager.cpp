@@ -3,7 +3,11 @@
 #include "bunnymanager.h"
 #include "httprequest.h"
 
-BunnyManager::BunnyManager() {}
+BunnyManager::BunnyManager()
+{
+	bunniesDir = QCoreApplication::applicationDirPath();
+	bunniesDir.cd("bunnies");
+}
 
 BunnyManager & BunnyManager::Instance()
 {
@@ -11,9 +15,22 @@ BunnyManager & BunnyManager::Instance()
   return b;
 }
 
+void BunnyManager::LoadAllBunnies()
+{
+	LogInfo(QString("Finding bunnies in : %1").arg(bunniesDir.path()));
+	QStringList filters;
+	filters << "*.dat";
+	bunniesDir.setNameFilters(filters);
+	foreach (QFileInfo file, bunniesDir.entryInfoList(QDir::Files)) 
+	{
+		GetBunny(file.baseName().toAscii());
+	}
+}
+
 void BunnyManager::InitApiCalls()
 {
 	DECLARE_API_CALL("getListOfConnectedBunnies()", &BunnyManager::Api_GetListOfConnectedBunnies);
+	DECLARE_API_CALL("getListOfBunnies()", &BunnyManager::Api_GetListOfBunnies);
 }
 
 Bunny * BunnyManager::GetBunny(QByteArray const& bunnyHexID)
@@ -102,6 +119,20 @@ API_CALL(BunnyManager::Api_GetListOfConnectedBunnies)
 	foreach(Bunny * b, listOfBunnies)
 		if (b->IsConnected())
 			list.insert(b->GetID(), b->GetBunnyName());
+
+	return new ApiManager::ApiMappedList(list);
+}
+
+API_CALL(BunnyManager::Api_GetListOfBunnies)
+{
+	Q_UNUSED(hRequest);
+
+	if(!account.HasBunniesAccess(Account::Read))
+		return new ApiManager::ApiError("Access denied");
+
+	QMap<QString, QString> list;
+	foreach(Bunny * b, listOfBunnies)
+		list.insert(b->GetID(), b->GetBunnyName());
 
 	return new ApiManager::ApiMappedList(list);
 }

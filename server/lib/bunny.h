@@ -95,7 +95,9 @@ private:
 	API_CALL(Api_GetClickPlugins);
 	API_CALL(Api_GetListOfKnownRFIDTags);
 	API_CALL(Api_SetRFIDTagName);
+	API_CALL(Api_SetBunnyName);
 	API_CALL(Api_SetService);
+	API_CALL(Api_ResetPassword);
 
 	enum State state;
 	

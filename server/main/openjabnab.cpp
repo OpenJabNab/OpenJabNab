@@ -27,6 +27,7 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 	AccountManager::Init();
 	NetworkDump::Init();
 	PluginManager::Init();
+	BunnyManager::LoadBunnies();
 
 	if(GlobalSettings::Get("Config/HttpListener", true) == true)
 	{

@@ -15,6 +15,7 @@ class ojnTemplate
         {
                 $template = file_get_contents(ROOT_SITE.'class/template.tpl.php');
 		$ListOfConnectedBunnies = ojnApi::getListOfConnectedBunnies();
+		$ListOfBunnies = ojnApi::getListOfBunnies();
 		$ListOfPlugins = ojnApi::getListOfPlugins();
 		$ListOfActivePlugins = ojnApi::getListOfActivePlugins();
 
@@ -59,9 +60,10 @@ class ojnTemplate
 	function makeBunnyMenu()
 	{
 		$bunny = "";
-		foreach(ojnApi::getListOfConnectedBunnies() as $mac => $bunny)
+		$online = ojnApi::getListOfConnectedBunnies();
+		foreach(ojnApi::getListOfBunnies() as $mac => $bunny)
 		{
-			$menu .= '<li><a href="bunny.php?b='.$mac.'" alt="'.$mac.'" title="'.$mac.'">'.($bunny != "Bunny" ? $bunny : $mac).'</a></li>';
+			$menu .= '<li'.(isset($online[$mac]) ? ' class="online"' : '').'><a href="bunny.php?b='.$mac.'" alt="'.$mac.'" title="'.$mac.'">'.($bunny != "Bunny" ? $bunny : $mac).'</a></li>';
 		}
 		return $menu;
 	}

@@ -22,7 +22,9 @@ protected:
 	void createCron(Bunny * b);
 	PLUGIN_BUNNY_API_CALL(Api_GetFolderList);
 	PLUGIN_BUNNY_API_CALL(Api_SetFolder);
+	PLUGIN_BUNNY_API_CALL(Api_GetFolder);
 	PLUGIN_BUNNY_API_CALL(Api_SetFrequency);
+	PLUGIN_BUNNY_API_CALL(Api_GetFrequency);
 
 	QStringList availableSurprises;
 };

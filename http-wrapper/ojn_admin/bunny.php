@@ -2,6 +2,17 @@
 if(!isset($_SESSION['connected']))
 	header('Location: index.php');
 
+if(isset($_GET['reset']))
+{
+	$retour = ojnApi::getApiString("bunny/".$_SESSION['bunny']."/resetPassword?".ojnApi::getToken());
+	header('Location: bunny.php');
+}
+if(isset($_GET['single']) && isset($_GET['double']))
+{
+	$retour = ojnApi::getApiString("bunny/".$_SESSION['bunny']."/setSingleClickPlugin?name=".$_GET['single']."&".ojnApi::getToken());
+	$retour = ojnApi::getApiString("bunny/".$_SESSION['bunny']."/setDoubleClickPlugin?name=".$_GET['double']."&".ojnApi::getToken());
+	header('Location: bunny.php');
+}
 if(isset($_POST['plug']) && isset($_POST['stat']))
 {
 	$function = $_POST['stat'] == 'register' ? 'register' : 'unregister';
@@ -58,8 +69,50 @@ else
 <fieldset>
 <?
 $lapins = ojnApi::getListOfConnectedBunnies();
+$plugins = ojnapi::getListOfPlugins();
+$bunnyPlugins = ojnapi::getListOfBunnyActivePlugins(true);
+$actifs = ojnapi::bunnyListOfPlugins($_SESSION['bunny']);
+$clicks = ojnapi::getApiList("bunny/".$_SESSION['bunny']."/getClickPlugins?".ojnApi::getToken());
 ?>
 Nom : <input type="text" name="bunny_name" value="<?=$lapins[$_SESSION['bunny']] ?>"><br />
+<input type="submit" value="Enregistrer">
+</fieldset>
+</form>
+<form>
+<fieldset>
+<input name="reset" type="submit" value="Remettre à zéro le mot de passe">
+</fieldset>
+</form>
+<form>
+<fieldset>
+<?
+$lapins = ojnApi::getListOfConnectedBunnies();
+$plugins = ojnapi::getListOfPlugins();
+$bunnyPlugins = ojnapi::getListOfBunnyActivePlugins(true);
+$actifs = ojnapi::bunnyListOfPlugins($_SESSION['bunny']);
+?>
+Plugin simple click : <select name="single">
+<option value="none">Aucun</option>
+<?
+foreach($actifs as $plugin)
+{
+?>
+<option value="<?=$plugin ?>" <?=($plugin == $clicks[0] ? ' selected="selected"' : '') ?>><?=$plugin ?></option>
+<?
+}
+?>
+</select><br />
+Plugin double click : <select name="double">
+<option value="none">Aucun</option>
+<?
+foreach($actifs as $plugin)
+{
+?>
+<option value="<?=$plugin ?>" <?=($plugin == $clicks[1] ? ' selected="selected"' : '') ?>><?=$plugin ?></option>
+<?
+}
+?>
+</select><br />
 <input type="submit" value="Enregistrer">
 </fieldset>
 </form>
@@ -72,9 +125,6 @@ Nom : <input type="text" name="bunny_name" value="<?=$lapins[$_SESSION['bunny']]
 	</tr>
 <?
 	$i = 0;
-	$plugins = ojnapi::getListOfPlugins();
-	$bunnyPlugins = ojnapi::getListOfBunnyActivePlugins(true);
-	$actifs = ojnapi::bunnyListOfPlugins($_SESSION['bunny']);
 	foreach($bunnyPlugins as $plugin)
 	{
 ?>

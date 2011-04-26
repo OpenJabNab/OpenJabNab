@@ -23,7 +23,7 @@ void PluginSurprise::createCron(Bunny * b)
 	}
 	
 	// Register cron
-	Cron::RegisterOneShot(this, RANDOMIZE(frequency), b, QVariant(), NULL);
+	Cron::RegisterOneShot(this, qrand() % frequency, b, QVariant(), NULL);
 }
 
 void PluginSurprise::OnBunnyConnect(Bunny * b)
@@ -76,8 +76,10 @@ void PluginSurprise::OnCron(Bunny * b, QVariant)
 void PluginSurprise::InitApiCalls()
 {
 	DECLARE_PLUGIN_BUNNY_API_CALL("setFolder(name)", PluginSurprise, Api_SetFolder);
+	DECLARE_PLUGIN_BUNNY_API_CALL("getFolder()", PluginSurprise, Api_GetFolder);
 	DECLARE_PLUGIN_BUNNY_API_CALL("getFolderList()", PluginSurprise, Api_GetFolderList);
 	DECLARE_PLUGIN_BUNNY_API_CALL("setFrequency(value)", PluginSurprise, Api_SetFrequency);
+	DECLARE_PLUGIN_BUNNY_API_CALL("getFrequency()", PluginSurprise, Api_GetFrequency);
 }
 
 PLUGIN_BUNNY_API_CALL(PluginSurprise::Api_SetFolder)
@@ -95,6 +97,14 @@ PLUGIN_BUNNY_API_CALL(PluginSurprise::Api_SetFolder)
 	return new ApiManager::ApiError(QString("Unknown '%1' folder").arg(folder));
 }
 
+PLUGIN_BUNNY_API_CALL(PluginSurprise::Api_GetFolder)
+{
+        Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+
+        return new ApiManager::ApiOk(bunny->GetPluginSetting(GetName(), "folder", QString()).toString());
+}
+
 PLUGIN_BUNNY_API_CALL(PluginSurprise::Api_SetFrequency)
 {
 	Q_UNUSED(account);
@@ -103,6 +113,14 @@ PLUGIN_BUNNY_API_CALL(PluginSurprise::Api_SetFrequency)
 	OnBunnyDisconnect(bunny);
 	OnBunnyConnect(bunny);
 	return new ApiManager::ApiOk(QString("Plugin configuration updated."));
+}
+
+PLUGIN_BUNNY_API_CALL(PluginSurprise::Api_GetFrequency)
+{
+        Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+
+        return new ApiManager::ApiOk(QString::number(bunny->GetPluginSetting(GetName(), "frequency", (uint)0).toInt()));
 }
 
 PLUGIN_BUNNY_API_CALL(PluginSurprise::Api_GetFolderList)

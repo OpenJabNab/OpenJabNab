@@ -264,6 +264,7 @@ QVariant Bunny::GetPluginSetting(QString const& pluginName, QString const& key, 
 		return PluginsSettings[pluginName].value(key);
 	else
 		return defaultValue;
+
 }
 
 void Bunny::SetPluginSetting(QString const& pluginName, QString const& key, QVariant const& value)
@@ -475,8 +476,12 @@ void Bunny::InitApiCalls()
 
 	DECLARE_API_CALL("getListOfKnownRFIDTags()", &Bunny::Api_GetListOfKnownRFIDTags);
 	DECLARE_API_CALL("setRFIDTagName(tag,name)", &Bunny::Api_SetRFIDTagName);
+
+	DECLARE_API_CALL("setBunnyName(name)", &Bunny::Api_SetBunnyName);
 	
 	DECLARE_API_CALL("setService(service,value)", &Bunny::Api_SetService);
+
+	DECLARE_API_CALL("resetPassword()", &Bunny::Api_ResetPassword);
 }
 
 API_CALL(Bunny::Api_AddPlugin)
@@ -602,6 +607,15 @@ API_CALL(Bunny::Api_SetRFIDTagName)
 	return new ApiManager::ApiOk(QString("Name '%1' associated to tag '%2'").arg(hRequest.GetArg("name"), hRequest.GetArg("tag")));
 }
 
+API_CALL(Bunny::Api_SetBunnyName)
+{
+	Q_UNUSED(account);
+	
+	SetBunnyName( hRequest.GetArg("name") );
+	
+	return new ApiManager::ApiOk(QString("Bunny '%1' is now named '%2'").arg(GetID(), hRequest.GetArg("name")));
+}
+
 API_CALL(Bunny::Api_SetService)
 {
 	Q_UNUSED(account);
@@ -614,3 +628,13 @@ API_CALL(Bunny::Api_SetService)
 	
 	return new ApiManager::ApiOk(QString("Set value '%2' for service '%1'").arg(QString::number(service), QString::number(value)));
 }
+
+API_CALL(Bunny::Api_ResetPassword)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+
+	ClearBunnyPassword();
+	return new ApiManager::ApiOk("Password cleared");
+}
+

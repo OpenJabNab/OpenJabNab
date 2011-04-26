@@ -42,8 +42,8 @@ if(count($_POST))
 if(isset($_SESSION['connected']) && $_SESSION['connected'] == true)
 {
 ?>
-<h1>Deconnection</h1>
-Cliquez sur le lien suivant pour vous déconnecter : <a href="index.php?logout">deconnection</a>
+<h1>D&eacute;connexion</h1>
+Cliquez sur le lien suivant pour vous d&eacute;connecter : <a href="index.php?logout">D&eacute;connexion</a>
 <?
 }
 else
@@ -66,5 +66,5 @@ else
 
 <div class="three_cols">
       <h1 id="tutorial">Nouveau compte</h1>
-<p>Si vous voulez utiliser votre lapin, mais que vous n'avez pas de compte utilisateur, vous pouvez en créer un en cliquant sur le lien suivant : <a href="register.php">Cr&eacute;er un compte utilisateur</a>.</p>
+<p>Si vous voulez utiliser votre lapin, mais que vous n'avez pas de compte utilisateur, vous pouvez en cr&eacute;er un en cliquant sur le lien suivant : <a href="register.php">Cr&eacute;er un compte utilisateur</a>.</p>
 </div>
