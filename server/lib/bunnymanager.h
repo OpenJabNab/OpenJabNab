@@ -21,7 +21,8 @@ public:
 
 	static Bunny * GetBunny(PluginInterface *, QByteArray const&);
 	static void PluginStateChanged(PluginInterface *);
-	static inline void Init() { InitApiCalls(); };
+	static void Init();
+	static void LoadBunnies();
 	static void Close();
 
 	// API
@@ -36,10 +37,24 @@ protected:
 
 	// API
 	API_CALL(Api_GetListOfConnectedBunnies);
+	API_CALL(Api_GetListOfBunnies);
 
 private:
 	BunnyManager();
+	void LoadAllBunnies();
+	QDir bunniesDir;
 	static QHash<QByteArray, Bunny *> listOfBunnies;
+	static QHash<QByteArray, Bunny *> allBunnies;
 };
+
+inline void BunnyManager::Init()
+{
+	InitApiCalls();
+}
+
+inline void BunnyManager::LoadBunnies()
+{
+	Instance().LoadAllBunnies();
+}
 
 #endif

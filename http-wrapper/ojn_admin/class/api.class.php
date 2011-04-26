@@ -6,6 +6,12 @@ class ojnApi
 		return "About";
 	}
 
+	public function getListOfBunnies()
+	{
+		$ListOfBunnies = self::getApiMapped("bunnies/getListOfBunnies?".ojnApi::getToken());
+		return $ListOfBunnies;
+	}
+
 	public function getListOfConnectedBunnies()
 	{
 		$ListOfConnectedBunnies = self::getApiMapped("bunnies/getListOfConnectedBunnies?".ojnApi::getToken());
