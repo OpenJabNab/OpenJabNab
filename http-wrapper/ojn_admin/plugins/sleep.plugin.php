@@ -19,7 +19,7 @@ if(!empty($_POST['p'])) {
 $wakeup = "";
 $sleep = "";
 $lists = ojnApi::getApiList("bunny/".$_SESSION['bunny']."/sleep/getsetup?".ojnApi::getToken());
-if(count($lists) == 14)
+if(count($lists))
 {
 	$lists = array_chunk($lists, 7);
 	$wakeup = preg_replace("|(\d+:\d+):00|", "$1", implode(",", $lists[0]));
