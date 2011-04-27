@@ -105,7 +105,10 @@ void Bunny::LoadConfig()
 		if(error.isNull())
 			singleClickPlugin = plugin;
 		else
+		{
+			singleClickPlugin = NULL;
 			LogError(error.arg(pluginName));
+		}
 	}
 	else
 	{
@@ -119,7 +122,10 @@ void Bunny::LoadConfig()
 		if(error.isNull())
 			doubleClickPlugin = plugin;
 		else
+		{
+			doubleClickPlugin = NULL;
 			LogError(error.arg(pluginName));
+		}
 	}
 	else
 	{
@@ -288,6 +294,44 @@ void Bunny::AddPlugin(PluginInterface * p)
 			p->OnBunnyConnect(this);
 		SaveConfig();
 	}
+	if(GlobalSettings.contains(SINGLE_CLICK_PLUGIN_SETTINGNAME))
+	{
+		QString pluginName = GlobalSettings.value(SINGLE_CLICK_PLUGIN_SETTINGNAME).toString();
+		if(p->GetName() == pluginName)
+		{
+			QString error = CheckPlugin(p, true);
+			if(error.isNull())
+				singleClickPlugin = p;
+			else
+			{
+				singleClickPlugin = NULL;
+				LogError(error.arg(pluginName));
+			}
+		}
+	}
+	else
+	{
+		singleClickPlugin = NULL;
+	}
+	if(GlobalSettings.contains(DOUBLE_CLICK_PLUGIN_SETTINGNAME))
+	{
+		QString pluginName = GlobalSettings.value(DOUBLE_CLICK_PLUGIN_SETTINGNAME).toString();
+		if(p->GetName() == pluginName)
+		{
+			QString error = CheckPlugin(p, true);
+			if(error.isNull())
+				doubleClickPlugin = p;
+			else
+			{
+				doubleClickPlugin = NULL;
+				LogError(error.arg(pluginName));
+			}
+		}
+	}
+	else
+	{
+		doubleClickPlugin = NULL;
+	}
 }
 
 // API Remove plugin to this bunny
@@ -295,6 +339,14 @@ void Bunny::RemovePlugin(PluginInterface * p)
 {
 	if(listOfPlugins.contains(p->GetName()))
 	{
+		if(p == singleClickPlugin)
+		{
+			singleClickPlugin = NULL;
+		}
+		if(p == doubleClickPlugin)
+		{
+			doubleClickPlugin = NULL;
+		}
 		listOfPlugins.removeAll(p->GetName());
 		listOfPluginsPtr.removeAll(p);
 		if(IsConnected())
