@@ -44,45 +44,48 @@ void PluginColorbreathing::HttpRequestAfter(HTTPRequest & request)
                 QString serialnumber = request.GetArg("m").remove(':');
                 
         	Bunny * b = BunnyManager::GetBunny(this, serialnumber.toAscii());
-		QString color = b->GetPluginSetting(GetName(), "color", QString("violet")).toString();
+		if(b)
+		{
+			QString color = b->GetPluginSetting(GetName(), "color", QString("violet")).toString();
 
-		if(color == "violet")
-		{
-			LogDebug(QString("No color change for bunny '%1'").arg(QString(b->GetID())));
-		}
-		else if(color == "yellow")
-		{
-			LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
-			patchBootcode(request, 0x000183D8, (char)0x01, (char)0x00); 
-			patchBootcode(request, 0x000183D9, (char)0x00, (char)0x01);
-		}
-		else if(color == "cyan")
-		{
-			LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
-			patchBootcode(request, 0x000183D9, (char)0x00, (char)0x01);
-			patchBootcode(request, 0x000183DA, (char)0x01, (char)0x00); 
-		}
-		else if(color == "blue")
-		{
-			LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
-			patchBootcode(request, 0x000183DA, (char)0x01, (char)0x00); 
-		}
-		else if(color == "red")
-		{
-			LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
-			patchBootcode(request, 0x000183D8, (char)0x01, (char)0x00); 
-		}
-		else if(color == "green")
-		{
-			LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
-			patchBootcode(request, 0x000183D8, (char)0x01, (char)0x00); 
-			patchBootcode(request, 0x000183D9, (char)0x00, (char)0x01);
-			patchBootcode(request, 0x000183DA, (char)0x01, (char)0x00); 
-		}
-		else if(color == "white")
-		{
-			LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
-			patchBootcode(request, 0x000183D9, (char)0x00, (char)0x01);
+			if(color == "violet")
+			{
+				LogDebug(QString("No color change for bunny '%1'").arg(QString(b->GetID())));
+			}
+			else if(color == "yellow")
+			{
+				LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
+				patchBootcode(request, 0x000183D8, (char)0x01, (char)0x00); 
+				patchBootcode(request, 0x000183D9, (char)0x00, (char)0x01);
+			}
+			else if(color == "cyan")
+			{
+				LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
+				patchBootcode(request, 0x000183D9, (char)0x00, (char)0x01);
+				patchBootcode(request, 0x000183DA, (char)0x01, (char)0x00); 
+			}
+			else if(color == "blue")
+			{
+				LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
+				patchBootcode(request, 0x000183DA, (char)0x01, (char)0x00); 
+			}
+			else if(color == "red")
+			{
+				LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
+				patchBootcode(request, 0x000183D8, (char)0x01, (char)0x00); 
+			}
+			else if(color == "green")
+			{
+				LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
+				patchBootcode(request, 0x000183D8, (char)0x01, (char)0x00); 
+				patchBootcode(request, 0x000183D9, (char)0x00, (char)0x01);
+				patchBootcode(request, 0x000183DA, (char)0x01, (char)0x00); 
+			}
+			else if(color == "white")
+			{
+				LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
+				patchBootcode(request, 0x000183D9, (char)0x00, (char)0x01);
+			}
 		}
 	}
 }
