@@ -109,7 +109,6 @@ void PluginWeather::InitApiCalls()
 	DECLARE_PLUGIN_BUNNY_API_CALL("addwebcast(time,city)", PluginWeather, Api_AddWebcast);
 	DECLARE_PLUGIN_BUNNY_API_CALL("removewebcast(time,city)", PluginWeather, Api_RemoveWebcast);
 	DECLARE_PLUGIN_BUNNY_API_CALL("listwebcast()", PluginWeather, Api_ListWebcast);
-
 }
 
 PLUGIN_BUNNY_API_CALL(PluginWeather::Api_DefaultCity)
@@ -123,7 +122,7 @@ PLUGIN_BUNNY_API_CALL(PluginWeather::Api_DefaultCity)
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(hRequest.GetArg("to")));
 
 	bunny->SetPluginSetting(GetName(), "Default/City", hRequest.GetArg("city"));
-	return new ApiManager::ApiString(QString("New default city defined '%1' for bunny '%2'").arg(hRequest.GetArg("city"), QString(bunny->GetID())));
+	return new ApiManager::ApiOk(QString("New default city defined '%1' for bunny '%2'").arg(hRequest.GetArg("city"), QString(bunny->GetID())));
 }
 
 PLUGIN_BUNNY_API_CALL(PluginWeather::Api_AddWebcast)
@@ -149,7 +148,7 @@ PLUGIN_BUNNY_API_CALL(PluginWeather::Api_AddWebcast)
 		bunnyWebcastList.sort();
 		bunny->SetPluginSetting(GetName(), "Webcast/List", bunnyWebcastList);
 	}
-	return new ApiManager::ApiString(QString("Add webcast at '%1' to bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
+	return new ApiManager::ApiOk(QString("Add webcast at '%1' to bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
 }
 
 PLUGIN_BUNNY_API_CALL(PluginWeather::Api_RemoveWebcast)
@@ -181,7 +180,7 @@ PLUGIN_BUNNY_API_CALL(PluginWeather::Api_RemoveWebcast)
 	bunnyWebcastList.sort();
 	bunny->SetPluginSetting(GetName(), "Webcast/List", bunnyWebcastList);
 	if(remove > 0)
-		return new ApiManager::ApiString(QString("Remove webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
+		return new ApiManager::ApiOk(QString("Remove webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
 	return new ApiManager::ApiError(QString("No webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
 }
 

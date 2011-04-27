@@ -25,14 +25,12 @@ bool PluginRecord::HttpRequestHandle(HTTPRequest & request)
 	{
 		QString serialnumber = request.GetArg("sn");
 		QFile wavFile( recordFolder.absoluteFilePath("record_"+QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss")+".wav") );
-		if(wavFile.open(QFile::WriteOnly))
-		{
+		if(wavFile.open(QFile::WriteOnly)) {
 			wavFile.write(request.GetPostRaw());
-		}
-		else
-		{
+		} else {
 			LogError("Impossible to write record file");
 		}
+		return true;
 	}
 	return false;
 }
