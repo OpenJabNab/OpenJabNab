@@ -16,6 +16,15 @@ if(!empty($_POST['p'])) {
 		header("Location: bunny_plugin.php?p=sleep");
 	}
 } 
+$wakeup = "";
+$sleep = "";
+$lists = ojnApi::getApiList("bunny/".$_SESSION['bunny']."/sleep/getsetup?".ojnApi::getToken());
+if(count($lists))
+{
+	$lists = array_chunk($lists, 7);
+	$wakeup = preg_replace("|(\d+:\d+):00|", "$1", implode(",", $lists[0]));
+	$sleep = preg_replace("|(\d+:\d+):00|", "$1", implode(",", $lists[1]));
+}
 ?>
 <form method="post">
 <?php
@@ -31,8 +40,8 @@ if(isset($_SESSION['message'])) {
 <input type="radio" name="a" value="sleep" checked="true" /> Sleep<br />
 <input type="radio" name="a" value="wakeup" /> Wake Up<br />
 <input type="radio" name="a" value="setup" /> Setup: <br />hh:mm,hh:mm,hh:mm.... 7 times for each list<br />
-Wakeup List: <input type="text" name="wakeL" />
-Sleep List: <input type="text" name="sleepL" /><br />
+Wakeup List: <input type="text" name="wakeL" value="<?=$wakeup ?>"/>
+Sleep List: <input type="text" name="sleepL" value="<?=$sleep ?>"/><br />
 <input type="submit" value="Enregister">
 </fieldset>
 </form>

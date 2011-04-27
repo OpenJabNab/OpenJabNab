@@ -135,6 +135,7 @@ void PluginSleep::InitApiCalls()
 	DECLARE_PLUGIN_BUNNY_API_CALL("sleep()", PluginSleep, Api_Sleep);
 	DECLARE_PLUGIN_BUNNY_API_CALL("wakeup()", PluginSleep, Api_Wakeup);
 	DECLARE_PLUGIN_BUNNY_API_CALL("setup(wakeupList,sleepList)", PluginSleep, Api_Setup);
+	DECLARE_PLUGIN_BUNNY_API_CALL("getsetup()", PluginSleep, Api_GetSetup);
 }
 
 PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Sleep)
@@ -197,4 +198,27 @@ PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Setup)
 	UpdateState(bunny);
 	
 	return new ApiManager::ApiOk(QString("Plugin configuration updated."));
+}
+
+PLUGIN_BUNNY_API_CALL(PluginSleep::Api_GetSetup)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+
+	QStringList setup;
+	QList<QVariant> wakeupList = bunny->GetPluginSetting(GetName(), QString("wakeupList"), QList<QVariant>()).toList();
+	QList<QVariant> sleepList = bunny->GetPluginSetting(GetName(), QString("sleepList"), QList<QVariant>()).toList();
+	if(wakeupList.count() == 7 && sleepList.count() == 7)
+	{
+		for(int day = 0; day < 7; day++)
+		{
+			setup << wakeupList.at(day).toString();
+		}
+		for(int day = 0; day < 7; day++)
+		{
+			setup << sleepList.at(day).toString();
+		}
+	}
+	
+	return new ApiManager::ApiList(setup);
 }

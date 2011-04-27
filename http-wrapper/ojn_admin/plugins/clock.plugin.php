@@ -1,7 +1,7 @@
 <?
 if(isset($_POST['voix']))
 {
-	$retour = ojnApi::getApiString("bunny/".$_SESSION['bunny']."/setVoice?name=".$_POST['voix']."&".ojnApi::getToken());
+	$retour = ojnApi::getApiString("bunny/".$_SESSION['bunny']."/clock/setVoice?name=".$_POST['voix']."&".ojnApi::getToken());
 	if(isset($retour['ok']))
 		$_SESSION['message'] = $retour['ok'];
 	else
@@ -10,6 +10,7 @@ if(isset($_POST['voix']))
 	header("Location: bunny_plugin.php?p=clock");
 }
 $voixs = ojnApi::getApiList("bunny/".$_SESSION['bunny']."/clock/getVoiceList?".ojnApi::getToken());
+$voice = ojnApi::getApiList("bunny/".$_SESSION['bunny']."/clock/getVoice?".ojnApi::getToken());
 ?>
 <form method="post">
 <?
@@ -29,7 +30,7 @@ unset($_SESSION['message']);
 foreach($voixs as $voix)
 {
 ?>
-<option value="<?=$voix ?>"><?=$voix ?></option>
+<option value="<?=$voix ?>"<?=$voix == $voice ? ' selected="selected"' : '' ?>><?=$voix ?></option>
 <?
 }
 ?>

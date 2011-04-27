@@ -239,13 +239,21 @@ dd {
   background-color: transparent;
   list-style-type: square;
   list-style-position: inside;
-  width: 10em;
+  width: 11em;
   margin: 0;
   padding: 1ex 0;
   border: 1px solid rgb(204,204,204);
   position: absolute;
   left: 1.5ex;
   top: 12em;
+}
+
+#side-bar li {
+  color: #FF0000;
+}
+
+#side-bar li.online {
+  color: #00FF00;
 }
 
 [id="side-bar"] {
