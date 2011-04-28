@@ -1,9 +1,9 @@
 <?php
 if(!empty($_POST['a'])) {
 	if($_POST['a'] == "pack")
-		$retour = ojnApi::getApiString("bunny/".$_SESSION['bunny']."/packet/sendPacket?data=".urlencode($_POST['textf'])."&".ojnApi::getToken());
+		$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/packet/sendPacket?data=".urlencode($_POST['textf'])."&".$ojnAPI->getToken());
 	elseif($_POST['a'] == "msg")
-		$retour = ojnApi::getApiString("bunny/".$_SESSION['bunny']."/packet/sendMessage?msg=".urlencode($_POST['textf'])."&".ojnApi::getToken());
+		$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/packet/sendMessage?msg=".urlencode($_POST['textf'])."&".$ojnAPI->getToken());
 	else
 		$retour['error'] = "Incorrect Parameters";
 	$_SESSION['message'] = isset($retour['ok']) ? $retour['ok'] : "Error : ".$retour['error'];

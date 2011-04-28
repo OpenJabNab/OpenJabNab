@@ -2,7 +2,7 @@
 require_once "include/common.php";
 if(!isset($_SESSION['connected']))
 	header('Location: index.php');
-	$plugins = $ojnAPI->getListOfPlugins();
+	$plugins = $ojnAPI->getListOfPlugins(false);
 	if(!isset($plugins[$_GET['p']]))
 		header('Location: bunny.php');
 ?>
