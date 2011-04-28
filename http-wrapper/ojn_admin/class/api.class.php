@@ -9,27 +9,30 @@ class ojnApi {
 	
 	private $BunnyActivePlugins;				/* Plugins enabled on a bunny */
 	
-	public function ojnApi() {
-		$this->ConnectedBunnies = $this->getApiMapped("bunnies/getListOfConnectedBunnies?".$this->getToken());
-		$this->ActivePlugins = $this->getApiList("plugins/getListOfEnabledPlugins?".$this->getToken());
-		$this->Plugins = $this->getApiMapped("plugins/getListOfPlugins?".$this->getToken());
+	public function __construct() {
 	}
 
-	public function getListOfBunnies() {
-		if(empty($this->Bunnies))
+	public function getListOfBunnies($reload) {
+		if(empty($this->Bunnies) || $reload)
 			$this->Bunnies = $this->getApiMapped("bunnies/getListOfBunnies?".$this->getToken());
 		return $this->Bunnies;
 	}
 
-	public function getListOfConnectedBunnies()	{
+	public function getListOfConnectedBunnies($reload)	{
+		if(empty($this->ConnectedBunnies) || $reload)
+			$this->ConnectedBunnies = $this->getApiMapped("bunnies/getListOfConnectedBunnies?".$this->getToken());
 		return $this->ConnectedBunnies;
 	}
 
-	public function getListOfActivePlugins() {
+	public function getListOfActivePlugins($reload) {
+		if(empty($this->ActivePlugins) || $reload)
+			$this->ActivePlugins = $this->getApiList("plugins/getListOfEnabledPlugins?".$this->getToken());
 		return $this->ActivePlugins;
 	}
 
-	public function getListOfPlugins() {
+	public function getListOfPlugins($reload) {
+		if(empty($this->Plugins) || $reload)
+			$this->Plugins = $this->getApiMapped("plugins/getListOfPlugins?".$this->getToken());
 		return $this->Plugins;
 	}
 	
@@ -40,20 +43,20 @@ class ojnApi {
 		return $loginAccount['value'];
 	}
 
-	public function getListOfBunnyPlugins($reload = false)	{
+	public function getListOfBunnyPlugins($reload)	{
 		if(empty($this->BunnyPlugins) || $reload)
 			$this->BunnyPlugins = $this->getApiList("plugins/getListOfBunnyPlugins?".$this->getToken());
 		return $this->BunnyPlugins;
 	}
 
-	public function getListOfBunnyActivePlugins($reload = false) {
+	public function getListOfBunnyActivePlugins($reload) {
 		if(empty($this->BunnyEnabledPlugins) || $reload)
 			$this->BunnyEnabledPlugins = $this->getApiList("plugins/getListOfBunnyEnabledPlugins?".$this->getToken());
 		return $this->BunnyEnabledPlugins;
 	}
 
-	public function bunnyListOfPlugins($serial) {
-		if(empty($this->BunnyActivePlugins))
+	public function bunnyListOfPlugins($serial,$reload) {
+		if(empty($this->BunnyActivePlugins) || $reload)
 			$this->BunnyActivePlugins = $this->getApiList('bunny/'.$serial.'/getListOfActivePlugins?'.$this->getToken());
 		return $this->BunnyActivePlugins;
 	}
