@@ -4,7 +4,7 @@ if(!isset($_SESSION['connected']))
 	header('Location: index.php');
 if(!empty($_GET['b'])) {
 		$_SESSION['bunny'] = $_GET['b'];
-		$bunnies = $ojnAPI->getListOfBunnies();
+		$bunnies = $ojnAPI->getListOfBunnies(false);
 		$_SESSION['bunny_name'] = !empty($bunnies[$_GET['b']]) ? $bunnies[$_GET['b']] : '';	
 		header("Location: bunny.php");
 } elseif(isset($_GET['resetpwd'])) {
@@ -29,7 +29,7 @@ if(empty($_SESSION['bunny'])) {
 <h1>Choix du lapin &agrave; configurer</h1>
 <ul>
 <?php
-	$bunnies = $ojnAPI->getListOfBunnies();
+	$bunnies = $ojnAPI->getListOfBunnies(false);
 	foreach($bunnies as $bunny => $nom)	{
 ?>
 	<li><?php echo $nom; ?> (<?php echo $bunny; ?>) <a href="bunny.php?b=<?php echo $bunny; ?>">>></a></li>		
@@ -45,9 +45,9 @@ if(empty($_SESSION['bunny'])) {
 <form>
 <fieldset>
 <?php 
-$plugins = $ojnAPI->getListOfPlugins();
+$plugins = $ojnAPI->getListOfPlugins(false);
 $bunnyPlugins = $ojnAPI->getListOfBunnyActivePlugins(false);
-$actifs = $ojnAPI->bunnyListOfPlugins($_SESSION['bunny']);
+$actifs = $ojnAPI->bunnyListOfPlugins($_SESSION['bunny'],false);
 $clicks = $ojnAPI->getApiList("bunny/".$_SESSION['bunny']."/getClickPlugins?".$ojnAPI->getToken());
 ?>
 Nom : <input type="text" name="bunny_name" value="<?php echo $_SESSION['bunny_name']; ?>"> <input type="submit" value="Enregistrer">
