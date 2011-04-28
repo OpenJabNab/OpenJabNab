@@ -1,9 +1,9 @@
 <?php 
 if(!empty($_POST['a']) && !empty($_POST['etime'])) {
 	if($_POST['a']=="addwbc")
-		$retour = ojnApi::getApiString("bunny/".$_SESSION['bunny']."/ephemeride/addwebcast?time=".$_POST['etime']."&".ojnApi::getToken());
+		$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/ephemeride/addwebcast?time=".$_POST['etime']."&".$ojnAPI->getToken());
 	elseif($_POST['a']=="rmwbc")
-		$retour = ojnApi::getApiString("bunny/".$_SESSION['bunny']."/ephemeride/removewebcast?time=".$_POST['etime']."&".ojnApi::getToken());
+		$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/ephemeride/removewebcast?time=".$_POST['etime']."&".$ojnAPI->getToken());
 	else
 		$retour['error'] = "Incorrect Parameters";
 	$_SESSION['message'] = isset($retour['ok']) ? $retour['ok'] : "Error : ".$retour['error'];

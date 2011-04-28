@@ -1,7 +1,7 @@
 <?php 
 if(file_exists("include/common.php")){
 	echo "Correctly configured";
-	die();
+	exit();
 }
 
 $dir = realpath(dirname(__FILE__));
@@ -17,6 +17,6 @@ if(!isset($_POST['domain'])) {
 	<?
 } else {
 	file_put_contents("include/common.php", str_replace("<HOSTNAME>", $_POST['domain'], file_get_contents("include/common-def.php")));
-	echo "Configuration done";
+	echo "Configuration done. <a href=\"index.php\"> Start using OJN Admin.</a>";
 }
 ?>

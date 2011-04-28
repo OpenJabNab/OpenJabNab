@@ -1,4 +1,6 @@
 <?php
+if(!file_exists("include/common.php"))
+	header('Location: install.php');
 require_once "include/common.php";
 
 if(isset($_GET['logout'])) {
