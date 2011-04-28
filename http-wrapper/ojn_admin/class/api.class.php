@@ -1,139 +1,128 @@
-<?
-class ojnApi
-{
-	public function getGlobalAbout()
-	{
-		return "About";
+<?php
+class ojnApi {
+	private $Bunnies;								/* Registered Bunnies */
+	private $ConnectedBunnies;				/* Connected Bunnies */
+	private $Plugins;								/* All available plugins */
+	private $ActivePlugins;						/* Active Plugins */
+	private $BunnyPlugins;						/* Plugins for bunny */
+	private $BunnyEnabledPlugins;			/* Plugins enabled for a bunny use */
+	
+	private $BunnyActivePlugins;				/* Plugins enabled on a bunny */
+	
+	public function ojnApi() {
+		$this->ConnectedBunnies = $this->getApiMapped("bunnies/getListOfConnectedBunnies?".$this->getToken());
+		$this->ActivePlugins = $this->getApiList("plugins/getListOfEnabledPlugins?".$this->getToken());
+		$this->Plugins = $this->getApiMapped("plugins/getListOfPlugins?".$this->getToken());
 	}
 
-	public function getListOfBunnies()
-	{
-		$ListOfBunnies = self::getApiMapped("bunnies/getListOfBunnies?".ojnApi::getToken());
-		return $ListOfBunnies;
+	public function getListOfBunnies() {
+		if(empty($this->Bunnies))
+			$this->Bunnies = $this->getApiMapped("bunnies/getListOfBunnies?".$this->getToken());
+		return $this->Bunnies;
 	}
 
-	public function getListOfConnectedBunnies()
-	{
-		$ListOfConnectedBunnies = self::getApiMapped("bunnies/getListOfConnectedBunnies?".ojnApi::getToken());
-		return $ListOfConnectedBunnies;
+	public function getListOfConnectedBunnies()	{
+		return $this->ConnectedBunnies;
 	}
 
-	static function getListOfActivePlugins()
-	{
-		return self::getApiList("plugins/getListOfEnabledPlugins?".ojnApi::getToken());
+	public function getListOfActivePlugins() {
+		return $this->ActivePlugins;
 	}
 
-	static function getListOfPlugins()
-	{
-		return self::getApiMapped("plugins/getListOfPlugins?".ojnApi::getToken());
+	public function getListOfPlugins() {
+		return $this->Plugins;
 	}
 	
-	static function loginAccount($login, $pass)
-	{
-		$loginAccount = self::getApiString("accounts/auth?login=".$login."&pass=".$pass);
-
+	public function loginAccount($login, $pass) {
+		$loginAccount = $this->getApiString("accounts/auth?login=".$login."&pass=".$pass);
 		if(isset($loginAccount['error']))
-			return $loginAccount['error'] == 'BAD_LOGIN' ? 'BAD_LOGIN' : 'BAD_ACCOUNT';
-		
+			$loginAccount['value'] = $loginAccount['error'] == 'BAD_LOGIN' ? 'BAD_LOGIN' : 'BAD_ACCOUNT';
 		return $loginAccount['value'];
 	}
 
-	static function getListOfBunnyPlugins($reload = false)
-	{
-		return self::getApiList("plugins/getListOfBunnyPlugins?".ojnApi::getToken());
+	public function getListOfBunnyPlugins($reload = false)	{
+		if(empty($this->BunnyPlugins) || $reload)
+			$this->BunnyPlugins = $this->getApiList("plugins/getListOfBunnyPlugins?".$this->getToken());
+		return $this->BunnyPlugins;
 	}
 
-	static function getListOfBunnyActivePlugins($reload = false)
-	{
-		return self::getApiList("plugins/getListOfBunnyEnabledPlugins?".ojnApi::getToken());
+	public function getListOfBunnyActivePlugins($reload = false) {
+		if(empty($this->BunnyEnabledPlugins) || $reload)
+			$this->BunnyEnabledPlugins = $this->getApiList("plugins/getListOfBunnyEnabledPlugins?".$this->getToken());
+		return $this->BunnyEnabledPlugins;
 	}
 
-	static function bunnyListOfPlugins($serial)
-	{
-		return self::getApiList("bunny/$serial/getListOfActivePlugins?".ojnApi::getToken());
+	public function bunnyListOfPlugins($serial) {
+		if(empty($this->BunnyActivePlugins))
+			$this->BunnyActivePlugins = $this->getApiList('bunny/'.$serial.'/getListOfActivePlugins?'.$this->getToken());
+		return $this->BunnyActivePlugins;
 	}
 
-	static function getApiList($url)
-	{
-		$mapped = file_get_contents(ROOT_WWW_API.$url);
-		$mapped = self::loadXmlString($mapped);
-		return self::transformList($mapped);
+	public function getApiList($url) {
+		return $this->transformList($this->getApi($url));
 	}
 
-	static function getApiMapped($url)
-	{
-		$mapped = file_get_contents(ROOT_WWW_API.$url);
-		$mapped = self::loadXmlString($mapped);
-		return self::transformMappedList($mapped);
+	private function getApiMapped($url)	{
+		return $this->transformMappedList($this->getApi($url));
 	}
 
-	static function getApiString($url)
-	{
-		$string = file_get_contents(ROOT_WWW_API.$url);
-		$string = ojnApi::loadXmlString($string);
-		return (array)$string;
+	private function getApi($url) {
+		return $this->loadXmlString(file_get_contents(ROOT_WWW_API.$url));
 	}
 
-	static function getMappedList($url)
-	{
-		return $map = ojnApi::transformMappedList(ojnApi::loadXmlString(file_get_contents(ROOT_WWW_API.$url.ojnApi::getToken())));
+	public function getApiString($url) {
+		return (array)$this->getApi($url);
 	}
 
-	static function loadXmlString($string)
-	{
+	private function getMappedList($url) {
+		return $this->transformMappedList($this->getApi($url));
+	}
+
+	private function loadXmlString($string) {
 		return @simplexml_load_string($string);
 	}
 
-	static function setToken($token)
-	{
-		return $_SESSION['token'] = $token;
+	public function setToken($token) {
+		$_SESSION['token'] = $token;
 	}
 
-	static function getToken()
-	{
+	public function getToken() {
 		return isset($_SESSION['token']) ? 'token='.$_SESSION['token'] : '';
 	}
 
-	static function transformMappedList($mapped)
-	{
-		if(isset($mapped->list))
-		{
+	private function transformMappedList($mapped) {
+		if(isset($mapped->list)) {
 			$mapped = (array)$mapped->list->children();
 
-			if(count($mapped))
-			{
+			if(count($mapped)) {
 				if(!is_array($mapped['item']))
 					$mapped['item'] = array($mapped['item']);
 				$mapped = $mapped['item'];
 			}
 			$temp = array();
-			foreach($mapped as $item)
-			{
+			foreach($mapped as $item) {
 				$item = (array)$item;
 				$temp[$item['key']] = $item['value'];
 			}
-			return $temp;
-		}
-		return false;
+		} else
+			$temp = false;
+		return $temp;
 	}
 
-	static function transformValue($value)
-	{
-		if(isset($value->value))
-		{
+	private function transformValue($value) {
+		if(isset($value->value))	{
 			$value = (array)$value;
-			return $value['value'];
-		}
-		return false;
+			$value = $value['value'];
+		} else
+			$value = false;
+		return $value;
 	}
 
-	static function transformList($list)
-	{
+	private function transformList($list) {
 		$list = (array)$list;
 		$list = (array)$list['list'];
 		$temp = array();
-		if(is_array($list['item']))
-		{
+		if(is_array($list['item'])) {
 			foreach($list['item'] as $item)
 				$temp[] = $item;
 		}

@@ -1,30 +1,22 @@
-<?
-if(defined("ROOT_SITE"))
-{
+<?php 
+if(file_exists("include/common.php")){
 	echo "Correctly configured";
-	die();
+	exit();
 }
 
 $dir = realpath(dirname(__FILE__));
-if(!isset($_POST['domain']))
-{
+if(!isset($_POST['domain'])) {
 	?>
+	The "include" folder must be writeable !
 	Please verify that the values are correct:
 	<form method='post'>
 		<label for='domain'>Domain name:</label>
-		<input type='text' name='domain' value='<?=$_SERVER['HTTP_HOST']?>' />
+		<input type='text' name='domain' value='<?php echo $_SERVER['HTTP_HOST']?>' />
 		<input type='submit' value='OK' />
 	</form>
 	<?
+} else {
+	file_put_contents("include/common.php", str_replace("<HOSTNAME>", $_POST['domain'], file_get_contents("include/common-def.php")));
+	echo "Configuration done. <a href=\"index.php\"> Start using OJN Admin.</a>";
 }
-else
-{
-	$htaccess  = 'php_value auto_prepend_file "'.$dir.'/include/autoprepend.php"'."\n";
-	$htaccess .= 'php_value auto_append_file "'.$dir.'/include/autoappend.php"'."\n";
-	file_put_contents(".htaccess", $htaccess);
-
-	file_put_contents("include/autoprepend.php", preg_replace("|<HOSTNAME>|", $_POST['domain'], file_get_contents("include/autoprepend-default.php")));
-	echo "Configuration done";
-}
-
 ?>

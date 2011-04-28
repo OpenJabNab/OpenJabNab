@@ -1,33 +1,23 @@
 <?php
-if(!defined("ROOT_SITE"))
-{
-	echo "Please go to the <a href='install.php'>Installation page</a>";
-	die();
-}
-if(isset($_GET['logout']))
-{
+if(!file_exists("include/common.php"))
+	header('Location: install.php');
+require_once "include/common.php";
+
+if(isset($_GET['logout'])) {
 	unset($_SESSION['connected']);
 	unset($_SESSION['bunny']);
+	unset($_SESSION['bunny_name']);
 	unset($_SESSION['admin']);
 	unset($_SESSION['token']);
+	header("Location: index.php");
 }
-if(count($_POST))
-{
-	if(isset($_POST['login']) && isset($_POST['password']))
-	{
-		$retour = ojnapi::loginAccount($_POST['login'], $_POST['password']);
-		if(!preg_match("|^BAD_|", $retour))
-		{
-			$_SESSION['connected'] = true;
-			ojnapi::setToken($retour);
-		}
-		else
-		{
-			unset($_SESSION['connected']);
-			unset($_SESSION['bunny']);
-			unset($_SESSION['admin']);
-		}
-	}
+if(!empty($_POST['login']) && !empty($_POST['password'])) {
+	$r = $ojnAPI->loginAccount($_POST['login'], $_POST['password']);
+	if(!strpos($r,"AD_")) {
+		$_SESSION['connected'] = true;
+		$ojnAPI->setToken($r);
+	} 
+	header("Location: index.php");
 }
 ?>
 <div class="three_cols">
@@ -38,16 +28,13 @@ if(count($_POST))
 </div>
 
 <div class="three_cols">
-<?
-if(isset($_SESSION['connected']) && $_SESSION['connected'] == true)
-{
+<?php
+if(isset($_SESSION['connected']) && $_SESSION['connected']) {
 ?>
 <h1>D&eacute;connexion</h1>
 Cliquez sur le lien suivant pour vous d&eacute;connecter : <a href="index.php?logout">D&eacute;connexion</a>
-<?
-}
-else
-{
+<?php
+} else {
 ?>
       <h1 id="tutorial">Connection</h1>
       <form method="post">
@@ -59,7 +46,7 @@ else
 	</dl>
 	<input type="submit" value="Se connecter">
 	</form>
-<?
+<?php
 }
 ?>
 </div>
@@ -68,3 +55,6 @@ else
       <h1 id="tutorial">Nouveau compte</h1>
 <p>Si vous voulez utiliser votre lapin, mais que vous n'avez pas de compte utilisateur, vous pouvez en cr&eacute;er un en cliquant sur le lien suivant : <a href="register.php">Cr&eacute;er un compte utilisateur</a>.</p>
 </div>
+<?php
+require_once("include/append.php");
+?>

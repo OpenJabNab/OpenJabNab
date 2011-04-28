@@ -1,24 +1,26 @@
-<?
-class ojnTemplate
-{
-	var $titre_alt	= "";
-	var $titre	= "openJabNab";
-	var $soustitre	= "Configuration";
+<?php
+class ojnTemplate {
+	private $titre_alt	= "";
+	private $titre	= "openJabNab";
+	private $soustitre	= "Configuration";
+	private $Api;
+	
+	public function ojnTemplate($api) {
+		$this->Api=$api;
+		//var_dump($_SERVER);
+	}
 
-        function ojnTemplate()
-        {
-		$this->titre_alt = ojnApi::getGlobalAbout();
-                ob_start(array(&$this, "display"));
-        }
-
-        function display($buffer)
-        {
-                $template = file_get_contents(ROOT_SITE.'class/template.tpl.php');
-		$ListOfConnectedBunnies = ojnApi::getListOfConnectedBunnies();
-		$ListOfBunnies = ojnApi::getListOfBunnies();
-		$ListOfPlugins = ojnApi::getListOfPlugins();
-		$ListOfActivePlugins = ojnApi::getListOfActivePlugins();
-
+	public function display($buffer) {
+		$template = file_get_contents(ROOT_SITE.'class/template.tpl.php');
+		$ListOfConnectedBunnies = $this->Api->getListOfConnectedBunnies();
+		$ListOfBunnies = $this->Api->getListOfBunnies();
+		$ListOfPlugins = $this->Api->getListOfPlugins();
+		$ListOfActivePlugins = $this->Api->getListOfActivePlugins();
+		
+		if(empty($ListOfPlugins) && isset($_SESSION['connected']) 
+		   && !isset($_POST['login']) && !strpos($_SERVER['REQUEST_URI'],"logout"))
+			header('Location: index.php?logout');
+		
 		$pattern = array(
 				"|<!!TITLE!!>|",
 				"|<!!ALTTITLE!!>|",
@@ -26,7 +28,7 @@ class ojnTemplate
 				"|<!!CONTENT!!>|",
 				"|<!!LAPINS!!>|",
 				"|<!!PLUGINS!!>|",
-				"|<!!ACTIF!!>|",
+				"|<!!PL_ACTIFS!!>|",
 				"|<!!MENU!!>|",
 				"|<!!BUNNIES!!>|",
 			);
@@ -37,7 +39,7 @@ class ojnTemplate
 				$buffer,
 				is_array($ListOfConnectedBunnies) ? count($ListOfConnectedBunnies) : '-',
 				is_array($ListOfPlugins) ? count($ListOfPlugins) : '-',
-				is_array($ListOfActivePlugins) ? count($ListOfActivePlugins) : '-',
+				!empty($ListOfActivePlugins[0]) ? count($ListOfActivePlugins) :  '-',
 				$this->makeMenu(),
 				$this->makeBunnyMenu(),
 			);
@@ -46,25 +48,24 @@ class ojnTemplate
 		return $template;
         }
 
-	function makeMenu()
-	{
+	function makeMenu() {
 		$menu = '<a href="index.php">Accueil</a>';
-		if(isset($_SESSION['connected']))
-		{
+		if(isset($_SESSION['connected']))	{
 			$menu .= ' | <a href="bunny.php">Lapin</a>';
 			$menu .= ' | <a href="server.php">Serveur</a>';
 		}
 		return $menu;
 	}
 
-	function makeBunnyMenu()
-	{
+	function makeBunnyMenu()	{
 		$bunny = "";
-		$online = ojnApi::getListOfConnectedBunnies();
-		foreach(ojnApi::getListOfBunnies() as $mac => $bunny)
-		{
-			$menu .= '<li'.(isset($online[$mac]) ? ' class="online"' : '').'><a href="bunny.php?b='.$mac.'" alt="'.$mac.'" title="'.$mac.'">'.($bunny != "Bunny" ? $bunny : $mac).'</a></li>';
-		}
+		$online = $this->Api->getListOfConnectedBunnies();
+		$bunnies = $this->Api->getListOfBunnies();
+		if(!empty($bunnies))
+			foreach($bunnies as $mac => $bunny)
+				$menu .= '<li'.(isset($online[$mac]) ? ' class="online"' : '').'><a href="bunny.php?b='.$mac.'" alt="'.$mac.'" title="'.$mac.'">'.($bunny != "Bunny" ? $bunny : $mac).'</a></li>';
+		else
+			$menu .='<li>No Bunny</li>';
 		return $menu;
 	}
 }
