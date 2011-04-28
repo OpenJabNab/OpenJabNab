@@ -5,7 +5,7 @@ class ojnTemplate {
 	private $soustitre	= "Configuration";
 	private $Api;
 	
-	public function ojnTemplate($api) {
+	public function __construct($api) {
 		$this->Api=$api;
 	}
 
@@ -47,7 +47,7 @@ class ojnTemplate {
 		return $template;
         }
 
-	function makeMenu() {
+	private function makeMenu() {
 		$menu = '<a href="index.php">Accueil</a>';
 		if(isset($_SESSION['connected']))	{
 			$menu .= ' | <a href="bunny.php">Lapin</a>';
@@ -56,7 +56,7 @@ class ojnTemplate {
 		return $menu;
 	}
 
-	function makeBunnyMenu()	{
+	private function makeBunnyMenu()	{
 		$bunny = "";
 		$online = $this->Api->getListOfConnectedBunnies(false);
 		$bunnies = $this->Api->getListOfBunnies(false);
