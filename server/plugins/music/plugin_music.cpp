@@ -112,7 +112,7 @@ PLUGIN_BUNNY_API_CALL(PluginMusic::Api_AddRFID)
 
 	bunny->SetPluginSetting(GetName(), QString("RFIDPlay/%1").arg(hRequest.GetArg("tag")), hRequest.GetArg("music"));
 
-	return new ApiManager::ApiString(QString("Add '%1' for RFID '%2', bunny '%3'").arg(hRequest.GetArg("music"), hRequest.GetArg("tag"), QString(bunny->GetID())));
+	return new ApiManager::ApiOk(QString("Add '%1' for RFID '%2', bunny '%3'").arg(hRequest.GetArg("music"), hRequest.GetArg("tag"), QString(bunny->GetID())));
 }
 
 PLUGIN_BUNNY_API_CALL(PluginMusic::Api_RemoveRFID)
@@ -124,6 +124,6 @@ PLUGIN_BUNNY_API_CALL(PluginMusic::Api_RemoveRFID)
 
 	bunny->RemovePluginSetting(GetName(), QString("RFIDPlay/%1").arg(hRequest.GetArg("tag")));
 
-	return new ApiManager::ApiString(QString("Remove RFID '%2' for bunny '%3'").arg(hRequest.GetArg("tag"), QString(bunny->GetID())));
+	return new ApiManager::ApiOk(QString("Remove RFID '%2' for bunny '%3'").arg(hRequest.GetArg("tag"), QString(bunny->GetID())));
 }
 

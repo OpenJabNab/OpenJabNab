@@ -16,6 +16,25 @@ PluginTest::~PluginTest()
 {
 }
 
+void PluginTest::InitApiCalls()
+{
+	DECLARE_PLUGIN_BUNNY_API_CALL("test(type)", PluginTest, Api_LaunchTests);
+}
+
+PLUGIN_BUNNY_API_CALL(PluginTest::Api_LaunchTests)
+{
+	Q_UNUSED(account);
+
+	QString test = hRequest.GetArg("type");
+	if(test == "ambient")
+		PluginTest::OnClick(bunny, PluginInterface::SingleClick);
+	else if(test == "chor")
+		PluginTest::OnClick(bunny, PluginInterface::DoubleClick);
+	else
+		return new ApiManager::ApiError(QString("Unknown test: %1'").arg(test));
+	return new ApiManager::ApiOk(QString("Test \"%1\" started for bunny '%2'").arg(test, QString(bunny->GetID())));
+}
+
 bool PluginTest::OnClick(Bunny * b, PluginInterface::ClickType type)
 {
 	if (type == PluginInterface::SingleClick)
