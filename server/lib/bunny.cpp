@@ -637,7 +637,7 @@ API_CALL(Bunny::Api_GetListOfKnownRFIDTags)
 	Q_UNUSED(account);
 	Q_UNUSED(hRequest);
 	
-	QMap<QString, QString> list;
+	QMap<QString, QVariant> list;
 
 	QHash<QByteArray, QString>::const_iterator i;
 	for (i = knownRFIDTags.constBegin(); i != knownRFIDTags.constEnd(); ++i)

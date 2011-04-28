@@ -6,6 +6,7 @@
 #include <QMap>
 #include <QMapIterator>
 #include <QString>
+#include <QVariant>
 #include "global.h"
 
 class Account;
@@ -70,10 +71,10 @@ public:
 	class OJN_EXPORT ApiMappedList : public ApiAnswer
 	{
 		public:
-			ApiMappedList(QMap<QString, QString> l):list(l) {}
+			ApiMappedList(QMap<QString, QVariant> l):list(l) {}
 			QString GetInternalData();
 		private:
-			QMap<QString, QString> list;
+			QMap<QString, QVariant> list;
 	};
 
 private:

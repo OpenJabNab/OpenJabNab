@@ -304,7 +304,7 @@ API_CALL(PluginManager::Api_GetListOfPlugins)
 	if(!account.HasPluginsAccess(Account::Read))
 		return new ApiManager::ApiError("Access denied");
 
-	QMap<QString, QString> list;
+	QMap<QString, QVariant> list;
 	foreach (PluginInterface * p, listOfPlugins)
 		list.insert(p->GetName(), p->GetVisualName());
 

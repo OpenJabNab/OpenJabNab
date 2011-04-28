@@ -207,10 +207,10 @@ QString ApiManager::ApiMappedList::GetInternalData()
 { 
 	QString tmp;
 	tmp += "<list>";
-	QMapIterator<QString, QString> i(list);
+	QMapIterator<QString, QVariant> i(list);
 	while (i.hasNext()) {
 		i.next();
-		tmp += QString("<item><key>%1</key><value>%2</value></item>").arg(SanitizeXML(i.key()), SanitizeXML(i.value()));
+		tmp += QString("<item><key>%1</key><value>%2</value></item>").arg(SanitizeXML(i.key()), SanitizeXML(i.value().toString()));
 	}
 	tmp += "</list>";
 	return tmp;
