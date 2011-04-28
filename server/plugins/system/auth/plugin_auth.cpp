@@ -496,7 +496,7 @@ PLUGIN_API_CALL(PluginAuth::Api_GetListOfAuths)
 	if(!account.IsAdmin())
 		return new ApiManager::ApiError("Access denied");
 
-	QMap<QString,QString> list;
+	QMap<QString,QVariant> list;
 	
 	QMap<QString, pAuthFunction>::const_iterator i;
 	for (i = listOfAuthFunctions.constBegin(); i != listOfAuthFunctions.constEnd(); ++i)

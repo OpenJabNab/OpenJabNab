@@ -80,7 +80,7 @@ API_CALL(ZtampManager::Api_GetListOfZtamps)
 	if(!account.HasZtampsAccess(Account::Read))
 		return new ApiManager::ApiError("Access denied");
 
-	QMap<QString, QString> list;
+	QMap<QString, QVariant> list;
 	foreach(Ztamp * z, listOfZtamps)
 		list.insert(z->GetID(), z->GetZtampName());
 

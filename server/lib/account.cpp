@@ -92,7 +92,7 @@ API_CALL(Account::Api_Info)
 	if(!account.IsAdmin())
 		return new ApiManager::ApiError("Access denied");
 
-	QMap<QString, QString> list;
+	QMap<QString, QVariant> list;
 	list.insert("login", account.GetLogin());
 	list.insert("token", account.GetToken());
 	list.insert("admin", account.IsAdmin() ? "true" : "false" );
