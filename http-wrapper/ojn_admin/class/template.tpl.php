@@ -8,8 +8,6 @@
     <link rel="top"      href="./index.php" title="Homepage" />
 
     <link rel="stylesheet" type="text/css" href="css/openjabnab.css" media="screen" title="openJabNab" />
-    <script type="text/javascript" src="js/jquery.js"></script>
-    <script type="text/javascript" src="js/openjabnab.js"></script> 
 
     <title><!!TITLE!!></title>
   </head>
