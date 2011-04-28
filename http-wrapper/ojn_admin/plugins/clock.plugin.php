@@ -1,41 +1,20 @@
-<?
-if(isset($_POST['voix']))
-{
-	$retour = ojnApi::getApiString("bunny/".$_SESSION['bunny']."/clock/setVoice?name=".$_POST['voix']."&".ojnApi::getToken());
-	if(isset($retour['ok']))
-		$_SESSION['message'] = $retour['ok'];
-	else
-		$_SESSION['message'] = "Error : ".$retour['error'];
-	session_write_close();
+<?php
+if(isset($_POST['voix'])) {
+	$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/clock/setVoice?name=".$_POST['voix']."&".$ojnAPI->getToken());
+	$_SESSION['message'] = isset($retour['ok']) ? $retour['ok'] : "Error : ".$retour['error'];
 	header("Location: bunny_plugin.php?p=clock");
 }
-$voixs = ojnApi::getApiList("bunny/".$_SESSION['bunny']."/clock/getVoiceList?".ojnApi::getToken());
-$voice = ojnApi::getApiList("bunny/".$_SESSION['bunny']."/clock/getVoice?".ojnApi::getToken());
+$voices = $ojnAPI->getApiList("bunny/".$_SESSION['bunny']."/clock/getVoiceList?".$ojnAPI->getToken());
+$voice = $ojnAPI->getApiList("bunny/".$_SESSION['bunny']."/clock/getVoice?".$ojnAPI->getToken());
 ?>
 <form method="post">
-<?
-if(isset($_SESSION['message']))
-{
-?>
-<?=$_SESSION['message'] ?>
-<?
-$_SESSION['message'] = null;
-unset($_SESSION['message']);
-}
-?>
 <fieldset>
 <legend>Voix pour l'horloge</legend>
 <select name="voix">
-<?
-foreach($voixs as $voix)
-{
-?>
-<option value="<?=$voix ?>"<?=$voix == $voice ? ' selected="selected"' : '' ?>><?=$voix ?></option>
-<?
-}
-?>
+<?php foreach($voices as $voix) { ?>
+<option value="<?php echo $voix ?>"<?php echo $voix == $voice ? ' selected="selected"' : ''; ?>><?php echo $voix; ?></option>
+<?php } ?>
 </select>
-<input type="hidden" name="p" value="clock">
 <input type="submit" value="Enregistrer">
 </fieldset>
 </form>
