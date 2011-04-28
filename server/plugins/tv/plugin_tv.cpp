@@ -116,7 +116,7 @@ PLUGIN_BUNNY_API_CALL(PluginTV::Api_AddWebcast)
 		QStringList bunnyWebcastList = bunny->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList() << hTime;
 		bunnyWebcastList.sort();
 		bunny->SetPluginSetting(GetName(), "Webcast/List", bunnyWebcastList);
-		return new ApiManager::ApiString(QString("Add webcast at '%1' to bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
+		return new ApiManager::ApiOk(QString("Add webcast at '%1' to bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
 	}
 	return new ApiManager::ApiError(QString("Webcast at '%1' already exists for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
 }
@@ -140,7 +140,7 @@ PLUGIN_BUNNY_API_CALL(PluginTV::Api_RemoveWebcast)
 		OnBunnyDisconnect(bunny);
 		OnBunnyConnect(bunny);
 		
-		return new ApiManager::ApiString(QString("Remove webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
+		return new ApiManager::ApiOk(QString("Remove webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
 	}
 	return new ApiManager::ApiError(QString("No webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
 }

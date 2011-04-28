@@ -28,7 +28,8 @@ bool PluginBoot::HttpRequestHandle(HTTPRequest & request)
 
 			if(GlobalSettings::Get("Config/SaveBootcode", false) == true)
 			{
-				QFile bootcodeFile("bin/boot/bootcode.bin.current");
+				QString bcFileName = GlobalSettings::Get("Config/Bootcode", "").toString();
+				QFile bootcodeFile(bcFileName);
 				if(bootcodeFile.open(QFile::WriteOnly))
 				{
 					bootcodeFile.write(request.reply);
