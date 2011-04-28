@@ -4,7 +4,7 @@ if(!isset($_SESSION['connected']))
 	header('Location: index.php');
 if(!empty($_GET['b'])) {
 		$_SESSION['bunny'] = $_GET['b'];
-		$bunnies = $ojnAPI->getListOfBunnies(true);
+		$bunnies = $ojnAPI->getListOfBunnies();
 		$_SESSION['bunny_name'] = !empty($bunnies[$_GET['b']]) ? $bunnies[$_GET['b']] : '';	
 		header("Location: bunny.php");
 } elseif(isset($_GET['resetpwd'])) {
@@ -29,7 +29,7 @@ if(empty($_SESSION['bunny'])) {
 <h1>Choix du lapin &agrave; configurer</h1>
 <ul>
 <?php
-	$bunnies = $ojnAPI->getListOfBunnies(true);
+	$bunnies = $ojnAPI->getListOfBunnies();
 	foreach($bunnies as $bunny => $nom)	{
 ?>
 	<li><?php echo $nom; ?> (<?php echo $bunny; ?>) <a href="bunny.php?b=<?php echo $bunny; ?>">>></a></li>		
@@ -46,7 +46,7 @@ if(empty($_SESSION['bunny'])) {
 <fieldset>
 <?php 
 $plugins = $ojnAPI->getListOfPlugins();
-$bunnyPlugins = $ojnAPI->getListOfBunnyActivePlugins(true);
+$bunnyPlugins = $ojnAPI->getListOfBunnyActivePlugins(false);
 $actifs = $ojnAPI->bunnyListOfPlugins($_SESSION['bunny']);
 $clicks = $ojnAPI->getApiList("bunny/".$_SESSION['bunny']."/getClickPlugins?".$ojnAPI->getToken());
 ?>
@@ -89,7 +89,7 @@ Plugin double click : <select name="double">
 	<tr<?php echo $i++ % 2 ? " class='l2'" : "" ?>>
 		<td><?php echo $plugins[$plugin]; ?></td>
 		<td width="20%"><a href='bunny.php?stat=<?php echo in_array($plugin, $actifs) ? "unregister" : "register"; ?>&plug=<?php echo $plugin; ?>'><?php echo in_array($plugin, $actifs) ? "D&eacute;sa" : "A"; ?>ctiver le plugin</a></td>
-		<td width="20%"><?=in_array($plugin, $actifs)?"<a href='bunny_plugin.php?p=$plugin'>Configurer / Utiliser</a>":""?></td>
+		<td width="20%"><?php echo in_array($plugin, $actifs)?"<a href='bunny_plugin.php?p=$plugin'>Configurer / Utiliser</a>":""?></td>
 	</tr>
 <? } ?>
 </table>
