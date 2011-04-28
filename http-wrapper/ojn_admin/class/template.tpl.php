@@ -48,7 +48,7 @@
 
     <div id="footer">
       <span class="doNotPrint">
-      <strong>Lapins connect&eacute;s &raquo;</strong> <!!LAPINS!!> &bull; <strong>Plugins install&eacute;s &raquo;</strong> <!!PLUGINS!!> &bull; <strong>Plugins actifs &raquo;</strong> <!!ACTIF!!> 
+      <strong>Lapins connect&eacute;s &raquo;</strong> <!!LAPINS!!> &bull; <strong>Plugins install&eacute;s &raquo;</strong> <!!PLUGINS!!> &bull; <strong>Plugins actifs &raquo;</strong> <!!PL_ACTIFS!!> 
       </span>
 
       </div>
