@@ -12,8 +12,6 @@ class PluginColorbreathing : public PluginInterface
 public:
 	PluginColorbreathing();
 	virtual ~PluginColorbreathing() {};
-	void patchBootcode(HTTPRequest &, long, int, QByteArray, QByteArray);
-	void patchBootcode(HTTPRequest &, long, char, char);
 	void HttpRequestAfter(HTTPRequest &);
         void InitApiCalls();
 
@@ -23,7 +21,9 @@ protected:
         PLUGIN_BUNNY_API_CALL(Api_GetColor);
 
         QStringList availableColors;
-
+private:
+	void patchBootcode(HTTPRequest &, long, int, QByteArray, QByteArray);
+	void patchBootcode(HTTPRequest &, long, char, char);
 };
 
 #endif
