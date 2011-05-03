@@ -23,6 +23,7 @@ public:
 	static Ztamp * GetZtamp(PluginInterface *, QByteArray const&);
 	static void PluginStateChanged(PluginInterface *);
 	static inline void Init() { InitApiCalls(); };
+	static void LoadZtamps();
 	static void Close();
 
 	// API
@@ -39,7 +40,14 @@ protected:
 
 private:
 	ZtampManager();
+	void LoadAllZtamps();
+	QDir ztampsDir;
 	static QHash<QByteArray, Ztamp *> listOfZtamps;
 };
+
+inline void ZtampManager::LoadZtamps()
+{
+	Instance().LoadAllZtamps();
+}
 
 #endif

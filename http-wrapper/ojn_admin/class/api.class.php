@@ -12,6 +12,12 @@ class ojnApi {
 	public function __construct() {
 	}
 
+	public function getListOfZtamps($reload = false) {
+		if(empty($this->Ztamps) || $reload)
+			$this->Ztamps = $this->getApiMapped("ztamps/getListOfZtamps?".$this->getToken());
+		return $this->Ztamps;
+	}
+
 	public function getListOfBunnies($reload) {
 		if(empty($this->Bunnies) || $reload)
 			$this->Bunnies = $this->getApiMapped("bunnies/getListOfBunnies?".$this->getToken());
@@ -59,6 +65,12 @@ class ojnApi {
 		if(empty($this->BunnyActivePlugins) || $reload)
 			$this->BunnyActivePlugins = $this->getApiList('bunny/'.$serial.'/getListOfActivePlugins?'.$this->getToken());
 		return $this->BunnyActivePlugins;
+	}
+
+	public function ztampListOfPlugins($serial,$reload) {
+		if(empty($this->ZtampActivePlugins) || $reload)
+			$this->ZtampActivePlugins = $this->getApiList('ztamp/'.$serial.'/getListOfActivePlugins?'.$this->getToken());
+		return $this->ZtampActivePlugins;
 	}
 
 	public function getApiList($url) {

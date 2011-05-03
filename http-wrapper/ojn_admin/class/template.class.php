@@ -51,6 +51,7 @@ class ojnTemplate {
 		$menu = '<a href="index.php">Accueil</a>';
 		if(isset($_SESSION['connected']))	{
 			$menu .= ' | <a href="bunny.php">Lapin</a>';
+			$menu .= ' | <a href="ztamp.php?z=">Ztamp</a>';
 			$menu .= ' | <a href="server.php">Serveur</a>';
 		}
 		return $menu;

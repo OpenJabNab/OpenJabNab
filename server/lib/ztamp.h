@@ -59,6 +59,7 @@ private:
 	API_CALL(Api_AddPlugin);
 	API_CALL(Api_RemovePlugin);
 	API_CALL(Api_GetListOfAssociatedPlugins);
+	API_CALL(Api_SetZtampName);
 
 //	enum State state;
 	
