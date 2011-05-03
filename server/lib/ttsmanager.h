@@ -51,7 +51,10 @@ inline void TTSManager::Close()
 
 inline TTSInterface * TTSManager::GetTTSByName(QString const& name) const
 {
-	return listOfTTSsByName.value(name);
+	if(listOfTTSsByName.contains(name))
+		return listOfTTSsByName.value(name);
+	return listOfTTSsByName.value("acapela");
+	
 }
 
 
