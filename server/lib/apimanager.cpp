@@ -50,7 +50,7 @@ ApiManager::ApiAnswer * ApiManager::ProcessApiCall(QString const& request, HTTPR
 		return ProcessBunnyApiCall(account, request.mid(6), hRequest);
 	
 	if(request.startsWith("ztamps/"))
-		return ZtampManager::Instance().ProcessApiCall(account, request.mid(8), hRequest);
+		return ZtampManager::Instance().ProcessApiCall(account, request.mid(7), hRequest);
 
 	if(request.startsWith("ztamp/"))
 		return ProcessZtampApiCall(account, request.mid(6), hRequest);

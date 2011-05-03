@@ -256,6 +256,7 @@ void Ztamp::InitApiCalls()
 	DECLARE_API_CALL("registerPlugin(name)", &Ztamp::Api_AddPlugin);
 	DECLARE_API_CALL("unregisterPlugin(name)", &Ztamp::Api_RemovePlugin);
 	DECLARE_API_CALL("getListOfActivePlugins()", &Ztamp::Api_GetListOfAssociatedPlugins);
+	DECLARE_API_CALL("setZtampName(name)", &Ztamp::Api_SetZtampName);
 }
 
 API_CALL(Ztamp::Api_AddPlugin)
@@ -297,3 +298,13 @@ API_CALL(Ztamp::Api_GetListOfAssociatedPlugins)
 	return new ApiManager::ApiList(list);
 
 }
+
+API_CALL(Ztamp::Api_SetZtampName)
+{
+	Q_UNUSED(account);
+	
+	SetZtampName( hRequest.GetArg("name") );
+	
+	return new ApiManager::ApiOk(QString("Ztamp '%1' is now named '%2'").arg(GetID(), hRequest.GetArg("name")));
+}
+

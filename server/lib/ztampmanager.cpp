@@ -3,12 +3,29 @@
 #include "ztampmanager.h"
 #include "httprequest.h"
 
-ZtampManager::ZtampManager() {}
+ZtampManager::ZtampManager()
+{
+	ztampsDir = QCoreApplication::applicationDirPath();
+	ztampsDir.cd("ztamps");
+}
+
 
 ZtampManager & ZtampManager::Instance()
 {
   static ZtampManager z;
   return z;
+}
+
+void ZtampManager::LoadAllZtamps()
+{
+	LogInfo(QString("Finding ztamps in : %1").arg(ztampsDir.path()));
+	QStringList filters;
+	filters << "*.dat";
+	ztampsDir.setNameFilters(filters);
+	foreach (QFileInfo file, ztampsDir.entryInfoList(QDir::Files)) 
+	{
+		GetZtamp(file.baseName().toAscii());
+	}
 }
 
 void ZtampManager::InitApiCalls()
