@@ -17,7 +17,7 @@ if(isset($_GET['z']) && empty($_GET['z'])) {
 	$ojnAPI->getApiString('ztamp/'.$_SESSION['ztamp'].'/'.$function.'Plugin?name='.$a['plug'].'&'.$ojnAPI->getToken());
 	header('Location: ztamp.php');
 } else if(!empty($_GET['ztamp_name'])) {
-	$ojnAPI->getApiString("ztamp/".$_SESSION['ztamp']."/setZtampName?name=".$_GET['ztamp_name']."&".$ojnAPI->getToken());
+	$ojnAPI->getApiString("ztamp/".$_SESSION['ztamp']."/setZtampName?name=".urlencode($_GET['ztamp_name'])."&".$ojnAPI->getToken());
 	$_SESSION['ztamp_name'] = $_GET['ztamp_name'];
 	header('Location: ztamp.php');
 }
