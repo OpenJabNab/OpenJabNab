@@ -20,7 +20,7 @@ if(!empty($_GET['b'])) {
 	$ojnAPI->getApiString('bunny/'.$_SESSION['bunny'].'/'.$function.'Plugin?name='.$a['plug'].'&'.$ojnAPI->getToken());
 	header('Location: bunny.php');
 } else if(!empty($_GET['bunny_name'])) {
-	$ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/setBunnyName?name=".$_GET['bunny_name']."&".$ojnAPI->getToken());
+	$ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/setBunnyName?name=".urlencode($_GET['bunny_name'])."&".$ojnAPI->getToken());
 	$_SESSION['bunny_name'] = $_GET['bunny_name'];
 	header('Location: bunny.php');
 }
