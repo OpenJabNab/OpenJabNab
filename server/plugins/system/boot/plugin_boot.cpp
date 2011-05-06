@@ -24,15 +24,30 @@ bool PluginBoot::HttpRequestHandle(HTTPRequest & request)
 		LogInfo(QString("Requesting BOOT for tag %1 with version %2").arg(serialnumber,version));
 		if(GlobalSettings::Get("Config/StandAlone", true) == false)
 		{
-			request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BootServer"));
-
-			if(GlobalSettings::Get("Config/SaveBootcode", false) == true)
+			if(GlobalSettings::Get("Config/StandAloneUseLocalBootcode", true) == true)
 			{
 				QString bcFileName = GlobalSettings::Get("Config/Bootcode", "").toString();
 				QFile bootcodeFile(bcFileName);
-				if(bootcodeFile.open(QFile::WriteOnly))
+				if(bootcodeFile.open(QFile::ReadOnly))
 				{
-					bootcodeFile.write(request.reply);
+					QByteArray dataByteArray = bootcodeFile.readAll();
+					request.reply = dataByteArray;
+				}
+				else
+					LogError("Bootcode not found : " + bcFileName);
+			}
+			else
+			{
+				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BootServer"));
+	
+				if(GlobalSettings::Get("Config/SaveBootcode", false) == true)
+				{
+					QString bcFileName = GlobalSettings::Get("Config/Bootcode", "").toString();
+					QFile bootcodeFile(bcFileName);
+					if(bootcodeFile.open(QFile::WriteOnly))
+					{
+						bootcodeFile.write(request.reply);
+					}
 				}
 			}
 			return true;
