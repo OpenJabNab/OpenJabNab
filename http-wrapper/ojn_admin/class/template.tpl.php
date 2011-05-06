@@ -46,7 +46,7 @@
 
     <div id="footer">
       <span class="doNotPrint">
-      <strong>Lapins connect&eacute;s &raquo;</strong> <!!LAPINS!!> &bull; <strong>Plugins install&eacute;s &raquo;</strong> <!!PLUGINS!!> &bull; <strong>Plugins actifs &raquo;</strong> <!!PL_ACTIFS!!> 
+      <strong>Lapins &raquo;</strong> <!!LAPINS!!> &bull; <strong>Ztamps &raquo;</strong> <!!ZTAMPS!!> &bull; <strong>Plugins &raquo;</strong> <!!PLUGINS!!> 
       </span>
 
       </div>
