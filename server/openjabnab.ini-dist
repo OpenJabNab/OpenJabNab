@@ -11,6 +11,7 @@ StandAloneWelcome = false
 StandAloneAuthBypass=false
 StandAloneAuthBypassBunny=
 StandAloneUseLocalBootcode=true
+ProxyUseLocalBootcode=false
 Bootcode = 
 SaveBootcode=false
 AllowAnonymousRegistration=false
