@@ -14,6 +14,7 @@ class ojnTemplate {
 		$ListOfConnectedBunnies = $this->Api->getListOfConnectedBunnies(false);
 		$ListOfBunnies = $this->Api->getListOfBunnies(false);
 		$ListOfPlugins = $this->Api->getListOfPlugins(false);
+		$ListOfZtamps = $this->Api->getListOfZtamps(false);
 		$ListOfActivePlugins = $this->Api->getListOfActivePlugins(false);
 		
 		if(empty($ListOfPlugins) && isset($_SESSION['connected']) 
@@ -27,7 +28,7 @@ class ojnTemplate {
 				"|<!!CONTENT!!>|",
 				"|<!!LAPINS!!>|",
 				"|<!!PLUGINS!!>|",
-				"|<!!PL_ACTIFS!!>|",
+				"|<!!ZTAMPS!!>|",
 				"|<!!MENU!!>|",
 				"|<!!BUNNIES!!>|",
 			);
@@ -36,9 +37,9 @@ class ojnTemplate {
 				$this->titre_alt,
 				$this->soustitre,
 				$buffer,
-				is_array($ListOfConnectedBunnies) ? count($ListOfConnectedBunnies) : '-',
-				is_array($ListOfPlugins) ? count($ListOfPlugins) : '-',
-				!empty($ListOfActivePlugins[0]) ? count($ListOfActivePlugins) :  '-',
+				is_array($ListOfConnectedBunnies) ? count($ListOfConnectedBunnies)."/".count($ListOfBunnies) : '-',
+				is_array($ListOfPlugins) ? count($ListOfActivePlugins)."/".count($ListOfPlugins) : '-',
+				is_array($ListOfZtamps) ? count($ListOfZtamps) :  '-',
 				$this->makeMenu(),
 				$this->makeBunnyMenu(),
 			);
