@@ -54,6 +54,7 @@ class ojnTemplate {
 			$menu .= ' | <a href="bunny.php">Lapin</a>';
 			$menu .= ' | <a href="ztamp.php?z">Ztamps</a>';
 			$menu .= ' | <a href="server.php">Serveur</a>';
+			$menu .= ' | <a href="api.php">Raw API call</a>';
 		}
 		return $menu;
 	}
