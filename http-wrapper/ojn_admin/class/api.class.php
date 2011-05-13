@@ -4,10 +4,13 @@ class ojnApi {
 	private $ConnectedBunnies;				/* Connected Bunnies */
 	private $Plugins;								/* All available plugins */
 	private $ActivePlugins;						/* Active Plugins */
-	private $BunnyPlugins;						/* Plugins for bunny */
-	private $BunnyEnabledPlugins;			/* Plugins enabled for a bunny use */
+	private $BunnyPlugins;						/* Available plugins for a bunny */
+	private $BunnyEnabledPlugins;			/* Enabled plugins for a bunny */
 	
-	private $BunnyActivePlugins;				/* Plugins enabled on a bunny */
+	private $BunnyActivePlugins;				/* Enabled plugins on a bunny */
+	
+	private $Ztamps;								/* Known Ztamps */
+	private $ZtampActivePlugins;			/* Enabled plugins for a ztamp */
 	
 	public function __construct() {
 	}
@@ -82,8 +85,7 @@ class ojnApi {
 	}
 	
 	public function getApiXMLArray($url) {
-		$a = $this->XmlToArray($this->getApi($url));
-		return $a;
+		return $this->XmlToArray($this->getApi($url));
 	}
 
 	private function getApi($url) {
