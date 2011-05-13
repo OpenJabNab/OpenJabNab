@@ -93,7 +93,7 @@ void Bunny::LoadConfig()
 				LogWarning(QString("Bunny %1 : '%2' is globally disabled !").arg(QString(GetID()), s));
 		}
 		else
-			LogError(QString("Bunny %1 has invalid plugin !").arg(QString(GetID())));
+			LogError(QString("Bunny %1 has invalid plugin (%2)!").arg(QString(GetID()), s));
 	}
 	
 	// Load single/doubleClickPlugin preferences
