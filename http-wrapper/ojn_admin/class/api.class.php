@@ -127,7 +127,7 @@ class ojnApi {
 	private function transformValue($value) {
 		if(isset($value->value))	{
 			$value = (array)$value;
-			$value = $value['value'];
+			$value = (string)$value['value'];
 		} else
 			$value = false;
 		return $value;
@@ -139,7 +139,7 @@ class ojnApi {
 		$temp = array();
 		if(is_array($list['item'])) {
 			foreach($list['item'] as $item)
-				$temp[] = (string)$item;
+				$temp[] = $item;
 		}
 		else
 			$temp = array($list['item']);
