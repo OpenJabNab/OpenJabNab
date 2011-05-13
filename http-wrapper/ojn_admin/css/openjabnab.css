@@ -131,6 +131,28 @@ dd {
   font-variant: small-caps;
 }
 
+/* Common */
+.error_msg {
+	color: red;
+	border-width: 2px;
+	border-style: solid;
+	font-weight: bold;
+	text-align: center;
+	width: 50%;	
+	margin:auto;
+	padding: 5px
+}
+
+.ok_msg {
+	color: blue;
+	border-width: 2px;
+	border-style: solid;
+	font-weight: bold;
+	text-align: center;
+	width: 50%;	
+	margin:auto;
+	padding: 5px
+}
 
 /* ##### Header ##### */
 
@@ -230,7 +252,6 @@ dd {
   background-color: transparent;
   text-decoration: none;
 }
-
 
 /* ##### Side Menu ##### */
 

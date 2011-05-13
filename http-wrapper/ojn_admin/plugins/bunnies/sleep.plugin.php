@@ -4,9 +4,20 @@ if(!empty($_POST['a'])) {
 		$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/sleep/sleep?".$ojnAPI->getToken());
 	elseif($_POST['a']=="wakeup")
 		$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/sleep/wakeup?".$ojnAPI->getToken());
-	elseif($_POST['a']=="setup")
-		if(!empty($_POST['wakeL']) && !empty($_POST['sleepL']))
-			$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/sleep/setup?wakeupList=".$_POST['wakeL']."&sleepList=".$_POST['sleepL']."&".$ojnAPI->getToken());
+	elseif($_POST['a']=="setup") {
+		for($i=0;$i<7;$i++)
+			if(empty($_POST['w'.$i]) || empty($_POST['s'.$i])) $i=0xF;
+		if($i<0xF) {
+			$W = $_POST['w0'];
+			$S = $_POST['s0'];
+			for($i=1;$i<7;$i++) {
+				$W .= ','.$_POST['w'.$i];
+				$S .= ','.$_POST['s'.$i];
+			}
+			$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/sleep/setup?wakeupList=".$W."&sleepList=".$S."&".$ojnAPI->getToken());
+		} else
+			$retour['error'] = "Incorrect schedule";
+	}
 	else
 		$retour['error'] = "Incorrect Parameters";
 	$_SESSION['message'] = isset($retour['ok']) ? $retour['ok'] : "Error : ".$retour['error'];
@@ -16,19 +27,36 @@ $wakeup = "";
 $sleep = "";
 $lists = $ojnAPI->getApiList("bunny/".$_SESSION['bunny']."/sleep/getsetup?".$ojnAPI->getToken());
 if(count($lists) == 14) {
-	$lists = array_chunk($lists, 7);
-	$wakeup = preg_replace("|(\d+:\d+):00|", "$1", implode(",", $lists[0]));
-	$sleep = preg_replace("|(\d+:\d+):00|", "$1", implode(",", $lists[1]));
-}
+	foreach($lists as $i=>$v)
+		$lists[$i] = substr($v,0,-3);
+} else
+	for($i=0;$i<7;$i++) {
+		$lists[$i] = '10:00';
+		$lists[$i+7] = '18:00';
+	}
 ?>
 <form method="post">
 <fieldset>
 <legend>Actions</legend>
-<input type="radio" name="a" value="sleep" /> Sleep<br />
-<input type="radio" name="a" value="wakeup" /> Wake Up<br />
-<input type="radio" name="a" value="setup" /> Setup: <br />hh:mm,hh:mm,hh:mm.... 7 times for each list<br />
-Wakeup List: <input type="text" name="wakeL" value="<?php echo $wakeup; ?>"/>
-Sleep List: <input type="text" name="sleepL" value="<?php echo $sleep; ?>"/><br />
+<input type="radio" name="a" value="sleep" /> Coucher<br />
+<input type="radio" name="a" value="wakeup" /> Reveiller<br />
+<input type="radio" name="a" value="setup" /> Configuration<br />
+<table>
+<tr>
+	<th>Jour</th>
+	<th>Lever</th>
+	<th>Coucher</th>
+</tr>
+<?php
+$Days = array('Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche');
+for($i=0;$i<7;$i++): ?>
+<tr<?php echo $i % 2 ? " class='l2'" : "" ?>>
+	<td><?php echo $Days[$i]; ?></td>
+	<td><input type="text" name="w<?php echo $i; ?>" maxlength="5" style="width: 50px" value="<?php echo $lists[$i]; ?>" /></td>
+	<td><input type="text" name="s<?php echo $i; ?>" maxlength="5" style="width: 50px" value="<?php echo $lists[$i+7]; ?>"/></td>
+</tr>
+<?php endfor; ?>
+</table>
 <input type="submit" value="Enregister">
 </fieldset>
 </form>

@@ -14,10 +14,10 @@ if(isset($_GET['z']) && empty($_GET['z'])) {
 }elseif((!empty($_GET['plug']) && !empty($_GET['stat'])) || (!empty($_POST['plug']) && !empty($_POST['stat']))) {
 	$a = !empty($_GET['stat']) ? $_GET : $_POST;
 	$function = $a['stat'] == 'register' ? 'register' : 'unregister';
-	$ojnAPI->getApiString('ztamp/'.$_SESSION['ztamp'].'/'.$function.'Plugin?name='.$a['plug'].'&'.$ojnAPI->getToken());
+	$_SESSION['message'] = $ojnAPI->getApiString('ztamp/'.$_SESSION['ztamp'].'/'.$function.'Plugin?name='.$a['plug'].'&'.$ojnAPI->getToken());
 	header('Location: ztamp.php');
 } else if(!empty($_GET['ztamp_name'])) {
-	$ojnAPI->getApiString("ztamp/".$_SESSION['ztamp']."/setZtampName?name=".urlencode($_GET['ztamp_name'])."&".$ojnAPI->getToken());
+	$_SESSION['message'] = $ojnAPI->getApiString("ztamp/".$_SESSION['ztamp']."/setZtampName?name=".urlencode($_GET['ztamp_name'])."&".$ojnAPI->getToken());
 	$_SESSION['ztamp_name'] = $_GET['ztamp_name'];
 	header('Location: ztamp.php');
 }
@@ -26,6 +26,7 @@ if(empty($_SESSION['ztamp'])) {
 <h1>Choix du ztamp &agrave; configurer</h1>
 <ul>
 <?php
+	$last = $ojnAPI->getApiString("plugin/rfid/getLastTag?".$ojnAPI->getToken());
 	$ztamps = $ojnAPI->getListOfZtamps();
 	foreach($ztamps as $ztamp => $nom)	{
 ?>
@@ -34,7 +35,12 @@ if(empty($_SESSION['ztamp'])) {
 	}
 ?>
 </ul>
-<?php 
+<?php
+if(isset($last['value'])) {
+?>
+Dernier Ztamp utilis&eacute; : <?=$ztamps[$last['value']] ?> (<?=$last['value'] ?>)<br />
+<?php
+}
 } else {
 ?>
 <h1 id="ztamp">Configuration du ztamp '<?php echo !empty($_SESSION['ztamp_name']) ? $_SESSION['ztamp_name'] : $_SESSION['ztamp']; ?>'</h1>
@@ -50,6 +56,20 @@ Nom : <input type="text" name="ztamp_name" value="<?php echo $_SESSION['ztamp_na
 </fieldset>
 </form>
 <h2>Plugins</h2>
+<?php 
+if(isset($_SESSION['message']) && empty($_GET)) {
+	if(isset($_SESSION['message']['ok'])) { ?>
+	<div class="ok_msg">
+	<?php	echo $_SESSION['message']['ok'];
+	} else { ?>
+	<div class="error_msg">
+	<?php	echo $_SESSION['message']['error'];
+	}
+	if(empty($_GET))
+		unset($_SESSION['message']);
+	echo "</div>";
+}
+?>
 <center>
 <table style="width: 80%">
 	<tr>
@@ -65,7 +85,7 @@ Nom : <input type="text" name="ztamp_name" value="<?php echo $_SESSION['ztamp_na
 		<td width="20%"><a href='ztamp.php?stat=<?php echo in_array($plugin, $actifs) ? "unregister" : "register"; ?>&plug=<?php echo $plugin; ?>'><?php echo in_array($plugin, $actifs) ? "D&eacute;sa" : "A"; ?>ctiver le plugin</a></td>
 		<td width="20%"><?php echo in_array($plugin, $actifs)?"<a href='ztamp_plugin.php?p=$plugin'>Configurer / Utiliser</a>":""?></td>
 	</tr>
-<? } ?>
+<?php } ?>
 </table>
 <?php }
 require_once "include/append.php";

@@ -8,19 +8,23 @@ if(!empty($_GET['b'])) {
 		$_SESSION['bunny_name'] = !empty($bunnies[$_GET['b']]) ? $bunnies[$_GET['b']] : '';	
 		header("Location: bunny.php");
 } elseif(isset($_GET['resetpwd'])) {
-	$ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/resetPassword?".$ojnAPI->getToken());
+	$_SESSION['message'] = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/resetPassword?".$ojnAPI->getToken());
 	header('Location: bunny.php');
 } elseif(!empty($_GET['single']) && !empty($_GET['double'])) {
-	$ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/setSingleClickPlugin?name=".$_GET['single']."&".$ojnAPI->getToken());
-	$ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/setDoubleClickPlugin?name=".$_GET['double']."&".$ojnAPI->getToken());
+	$msg = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/setSingleClickPlugin?name=".$_GET['single']."&".$ojnAPI->getToken());
+	$msg1 = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/setDoubleClickPlugin?name=".$_GET['double']."&".$ojnAPI->getToken());
+	$s = isset($msg['error']) ? $msg['error'] : $msg['ok']. '<br />';
+	$s .= isset($msg1['error']) ? $msg1['error'] : $msg1['ok'];
+	$msg = isset($msg['error']) || isset($msg1['error']) ? 'error' : 'ok';
+		$_SESSION['message'] = array($msg=>$s);
 	header('Location: bunny.php');
 }elseif((!empty($_GET['plug']) && !empty($_GET['stat'])) || (!empty($_POST['plug']) && !empty($_POST['stat']))) {
 	$a = !empty($_GET['stat']) ? $_GET : $_POST;
 	$function = $a['stat'] == 'register' ? 'register' : 'unregister';
-	$ojnAPI->getApiString('bunny/'.$_SESSION['bunny'].'/'.$function.'Plugin?name='.$a['plug'].'&'.$ojnAPI->getToken());
+	$_SESSION['message'] = $ojnAPI->getApiString('bunny/'.$_SESSION['bunny'].'/'.$function.'Plugin?name='.$a['plug'].'&'.$ojnAPI->getToken());
 	header('Location: bunny.php');
 } else if(!empty($_GET['bunny_name'])) {
-	$ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/setBunnyName?name=".urlencode($_GET['bunny_name'])."&".$ojnAPI->getToken());
+	$_SESSION['message'] = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/setBunnyName?name=".urlencode($_GET['bunny_name'])."&".$ojnAPI->getToken());
 	$_SESSION['bunny_name'] = $_GET['bunny_name'];
 	header('Location: bunny.php');
 }
@@ -76,6 +80,20 @@ Plugin double click : <select name="double">
 </fieldset>
 </form>
 <h2>Plugins</h2>
+<?php 
+if(isset($_SESSION['message']) && empty($_GET)) {
+	if(isset($_SESSION['message']['ok'])) { ?>
+	<div class="ok_msg">
+	<?php	echo $_SESSION['message']['ok'];
+	} else { ?>
+	<div class="error_msg">
+	<?php	echo $_SESSION['message']['error'];
+	}
+	if(empty($_GET));
+		unset($_SESSION['message']);
+	echo "</div>";
+}
+?>
 <center>
 <table style="width: 80%">
 	<tr>
@@ -91,7 +109,7 @@ Plugin double click : <select name="double">
 		<td width="20%"><a href='bunny.php?stat=<?php echo in_array($plugin, $actifs) ? "unregister" : "register"; ?>&plug=<?php echo $plugin; ?>'><?php echo in_array($plugin, $actifs) ? "D&eacute;sa" : "A"; ?>ctiver le plugin</a></td>
 		<td width="20%"><?php echo in_array($plugin, $actifs)?"<a href='bunny_plugin.php?p=$plugin'>Configurer / Utiliser</a>":""?></td>
 	</tr>
-<? } ?>
+<?php } ?>
 </table>
 <?php }
 require_once "include/append.php";
