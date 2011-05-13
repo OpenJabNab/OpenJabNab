@@ -139,7 +139,7 @@ class ojnApi {
 		$temp = array();
 		if(is_array($list['item'])) {
 			foreach($list['item'] as $item)
-				$temp[] = $item;
+				$temp[] = (string)$item;
 		}
 		else
 			$temp = array($list['item']);

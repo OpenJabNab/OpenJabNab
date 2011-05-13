@@ -4,9 +4,8 @@
     <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
     <meta name="author" content="openJabNab" />
     <meta name="generator" content="openJabNab" />
-
-    <link rel="top"      href="./index.php" title="Homepage" />
-
+	<link rel="icon" href="favicon.ico" />
+    <link rel="top" href="./index.php" title="Homepage" />
     <link rel="stylesheet" type="text/css" href="css/openjabnab.css" media="screen" title="openJabNab" />
 
     <title><!!TITLE!!></title>

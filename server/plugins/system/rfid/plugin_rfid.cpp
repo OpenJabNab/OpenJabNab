@@ -1,6 +1,7 @@
 #include <QDateTime>
 #include <QStringList>
 #include "plugin_rfid.h"
+#include "account.h"
 #include "bunny.h"
 #include "bunnymanager.h"
 #include "ztamp.h"
@@ -19,9 +20,11 @@ bool PluginRFID::HttpRequestHandle(HTTPRequest & request)
 	{
 		QString serialnumber = request.GetArg("sn");
 		QString tagId = request.GetArg("t");
+		SetSettings("global/LastTag", tagId);
 
 		Ztamp * z = ZtampManager::GetZtamp(this, tagId.toAscii());
 		Bunny * b = BunnyManager::GetBunny(this, serialnumber.toAscii());
+		b->SetPluginSetting(GetName(), "LastTag", tagId);
 	
 		if (z->OnRFID(b))
 			return true;
@@ -30,3 +33,32 @@ bool PluginRFID::HttpRequestHandle(HTTPRequest & request)
 	}
 	return false;
 }
+
+/*******/
+/* API */
+/*******/
+void PluginRFID::InitApiCalls()
+{
+	DECLARE_PLUGIN_API_CALL("getLastTag()", PluginRFID, Api_GetLastTag);
+	DECLARE_PLUGIN_API_CALL("getLastTagForBunny(sn)", PluginRFID, Api_GetLastTagForBunny);
+}
+
+PLUGIN_API_CALL(PluginRFID::Api_GetLastTag)
+{
+	Q_UNUSED(hRequest);
+
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	return new ApiManager::ApiString(GetSettings("global/LastTag", QString()).toString());
+}
+
+PLUGIN_API_CALL(PluginRFID::Api_GetLastTagForBunny)
+{
+	Bunny * b = BunnyManager::GetBunny(this, hRequest.GetArg("sn").toAscii());
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	return new ApiManager::ApiString(b->GetPluginSetting(GetName(), "LastTag", QString()).toString());
+}
+
