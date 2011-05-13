@@ -77,8 +77,13 @@ class ojnApi {
 		return $this->transformList($this->getApi($url));
 	}
 
-	private function getApiMapped($url)	{
+	public function getApiMapped($url)	{
 		return $this->transformMappedList($this->getApi($url));
+	}
+	
+	public function getApiXMLArray($url) {
+		$a = $this->XmlToArray($this->getApi($url));
+		return $a;
 	}
 
 	private function getApi($url) {
@@ -94,7 +99,7 @@ class ojnApi {
 	}
 
 	private function loadXmlString($string) {
-		return @simplexml_load_string($string);
+		return simplexml_load_string($string);
 	}
 
 	public function setToken($token) {
@@ -143,7 +148,24 @@ class ojnApi {
 		}
 		else
 			$temp = array($list['item']);
-		return $temp;
+		return $temp;	 
 	}
+	
+	private function XmlToArray($xml) { 
+		$name = $xml->getName();
+		$nbc = count($xml->children());
+		$val = str_replace(array('>','<'),array('&gt;','&lt;'),(string)$xml);
+		if($nbc == 0)
+			$a=array($name => $val); 
+		else {
+			$t =array();
+			foreach($xml->children() as $nme => $xmlchild) {
+				$t[]=$this->XmlToArray($xmlchild); 
+			}
+			$a = array($name=>($nbc == 1 ? $t[0] : $t));
+		}
+		return $a; 
+	} 
+	
 }
 ?>

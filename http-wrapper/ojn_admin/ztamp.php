@@ -38,7 +38,7 @@ if(empty($_SESSION['ztamp'])) {
 <?php
 if(isset($last['value'])) {
 ?>
-Dernier Ztamp utilis&eacute; : <?=$ztamps[$last['value']] ?> (<?=$last['value'] ?>)<br />
+Dernier Ztamp utilis&eacute; : <?php echo $ztamps[$last['value']]; ?> (<?php echo $last['value']; ?>)<br />
 <?php
 }
 } else {
