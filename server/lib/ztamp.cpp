@@ -89,7 +89,7 @@ void Ztamp::LoadConfig()
 				LogWarning(QString("Ztamp %1 : '%2' is globally disabled !").arg(QString(GetID()), s));
 		}
 		else
-			LogError(QString("Ztamp %1 has invalid plugin !").arg(QString(GetID())));
+			LogError(QString("Ztamp %1 has invalid plugin (%2)!").arg(QString(GetID()), s));
 	}
 }
 
