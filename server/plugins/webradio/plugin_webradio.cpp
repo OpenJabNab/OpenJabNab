@@ -60,7 +60,7 @@ bool PluginWebradio::OnClick(Bunny * b, PluginInterface::ClickType)
 	QString radio = b->GetPluginSetting(GetName(), "DefaultWebradio", QString()).toString();
 	if(radio.length())
 	{
-		if(streamWebradio(b, radio))
+		if(streamPresetWebradio(b, radio))
 			return true;
 		return false;
 	}
