@@ -51,7 +51,6 @@ PLUGIN_BUNNY_API_CALL(PluginEars::Api_setFriend)
 	Q_UNUSED(account);
 	/* Update Configuration */
 	bunny->SetPluginSetting(GetName(), "Friend", QVariant(hRequest.GetArg("id")));
-	saveConf();
 	return new ApiManager::ApiOk(QString("Plugin configuration updated."));
 }
 
