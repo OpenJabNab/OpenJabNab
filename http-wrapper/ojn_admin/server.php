@@ -127,6 +127,7 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 <?php
 	$i = 0;
 	$Ztamps = $ojnAPI->getListOfZtamps(false);
+    if(!empty($Ztamps))
 	foreach($Ztamps as $id=>$name){
 ?>
 	<tr<?php echo $i++ % 2 ? " class='l2'" : "" ?>>

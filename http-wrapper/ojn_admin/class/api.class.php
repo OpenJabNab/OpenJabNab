@@ -142,14 +142,16 @@ class ojnApi {
 
 	private function transformList($list) {
 		$list = (array)$list;
-		$list = (array)$list['list'];
+        if(isset($list['list']))
+    		$list = (array)$list['list'];
 		$temp = array();
-		if(is_array($list['item'])) {
-			foreach($list['item'] as $item)
-				$temp[] = $item;
-		}
-		else
-			$temp = array($list['item']);
+        if(isset($list['item'])) {
+                if(is_array($list['item'])) {
+                foreach($list['item'] as $item)
+                    $temp[] = $item;
+            } else
+                $temp = array($list['item']);
+        }
 		return $temp;	 
 	}
 	

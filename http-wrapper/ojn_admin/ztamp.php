@@ -28,6 +28,7 @@ if(empty($_SESSION['ztamp'])) {
 <?php
 	$last = $ojnAPI->getApiString("plugin/rfid/getLastTag?".$ojnAPI->getToken());
 	$ztamps = $ojnAPI->getListOfZtamps();
+    if(!empty($ztamps))
 	foreach($ztamps as $ztamp => $nom)	{
 ?>
 	<li><?php echo $nom; ?> (<?php echo $ztamp; ?>) <a href="ztamp.php?z=<?php echo $ztamp; ?>">>></a></li>		
