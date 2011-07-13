@@ -44,6 +44,7 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 		$BPlugins = $ojnAPI->getListOfBunnyPlugins(false);
 		$APlugins = $ojnAPI->getListOfActivePlugins(false);
 		$SPlugins = array();
+        if(!empty($Plugins))
 		foreach($Plugins as $p=>$d) {
 			if(!in_array($p,$BPlugins))
 				$SPlugins[] = $p;
@@ -75,6 +76,7 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 	</tr>
 <?php
 	$i = 0;
+    if(!empty($BPlugins))
 	foreach($BPlugins as $p){
 ?>
 	<tr<?php echo $i++ % 2 ? " class='l2'" : "" ?>>
@@ -104,6 +106,7 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 	$i = 0;
 	$cbunnies = $ojnAPI->getListOfConnectedBunnies(false);
 	$bunnies = $ojnAPI->getListOfBunnies(false);
+    if(!empty($bunnies))
 	foreach($bunnies as $mac=>$name){
 ?>
 	<tr<?php echo $i++ % 2 ? " class='l2'" : "" ?>>

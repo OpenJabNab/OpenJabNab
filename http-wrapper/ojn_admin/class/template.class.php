@@ -51,11 +51,12 @@ class ojnTemplate {
 	private function makeMenu() {
 		$menu = '<a href="index.php">Accueil</a>';
 		if(isset($_SESSION['connected']))	{
+            $menu .= ' | <a href="account.php">Account</a>';
 			$menu .= ' | <a href="bunny.php">Lapin</a>';
 			$menu .= ' | <a href="ztamp.php?z">Ztamps</a>';
 			$menu .= ' | <a href="server.php">Serveur</a>';
 			$menu .= ' | <a href="api.php">Raw API call</a>';
-            $menu .= ' | <a href="index.php?logout">Logout ('.$_SESSION['login'].')</a>';
+            $menu .= ' | <a href="index.php?logout">Logout ('.urldecode($_SESSION['login']).')</a>';
 		}
 		return $menu;
 	}

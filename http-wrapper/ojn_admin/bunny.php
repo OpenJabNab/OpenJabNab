@@ -34,6 +34,7 @@ if(empty($_SESSION['bunny'])) {
 <ul>
 <?php
 	$bunnies = $ojnAPI->getListOfBunnies(false);
+    if(!empty($bunnies))
 	foreach($bunnies as $bunny => $nom)	{
 ?>
 	<li><?php echo $nom; ?> (<?php echo $bunny; ?>) <a href="bunny.php?b=<?php echo $bunny; ?>">>></a></li>		

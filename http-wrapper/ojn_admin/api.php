@@ -25,7 +25,7 @@ function printr($a,$l=0) {
 }
 
 if(!empty($_POST['r'])) {
-	$r = $ojnAPI->getApiXMLArray($_POST['r'].(strstr('?',$_POST['r']) ? '&': '?').$ojnAPI->getToken());
+	$r = $ojnAPI->getApiXMLArray($_POST['r'].(strstr($_POST['r'],'?') ? '&': '?').$ojnAPI->getToken());
 	printr($r);
 } else
 	echo "Make your request.";
