@@ -16,7 +16,7 @@
     <div id="header">
       <div class="superHeader">
         <span>Liens directs:</span>
-        <a href="http://ojnwiki.psnet.fr/" title="openJabNab Wiki">openJabNab</a> |
+        <a href="http://sourceforge.net/projects/openjabnab/" title="openJabNab @ sourceforge.net">openJabNab</a> |
         <a href="http://www.nabaztag.com/fr/index.php" title="Nabaztag">Nabaztag</a>
       </div>
 

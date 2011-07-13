@@ -17,9 +17,9 @@ class ojnTemplate {
 		$ListOfZtamps = $this->Api->getListOfZtamps(false);
 		$ListOfActivePlugins = $this->Api->getListOfActivePlugins(false);
 		
-		if(empty($ListOfPlugins) && isset($_SESSION['connected']) 
+		/*if(empty($ListOfPlugins) && isset($_SESSION['connected']) 
 		   && !isset($_POST['login']) && !strpos($_SERVER['REQUEST_URI'],"logout"))
-			header('Location: index.php?logout');
+			header('Location: index.php?logout');*/
 		
 		$pattern = array(
 				"|<!!TITLE!!>|",
@@ -55,6 +55,7 @@ class ojnTemplate {
 			$menu .= ' | <a href="ztamp.php?z">Ztamps</a>';
 			$menu .= ' | <a href="server.php">Serveur</a>';
 			$menu .= ' | <a href="api.php">Raw API call</a>';
+            $menu .= ' | <a href="index.php?logout">Logout ('.$_SESSION['login'].')</a>';
 		}
 		return $menu;
 	}

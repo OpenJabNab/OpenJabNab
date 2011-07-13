@@ -7,7 +7,8 @@ if(isset($_GET['logout'])) {
 	unset($_SESSION['connected']);
 	unset($_SESSION['bunny']);
 	unset($_SESSION['bunny_name']);
-	unset($_SESSION['admin']);
+	//unset($_SESSION['admin']);
+	unset($_SESSION['login']);
 	unset($_SESSION['token']);
 	header("Location: index.php");
 }
@@ -15,8 +16,9 @@ if(!empty($_POST['login']) && !empty($_POST['password'])) {
 	$r = $ojnAPI->loginAccount($_POST['login'], $_POST['password']);
 	if(!strpos($r,"AD_")) {
 		$_SESSION['connected'] = true;
+		$_SESSION['login'] = $_POST['login'];
 		$ojnAPI->setToken($r);
-	} 
+	}
 	header("Location: index.php");
 }
 ?>
