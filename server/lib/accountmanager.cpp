@@ -208,7 +208,7 @@ API_CALL(AccountManager::Api_AddBunny)
 		return new ApiManager::ApiError(QString("Account '%1' doesn't exist").arg(hRequest.GetArg("login")));
 	QString bunnyid = hRequest.GetArg("bunnyid");
 	if(listOfAccountsByName.value(login)->GetBunniesList().contains(bunnyid.toAscii()))
-		return new ApiManager::ApiError(QString("Bunny %1 is already attached to this account: '%1'").arg(bunnyid,login));
+		return new ApiManager::ApiError(QString("Bunny %1 is already attached to this account: '%2'").arg(bunnyid,login));
 	// Lock bunny to this account
 	Bunny *b = BunnyManager::GetBunny(bunnyid.toAscii());
 	QString own = b->GetGlobalSetting("OwnerAccount","").toString();
