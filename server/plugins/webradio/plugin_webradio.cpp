@@ -29,28 +29,24 @@ void PluginWebradio::OnCron(Bunny * b, QVariant v)
 
 bool PluginWebradio::OnRFID(Ztamp * z, Bunny * b)
 {
+	LogInfo(QString("OnRFID zTamp %1 %2").arg(z->GetZtampName(), b->GetBunnyName()));
 	QString radio = z->GetPluginSetting(GetName(), QString("Play"), QString()).toString();
 	if(radio != "")
 	{
 		LogInfo(QString("Will now stream from ztamp : %1").arg(radio));
-
-		QByteArray message = "ST "+radio.toAscii()+"\nPL "+QString::number(qrand() % 8).toAscii()+"\nMW\n";
-		b->SendPacket(MessagePacket(message));
-		return true;
+        	return streamPresetWebradio(b, radio);
 	}
 	return false;
 }
 
 bool PluginWebradio::OnRFID(Bunny * b, QByteArray const& tag)
 {
-	QString radio = b->GetPluginSetting(GetName(), QString("RFIDPlay/%1").arg(QString(tag)), QString()).toString();
+	LogInfo(QString("OnRFID bunny %1 %2").arg(b->GetBunnyName(), QString(tag)));
+	QString radio = b->GetPluginSetting(GetName(), QString("RFIDPlay/%1").arg(QString(QByteArray::fromHex(tag))), QString()).toString();
 	if(radio != "")
 	{
 		LogInfo(QString("Will now stream : %1").arg(radio));
-
-		QByteArray message = "ST "+radio.toAscii()+"\nPL "+QString::number(qrand() % 8).toAscii()+"\nMW\n";
-		b->SendPacket(MessagePacket(message));
-		return true;
+        	return streamPresetWebradio(b, radio);
 	}
 	return false;
 }
