@@ -33,6 +33,16 @@ void BunnyManager::InitApiCalls()
 	DECLARE_API_CALL("getListOfBunnies()", &BunnyManager::Api_GetListOfBunnies);
 }
 
+int BunnyManager::GetConnectedBunnyCount()
+{
+	return GetConnectedBunnies().count();
+}
+
+int BunnyManager::GetBunnyCount()
+{
+	return listOfBunnies.count();
+}
+
 Bunny * BunnyManager::GetBunny(QByteArray const& bunnyHexID)
 {
 	QByteArray bunnyID = QByteArray::fromHex(bunnyHexID);

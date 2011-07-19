@@ -28,6 +28,8 @@ public:
 
 	// API
 	static void InitApiCalls();
+	int GetConnectedBunnyCount();
+	int GetBunnyCount();
 
 protected:
 	static Bunny * GetConnectedBunny(QByteArray const&);

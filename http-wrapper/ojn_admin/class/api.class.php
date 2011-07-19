@@ -11,8 +11,16 @@ class ojnApi {
 	
 	private $Ztamps;								/* Known Ztamps */
 	private $ZtampActivePlugins;			/* Enabled plugins for a ztamp */
+
+	private $Stats;
 	
 	public function __construct() {
+	}
+
+	public function getStats($reload = false) {
+		if(empty($this->Stats) || $reload)
+			$this->Stats = $this->getApiString("global/stats?".$this->getToken());
+		return $this->Stats;
 	}
 
 	public function getListOfZtamps($reload = false) {

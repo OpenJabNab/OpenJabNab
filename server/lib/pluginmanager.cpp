@@ -34,6 +34,20 @@ void PluginManager::UnloadPlugins()
 	}
 }
 
+int PluginManager::GetEnabledPluginCount()
+{
+	int active = 0;
+	foreach(PluginInterface * plugin, listOfPlugins)
+		if(plugin->GetEnable())
+			active++;
+	return active;
+}
+
+int PluginManager::GetPluginCount()
+{
+	return listOfPlugins.count();
+}
+
 void PluginManager::LoadPlugins()
 {
 	LogInfo(QString("Finding plugins in : %1").arg(pluginsDir.path()));

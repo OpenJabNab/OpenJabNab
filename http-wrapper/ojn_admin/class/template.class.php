@@ -11,16 +11,17 @@ class ojnTemplate {
 
 	public function display($buffer) {
 		$template = file_get_contents(ROOT_SITE.'class/template.tpl.php');
+		$Stats = $this->Api->getStats(false);
 		$ListOfConnectedBunnies = $this->Api->getListOfConnectedBunnies(false);
 		$ListOfBunnies = $this->Api->getListOfBunnies(false);
 		$ListOfPlugins = $this->Api->getListOfPlugins(false);
 		$ListOfZtamps = $this->Api->getListOfZtamps(false);
 		$ListOfActivePlugins = $this->Api->getListOfActivePlugins(false);
 		
-		/*if(empty($ListOfPlugins) && isset($_SESSION['connected']) 
+/*		if(empty($ListOfPlugins) && isset($_SESSION['connected']) 
 		   && !isset($_POST['login']) && !strpos($_SERVER['REQUEST_URI'],"logout"))
-			header('Location: index.php?logout');*/
-		
+			header('Location: index.php?logout');
+*/		
 		$pattern = array(
 				"|<!!TITLE!!>|",
 				"|<!!ALTTITLE!!>|",
@@ -37,9 +38,9 @@ class ojnTemplate {
 				$this->titre_alt,
 				$this->soustitre,
 				$buffer,
-				is_array($ListOfConnectedBunnies) ? count($ListOfConnectedBunnies)."/".count($ListOfBunnies) : '-',
-				is_array($ListOfPlugins) ? count($ListOfActivePlugins)."/".count($ListOfPlugins) : '-',
-				is_array($ListOfZtamps) ? count($ListOfZtamps) :  '-',
+				$Stats['connected_bunnies']."/".$Stats['bunnies'],
+				$Stats['enabled_plugins']."/".$Stats['plugins'],
+				$Stats['ztamps'],
 				$this->makeMenu(),
 				$this->makeBunnyMenu(),
 			);

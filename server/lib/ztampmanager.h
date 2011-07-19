@@ -29,6 +29,8 @@ public:
 	// API
 	static void InitApiCalls();
 
+	int GetZtampCount();
+
 protected:
 	static Ztamp * GetZtamp(QByteArray const&);
 	static QVector<Ztamp *> GetZtamps();

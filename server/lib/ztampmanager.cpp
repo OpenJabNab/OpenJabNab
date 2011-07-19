@@ -33,6 +33,11 @@ void ZtampManager::InitApiCalls()
 	DECLARE_API_CALL("getListOfZtamps()", &ZtampManager::Api_GetListOfZtamps);
 }
 
+int ZtampManager::GetZtampCount()
+{
+	return listOfZtamps.count();
+}
+
 Ztamp * ZtampManager::GetZtamp(QByteArray const& ztampHexID)
 {
 	QByteArray ztampID = QByteArray::fromHex(ztampHexID);

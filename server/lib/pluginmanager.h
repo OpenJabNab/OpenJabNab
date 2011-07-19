@@ -19,6 +19,9 @@ public:
 	static void Init();
 	static void Close();
 
+	int GetEnabledPluginCount();
+	int GetPluginCount();
+
 	// HttpRequests are sent to all 'active' plugins
 	void HttpRequestBefore(HTTPRequest &);
 	bool HttpRequestHandle(HTTPRequest &);

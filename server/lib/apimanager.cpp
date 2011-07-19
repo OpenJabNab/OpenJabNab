@@ -63,14 +63,32 @@ ApiManager::ApiAnswer * ApiManager::ProcessApiCall(QString const& request, HTTPR
 
 ApiManager::ApiAnswer * ApiManager::ProcessGlobalApiCall(Account const& account, QString const& request, HTTPRequest const& hRequest)
 {
-	if(!account.HasGlobalAccess(Account::Read))
-			return new ApiManager::ApiError("Access denied");
-
 	if(request == "about")
 	{
 		return new ApiManager::ApiString("OpenJabNab v0.01 - (Build " __DATE__ " / " __TIME__ ")");
 	}
-	else if (request == "getListOfApiCalls")
+	else if (request == "stats")
+	{
+		int bunnies = BunnyManager::Instance().GetBunnyCount();
+		int connectedBunnies = BunnyManager::Instance().GetConnectedBunnyCount();
+
+		int ztamps = ZtampManager::Instance().GetZtampCount();
+
+		int plugins = PluginManager::Instance().GetPluginCount();
+		int enabledPlugins = PluginManager::Instance().GetEnabledPluginCount();
+
+		QString stats = "<bunnies>" + QString::number(bunnies) + "</bunnies>";
+		stats += "<connected_bunnies>" + QString::number(connectedBunnies) + "</connected_bunnies>";
+		stats += "<ztamps>" + QString::number(ztamps) + "</ztamps>";
+		stats += "<plugins>" + QString::number(plugins) + "</plugins>";
+		stats += "<enabled_plugins>" + QString::number(enabledPlugins) + "</enabled_plugins>";
+		return new ApiManager::ApiXml(stats);
+	}
+	
+	if(!account.HasGlobalAccess(Account::Read))
+			return new ApiManager::ApiError("Access denied");
+
+	if (request == "getListOfApiCalls")
 	{
 		// Todo send a list with available api calls
 	}
