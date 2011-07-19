@@ -10,7 +10,7 @@ Q_EXPORT_PLUGIN2(plugin_colorbreathing, PluginColorbreathing)
 
 PluginColorbreathing::PluginColorbreathing():PluginInterface("colorbreathing", "Change breathing color", BunnyPlugin)
 {
-	availableColors << "cyan" << "yellow" << "green" << "red" << "violet" << "blue" << "white";
+	availableColors << "cyan" << "yellow" << "green" << "red" << "violet" << "blue" << "white" << "none";
 }
 
 void PluginColorbreathing::patchBootcode(HTTPRequest & request, long address, char origin, char patch)
@@ -51,6 +51,12 @@ void PluginColorbreathing::HttpRequestAfter(HTTPRequest & request)
 			if(color == "violet")
 			{
 				LogDebug(QString("No color change for bunny '%1'").arg(QString(b->GetID())));
+			}
+			else if(color == "none")
+			{
+				LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
+				patchBootcode(request, 0x000183D8, (char)0x01, (char)0x00); 
+				patchBootcode(request, 0x000183DA, (char)0x01, (char)0x00); 
 			}
 			else if(color == "yellow")
 			{
