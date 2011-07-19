@@ -22,7 +22,7 @@ void ZtampManager::LoadAllZtamps()
 	QStringList filters;
 	filters << "*.dat";
 	ztampsDir.setNameFilters(filters);
-	foreach (QFileInfo file, ztampsDir.entryInfoList(QDir::Files)) 
+	foreach (QFileInfo file, ztampsDir.entryInfoList(QDir::Files))
 	{
 		GetZtamp(file.baseName().toAscii());
 	}
@@ -41,7 +41,7 @@ int ZtampManager::GetZtampCount()
 Ztamp * ZtampManager::GetZtamp(QByteArray const& ztampHexID)
 {
 	QByteArray ztampID = QByteArray::fromHex(ztampHexID);
-	
+
 	if(listOfZtamps.contains(ztampID))
 		return listOfZtamps.value(ztampID);
 
@@ -53,7 +53,7 @@ Ztamp * ZtampManager::GetZtamp(QByteArray const& ztampHexID)
 Ztamp * ZtampManager::GetZtamp(PluginInterface * p, QByteArray const& ztampHexID)
 {
 	Ztamp * z = GetZtamp(ztampHexID);
-	
+
 	if(p->GetType() != PluginInterface::ZtampPlugin)
 		return z;
 	if(z->HasPlugin(p))
@@ -99,12 +99,17 @@ API_CALL(ZtampManager::Api_GetListOfZtamps)
 {
 	Q_UNUSED(hRequest);
 
-	if(!account.HasZtampsAccess(Account::Read))
+	if(!account.HasAccess(Account::AcZtamps,Account::Read))
 		return new ApiManager::ApiError("Access denied");
 
 	QMap<QString, QVariant> list;
-	foreach(Ztamp * z, listOfZtamps)
-		list.insert(z->GetID(), z->GetZtampName());
+	if(account.IsAdmin())
+		foreach(Ztamp * z, listOfZtamps)
+			list.insert(z->GetID(), z->GetZtampName());
+	else
+		foreach(Ztamp * z, listOfZtamps)
+			if(account.GetZtampsList().contains(z->GetID()))
+				list.insert(z->GetID(), z->GetZtampName());
 
 	return new ApiManager::ApiMappedList(list);
 }

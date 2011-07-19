@@ -21,7 +21,7 @@ void BunnyManager::LoadAllBunnies()
 	QStringList filters;
 	filters << "*.dat";
 	bunniesDir.setNameFilters(filters);
-	foreach (QFileInfo file, bunniesDir.entryInfoList(QDir::Files)) 
+	foreach (QFileInfo file, bunniesDir.entryInfoList(QDir::Files))
 	{
 		GetBunny(file.baseName().toAscii());
 	}
@@ -47,7 +47,7 @@ int BunnyManager::GetBunnyCount()
 Bunny * BunnyManager::GetBunny(QByteArray const& bunnyHexID)
 {
 	QByteArray bunnyID = QByteArray::fromHex(bunnyHexID);
-	
+
 	if(listOfBunnies.contains(bunnyID))
 		return listOfBunnies.value(bunnyID);
 
@@ -59,7 +59,7 @@ Bunny * BunnyManager::GetBunny(QByteArray const& bunnyHexID)
 Bunny * BunnyManager::GetBunny(PluginInterface * p, QByteArray const& bunnyHexID)
 {
 	Bunny * b = GetBunny(bunnyHexID);
-	
+
 	if(p->GetType() != PluginInterface::BunnyPlugin)
 		return b;
 	if(b->HasPlugin(p))
@@ -70,7 +70,7 @@ Bunny * BunnyManager::GetBunny(PluginInterface * p, QByteArray const& bunnyHexID
 Bunny * BunnyManager::GetConnectedBunny(QByteArray const& bunnyHexID)
 {
 	QByteArray bunnyID = QByteArray::fromHex(bunnyHexID);
-	
+
 	if(listOfBunnies.contains(bunnyID))
 	{
 		Bunny * b = listOfBunnies.value(bunnyID);
@@ -123,21 +123,29 @@ API_CALL(BunnyManager::Api_GetListOfConnectedBunnies)
 {
 	Q_UNUSED(hRequest);
 
-	if(!account.HasBunniesAccess(Account::Read))
+	if(!account.HasAccess(Account::AcBunnies,Account::Read))
 		return new ApiManager::ApiError("Access denied");
 
 	QMap<QString, QVariant> list;
-	foreach(Bunny * b, listOfBunnies)
-		if (b->IsConnected())
-			list.insert(b->GetID(), b->GetBunnyName());
-
+	if(account.IsAdmin()) {
+		foreach(Bunny * b, listOfBunnies)
+			if (b->IsConnected())
+				list.insert(b->GetID(), b->GetBunnyName());
+	} else {
+		foreach(Bunny * b, listOfBunnies)
+			if (b->IsConnected()) {
+				if(account.GetBunniesList().contains(b->GetID())) {
+					list.insert(b->GetID(), b->GetBunnyName());
+			}
+		}
+	}
 	return new ApiManager::ApiMappedList(list);
 }
 
 API_CALL(BunnyManager::Api_GetListOfBunnies) {
 	Q_UNUSED(hRequest);
 
-	if(!account.HasBunniesAccess(Account::Read))
+	if(!account.HasAccess(Account::AcBunnies,Account::Read))
 		return new ApiManager::ApiError("Access denied");
 
 	QMap<QString, QVariant> list;
@@ -153,7 +161,7 @@ API_CALL(BunnyManager::Api_GetListOfBunnies) {
 }
 
 API_CALL(BunnyManager::Api_AddBunny) {
-	if(!account.HasBunniesAccess(Account::Write))
+	if(!account.HasAccess(Account::AcBunnies,Account::Write))
 		return new ApiManager::ApiError("Access denied");
 
 	QByteArray bunnyID = hRequest.GetArg("serial").toAscii();

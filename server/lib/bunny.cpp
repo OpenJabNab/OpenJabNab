@@ -32,11 +32,11 @@ Bunny::Bunny(QByteArray const& bunnyID)
 	state = State_Disconnected;
 	configFileName = bunniesDir.absoluteFilePath(bunnyID.toHex()+".dat");
 	xmppHandler = 0;
-	
+
 	// Check if config file exists and load it
 	if (QFile::exists(configFileName))
 		LoadConfig();
-		
+
 	saveTimer = new QTimer(this);
 	connect(saveTimer, SIGNAL(timeout()), this, SLOT(SaveConfig()));
 	saveTimer->start(5*60*1000); // 5min
@@ -54,13 +54,13 @@ QString Bunny::CheckPlugin(PluginInterface * plugin, bool isAssociated)
 
 	if(plugin->GetType() != PluginInterface::BunnyPlugin && plugin->GetType() != PluginInterface::BunnyZtampPlugin)
 		return QString("Bad plugin type : %1");
-		
+
 	if(!plugin->GetEnable())
 		return QString("Plugin '%1' is globally disabled");
-		
+
 	if(isAssociated && (!listOfPluginsPtr.contains(plugin)))
 		return QString("Plugin '%1' is not associated with this bunny");
-		
+
 	return QString();
 }
 
@@ -73,7 +73,7 @@ void Bunny::LoadConfig()
 		LogError(QString("Cannot open config file for reading : %1").arg(configFileName));
 		return;
 	}
-	
+
 	QDataStream in(&file);
 	in.setVersion(QDataStream::Qt_4_3);
 	in >> GlobalSettings >> PluginsSettings >> listOfPlugins;
@@ -81,7 +81,7 @@ void Bunny::LoadConfig()
 	{
 		LogWarning(QString("Problem when loading config file for bunny : %1").arg(QString(id.toHex())));
 	}
-	
+
 	// "Load" associated bunny plugins
 	foreach(QString s, listOfPlugins)
 	{
@@ -95,7 +95,7 @@ void Bunny::LoadConfig()
 		else
 			LogError(QString("Bunny %1 has invalid plugin (%2)!").arg(QString(GetID()), s));
 	}
-	
+
 	// Load single/doubleClickPlugin preferences
 	if(GlobalSettings.contains(SINGLE_CLICK_PLUGIN_SETTINGNAME))
 	{
@@ -131,7 +131,7 @@ void Bunny::LoadConfig()
 	{
 		doubleClickPlugin = NULL;
 	}
-	
+
 	// Added to config file, listOfRFIDTags
 	if(!in.atEnd())
 	{
@@ -154,7 +154,7 @@ void Bunny::SaveConfig()
 }
 
 void Bunny::SetXmppHandler(XmppHandler * x)
-{ 
+{
 	xmppHandler = x;
 }
 
@@ -212,19 +212,19 @@ QByteArray Bunny::GetInitPacket() const
 	a.SetEarsPosition(0,0);
 
 	SleepPacket s(SleepPacket::Wake_Up);
-	
+
 	// Pass AmbientPacket to all bunny's plugins
 	foreach(PluginInterface * p, listOfPluginsPtr)
 	{
 		if(p->GetEnable())
 			p->OnInitPacket(this, a, s);
 	}
-	
+
 	// Create packetList and return packet's data
 	QList<Packet *> l;
 	l.append(&a);
 	l.append(&s);
-	
+
 	return Packet::GetData(l);
 }
 
@@ -496,7 +496,7 @@ bool Bunny::OnRFID(QByteArray const& tag)
 {
 	if(!knownRFIDTags.contains(tag))
 		knownRFIDTags.insert(tag, QString());
-	
+
 	if(PluginManager::Instance().OnRFID(this, tag))
 		return true;
 
@@ -530,10 +530,11 @@ void Bunny::InitApiCalls()
 	DECLARE_API_CALL("setRFIDTagName(tag,name)", &Bunny::Api_SetRFIDTagName);
 
 	DECLARE_API_CALL("setBunnyName(name)", &Bunny::Api_SetBunnyName);
-	
+
 	DECLARE_API_CALL("setService(service,value)", &Bunny::Api_SetService);
 
 	DECLARE_API_CALL("resetPassword()", &Bunny::Api_ResetPassword);
+	DECLARE_API_CALL("resetOwner()", &Bunny::Api_ResetOwner);
 }
 
 API_CALL(Bunny::Api_AddPlugin)
@@ -541,7 +542,7 @@ API_CALL(Bunny::Api_AddPlugin)
 	Q_UNUSED(account);
 
 	PluginInterface * plugin = PluginManager::Instance().GetPluginByName(hRequest.GetArg("name"));
-	
+
 	QString error = CheckPlugin(plugin);
 	if(!error.isNull())
 		return new ApiManager::ApiError(error.arg(hRequest.GetArg("name")));
@@ -601,14 +602,14 @@ API_CALL(Bunny::Api_SetSingleClickPlugin)
 API_CALL(Bunny::Api_SetDoubleClickPlugin)
 {
 	Q_UNUSED(account);
-		
+
 	if(hRequest.GetArg("name") == "none")
 	{
 		RemoveGlobalSetting(DOUBLE_CLICK_PLUGIN_SETTINGNAME);
 		doubleClickPlugin = NULL;
 		return new ApiManager::ApiOk(QString("Removed preferred double click plugin"));
 	}
-	
+
 	PluginInterface * plugin = PluginManager::Instance().GetPluginByName(hRequest.GetArg("name"));
 
 	QString error = CheckPlugin(plugin, true);
@@ -636,35 +637,35 @@ API_CALL(Bunny::Api_GetListOfKnownRFIDTags)
 {
 	Q_UNUSED(account);
 	Q_UNUSED(hRequest);
-	
+
 	QMap<QString, QVariant> list;
 
 	QHash<QByteArray, QString>::const_iterator i;
 	for (i = knownRFIDTags.constBegin(); i != knownRFIDTags.constEnd(); ++i)
 		list.insert(QString(i.key()), i.value());
-	
+
 	return new ApiManager::ApiMappedList(list);
 }
 
 API_CALL(Bunny::Api_SetRFIDTagName)
 {
 	Q_UNUSED(account);
-	
+
 	QByteArray tagName = hRequest.GetArg("tag").toAscii();
 	if(!knownRFIDTags.contains(tagName))
 		return new ApiManager::ApiError(QString("Tag '%1' is unkown").arg(hRequest.GetArg("tag")));
-		
+
 	knownRFIDTags[tagName] = hRequest.GetArg("name");
-	
+
 	return new ApiManager::ApiOk(QString("Name '%1' associated to tag '%2'").arg(hRequest.GetArg("name"), hRequest.GetArg("tag")));
 }
 
 API_CALL(Bunny::Api_SetBunnyName)
 {
 	Q_UNUSED(account);
-	
+
 	SetBunnyName( hRequest.GetArg("name") );
-	
+
 	return new ApiManager::ApiOk(QString("Bunny '%1' is now named '%2'").arg(GetID(), hRequest.GetArg("name")));
 }
 
@@ -674,10 +675,10 @@ API_CALL(Bunny::Api_SetService)
 
 	int service = hRequest.GetArg("service").toInt();
 	int value = hRequest.GetArg("value").toInt();
-	
+
 	AmbientPacket a((AmbientPacket::Services)service, value);
 	SendPacket(a);
-	
+
 	return new ApiManager::ApiOk(QString("Set value '%2' for service '%1'").arg(QString::number(service), QString::number(value)));
 }
 
@@ -689,4 +690,14 @@ API_CALL(Bunny::Api_ResetPassword)
 	ClearBunnyPassword();
 	return new ApiManager::ApiOk("Password cleared");
 }
+
+API_CALL(Bunny::Api_ResetOwner)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+
+	RemoveGlobalSetting("OwnerAccount");
+	return new ApiManager::ApiOk("Owner cleared");
+}
+
 

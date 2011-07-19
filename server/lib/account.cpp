@@ -18,7 +18,6 @@ Account::Account(SpecialAccount t)
 			SetDefault(); // Default values
 			login = "guest";
 			username = "Guest";
-			GlobalAccess = Read;
 			break;
 
 		case DefaultAdmin:
@@ -35,7 +34,7 @@ Account::Account(QDataStream & in, unsigned int version)
 	SetDefault();
 	if(version == 1)
 	{
-		in >> login >> username >> passwordHash >> isAdmin >> PluginsAccess >> BunniesAccess >> GlobalAccess >> GeneralPluginAccess >> listOfBunnies;
+		in >> login >> username >> passwordHash >> isAdmin >> UserAccess >> listOfBunnies >> listOfZtamps;
 	}
 	else
 		LogError(QString("Can't load account with version %1").arg(version));
@@ -47,21 +46,32 @@ Account::Account(QString const& l, QString const& u, QByteArray const& p)
 	login = l;
 	username = u;
 	passwordHash = p;
+	UserAccess[AcGlobal] = Read;
+	UserAccess[AcAccount] = ReadWrite;
+	UserAccess[AcBunnies] = ReadWrite;
+	UserAccess[AcZtamps] = ReadWrite;
+	UserAccess[AcPlugins] = Read;
+	UserAccess[AcPluginsBunny] = ReadWrite;
+	UserAccess[AcPluginsZtamp] = ReadWrite;
 }
 
 void Account::SetDefault()
 {
 	// By default NO ACCESS
 	isAdmin = false;
-	PluginsAccess = Read;
-	BunniesAccess = Read;
-	GlobalAccess = None;
-	GeneralPluginAccess = None;
+	UserAccess.insert(AcGlobal,None);
+	UserAccess.insert(AcAccount,None);
+	UserAccess.insert(AcBunnies,None);
+	UserAccess.insert(AcZtamps,None);
+	UserAccess.insert(AcPluginsBunny,None);
+	UserAccess.insert(AcPluginsZtamp,None);
+	UserAccess.insert(AcPlugins,None);
+	UserAccess.insert(AcServer,None);
 }
 
 QDataStream & operator<< (QDataStream & out, const Account & a)
 {
-	out << a.login << a.username << a.passwordHash << a.isAdmin << a.PluginsAccess << a.BunniesAccess << a.GlobalAccess << a.GeneralPluginAccess << a.listOfBunnies;
+	out << a.login << a.username << a.passwordHash << a.isAdmin << a.UserAccess << a.listOfBunnies << a.listOfZtamps;
 	return out;
 }
 
@@ -78,25 +88,3 @@ QDataStream & operator<< (QDataStream & out, const Account::Rights & r)
 	out << (int)r;
 	return out;
 }
-
-
-void Account::InitApiCalls()
-{
-	DECLARE_API_CALL("info()", &Account::Api_Info);
-}
-
-API_CALL(Account::Api_Info)
-{
-	Q_UNUSED(hRequest);
-
-	if(!account.IsAdmin())
-		return new ApiManager::ApiError("Access denied");
-
-	QMap<QString, QVariant> list;
-	list.insert("login", account.GetLogin());
-	list.insert("token", account.GetToken());
-	list.insert("admin", account.IsAdmin() ? "true" : "false" );
-
-	return new ApiManager::ApiMappedList(list);
-}
-

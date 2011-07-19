@@ -194,6 +194,7 @@ API_CALL(AccountManager::Api_RegisterNewAccount)
 		a->setAdmin();
 		//Todo: Drop default admin right now, security issues
 	}
+	SaveAccounts();
 	return new ApiManager::ApiOk(QString("New account created : %1").arg(hRequest.GetArg("login")));
 }
 
@@ -216,7 +217,7 @@ API_CALL(AccountManager::Api_AddBunny)
 		return new ApiManager::ApiError(QString("Bunny %1 is already attached to this account: '%2'").arg(bunnyid,own));
 
 	b->SetGlobalSetting("OwnerAccount", login);
-
+	SaveAccounts();
 	QByteArray id = listOfAccountsByName.value(login)->AddBunny(bunnyid.toAscii());
 	return new ApiManager::ApiOk(QString("Bunny '%1' added to account '%2'").arg(QString(id)).arg(login));
 }
@@ -225,18 +226,21 @@ API_CALL(AccountManager::Api_RemoveBunny)
 {
 	// Only admin can remove bunny to any accounts, else an auth user can remove a bunny from his account
 	QString login = hRequest.GetArg("login");
-	if((account.IsAdmin() || GlobalSettings::Get("Config/AllowUserManageBunny", false) == true) && !listOfAccountsByName.contains(login))
-			return new ApiManager::ApiError(QString("Account '%1' doesn't exist").arg(hRequest.GetArg("login")));
-	else if(account.GetLogin() != login)
+	/* Account doesn't exist */
+	if(!listOfAccountsByName.contains(login))
+			return new ApiManager::ApiError(QString("Account '%1' doesn't exist").arg(login));
+	/* user is not admin and (is not allowed or it's not his account) */
+	else if(!account.IsAdmin() && (GlobalSettings::Get("Config/AllowUserManageBunny", false) != true || account.GetLogin() != login))
 			return new ApiManager::ApiError(QString("Access denied to user '%1'").arg(login));
 
 	QString bunnyID = hRequest.GetArg("bunnyid");
 	if(listOfAccountsByName.value(login)->RemoveBunny(bunnyID.toAscii())) {
 		Bunny *b = BunnyManager::GetBunny(bunnyID.toAscii());
 		b->RemoveGlobalSetting("OwnerAccount");
+		SaveAccounts();
 		return new ApiManager::ApiOk(QString("Bunny '%1' removed from account '%2'").arg(bunnyID).arg(login));
 	} else
-		return new ApiManager::ApiError(QString("Can't remove bunny '%1' from to account '%2'").arg(bunnyID).arg(login));
+		return new ApiManager::ApiError(QString("Can't remove bunny '%1' from account '%2'").arg(bunnyID).arg(login));
 }
 
 API_CALL(AccountManager::Api_SetToken)
@@ -252,4 +256,3 @@ API_CALL(AccountManager::Api_SetToken)
 	//LogError("Account not found");
 	return new ApiManager::ApiError("Access denied");
 }
-

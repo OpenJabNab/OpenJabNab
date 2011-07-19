@@ -36,7 +36,7 @@ ApiManager::ApiAnswer * ApiManager::ProcessApiCall(QString const& request, HTTPR
 
 	if(request.startsWith("global/"))
 		return ProcessGlobalApiCall(account, request.mid(7), hRequest);
-	
+
 	if(request.startsWith("plugins/"))
 		return PluginManager::Instance().ProcessApiCall(account, request.mid(8), hRequest);
 
@@ -48,13 +48,13 @@ ApiManager::ApiAnswer * ApiManager::ProcessApiCall(QString const& request, HTTPR
 
 	if(request.startsWith("bunny/"))
 		return ProcessBunnyApiCall(account, request.mid(6), hRequest);
-	
+
 	if(request.startsWith("ztamps/"))
 		return ZtampManager::Instance().ProcessApiCall(account, request.mid(7), hRequest);
 
 	if(request.startsWith("ztamp/"))
 		return ProcessZtampApiCall(account, request.mid(6), hRequest);
-	
+
 	if(request.startsWith("accounts/"))
 		return AccountManager::Instance().ProcessApiCall(account, request.mid(9), hRequest);
 
@@ -84,8 +84,8 @@ ApiManager::ApiAnswer * ApiManager::ProcessGlobalApiCall(Account const& account,
 		stats += "<enabled_plugins>" + QString::number(enabledPlugins) + "</enabled_plugins>";
 		return new ApiManager::ApiXml(stats);
 	}
-	
-	if(!account.HasGlobalAccess(Account::Read))
+
+	if(!account.HasAccess(Account::AcGlobal,Account::Read))
 			return new ApiManager::ApiError("Access denied");
 
 	if (request == "getListOfApiCalls")
@@ -98,10 +98,10 @@ ApiManager::ApiAnswer * ApiManager::ProcessGlobalApiCall(Account const& account,
 ApiManager::ApiAnswer * ApiManager::ProcessPluginApiCall(Account const& account, QString const& request, HTTPRequest & hRequest)
 {
 	QStringList list = QString(request).split('/', QString::SkipEmptyParts);
-	
+
 	if(list.size() != 2)
 		return new ApiManager::ApiError(QString("Malformed Plugin Api Call : %1").arg(hRequest.toString()));
-		
+
 	QString const& pluginName = list.at(0);
 	QString const& functionName = list.at(1);
 
@@ -118,12 +118,12 @@ ApiManager::ApiAnswer * ApiManager::ProcessPluginApiCall(Account const& account,
 ApiManager::ApiAnswer * ApiManager::ProcessBunnyApiCall(Account const& account, QString const& request, HTTPRequest const& hRequest)
 {
 	QStringList list = QString(request).split('/', QString::SkipEmptyParts);
-	
+
 	if(list.size() < 2)
 		return new ApiManager::ApiError(QString("Malformed Bunny Api Call : %1").arg(hRequest.toString()));
-		
+
 	QByteArray const& bunnyID = list.at(0).toAscii();
-	
+
 	if(!account.HasBunnyAccess(bunnyID))
 		return new ApiManager::ApiError("Access denied to this bunny");
 
@@ -155,12 +155,12 @@ ApiManager::ApiAnswer * ApiManager::ProcessBunnyApiCall(Account const& account, 
 ApiManager::ApiAnswer * ApiManager::ProcessZtampApiCall(Account const& account, QString const& request, HTTPRequest const& hRequest)
 {
 	QStringList list = QString(request).split('/', QString::SkipEmptyParts);
-	
+
 	if(list.size() < 2)
 		return new ApiManager::ApiError(QString("Malformed Ztamp Api Call : %1").arg(hRequest.toString()));
-		
+
 	QByteArray const& ztampID = list.at(0).toAscii();
-	
+
 	if(!account.HasZtampAccess(ztampID))
 		return new ApiManager::ApiError("Access denied to this ztamp");
 
@@ -212,7 +212,7 @@ QString ApiManager::ApiString::GetInternalData()
 }
 
 QString ApiManager::ApiList::GetInternalData()
-{ 
+{
 	QString tmp;
 	tmp += "<list>";
 	foreach (QString b, list)
@@ -222,7 +222,7 @@ QString ApiManager::ApiList::GetInternalData()
 }
 
 QString ApiManager::ApiMappedList::GetInternalData()
-{ 
+{
 	QString tmp;
 	tmp += "<list>";
 	QMapIterator<QString, QVariant> i(list);

@@ -15,7 +15,8 @@ class OJN_EXPORT Account : public ApiHandler<Account>
 	friend class AccountManager;
 public:
 	enum SpecialAccount { Guest, DefaultAdmin };
-	enum Right { None = 0x0, Read = 0x1, Write = 0x2};
+	enum Right { None = 0x0, Read = 0x1, Write = 0x2, ReadWrite = 0x3};
+	enum Access { AcGlobal = 0x0, AcAccount = 0x1, AcBunnies = 0x2, AcZtamps = 0x3, AcPluginsBunny = 0x4, AcPluginsZtamp = 0x5, AcPlugins= 0x6, AcServer = 0x7};
 	Q_DECLARE_FLAGS(Rights, Right);
 
 	static void Init() { InitApiCalls(); }
@@ -26,14 +27,12 @@ public:
 	void SetToken(QByteArray);
 	bool IsAdmin() const;
 	void setAdmin();
-	bool HasPluginsAccess(Right r) const;
-	bool HasBunniesAccess(Right r) const;
-	bool HasZtampsAccess(Right r) const;
-	bool HasGlobalAccess(Right r) const;
-	bool HasGeneralPluginAccess(Right r) const;
+	bool HasAccess(Access id, Right r) const;
+	void SetAccess(Access id,Right r);
 	bool HasBunnyAccess(QByteArray const& b) const;
 	bool HasZtampAccess(QByteArray const& b) const;
 	QList<QByteArray> const& GetBunniesList() const;
+	QList<QByteArray> const& GetZtampsList() const;
 	static int Version();
 
 private:
@@ -54,17 +53,12 @@ private:
 	QString username;
 	QByteArray passwordHash;
 	QByteArray token;
+
 	bool isAdmin;
-	Rights PluginsAccess;
-	Rights BunniesAccess;
-	Rights ZtampsAccess;
-	Rights GlobalAccess;
-	Rights GeneralPluginAccess;
+	QList<Rights> UserAccess;
+
 	QList<QByteArray> listOfBunnies;
 	QList<QByteArray> listOfZtamps;
-
-	// API
-	API_CALL(Api_Info);
 
 	friend QDataStream & operator<< (QDataStream & out, const Account & a);
 };
@@ -78,9 +72,13 @@ extern QDataStream & operator>> (QDataStream & in, Account::Rights &);
 
 // Inline Public methods
 inline QList<QByteArray> const& Account::GetBunniesList() const {
-
 	return listOfBunnies;
 }
+
+inline QList<QByteArray> const& Account::GetZtampsList() const {
+	return listOfBunnies;
+}
+
 inline QByteArray const& Account::GetPasswordHash() const
 {
 	return passwordHash;
@@ -110,39 +108,16 @@ inline void Account::setAdmin() {
 	isAdmin = true;
 }
 
-inline bool Account::HasPluginsAccess(Right r) const
+inline bool Account::HasAccess(Access id,Right r) const
 {
 	if(isAdmin)
 		return true;
-	return PluginsAccess.testFlag(r);
+	return UserAccess[id].testFlag(r);
 }
 
-inline bool Account::HasZtampsAccess(Right r) const
+inline void Account::SetAccess(Access id,Right r)
 {
-	if(isAdmin)
-		return true;
-	return ZtampsAccess.testFlag(r);
-}
-
-inline bool Account::HasBunniesAccess(Right r) const
-{
-	if(isAdmin)
-		return true;
-	return BunniesAccess.testFlag(r);
-}
-
-inline bool Account::HasGlobalAccess(Right r) const
-{
-	if(isAdmin)
-		return true;
-	return GlobalAccess.testFlag(r);
-}
-
-inline bool Account::HasGeneralPluginAccess(Right r) const
-{
-	if(isAdmin)
-		return true;
-	return GeneralPluginAccess.testFlag(r);
+	UserAccess[id] = r;
 }
 
 inline bool Account::HasZtampAccess(QByteArray const& b) const
