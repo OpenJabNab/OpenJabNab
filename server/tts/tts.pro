@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = acapela
+SUBDIRS = acapela google
