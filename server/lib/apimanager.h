@@ -40,6 +40,16 @@ public:
 			QString error;
 	};
 
+	class OJN_EXPORT ApiXml : public ApiAnswer
+	{
+		public:
+			ApiXml():string(QString()) {}
+			ApiXml(QString s):string(s) {}
+			QString GetInternalData() { return string; }
+		private:
+			QString string;
+	};
+
 	class OJN_EXPORT ApiOk : public ApiAnswer
 	{
 		public:
