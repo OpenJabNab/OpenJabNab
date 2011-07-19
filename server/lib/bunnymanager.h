@@ -40,6 +40,7 @@ protected:
 	// API
 	API_CALL(Api_GetListOfConnectedBunnies);
 	API_CALL(Api_GetListOfBunnies);
+	API_CALL(Api_AddBunny);
 
 private:
 	BunnyManager();

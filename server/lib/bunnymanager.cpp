@@ -31,6 +31,7 @@ void BunnyManager::InitApiCalls()
 {
 	DECLARE_API_CALL("getListOfConnectedBunnies()", &BunnyManager::Api_GetListOfConnectedBunnies);
 	DECLARE_API_CALL("getListOfBunnies()", &BunnyManager::Api_GetListOfBunnies);
+	DECLARE_API_CALL("addBunny(serial)", &BunnyManager::Api_AddBunny);
 }
 
 int BunnyManager::GetConnectedBunnyCount()
@@ -149,6 +150,18 @@ API_CALL(BunnyManager::Api_GetListOfBunnies) {
 				list.insert(b->GetID(), b->GetBunnyName());
 
 	return new ApiManager::ApiMappedList(list);
+}
+
+API_CALL(BunnyManager::Api_AddBunny) {
+	if(!account.HasBunniesAccess(Account::Write))
+		return new ApiManager::ApiError("Access denied");
+
+	QByteArray bunnyID = hRequest.GetArg("serial").toAscii();
+	if(listOfBunnies.contains(bunnyID))
+		return new ApiManager::ApiError("Bunny already exists");
+
+	GetBunny(bunnyID);
+	return new ApiManager::ApiOk("Bunny successfully added");
 }
 
 QHash<QByteArray, Bunny *> BunnyManager::listOfBunnies;
