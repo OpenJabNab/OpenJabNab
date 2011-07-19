@@ -53,8 +53,8 @@ void Account::SetDefault()
 {
 	// By default NO ACCESS
 	isAdmin = false;
-	PluginsAccess = None;
-	BunniesAccess = None;
+	PluginsAccess = Read;
+	BunniesAccess = Read;
 	GlobalAccess = None;
 	GeneralPluginAccess = None;
 }

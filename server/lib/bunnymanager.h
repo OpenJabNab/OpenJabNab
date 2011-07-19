@@ -20,6 +20,7 @@ public:
 	static BunnyManager & Instance();
 
 	static Bunny * GetBunny(PluginInterface *, QByteArray const&);
+	static Bunny * GetBunny(QByteArray const&);
 	static void PluginStateChanged(PluginInterface *);
 	static void Init();
 	static void LoadBunnies();
@@ -29,7 +30,6 @@ public:
 	static void InitApiCalls();
 
 protected:
-	static Bunny * GetBunny(QByteArray const&);
 	static Bunny * GetConnectedBunny(QByteArray const&);
 	static QVector<Bunny *> GetConnectedBunnies();
 	static void PluginLoaded(PluginInterface *);

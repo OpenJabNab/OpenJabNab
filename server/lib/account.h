@@ -25,6 +25,7 @@ public:
 	QByteArray const& GetToken() const;
 	void SetToken(QByteArray);
 	bool IsAdmin() const;
+	void setAdmin();
 	bool HasPluginsAccess(Right r) const;
 	bool HasBunniesAccess(Right r) const;
 	bool HasZtampsAccess(Right r) const;
@@ -32,6 +33,7 @@ public:
 	bool HasGeneralPluginAccess(Right r) const;
 	bool HasBunnyAccess(QByteArray const& b) const;
 	bool HasZtampAccess(QByteArray const& b) const;
+	QList<QByteArray> const& GetBunniesList() const;
 	static int Version();
 
 private:
@@ -75,7 +77,11 @@ extern QDataStream & operator<< (QDataStream & out, const Account::Rights &);
 extern QDataStream & operator>> (QDataStream & in, Account::Rights &);
 
 // Inline Public methods
-inline QByteArray const& Account::GetPasswordHash() const 
+inline QList<QByteArray> const& Account::GetBunniesList() const {
+
+	return listOfBunnies;
+}
+inline QByteArray const& Account::GetPasswordHash() const
 {
 	return passwordHash;
 }
@@ -100,6 +106,10 @@ inline bool Account::IsAdmin() const
 	return isAdmin;
 }
 
+inline void Account::setAdmin() {
+	isAdmin = true;
+}
+
 inline bool Account::HasPluginsAccess(Right r) const
 {
 	if(isAdmin)
@@ -121,7 +131,7 @@ inline bool Account::HasBunniesAccess(Right r) const
 	return BunniesAccess.testFlag(r);
 }
 
-inline bool Account::HasGlobalAccess(Right r) const 
+inline bool Account::HasGlobalAccess(Right r) const
 {
 	if(isAdmin)
 		return true;
@@ -146,7 +156,7 @@ inline bool Account::HasBunnyAccess(QByteArray const& b) const
 {
 	if(isAdmin)
 		return true;
-	return listOfBunnies.contains(QByteArray::fromHex(b));
+	return listOfBunnies.contains(b);
 }
 
 inline int Account::Version() {
@@ -156,15 +166,13 @@ inline int Account::Version() {
 // Inline protected methods
 inline QByteArray Account::AddBunny(QByteArray const& b)
 {
-		QByteArray id = QByteArray::fromHex(b);
-		listOfBunnies.append(id);
-		return id.toHex();
+		listOfBunnies.append(b);
+		return b;
 }
 
 inline bool Account::RemoveBunny(QByteArray const& b)
 {
-	QByteArray id = QByteArray::fromHex(b);
-	return (listOfBunnies.removeAll(id) != 0);
+	return (listOfBunnies.removeAll(b) != 0);
 }
 
 inline QByteArray Account::AddZtamp(QByteArray const& z)

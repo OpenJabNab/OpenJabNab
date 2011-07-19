@@ -58,7 +58,7 @@ else if(!empty($_GET['rw'])) {
 	header("Location: bunny_plugin.php?p=webradio");
 } 
 $default = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/webradio/getdefault?".$ojnAPI->getToken());
-$default = (string)($default['value']);
+$default = isset($default['value']) ? (string)($default['value']) : '';
 $pList = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/webradio/listpreset?".$ojnAPI->getToken());
 $wList = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/webradio/listwebcast?".$ojnAPI->getToken());
 ?>

@@ -8,6 +8,8 @@
 #include "account.h"
 #include "accountmanager.h"
 #include "apimanager.h"
+#include "bunny.h"
+#include "bunnymanager.h"
 #include "log.h"
 #include "httprequest.h"
 #include "settings.h"
@@ -66,6 +68,7 @@ void AccountManager::LoadAccounts()
 		listOfAccounts.append(new Account(Account::DefaultAdmin));
 		listOfAccountsByName.insert(a->GetLogin(), a);
 	}
+	LogInfo(QString("Total of accounts: %1").arg(listOfAccounts.count()));
 }
 
 void AccountManager::SaveAccounts()
@@ -78,7 +81,8 @@ void AccountManager::SaveAccounts()
 		out.setVersion(QDataStream::Qt_4_3);
 		out << Account::Version();
 		foreach(Account * a, listOfAccounts)
-			out << *a;
+			if(a->GetLogin() != "admin")
+				out << *a;
 	}
 	else
 		LogError("Can't open accounts.dat, accounts will not be saved");
@@ -168,7 +172,7 @@ API_CALL(AccountManager::Api_ChangePasswd)
 		LogInfo(QString("Password change for user '%1'").arg(hRequest.GetArg("login")));
 		return new ApiManager::ApiString("Password changed");
 	}
-	
+
 	LogError("Account not found");
 	return new ApiManager::ApiError("Access denied");
 }
@@ -181,10 +185,15 @@ API_CALL(AccountManager::Api_RegisterNewAccount)
 	QString login = hRequest.GetArg("login");
 	if(listOfAccountsByName.contains(login))
 		return new ApiManager::ApiError(QString("Account '%1' already exists").arg(hRequest.GetArg("login")));
-		
+
 	Account * a = new Account(login, hRequest.GetArg("username"), QCryptographicHash::hash(hRequest.GetArg("pass").toAscii(), QCryptographicHash::Md5));
 	listOfAccounts.append(a);
 	listOfAccountsByName.insert(a->GetLogin(), a);
+	if(listOfAccounts.count() == 2 && listOfAccountsByName.contains("admin")) {
+		LogWarning("Registering first account, set him admin.");
+		a->setAdmin();
+		//Todo: Drop default admin right now, security issues
+	}
 	return new ApiManager::ApiOk(QString("New account created : %1").arg(hRequest.GetArg("login")));
 }
 
@@ -197,8 +206,18 @@ API_CALL(AccountManager::Api_AddBunny)
 	QString login = hRequest.GetArg("login");
 	if(!listOfAccountsByName.contains(login))
 		return new ApiManager::ApiError(QString("Account '%1' doesn't exist").arg(hRequest.GetArg("login")));
+	QString bunnyid = hRequest.GetArg("bunnyid");
+	if(listOfAccountsByName.value(login)->GetBunniesList().contains(bunnyid.toAscii()))
+		return new ApiManager::ApiError(QString("Bunny %1 is already attached to this account: '%1'").arg(bunnyid,login));
+	// Lock bunny to this account
+	Bunny *b = BunnyManager::GetBunny(bunnyid.toAscii());
+	QString own = b->GetGlobalSetting("OwnerAccount","").toString();
+	if(own != "")
+		return new ApiManager::ApiError(QString("Bunny %1 is already attached to this account: '%2'").arg(bunnyid,own));
 
-	QByteArray id = listOfAccountsByName.value(login)->AddBunny(hRequest.GetArg("bunnyid").toAscii());
+	b->SetGlobalSetting("OwnerAccount", login);
+
+	QByteArray id = listOfAccountsByName.value(login)->AddBunny(bunnyid.toAscii());
 	return new ApiManager::ApiOk(QString("Bunny '%1' added to account '%2'").arg(QString(id)).arg(login));
 }
 
@@ -212,9 +231,11 @@ API_CALL(AccountManager::Api_RemoveBunny)
 			return new ApiManager::ApiError(QString("Access denied to user '%1'").arg(login));
 
 	QString bunnyID = hRequest.GetArg("bunnyid");
-	if(listOfAccountsByName.value(login)->RemoveBunny(bunnyID.toAscii()))
+	if(listOfAccountsByName.value(login)->RemoveBunny(bunnyID.toAscii())) {
+		Bunny *b = BunnyManager::GetBunny(bunnyID.toAscii());
+		b->RemoveGlobalSetting("OwnerAccount");
 		return new ApiManager::ApiOk(QString("Bunny '%1' removed from account '%2'").arg(bunnyID).arg(login));
-	else
+	} else
 		return new ApiManager::ApiError(QString("Can't remove bunny '%1' from to account '%2'").arg(bunnyID).arg(login));
 }
 
@@ -224,11 +245,11 @@ API_CALL(AccountManager::Api_SetToken)
 	if(it != listOfAccountsByName.end())
 	{
 		it.value()->SetToken(hRequest.GetArg("tk").toAscii());
-		SaveAccounts();
+		//SaveAccounts();
 		return new ApiManager::ApiString("Token changed");
 	}
-	
-	LogError("Account not found");
+
+	//LogError("Account not found");
 	return new ApiManager::ApiError("Access denied");
 }
 
