@@ -24,9 +24,9 @@ $frequency = isset($frequency['ok']) ? $frequency['ok'] : '';
 <fieldset>
 <legend>Voix pour les surprises</legend>
 <select name="folder">
-<? foreach($folders as $folder) { ?>
+<?php foreach($folders as $folder) { ?>
 <option value="<?php echo $folder ?>"><?php echo $folder ?></option>
-<? } ?>
+<?php } ?>
 </select>
 <input type="submit" value="Enregistrer">
 </fieldset>

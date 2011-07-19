@@ -14,7 +14,7 @@ if(!isset($_POST['domain'])) {
 		<input type='text' name='domain' value='<?php echo $_SERVER['HTTP_HOST']?>' />
 		<input type='submit' value='OK' />
 	</form>
-	<?
+	<?php
 } else {
 	file_put_contents("include/common.php", str_replace("<HOSTNAME>", $_POST['domain'], file_get_contents("include/common-def.php")));
 	echo "Configuration done. <a href=\"index.php\"> Start using OJN Admin.</a>";
