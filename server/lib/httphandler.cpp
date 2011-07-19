@@ -73,7 +73,7 @@ void HttpHandler::HandleBunnyHTTPRequest()
 		}
 		pluginManager.HttpRequestAfter(request);
 		incomingHttpSocket->write(request.reply);
-		if(!uri.contains(".mp3") && !uri.contains(".chor") && !uri.contains("bc.jsp") && request.reply.size() < 256) // Don't dump too big answers
+		if(!uri.contains("itmode.jsp") && !uri.contains(".mp3") && !uri.contains(".chor") && !uri.contains("bc.jsp") && request.reply.size() < 256) // Don't dump too big answers
 			NetworkDump::Log("HTTP Answer", request.reply);
 	}
 	else
