@@ -4,7 +4,7 @@ class ojnTemplate {
 	private $titre	= "openJabNab";
 	private $soustitre	= "Configuration";
 	private $Api;
-	
+
 	public function __construct($api) {
 		$this->Api=$api;
 	}
@@ -12,16 +12,7 @@ class ojnTemplate {
 	public function display($buffer) {
 		$template = file_get_contents(ROOT_SITE.'class/template.tpl.php');
 		$Stats = $this->Api->getStats(false);
-		$ListOfConnectedBunnies = $this->Api->getListOfConnectedBunnies(false);
-		$ListOfBunnies = $this->Api->getListOfBunnies(false);
-		$ListOfPlugins = $this->Api->getListOfPlugins(false);
-		$ListOfZtamps = $this->Api->getListOfZtamps(false);
-		$ListOfActivePlugins = $this->Api->getListOfActivePlugins(false);
-		
-/*		if(empty($ListOfPlugins) && isset($_SESSION['connected']) 
-		   && !isset($_POST['login']) && !strpos($_SERVER['REQUEST_URI'],"logout"))
-			header('Location: index.php?logout');
-*/		
+
 		$pattern = array(
 				"|<!!TITLE!!>|",
 				"|<!!ALTTITLE!!>|",

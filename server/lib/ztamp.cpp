@@ -28,11 +28,11 @@ Ztamp::Ztamp(QByteArray const& ztampID)
 	}
 	id = ztampID;
 	configFileName = ztampsDir.absoluteFilePath(ztampID.toHex()+".dat");
-	
+
 	// Check if config file exists and load it
 	if (QFile::exists(configFileName))
 		LoadConfig();
-		
+
 	saveTimer = new QTimer(this);
 	connect(saveTimer, SIGNAL(timeout()), this, SLOT(SaveConfig()));
 	saveTimer->start(5*60*1000); // 5min
@@ -50,13 +50,13 @@ QString Ztamp::CheckPlugin(PluginInterface * plugin, bool isAssociated)
 
 	if(plugin->GetType() != PluginInterface::ZtampPlugin && plugin->GetType() != PluginInterface::BunnyZtampPlugin)
 		return QString("Bad plugin type : %1");
-		
+
 	if(!plugin->GetEnable())
 		return QString("Plugin '%1' is globally disabled");
-		
+
 	if(isAssociated && (!listOfPluginsPtr.contains(plugin)))
 		return QString("Plugin '%1' is not associated with this ztamp");
-		
+
 	return QString();
 }
 
@@ -69,7 +69,7 @@ void Ztamp::LoadConfig()
 		LogError(QString("Cannot open config file for reading : %1").arg(configFileName));
 		return;
 	}
-	
+
 	QDataStream in(&file);
 	in.setVersion(QDataStream::Qt_4_3);
 	in >> GlobalSettings >> PluginsSettings >> listOfPlugins;
@@ -77,7 +77,7 @@ void Ztamp::LoadConfig()
 	{
 		LogWarning(QString("Problem when loading config file for ztamp : %1").arg(QString(id.toHex())));
 	}
-	
+
 	// "Load" associated ztamp plugins
 	foreach(QString s, listOfPlugins)
 	{
@@ -257,6 +257,7 @@ void Ztamp::InitApiCalls()
 	DECLARE_API_CALL("unregisterPlugin(name)", &Ztamp::Api_RemovePlugin);
 	DECLARE_API_CALL("getListOfActivePlugins()", &Ztamp::Api_GetListOfAssociatedPlugins);
 	DECLARE_API_CALL("setZtampName(name)", &Ztamp::Api_SetZtampName);
+	DECLARE_API_CALL("resetOwner()", &Ztamp::Api_ResetOwner);
 }
 
 API_CALL(Ztamp::Api_AddPlugin)
@@ -264,7 +265,7 @@ API_CALL(Ztamp::Api_AddPlugin)
 	Q_UNUSED(account);
 
 	PluginInterface * plugin = PluginManager::Instance().GetPluginByName(hRequest.GetArg("name"));
-	
+
 	QString error = CheckPlugin(plugin);
 	if(!error.isNull())
 		return new ApiManager::ApiError(error.arg(hRequest.GetArg("name")));
@@ -302,9 +303,19 @@ API_CALL(Ztamp::Api_GetListOfAssociatedPlugins)
 API_CALL(Ztamp::Api_SetZtampName)
 {
 	Q_UNUSED(account);
-	
+
 	SetZtampName( hRequest.GetArg("name") );
-	
+
 	return new ApiManager::ApiOk(QString("Ztamp '%1' is now named '%2'").arg(GetID(), hRequest.GetArg("name")));
 }
+
+API_CALL(Ztamp::Api_ResetOwner)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+
+	RemoveGlobalSetting("OwnerAccount");
+	return new ApiManager::ApiOk("Owner cleared");
+}
+
 

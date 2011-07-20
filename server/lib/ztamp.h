@@ -39,12 +39,16 @@ public:
 	void PluginLoaded(PluginInterface *);
 	void PluginUnloaded(PluginInterface *);
 
+	QVariant GetGlobalSetting(QString const&, QVariant const& defaultValue = QVariant()) const;
+	void SetGlobalSetting(QString const&, QVariant const&);
+	void RemoveGlobalSetting(QString const&);
+
 	// API
 	static void InitApiCalls();
 
 private slots:
 	void SaveConfig();
-	
+
 private:
 	Ztamp(QByteArray const&);
 	void LoadConfig();
@@ -52,7 +56,7 @@ private:
 	void RemovePlugin(PluginInterface * p);
 	void OnConnect();
 	void OnDisconnect();
-	
+
 	QString CheckPlugin(PluginInterface *, bool isAssociated = false);
 
 	// API
@@ -60,9 +64,8 @@ private:
 	API_CALL(Api_RemovePlugin);
 	API_CALL(Api_GetListOfAssociatedPlugins);
 	API_CALL(Api_SetZtampName);
+	API_CALL(Api_ResetOwner);
 
-//	enum State state;
-	
 	QByteArray id;
 	QString configFileName;
 	QHash<QString, QVariant> GlobalSettings;
@@ -70,11 +73,7 @@ private:
 	QList<QString> listOfPlugins;
 	QList<PluginInterface*> listOfPluginsPtr;
 	QTimer * saveTimer;
-	
-	QVariant GetGlobalSetting(QString const&, QVariant const& defaultValue = QVariant()) const;
-	void SetGlobalSetting(QString const&, QVariant const&);
-	void RemoveGlobalSetting(QString const&);
-	
+
 	// RFID Tags
 };
 
@@ -85,7 +84,7 @@ inline QList<QString> Ztamp::GetListOfPlugins()
 
 inline QByteArray Ztamp::GetID() const
 {
-	return id.toHex(); 
+	return id.toHex();
 }
 
 inline QString Ztamp::GetZtampName() const

@@ -32,6 +32,8 @@ void BunnyManager::InitApiCalls()
 	DECLARE_API_CALL("getListOfConnectedBunnies()", &BunnyManager::Api_GetListOfConnectedBunnies);
 	DECLARE_API_CALL("getListOfBunnies()", &BunnyManager::Api_GetListOfBunnies);
 	DECLARE_API_CALL("addBunny(serial)", &BunnyManager::Api_AddBunny);
+	DECLARE_API_CALL("getListofAllBunnies()",&BunnyManager::Api_GetListOfAllBunnies);
+	DECLARE_API_CALL("getListofAllConnectedBunnies()",&BunnyManager::Api_GetListOfAllConnectedBunnies);
 }
 
 int BunnyManager::GetConnectedBunnyCount()
@@ -127,18 +129,10 @@ API_CALL(BunnyManager::Api_GetListOfConnectedBunnies)
 		return new ApiManager::ApiError("Access denied");
 
 	QMap<QString, QVariant> list;
-	if(account.IsAdmin()) {
-		foreach(Bunny * b, listOfBunnies)
-			if (b->IsConnected())
-				list.insert(b->GetID(), b->GetBunnyName());
-	} else {
-		foreach(Bunny * b, listOfBunnies)
-			if (b->IsConnected()) {
-				if(account.GetBunniesList().contains(b->GetID())) {
+	foreach(Bunny * b, listOfBunnies)
+		if(b->IsConnected() && account.GetBunniesList().contains(b->GetID()))
 					list.insert(b->GetID(), b->GetBunnyName());
-			}
-		}
-	}
+
 	return new ApiManager::ApiMappedList(list);
 }
 
@@ -149,13 +143,36 @@ API_CALL(BunnyManager::Api_GetListOfBunnies) {
 		return new ApiManager::ApiError("Access denied");
 
 	QMap<QString, QVariant> list;
-	if(account.IsAdmin())
-		foreach(Bunny * b, listOfBunnies)
+	foreach(Bunny * b, listOfBunnies)
+		if(account.GetBunniesList().contains(b->GetID()))
 			list.insert(b->GetID(), b->GetBunnyName());
-	else
-		foreach(Bunny * b, listOfBunnies)
-			if(account.GetBunniesList().contains(b->GetID()))
-				list.insert(b->GetID(), b->GetBunnyName());
+
+	return new ApiManager::ApiMappedList(list);
+}
+
+API_CALL(BunnyManager::Api_GetListOfAllBunnies) {
+	Q_UNUSED(hRequest);
+
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	QMap<QString, QVariant> list;
+	foreach(Bunny * b, listOfBunnies)
+		list.insert(b->GetID(), b->GetBunnyName());
+
+	return new ApiManager::ApiMappedList(list);
+}
+
+API_CALL(BunnyManager::Api_GetListOfAllConnectedBunnies) {
+	Q_UNUSED(hRequest);
+
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	QMap<QString, QVariant> list;
+	foreach(Bunny * b, listOfBunnies)
+		if(b->IsConnected())
+			list.insert(b->GetID(), b->GetBunnyName());
 
 	return new ApiManager::ApiMappedList(list);
 }

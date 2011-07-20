@@ -4,7 +4,7 @@ if(!isset($_SESSION['connected']))
 	header('Location: index.php');
 
 $Plugins = $ojnAPI->getListOfPlugins(false);
-	
+
 if((!empty($_GET['plug']) && !empty($_GET['stat'])) || (!empty($_POST['plug']) && !empty($_POST['stat']))) {
 	$a = !empty($_GET['stat']) ? $_GET : $_POST;
 	if($a['stat'] == 'activate')
@@ -16,9 +16,9 @@ if((!empty($_GET['plug']) && !empty($_GET['stat'])) || (!empty($_POST['plug']) &
 	if(isset($a['plug'],$Plugins))
 		$_SESSION['message'] = $ojnAPI->getApiString('plugins/'.$function.'Plugin?name='.$a['plug'].'&'.$ojnAPI->getToken());
 	else
-		$_SESSION['message']['error'] = "No plugin with such name."; 
+		$_SESSION['message']['error'] = "No plugin with such name.";
 	header('Location: server.php');
-} 
+}
 
 ?>
 <h1 id="config">Configuration du serveur</h1>
@@ -37,7 +37,7 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 	if(empty($_GET))
 		unset($_SESSION['message']);
 	echo "</div>";
-} 
+}
 ?>
 <?php
 		$Plugins = $ojnAPI->getListOfPlugins(false);
@@ -48,7 +48,7 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 		foreach($Plugins as $p=>$d) {
 			if(!in_array($p,$BPlugins))
 				$SPlugins[] = $p;
-			$Plugins[$p] = array($d,in_array($p,$APlugins) ? true: false);	
+			$Plugins[$p] = array($d,in_array($p,$APlugins) ? true: false);
 		}
 ?>
 <center>
@@ -104,8 +104,8 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 	</tr>
 <?php
 	$i = 0;
-	$cbunnies = $ojnAPI->getListOfConnectedBunnies(false);
-	$bunnies = $ojnAPI->getListOfBunnies(false);
+	$cbunnies = $ojnAPI->getApiMapped("bunnies/getListofAllConnectedBunnies?".$ojnAPI->getToken());
+	$bunnies = $ojnAPI->getApiMapped("bunnies/getListofAllBunnies?".$ojnAPI->getToken());
     if(!empty($bunnies))
 	foreach($bunnies as $mac=>$name){
 ?>
@@ -129,7 +129,7 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 	</tr>
 <?php
 	$i = 0;
-	$Ztamps = $ojnAPI->getListOfZtamps(false);
+	$Ztamps = $ojnAPI->getApiMapped("ztamps/getListOfAllZtamps?".$ojnAPI->getToken());
     if(!empty($Ztamps))
 	foreach($Ztamps as $id=>$name){
 ?>
@@ -141,6 +141,6 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 <?php } ?>
 </table>
 </center>
-<?php 
-require_once 'include/append.php' 
+<?php
+require_once 'include/append.php'
 ?>

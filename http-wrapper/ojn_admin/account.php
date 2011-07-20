@@ -18,6 +18,11 @@ if(!empty($_POST['bmac_rm'])) {
     $_SESSION['message'] = (isset($r['ok']) ? $r['ok'] : "Error : ".$r['error']);
 }
 
+if(!empty($_POST['zid_rm'])) {
+    $r = $ojnAPI->getApiString('accounts/removeZtamp?login='.urlencode($_SESSION['login']).'&zid='.$_POST['zid_rm'].'&'.$ojnAPI->getToken());
+    $_SESSION['message'] = (isset($r['ok']) ? $r['ok'] : "Error : ".$r['error']);
+}
+
 if(!empty($_POST['npwd']) && !empty($_POST['npwd2'])) {
     $r = 1;
     if($_POST['npwd'] == $_POST['npwd2']) {
@@ -28,7 +33,6 @@ if(!empty($_POST['npwd']) && !empty($_POST['npwd2'])) {
             $_SESSION['message'] = 'Error : API error.  Should be fixed soon...';
     } else
         $_SESSION['message'] = "Passwords mismatch. Try again ;)";
-
 }
 if(!empty($r))
     header('Location: account.php');
@@ -64,6 +68,21 @@ if(isset($_SESSION['message']) && empty($r)) {
     if(!empty($bunnies))
         foreach($bunnies as $mac => $bunny) { ?>
         <option value="<?php echo $mac; ?>"><?php echo $bunny; ?> (<?php echo $mac; ?>)</option>
+    <?php } ?>
+</select>
+<input type="submit" value="Remove" />
+</form>
+</fieldset>
+<fieldset>
+<legend>Remove a ztamp from your account</legend>
+<em>No confirmation, so... be careful!</em><br />
+<form method="post">
+<select name="zid_rm">
+    <?php
+    $ztamps = $ojnAPI->getListOfZtamps(true);
+    if(!empty($ztamps))
+        foreach($ztamps as $id => $ztamp) { ?>
+        <option value="<?php echo $id; ?>"><?php echo $ztamp; ?> (<?php echo $id; ?>)</option>
     <?php } ?>
 </select>
 <input type="submit" value="Remove" />

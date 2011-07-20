@@ -19,7 +19,7 @@ class OJN_EXPORT ZtampManager : public ApiHandler<ZtampManager>
 	friend class PluginManager;
 public:
 	static ZtampManager & Instance();
-
+	static Ztamp * GetZtamp(QByteArray const&);
 	static Ztamp * GetZtamp(PluginInterface *, QByteArray const&);
 	static void PluginStateChanged(PluginInterface *);
 	static inline void Init() { InitApiCalls(); };
@@ -32,13 +32,13 @@ public:
 	int GetZtampCount();
 
 protected:
-	static Ztamp * GetZtamp(QByteArray const&);
 	static QVector<Ztamp *> GetZtamps();
 	static void PluginLoaded(PluginInterface *);
 	static void PluginUnloaded(PluginInterface *);
 
 	// API
 	API_CALL(Api_GetListOfZtamps);
+	API_CALL(Api_GetListOfAllZtamps);
 
 private:
 	ZtampManager();

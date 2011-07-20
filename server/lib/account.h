@@ -34,6 +34,7 @@ public:
 	QList<QByteArray> const& GetBunniesList() const;
 	QList<QByteArray> const& GetZtampsList() const;
 	static int Version();
+	QByteArray AddZtamp(QByteArray const& z);
 
 private:
 	Account();
@@ -44,7 +45,6 @@ private:
 	void SetDefault();
 	QByteArray AddBunny(QByteArray const& b);
 	bool RemoveBunny(QByteArray const& b);
-	QByteArray AddZtamp(QByteArray const& z);
 	bool RemoveZtamp(QByteArray const& z);
 
 	static void InitApiCalls();
@@ -76,7 +76,7 @@ inline QList<QByteArray> const& Account::GetBunniesList() const {
 }
 
 inline QList<QByteArray> const& Account::GetZtampsList() const {
-	return listOfBunnies;
+	return listOfZtamps;
 }
 
 inline QByteArray const& Account::GetPasswordHash() const
@@ -139,10 +139,10 @@ inline int Account::Version() {
 }
 
 // Inline protected methods
-inline QByteArray Account::AddBunny(QByteArray const& b)
-{
+inline QByteArray Account::AddBunny(QByteArray const& b) {
+	if(!listOfBunnies.contains(b))
 		listOfBunnies.append(b);
-		return b;
+	return b;
 }
 
 inline bool Account::RemoveBunny(QByteArray const& b)
@@ -152,15 +152,14 @@ inline bool Account::RemoveBunny(QByteArray const& b)
 
 inline QByteArray Account::AddZtamp(QByteArray const& z)
 {
-		QByteArray id = QByteArray::fromHex(z);
-		listOfZtamps.append(id);
-		return id.toHex();
+	if(!listOfZtamps.contains(z))
+		listOfZtamps.append(z);
+	return z;
 }
 
 inline bool Account::RemoveZtamp(QByteArray const& z)
 {
-	QByteArray id = QByteArray::fromHex(z);
-	return (listOfZtamps.removeAll(id) != 0);
+	return (listOfZtamps.removeAll(z) != 0);
 }
 
 #endif

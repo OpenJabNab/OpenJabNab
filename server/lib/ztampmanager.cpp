@@ -31,6 +31,7 @@ void ZtampManager::LoadAllZtamps()
 void ZtampManager::InitApiCalls()
 {
 	DECLARE_API_CALL("getListOfZtamps()", &ZtampManager::Api_GetListOfZtamps);
+	DECLARE_API_CALL("getListOfAllZtamps()", &ZtampManager::Api_GetListOfAllZtamps);
 }
 
 int ZtampManager::GetZtampCount()
@@ -103,13 +104,24 @@ API_CALL(ZtampManager::Api_GetListOfZtamps)
 		return new ApiManager::ApiError("Access denied");
 
 	QMap<QString, QVariant> list;
-	if(account.IsAdmin())
-		foreach(Ztamp * z, listOfZtamps)
+	foreach(Ztamp * z, listOfZtamps)
+		if(account.GetZtampsList().contains(z->GetID()))
 			list.insert(z->GetID(), z->GetZtampName());
-	else
-		foreach(Ztamp * z, listOfZtamps)
-			if(account.GetZtampsList().contains(z->GetID()))
-				list.insert(z->GetID(), z->GetZtampName());
+
+	return new ApiManager::ApiMappedList(list);
+}
+
+API_CALL(ZtampManager::Api_GetListOfAllZtamps)
+{
+	Q_UNUSED(hRequest);
+
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	QMap<QString, QVariant> list;
+
+	foreach(Ztamp * z, listOfZtamps)
+		list.insert(z->GetID(), z->GetZtampName());
 
 	return new ApiManager::ApiMappedList(list);
 }

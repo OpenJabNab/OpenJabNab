@@ -41,6 +41,8 @@ protected:
 	API_CALL(Api_GetListOfConnectedBunnies);
 	API_CALL(Api_GetListOfBunnies);
 	API_CALL(Api_AddBunny);
+	API_CALL(Api_GetListOfAllConnectedBunnies);
+	API_CALL(Api_GetListOfAllBunnies);
 
 private:
 	BunnyManager();

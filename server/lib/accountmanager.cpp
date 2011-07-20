@@ -10,6 +10,8 @@
 #include "apimanager.h"
 #include "bunny.h"
 #include "bunnymanager.h"
+#include "ztamp.h"
+#include "bunnymanager.h"
 #include "log.h"
 #include "httprequest.h"
 #include "settings.h"
@@ -114,6 +116,13 @@ Account const& AccountManager::GetAccount(QByteArray const& token)
 	return Guest();
 }
 
+Account * AccountManager::GetAccountByLogin(QByteArray const& login)
+{
+	if(Instance().listOfAccountsByName.contains(login))
+		return Instance().listOfAccountsByName.value(login);
+	return NULL;
+}
+
 QByteArray AccountManager::GetToken(QString const& login, QByteArray const& hash)
 {
 	QHash<QString, Account *>::const_iterator it = listOfAccountsByName.find(login);
@@ -147,6 +156,7 @@ void AccountManager::InitApiCalls()
 	DECLARE_API_CALL("registerNewAccount(login,username,pass)", &AccountManager::Api_RegisterNewAccount);
 	DECLARE_API_CALL("addBunny(login,bunnyid)", &AccountManager::Api_AddBunny);
 	DECLARE_API_CALL("removeBunny(login,bunnyid)", &AccountManager::Api_RemoveBunny);
+	DECLARE_API_CALL("removeZtamp(login,zid)", &AccountManager::Api_RemoveZtamp);
 	DECLARE_API_CALL("settoken(tk)", &AccountManager::Api_SetToken);
 }
 
@@ -208,8 +218,7 @@ API_CALL(AccountManager::Api_AddBunny)
 	if(!listOfAccountsByName.contains(login))
 		return new ApiManager::ApiError(QString("Account '%1' doesn't exist").arg(hRequest.GetArg("login")));
 	QString bunnyid = hRequest.GetArg("bunnyid");
-	if(listOfAccountsByName.value(login)->GetBunniesList().contains(bunnyid.toAscii()))
-		return new ApiManager::ApiError(QString("Bunny %1 is already attached to this account: '%2'").arg(bunnyid,login));
+
 	// Lock bunny to this account
 	Bunny *b = BunnyManager::GetBunny(bunnyid.toAscii());
 	QString own = b->GetGlobalSetting("OwnerAccount","").toString();
@@ -241,6 +250,27 @@ API_CALL(AccountManager::Api_RemoveBunny)
 		return new ApiManager::ApiOk(QString("Bunny '%1' removed from account '%2'").arg(bunnyID).arg(login));
 	} else
 		return new ApiManager::ApiError(QString("Can't remove bunny '%1' from account '%2'").arg(bunnyID).arg(login));
+}
+
+API_CALL(AccountManager::Api_RemoveZtamp)
+{
+	// Only admin can remove ztamp to any accounts, else an auth user can remove a ztamp from his account
+	QString login = hRequest.GetArg("login");
+	/* Account doesn't exist */
+	if(!listOfAccountsByName.contains(login))
+			return new ApiManager::ApiError(QString("Account '%1' doesn't exist").arg(login));
+	/* user is not admin and (is not allowed or it's not his account) */
+	else if(!account.IsAdmin() && (GlobalSettings::Get("Config/AllowUserManageZtamp", false) != true || account.GetLogin() != login))
+			return new ApiManager::ApiError(QString("Access denied to user '%1'").arg(login));
+
+	QString zID = hRequest.GetArg("zid");
+	if(listOfAccountsByName.value(login)->RemoveZtamp(zID.toAscii())) {
+		Ztamp *z = ZtampManager::GetZtamp(zID.toAscii());
+		z->RemoveGlobalSetting("OwnerAccount");
+		SaveAccounts();
+		return new ApiManager::ApiOk(QString("Ztamp '%1' removed from account '%2'").arg(zID).arg(login));
+	} else
+		return new ApiManager::ApiError(QString("Can't remove ztamp '%1' from account '%2'").arg(zID).arg(login));
 }
 
 API_CALL(AccountManager::Api_SetToken)

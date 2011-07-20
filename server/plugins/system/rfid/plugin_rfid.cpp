@@ -2,6 +2,7 @@
 #include <QStringList>
 #include "plugin_rfid.h"
 #include "account.h"
+#include "accountmanager.h"
 #include "bunny.h"
 #include "bunnymanager.h"
 #include "ztamp.h"
@@ -25,7 +26,20 @@ bool PluginRFID::HttpRequestHandle(HTTPRequest & request)
 		Ztamp * z = ZtampManager::GetZtamp(this, tagId.toAscii());
 		Bunny * b = BunnyManager::GetBunny(this, serialnumber.toAscii());
 		b->SetPluginSetting(GetName(), "LastTag", tagId);
-	
+		/* Get Owner of the bunny */
+		QString Bac = b->GetGlobalSetting("OwnerAccount","").toString();
+		if(Bac != "") {
+			/* Get Owner of the Ztamp */
+			QString Zac = z->GetGlobalSetting("OwnerAccount","").toString();
+			/* None, add it to this account */
+			if(Zac == "") {
+				Account *Ac = AccountManager::GetAccountByLogin(Bac.toAscii());
+				Ac->AddZtamp(tagId.toAscii());
+				z->SetGlobalSetting("OwnerAccount",Bac);
+				LogWarning(QString("Ztamp: %1 added to account %2 by bunny %3").arg(tagId,Bac,serialnumber));
+			}
+		}
+
 		if (z->OnRFID(b))
 			return true;
 		if (b->OnRFID(QByteArray::fromHex(tagId.toAscii())))

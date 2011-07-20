@@ -9,14 +9,17 @@ if(isset($_GET['z']) && empty($_GET['z'])) {
 }elseif(!empty($_GET['z'])) {
 		$_SESSION['ztamp'] = $_GET['z'];
 		$ztamps = $ojnAPI->getListOfZtamps(false);
-		$_SESSION['ztamp_name'] = !empty($ztamps[$_GET['z']]) ? $ztamps[$_GET['z']] : '';	
+		$_SESSION['ztamp_name'] = !empty($ztamps[$_GET['z']]) ? $ztamps[$_GET['z']] : '';
 		header("Location: ztamp.php");
 }elseif((!empty($_GET['plug']) && !empty($_GET['stat'])) || (!empty($_POST['plug']) && !empty($_POST['stat']))) {
 	$a = !empty($_GET['stat']) ? $_GET : $_POST;
 	$function = $a['stat'] == 'register' ? 'register' : 'unregister';
 	$_SESSION['message'] = $ojnAPI->getApiString('ztamp/'.$_SESSION['ztamp'].'/'.$function.'Plugin?name='.$a['plug'].'&'.$ojnAPI->getToken());
 	header('Location: ztamp.php');
-} else if(!empty($_GET['ztamp_name'])) {
+} elseif(isset($_GET['resetown'])) {
+	$_SESSION['message'] = $ojnAPI->getApiString("ztamp/".$_SESSION['ztamp']."/resetOwner?".$ojnAPI->getToken());
+	header('Location: ztamp.php');
+}	else if(!empty($_GET['ztamp_name'])) {
 	$_SESSION['message'] = $ojnAPI->getApiString("ztamp/".$_SESSION['ztamp']."/setZtampName?name=".urlencode($_GET['ztamp_name'])."&".$ojnAPI->getToken());
 	$_SESSION['ztamp_name'] = $_GET['ztamp_name'];
 	header('Location: ztamp.php');
@@ -26,21 +29,25 @@ if(empty($_SESSION['ztamp'])) {
 <h1>Choix du ztamp &agrave; configurer</h1>
 <ul>
 <?php
-	$last = $ojnAPI->getApiString("plugin/rfid/getLastTag?".$ojnAPI->getToken());
-	$ztamps = $ojnAPI->getListOfZtamps();
+	$ztamps = $ojnAPI->getListOfZtamps(false);
     if(!empty($ztamps))
 	foreach($ztamps as $ztamp => $nom)	{
 ?>
-	<li><?php echo $nom; ?> (<?php echo $ztamp; ?>) <a href="ztamp.php?z=<?php echo $ztamp; ?>">>></a></li>		
+	<li><?php echo $nom; ?> (<?php echo $ztamp; ?>) <a href="ztamp.php?z=<?php echo $ztamp; ?>">>></a></li>
 <?php
 	}
 ?>
 </ul>
 <?php
-if(isset($last['value'])) {
+	$bunnies = $ojnAPI->getListOfBunnies(false);
+    if(!empty($bunnies))
+	foreach($bunnies as $mac => $nom)	{
+		$lastZ = $ojnAPI->getApiString("plugin/rfid/getLastTagForBunny?sn=".$mac."&".$ojnAPI->getToken());
+		if(!empty($lastZ['value'])) {
 ?>
-Dernier Ztamp utilis&eacute; : <?php echo $ztamps[$last['value']]; ?> (<?php echo $last['value']; ?>)<br />
+Dernier Ztamp utilis&eacute;  par <?php echo $nom; ?> (<?php echo $mac; ?>): <?php echo (!empty($ztamps) && isset($ztamps[$lastZ['value']])) ? $ztamps[$lastZ['value']]: ''; ?> (<?php echo $lastZ['value']; ?>)<br />
 <?php
+}
 }
 } else {
 ?>
@@ -48,16 +55,21 @@ Dernier Ztamp utilis&eacute; : <?php echo $ztamps[$last['value']]; ?> (<?php ech
 <h2>Le ztamp</h2>
 <form>
 <fieldset>
-<?php 
+<?php
 $plugins = $ojnAPI->getListOfPlugins(false);
 $ztampPlugins = $ojnAPI->getListOfBunnyActivePlugins(false);
 $actifs = $ojnAPI->ztampListOfPlugins($_SESSION['ztamp'],false);
 ?>
 Nom : <input type="text" name="ztamp_name" value="<?php echo $_SESSION['ztamp_name']; ?>"> <input type="submit" value="Enregistrer">
 </fieldset>
+<form method="get">
+<fieldset>
+<input name="resetown" type="submit" value="Liberer le ztamp de ce compte">
+</fieldset>
+</form>
 </form>
 <h2>Plugins</h2>
-<?php 
+<?php
 if(isset($_SESSION['message']) && empty($_GET)) {
 	if(isset($_SESSION['message']['ok'])) { ?>
 	<div class="ok_msg">

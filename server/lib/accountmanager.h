@@ -21,6 +21,7 @@ public:
 	static AccountManager & Instance();
 
 	Account const& GetAccount(QByteArray const&);
+	static Account* GetAccountByLogin(QByteArray const&);
 	static Account const& Guest();
 	QByteArray GetToken(QString const& login, QByteArray const& hash);
 
@@ -44,6 +45,7 @@ private:
 	API_CALL(Api_RegisterNewAccount);
 	API_CALL(Api_AddBunny);
 	API_CALL(Api_RemoveBunny);
+    API_CALL(Api_RemoveZtamp);
 	API_CALL(Api_SetToken);
 };
 

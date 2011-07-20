@@ -5,10 +5,13 @@ if(!isset($_SESSION['connected']))
 if(!empty($_GET['b'])) {
 		$_SESSION['bunny'] = $_GET['b'];
 		$bunnies = $ojnAPI->getListOfBunnies(false);
-		$_SESSION['bunny_name'] = !empty($bunnies[$_GET['b']]) ? $bunnies[$_GET['b']] : '';	
+		$_SESSION['bunny_name'] = !empty($bunnies[$_GET['b']]) ? $bunnies[$_GET['b']] : '';
 		header("Location: bunny.php");
 } elseif(isset($_GET['resetpwd'])) {
 	$_SESSION['message'] = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/resetPassword?".$ojnAPI->getToken());
+	header('Location: bunny.php');
+} elseif(isset($_GET['resetown'])) {
+	$_SESSION['message'] = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/resetOwner?".$ojnAPI->getToken());
 	header('Location: bunny.php');
 } elseif(!empty($_GET['single']) && !empty($_GET['double'])) {
 	$msg = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/setSingleClickPlugin?name=".$_GET['single']."&".$ojnAPI->getToken());
@@ -37,19 +40,19 @@ if(empty($_SESSION['bunny'])) {
     if(!empty($bunnies))
 	foreach($bunnies as $bunny => $nom)	{
 ?>
-	<li><?php echo $nom; ?> (<?php echo $bunny; ?>) <a href="bunny.php?b=<?php echo $bunny; ?>">>></a></li>		
+	<li><?php echo $nom; ?> (<?php echo $bunny; ?>) <a href="bunny.php?b=<?php echo $bunny; ?>">>></a></li>
 <?php
 	}
 ?>
 </ul>
-<?php 
+<?php
 } else {
 ?>
 <h1 id="bunny">Configuration du lapin '<?php echo !empty($_SESSION['bunny_name']) ? $_SESSION['bunny_name'] : $_SESSION['bunny']; ?>'</h1>
 <h2>Le lapin</h2>
 <form>
 <fieldset>
-<?php 
+<?php
 $plugins = $ojnAPI->getListOfPlugins(false);
 $bunnyPlugins = $ojnAPI->getListOfBunnyActivePlugins(false);
 $actifs = $ojnAPI->bunnyListOfPlugins($_SESSION['bunny'],false);
@@ -61,6 +64,7 @@ Nom : <input type="text" name="bunny_name" value="<?php echo $_SESSION['bunny_na
 <form>
 <fieldset>
 <input name="resetpwd" type="submit" value="Remettre a zero le mot de passe">
+<input name="resetown" type="submit" value="Liberer le lapin de son maitre">
 </fieldset>
 </form>
 <form>
@@ -81,7 +85,7 @@ Plugin double click : <select name="double">
 </fieldset>
 </form>
 <h2>Plugins</h2>
-<?php 
+<?php
 if(isset($_SESSION['message']) && empty($_GET)) {
 	if(isset($_SESSION['message']['ok'])) { ?>
 	<div class="ok_msg">
