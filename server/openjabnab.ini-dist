@@ -1,6 +1,7 @@
 [Config]
 httpListener = true
 httpApi = true
+httpVioletApi = true
 httpViolet = true
 xmppListener = true
 RealHttpRoot = /var/www/http-wrapper/ojn_local/

@@ -76,6 +76,7 @@ public:
 
 	// API
 	static void InitApiCalls();
+	ApiManager::ApiAnswer * ProcessVioletApiCall(HTTPRequest const&);
 
 private slots:
 	void SaveConfig();

@@ -26,6 +26,7 @@ private:
 	QTcpServer * httpListener;
 	QTcpServer * xmppListener;
 	bool httpApi;
+	bool httpVioletApi;
 	bool httpViolet;
 	bool standAlone;
 };

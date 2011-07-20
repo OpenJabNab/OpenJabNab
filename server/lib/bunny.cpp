@@ -42,6 +42,130 @@ Bunny::Bunny(QByteArray const& bunnyID)
 	saveTimer->start(5*60*1000); // 5min
 }
 
+ApiManager::ApiAnswer * Bunny::ProcessVioletApiCall(HTTPRequest const& hRequest)
+{
+        ApiManager::ApiViolet* answer = new ApiManager::ApiViolet();
+
+        QString serial = hRequest.GetArg("sn");
+        QString token = hRequest.GetArg("token");
+
+        if(true) // TODO: Check for good token
+        {
+                AmbientPacket p;
+
+                if(hRequest.GetURI().startsWith("/ojn/FR/api_stream.jsp"))
+                {
+                        if(hRequest.HasArg("urlList"))
+                        {
+                                answer->AddMessage("WEBRADIOSENT", "Your webradio has been sent");
+                        }
+                        else
+                        {
+                                answer->AddMessage("NOCORRECTPARAMETERS", "Please check urlList parameter !");
+                        }
+                }
+                else
+                {
+
+                        if(hRequest.HasArg("action")) // TODO: send good values
+                        {
+                                switch(hRequest.GetArg("action").toInt())
+                                {
+                                        case 2:
+                                                answer->AddXml("<listfriend nb=\"0\"/>");
+                                                break;
+                                        case 3:
+                                                answer->AddXml("<listreceivedmsg nb=\"0\"/>");
+                                                break;
+                                        case 4:
+                                                answer->AddXml("<timezone>(GMT + 01:00) Bruxelles, Copenhague, Madrid, Paris</timezone>");
+                                                break;
+                                        case 6:
+                                                answer->AddXml("<blacklist nb=\"0\"/>");
+                                                break;
+                                        case 7:
+                                                if(IsSleeping())
+                                                        answer->AddXml("<rabbitSleep>YES</rabbitSleep>");
+                                                else
+                                                        answer->AddXml("<rabbitSleep>NO</rabbitSleep>");
+                                                break;
+                                        case 8:
+                                                answer->AddXml("<rabbitVersion>V2</rabbitVersion>");
+                                                break;
+                                        case 9:
+                                                answer->AddXml("<voiceListTTS nb=\"2\"/><voice lang=\"fr\" command=\"FR-Anastasie\"/><voice lang=\"de\" command=\"DE-Otto\"/>");
+                                                break;
+                                        case 10:
+                                                answer->AddXml("<rabbitName>" + GetBunnyName() + "</rabbitName>");
+                                                break;
+                                        case 11:
+                                                answer->AddXml("<langListUser nb=\"4\"/><myLang lang=\"fr\"/><myLang lang=\"us\"/><myLang lang=\"uk\"/><myLang lang=\"de\"/>");
+                                                break;
+                                        case 12:
+                                                answer->AddXml("<message>LINKPREVIEW</message><comment>XXXX</comment>");
+                                                break;
+                                        case 13:
+                                                answer->AddXml("<message>COMMANDSENT</message><comment>You rabbit will change status</comment>");
+                                                break;
+                                        case 14:
+                                                answer->AddXml("<message>COMMANDSENT</message><comment>You rabbit will change status</comment>");
+                                                break;
+                                        default:
+                                                break;
+                                }
+                        }
+                        else
+                        {
+                                if(hRequest.HasArg("idmessage"))
+                                {
+                                        answer->AddMessage("MESSAGESENT", "Your message has been sent");
+                                }
+                                if(hRequest.HasArg("posleft") || hRequest.HasArg("posright"))
+                                {
+                                        int left = 0;
+                                        int right = 0;
+                                        if(hRequest.HasArg("posleft")) left = hRequest.GetArg("posleft").toInt();
+                                        if(hRequest.HasArg("posright")) right = hRequest.GetArg("posright").toInt();
+                                        if(left >= 0 && left <= 16 && right >= 0 && right <= 16)
+                                        {
+                                                answer->AddMessage("EARPOSITIONSENT", "Your ears command has been sent");
+                                                p.SetEarsPosition(left, right);
+                                        }
+                                        else
+                                        {
+                                                answer->AddMessage("EARPOSITIONNOTSENT", "Your ears command could not be sent");
+                                        }
+                                }
+                                if(hRequest.HasArg("tts"))
+                                {
+                                        answer->AddMessage("TTSSENT", "Your text has been sent");
+                                }
+                                if(hRequest.HasArg("ears"))
+                                {
+                                        answer->AddEarPosition(0, 0); // TODO: send real positions
+                                }
+                                if(hRequest.HasArg("chor"))
+                                {
+                                        if(true) //TODO: Check for good chor
+                                        {
+                                                answer->AddMessage("CHORSENT", "Your chor has been sent");
+                                        }
+                                        else
+                                        {
+                                                answer->AddMessage("CHORNOTSENT", "Your chor could not be sent (bad chor)");
+                                        }
+                                }
+                        }
+                }
+                SendPacket(p);
+        }
+        else
+        {
+                answer->AddMessage("NOGOODTOKENORSERIAL", "Your token or serial number are not correct !");
+        }
+        return answer;
+}
+
 Bunny::~Bunny()
 {
 	SaveConfig();

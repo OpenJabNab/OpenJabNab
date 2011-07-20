@@ -31,34 +31,41 @@ QByteArray ApiManager::ApiAnswer::GetData()
 
 ApiManager::ApiAnswer * ApiManager::ProcessApiCall(QString const& request, HTTPRequest & hRequest)
 {
-	Account const& account = hRequest.HasArg("token")?AccountManager::Instance().GetAccount(hRequest.GetArg("token").toAscii()):AccountManager::Guest();
-	hRequest.RemoveArg("token");
+	if(request.startsWith("/ojn/FR/api"))
+	{
+		return ProcessBunnyVioletApiCall(request, hRequest);
+	}
+	else
+	{
+		Account const& account = hRequest.HasArg("token")?AccountManager::Instance().GetAccount(hRequest.GetArg("token").toAscii()):AccountManager::Guest();
+		hRequest.RemoveArg("token");
 
-	if(request.startsWith("global/"))
-		return ProcessGlobalApiCall(account, request.mid(7), hRequest);
+		if(request.startsWith("global/"))
+			return ProcessGlobalApiCall(account, request.mid(7), hRequest);
 
-	if(request.startsWith("plugins/"))
-		return PluginManager::Instance().ProcessApiCall(account, request.mid(8), hRequest);
+		if(request.startsWith("plugins/"))
+			return PluginManager::Instance().ProcessApiCall(account, request.mid(8), hRequest);
 
-	if(request.startsWith("plugin/"))
-		return ProcessPluginApiCall(account, request.mid(7), hRequest);
+		if(request.startsWith("plugin/"))
+			return ProcessPluginApiCall(account, request.mid(7), hRequest);
 
-	if(request.startsWith("bunnies/"))
-		return BunnyManager::Instance().ProcessApiCall(account, request.mid(8), hRequest);
+		if(request.startsWith("bunnies/"))
+			return BunnyManager::Instance().ProcessApiCall(account, request.mid(8), hRequest);
 
-	if(request.startsWith("bunny/"))
-		return ProcessBunnyApiCall(account, request.mid(6), hRequest);
+		if(request.startsWith("bunny/"))
+			return ProcessBunnyApiCall(account, request.mid(6), hRequest);
 
-	if(request.startsWith("ztamps/"))
-		return ZtampManager::Instance().ProcessApiCall(account, request.mid(7), hRequest);
+		if(request.startsWith("ztamps/"))
+			return ZtampManager::Instance().ProcessApiCall(account, request.mid(7), hRequest);
 
-	if(request.startsWith("ztamp/"))
-		return ProcessZtampApiCall(account, request.mid(6), hRequest);
+		if(request.startsWith("ztamp/"))
+			return ProcessZtampApiCall(account, request.mid(6), hRequest);
 
-	if(request.startsWith("accounts/"))
-		return AccountManager::Instance().ProcessApiCall(account, request.mid(9), hRequest);
+		if(request.startsWith("accounts/"))
+			return AccountManager::Instance().ProcessApiCall(account, request.mid(9), hRequest);
 
-	return new ApiManager::ApiError(QString("Unknown Api Call : %1").arg(hRequest.toString()));
+		return new ApiManager::ApiError(QString("Unknown Api Call : %1").arg(hRequest.toString()));
+	}
 }
 
 ApiManager::ApiAnswer * ApiManager::ProcessGlobalApiCall(Account const& account, QString const& request, HTTPRequest const& hRequest)
@@ -152,6 +159,25 @@ ApiManager::ApiAnswer * ApiManager::ProcessBunnyApiCall(Account const& account, 
 		return new ApiManager::ApiError(QString("Malformed Plugin Api Call : %1").arg(hRequest.toString()));
 }
 
+ApiManager::ApiAnswer * ApiManager::ProcessBunnyVioletApiCall(QString const& request, HTTPRequest const& hRequest)
+{
+	QStringList list = QString(request).split('/', QString::SkipEmptyParts);
+	
+	if(list.size() < 3)
+		return new ApiManager::ApiError(QString("Malformed Bunny Api Call : %1").arg(hRequest.toString()));
+		
+	QString serial = hRequest.GetArg("sn");
+	
+	Bunny * b = BunnyManager::GetBunny(serial.toAscii());
+
+	if(list.size() == 3)
+	{
+		return b->ProcessVioletApiCall(hRequest);
+	}
+	else
+		return new ApiManager::ApiError(QString("Malformed Plugin Api Call : %1").arg(hRequest.toString()));
+}
+
 ApiManager::ApiAnswer * ApiManager::ProcessZtampApiCall(Account const& account, QString const& request, HTTPRequest const& hRequest)
 {
 	QStringList list = QString(request).split('/', QString::SkipEmptyParts);
@@ -232,4 +258,26 @@ QString ApiManager::ApiMappedList::GetInternalData()
 	}
 	tmp += "</list>";
 	return tmp;
+}
+
+void ApiManager::ApiViolet::AddMessage(QString m, QString c)
+{
+	string += "<message>" + m + "</message>";
+	string += "<comment>" + c + "</comment>";
+}
+
+void ApiManager::ApiViolet::AddEarPosition(int l, int r)
+{
+	string += "<message>POSITIONEAR</message>";
+	string += "<leftposition>" + QString::number(l) + "</leftposition>";
+	string += "<rightposition>" + QString::number(r) + "</rightposition>";
+}
+
+QByteArray ApiManager::ApiViolet::GetData()
+{
+	QString tmp("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	tmp.append("<rsp>");
+	tmp.append(GetInternalData());
+	tmp.append("</rsp>");
+	return tmp.toUtf8();
 }
