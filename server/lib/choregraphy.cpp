@@ -1,3 +1,4 @@
+#include <QStringList>
 #include "choregraphy.h"
 #include "log.h"
 
@@ -67,6 +68,48 @@ void Choregraphy::AddLedAction(unsigned int time, enum Led l, quint8 r, quint8 g
 void Choregraphy::AddMotorAction(unsigned int time, enum Ear e, unsigned int a, enum Direction d)
 {
 	listOfActions.insertMulti(time, new MotorAction(e,a,d));
+}
+
+bool Choregraphy::Parse(QString chor)
+{
+	QStringList orders = chor.split(",");
+	if(orders.count() > 1)
+	{
+		SetTempo(orders.at(0).toInt());
+		
+		int i = 1;
+		while(i < orders.count())
+		{
+			if(i+5 < orders.count())
+			{
+				int time = orders.at(i).toInt();
+				QString order = orders.at(i+1);
+				int p3 = orders.at(i+2).toInt(); // ear parameter for motor, led parameter for led
+				int p4 = orders.at(i+3).toInt(); // angle parameter for motor, red parameter for led
+				int p5 = orders.at(i+4).toInt(); // Always 0 for motor, green parameter for led
+				int p6 = orders.at(i+5).toInt(); // direction parameter for motor, blue parameter for led
+				if(order == "motor")
+				{
+					AddMotorAction(time, (Ear)p3, p4, (Direction)p6);
+				}
+				else if(order == "led")
+				{
+					AddLedAction(time, (Led)p3, p4, p5, p6);
+				}
+				else
+				{
+					return false;
+				}
+				i+=6;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	return false;
 }
 
 Choregraphy::MotorAction::MotorAction(enum Ear e, unsigned int a, enum Direction d):ear(e),angle(a),dir(d)

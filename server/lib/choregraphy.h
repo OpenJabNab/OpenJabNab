@@ -10,7 +10,7 @@ class OJN_EXPORT Choregraphy
 public:
 	enum Direction { Dir_Forward = 0, Dir_Backward };
 	enum Ear { Ear_Left = 0, Ear_Right };
-	enum Led { Led_Bottom = 0, Led_Right, Led_Middle, Led_Left,	Led_Top };
+	enum Led { Led_Bottom = 0, Led_Left, Led_Middle, Led_Right,	Led_Top };
 
 	// Set Tempo in ms
 	void SetTempo(unsigned int);
@@ -20,6 +20,7 @@ public:
 	void AddLedAction(unsigned int, enum Led, quint8, quint8, quint8);
 	void AddMotorAction(unsigned int, enum Ear, unsigned int, enum Direction);
 	QByteArray GetData();
+	bool Parse(QString);
 
 private:
 	class Action
