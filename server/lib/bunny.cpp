@@ -332,7 +332,7 @@ void Bunny::Ready()
 QByteArray Bunny::GetInitPacket() const
 {
 	// Create minimal packet
-	AmbientPacket a(AmbientPacket::Service_Noze, AmbientPacket::Noze_No);
+	AmbientPacket a(AmbientPacket::Service_Nose, AmbientPacket::Nose_No);
 	a.SetEarsPosition(0,0);
 
 	SleepPacket s(SleepPacket::Wake_Up);
