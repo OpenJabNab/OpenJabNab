@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <time.h> 
+#include <time.h>
 #include "bunny.h"
 #include "httprequest.h"
 #include "log.h"
@@ -8,7 +8,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_dice, PluginDice)
 
-PluginDice::PluginDice():PluginInterface("dice", "Dice roll")
+PluginDice::PluginDice():PluginInterface("dice", "Dice roll",BunnyZtampPlugin)
 {
 	// Initialize the randomizer
 	srand(time(NULL));

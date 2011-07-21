@@ -12,7 +12,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_rfid, PluginRFID)
 
-PluginRFID::PluginRFID():PluginInterface("rfid", "Manage RFID requests", RequiredPlugin) {}
+PluginRFID::PluginRFID():PluginInterface("rfid", "Manage RFID requests", SystemPlugin) {}
 
 bool PluginRFID::HttpRequestHandle(HTTPRequest & request)
 {

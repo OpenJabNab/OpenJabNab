@@ -9,7 +9,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_clock, PluginClock)
 
-PluginClock::PluginClock():PluginInterface("clock", "Clock")
+PluginClock::PluginClock():PluginInterface("clock", "Clock",BunnyPlugin)
 {
 	Cron::Register(this, 60, 0, 0, NULL);
 	// Check available folders
@@ -58,7 +58,7 @@ void PluginClock::OnCron(Bunny *, QVariant)
 				else
 					LogError("Invalid GetLocalHTTPFolder()");
 			}
-			
+
 			if(!file.isNull())
 			{
 				QByteArray message = "MU "+file+"\nPL 3\nMW\n";
@@ -88,7 +88,7 @@ void PluginClock::OnBunnyDisconnect(Bunny * b)
 /*******
  * API *
  *******/
- 
+
 void PluginClock::InitApiCalls()
 {
 	DECLARE_PLUGIN_BUNNY_API_CALL("setVoice(name)", PluginClock, Api_SetVoice);
@@ -98,7 +98,7 @@ void PluginClock::InitApiCalls()
 PLUGIN_BUNNY_API_CALL(PluginClock::Api_SetVoice)
 {
 	Q_UNUSED(account);
-	
+
 	QString voice = hRequest.GetArg("name");
 	if(availableVoices.contains(voice))
 	{

@@ -7,7 +7,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_test, PluginTest)
 
-PluginTest::PluginTest():PluginInterface("test", "Test choregraphy generation")
+PluginTest::PluginTest():PluginInterface("test", "Test choregraphy generation",BunnyPlugin)
 {
 	angle = 0;
 }

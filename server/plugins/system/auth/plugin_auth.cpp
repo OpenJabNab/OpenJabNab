@@ -76,7 +76,7 @@ bool PluginAuth::FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** p
 			}
 			LogError("Bad Auth Step 0, disconnect");
 			return false;
-			
+
 		case 1:
 			{
 				// Bunny request a register <iq type='get' id='1'><query xmlns='violet:iq:register'/></iq>
@@ -103,7 +103,7 @@ bool PluginAuth::FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** p
 				LogError("Bad Auth Step 1, disconnect");
 				return false;
 			}
-			
+
 		case 2:
 			{
 				// We should receive <response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>...</response>
@@ -165,7 +165,7 @@ bool PluginAuth::FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** p
 				LogError("Bad Auth Step 2, disconnect");
 				return false;
 			}
-			
+
 		case 3:
 			// We should receive <response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>
 			if(data.startsWith("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>"))
@@ -177,7 +177,7 @@ bool PluginAuth::FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** p
 			}
 			LogError("Bad Auth Step 3, disconnect");
 			return false;
-			
+
 		case 4:
 			// We should receive <?xml version='1.0' encoding='UTF-8'?>
 			if(data.startsWith("<?xml version='1.0' encoding='UTF-8'?>"))
@@ -221,7 +221,7 @@ bool PluginAuth::FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** p
 				LogError("Bad Register, disconnect");
 				return false;
 			}
-			
+
 		default:
 			LogError("Unknown Auth Step, disconnect");
 			return false;
@@ -245,7 +245,7 @@ bool PluginAuth::PatchedAuth(XmppHandler * xmpp, QByteArray const& data, Bunny *
 			}
 			LogError("Bad Auth Step 0, disconnect");
 			return false;
-			
+
 		case 1:
 			{
 				// Bunny request a register <iq type='get' id='1'><query xmlns='violet:iq:register'/></iq>
@@ -280,7 +280,7 @@ bool PluginAuth::PatchedAuth(XmppHandler * xmpp, QByteArray const& data, Bunny *
 				LogError("Bad Auth Step 1, disconnect");
 				return false;
 			}
-			
+
 		case 2:
 			{
 				// We should receive <response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>...</response>
@@ -373,7 +373,7 @@ bool PluginAuth::PatchedAuth(XmppHandler * xmpp, QByteArray const& data, Bunny *
 				LogError("Bad Auth Step 2, disconnect");
 				return false;
 			}
-			
+
 		case 3:
 			// We should receive <response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>
 			if(data.startsWith("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>"))
@@ -385,7 +385,7 @@ bool PluginAuth::PatchedAuth(XmppHandler * xmpp, QByteArray const& data, Bunny *
 			}
 			LogError("Bad Auth Step 3, disconnect");
 			return false;
-			
+
 		case 4:
 			// We should receive <?xml version='1.0' encoding='UTF-8'?>
 			if(data.startsWith("<?xml version='1.0' encoding='UTF-8'?>"))
@@ -429,7 +429,7 @@ bool PluginAuth::PatchedAuth(XmppHandler * xmpp, QByteArray const& data, Bunny *
 				LogError("Bad Register, disconnect");
 				return false;
 			}
-			
+
 		default:
 			LogError("Unknown Auth Step, disconnect");
 			return false;
@@ -473,9 +473,9 @@ PLUGIN_API_CALL(PluginAuth::Api_SelectAuth)
 		return new ApiManager::ApiError("Access denied");
 
 	QString name = hRequest.GetArg("name");
-	
+
 	pAuthFunction f = listOfAuthFunctions.value(name, NULL);
-	
+
 	if(f)
 	{
 		currentAuthFunction = f;
@@ -497,13 +497,13 @@ PLUGIN_API_CALL(PluginAuth::Api_GetListOfAuths)
 		return new ApiManager::ApiError("Access denied");
 
 	QMap<QString,QVariant> list;
-	
+
 	QMap<QString, pAuthFunction>::const_iterator i;
 	for (i = listOfAuthFunctions.constBegin(); i != listOfAuthFunctions.constEnd(); ++i)
 	{
 		list.insert(i.key(), QString((i.value() == currentAuthFunction)?"true":"false"));
 	}
-	
+
 	return new ApiManager::ApiMappedList(list);
 }
 
@@ -514,7 +514,7 @@ void PluginAuth::HttpRequestAfter(HTTPRequest & request)
 	{
 		QString version = request.GetArg("v");
 		QString serialnumber = request.GetArg("m").remove(':');
-		
+
 		Bunny * b = BunnyManager::GetBunny(this, serialnumber.toAscii());
 		if(b->GetBunnyPassword() == "" && GetSettings("global/authMethod", QString()).toString() == "patched")
 		{

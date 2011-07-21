@@ -11,7 +11,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_sleep, PluginSleep)
 
-PluginSleep::PluginSleep():PluginInterface("sleep", "Advanced sleep and wake up") {}
+PluginSleep::PluginSleep():PluginInterface("sleep", "Advanced sleep and wake up",BunnyPlugin) {}
 
 PluginSleep::~PluginSleep()
 {
@@ -49,10 +49,10 @@ void PluginSleep::OnInitPacket(const Bunny * b, AmbientPacket &, SleepPacket & s
 
 	if(!IsConfigValid(wakeupList, sleepList))
 		return;
-	
+
 	QTime currentTime = QTime::currentTime();
 	int day = QDate::currentDate().dayOfWeek();
-	
+
 	if (wakeupList.at(day-1).toTime() <= currentTime && currentTime < sleepList.at(day-1).toTime())
 		s.SetState(SleepPacket::Wake_Up);
 	else
@@ -67,12 +67,12 @@ void PluginSleep::UpdateState(Bunny * b)
 
 	if(!IsConfigValid(wakeupList, sleepList))
 		return;
-		
+
 	QTime currentTime = QTime::currentTime();
 	int day = QDate::currentDate().dayOfWeek();
-	
+
 	bool wakeup = (wakeupList.at(day).toTime() <= currentTime && currentTime < sleepList.at(day).toTime());
-	
+
 	if (wakeup && b->IsSleeping())
 		b->SendPacket(SleepPacket(SleepPacket::Wake_Up));
 	else if(!wakeup && b->IsIdle())
@@ -129,7 +129,7 @@ void PluginSleep::RegisterCrons(Bunny * b)
 /*******
  * API *
  *******/
- 
+
 void PluginSleep::InitApiCalls()
 {
 	DECLARE_PLUGIN_BUNNY_API_CALL("sleep()", PluginSleep, Api_Sleep);
@@ -142,7 +142,7 @@ PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Sleep)
 {
 	Q_UNUSED(account);
 	Q_UNUSED(hRequest);
-	
+
 	if(!bunny->IsIdle())
 		return new ApiManager::ApiError(QString("Bunny is not idle"));
 
@@ -168,10 +168,10 @@ PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Setup)
 
 	QStringList wakeupList =  hRequest.GetArg("wakeupList").split(',');
 	QStringList sleepList = hRequest.GetArg("sleepList").split(',');
-	
+
 	if(wakeupList.count() != 7 || sleepList.count() != 7)
 		return new ApiManager::ApiError(QString("Bad list size"));
-	
+
 	// Transform QStringList to QList<QTime>
 	QList<QVariant> wList;
 	QList<QVariant> sList;
@@ -182,21 +182,21 @@ PLUGIN_BUNNY_API_CALL(PluginSleep::Api_Setup)
 			wList.append(w);
 		else
 			return new ApiManager::ApiError(QString("Bad time '%1'").arg(wakeupList.at(day)));
-		
+
 		QTime s = QTime::fromString(sleepList.at(day), "hh:mm");
 		if(s.isValid())
 			sList.append(s);
 		else
 			return new ApiManager::ApiError(QString("Bad time '%1'").arg(sleepList.at(day)));
 	}
-	
+
 	bunny->SetPluginSetting(GetName(), "wakeupList", wList);
 	bunny->SetPluginSetting(GetName(), "sleepList", sList);
-	
+
 	CleanCrons(bunny);
 	RegisterCrons(bunny);
 	UpdateState(bunny);
-	
+
 	return new ApiManager::ApiOk(QString("Plugin configuration updated."));
 }
 
@@ -219,6 +219,6 @@ PLUGIN_BUNNY_API_CALL(PluginSleep::Api_GetSetup)
 			setup << sleepList.at(day).toString();
 		}
 	}
-	
+
 	return new ApiManager::ApiList(setup);
 }

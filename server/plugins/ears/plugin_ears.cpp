@@ -5,7 +5,7 @@
 #include "messagepacket.h"
 Q_EXPORT_PLUGIN2(plugin_ears, PluginEars)
 
-PluginEars::PluginEars():PluginInterface("ears", "Ears Pairing with another Bunny") { }
+PluginEars::PluginEars():PluginInterface("ears", "Ears Pairing with another Bunny",BunnyPlugin) { }
 
 PluginEars::~PluginEars() {}
 
@@ -55,7 +55,7 @@ PLUGIN_BUNNY_API_CALL(PluginEars::Api_setFriend)
 }
 
 
-PLUGIN_BUNNY_API_CALL(PluginEars::Api_getFriend) 
+PLUGIN_BUNNY_API_CALL(PluginEars::Api_getFriend)
 {
 	Q_UNUSED(account);
 	Q_UNUSED(hRequest);

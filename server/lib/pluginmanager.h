@@ -26,16 +26,16 @@ public:
 	void HttpRequestBefore(HTTPRequest &);
 	bool HttpRequestHandle(HTTPRequest &);
 	void HttpRequestAfter(HTTPRequest &);
-	
+
 	void XmppBunnyMessage(Bunny *, QByteArray const&);
 	void XmppVioletMessage(Bunny *, QByteArray const&);
 	bool XmppVioletPacketMessage(Bunny *, Packet const& p);
-	
+
 	bool OnClick(Bunny *, PluginInterface::ClickType);
 	bool OnEarsMove(Bunny *, int, int);
 	bool OnRFID(Bunny *, QByteArray const&);
 	bool OnRFID(Ztamp *, Bunny *);
-	
+
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);
 
@@ -47,7 +47,7 @@ public:
 
 	// API
 	static void InitApiCalls();
-	
+
 	// Required Plugins
 	// Auth
 	void RegisterAuthPlugin(PluginAuthInterface *);
@@ -68,16 +68,23 @@ private:
 	QMap<PluginInterface *, QPluginLoader *> listOfPluginsLoader;
 	QHash<QString, PluginInterface *> listOfPluginsByName;
 	QHash<QString, PluginInterface *> listOfPluginsByFileName;
-	
+
 	PluginAuthInterface * authPlugin;
 
 	// API
 	API_CALL(Api_GetListOfPlugins);
 	API_CALL(Api_GetListOfEnabledPlugins);
+
 	API_CALL(Api_GetListOfBunnyPlugins);
-	API_CALL(Api_GetListOfSystemPlugins);
-	API_CALL(Api_GetListOfRequiredPlugins);
 	API_CALL(Api_GetListOfBunnyEnabledPlugins);
+
+	API_CALL(Api_GetListOfZtampPlugins);
+	API_CALL(Api_GetListOfZtampEnabledPlugins);
+
+	API_CALL(Api_GetListOfRequiredPlugins);
+	API_CALL(Api_GetListOfSystemPlugins);
+	API_CALL(Api_GetListOfSystemEnabledPlugins);
+
 	API_CALL(Api_ActivatePlugin);
 	API_CALL(Api_DeactivatePlugin);
 	API_CALL(Api_LoadPlugin);

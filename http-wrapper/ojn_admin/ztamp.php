@@ -55,15 +55,17 @@ Dernier Ztamp utilis&eacute;  par <?php echo $nom; ?> (<?php echo $mac; ?>): <?p
 <h2>Le ztamp</h2>
 <form>
 <fieldset>
+<legend>Configuration</legend>
 <?php
 $plugins = $ojnAPI->getListOfPlugins(false);
-$ztampPlugins = $ojnAPI->getListOfBunnyActivePlugins(false);
+$ztampPlugins = $ojnAPI->getListOfZtampEnabledPlugins(false);
 $actifs = $ojnAPI->ztampListOfPlugins($_SESSION['ztamp'],false);
 ?>
 Nom : <input type="text" name="ztamp_name" value="<?php echo $_SESSION['ztamp_name']; ?>"> <input type="submit" value="Enregistrer">
 </fieldset>
 <form method="get">
 <fieldset>
+<legend>Debug features</legend>
 <input name="resetown" type="submit" value="Liberer le ztamp de ce compte">
 </fieldset>
 </form>
@@ -95,8 +97,8 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 ?>
 	<tr<?php echo $i++ % 2 ? " class='l2'" : "" ?>>
 		<td><?php echo $plugins[$plugin]; ?></td>
-		<td width="20%"><a href='ztamp.php?stat=<?php echo in_array($plugin, $actifs) ? "unregister" : "register"; ?>&plug=<?php echo $plugin; ?>'><?php echo in_array($plugin, $actifs) ? "D&eacute;sa" : "A"; ?>ctiver le plugin</a></td>
-		<td width="20%"><?php echo in_array($plugin, $actifs)?"<a href='ztamp_plugin.php?p=$plugin'>Configurer / Utiliser</a>":""?></td>
+		<td <?php echo in_array($plugin, $actifs) ? 'width="20%"' : 'colspan="2"'; ?>><a href='ztamp.php?stat=<?php echo in_array($plugin, $actifs) ? "unregister" : "register"; ?>&plug=<?php echo $plugin; ?>'><?php echo in_array($plugin, $actifs) ? "D&eacute;sa" : "A"; ?>ctiver le plugin</a></td>
+		<?php if(in_array($plugin, $actifs)): ?><td width="20%"><?php echo in_array($plugin, $actifs)?"<a href='ztamp_plugin.php?p=$plugin'>Configurer / Utiliser</a>":""?></td><?php endif; ?>
 	</tr>
 <?php } ?>
 </table>

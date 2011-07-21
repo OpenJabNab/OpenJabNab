@@ -18,7 +18,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_ephemeride, PluginEphemeride)
 
-PluginEphemeride::PluginEphemeride():PluginInterface("ephemeride", "Ephemeride") {}
+PluginEphemeride::PluginEphemeride():PluginInterface("ephemeride", "Ephemeride",BunnyPlugin) {}
 
 PluginEphemeride::~PluginEphemeride()
 {
@@ -30,7 +30,7 @@ bool PluginEphemeride::Init()
 	QByteArray aujourdhui = TTSManager::CreateNewSound("Aujourd'hui nous fetons les", "claire");
 	if(aujourdhui.isNull())
 		return false;
-	
+
 	aujourdhuiMessage = "MU " + aujourdhui + "\nPL 3\nMW\n";
 	return true;
 }
@@ -132,11 +132,11 @@ PLUGIN_BUNNY_API_CALL(PluginEphemeride::Api_RemoveWebcast)
 		bunnyWebcastList.removeAll(time);
 		bunnyWebcastList.sort();
 		bunny->SetPluginSetting(GetName(), "Webcast/List", bunnyWebcastList);
-		
+
 		// Recreate crons
 		OnBunnyDisconnect(bunny);
 		OnBunnyConnect(bunny);
-		
+
 		return new ApiManager::ApiOk(QString("Remove webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
 	}
 	return new ApiManager::ApiError(QString("No webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
