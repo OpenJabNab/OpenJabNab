@@ -8,7 +8,7 @@ Q_EXPORT_PLUGIN2(plugin_surprise, PluginSurprise)
 
 #define RANDOMIZE(x) x
 
-PluginSurprise::PluginSurprise():PluginInterface("surprise", "Send random mp3 at random intervals") {}
+PluginSurprise::PluginSurprise():PluginInterface("surprise", "Send random mp3 at random intervals",BunnyPlugin) {}
 
 PluginSurprise::~PluginSurprise() {}
 
@@ -21,7 +21,7 @@ void PluginSurprise::createCron(Bunny * b)
 		LogError(QString("Bunny '%1' has invalid frequency '%2'").arg(b->GetID(), QString::number(frequency)));
 		return;
 	}
-	
+
 	// Register cron
 	Cron::RegisterOneShot(this, qrand() % frequency, b, QVariant(), NULL);
 }
@@ -46,7 +46,7 @@ void PluginSurprise::OnCron(Bunny * b, QVariant)
 		if(dir)
 		{
 			QString surprise = b->GetPluginSetting(GetName(), "folder", QString()).toString();
-			
+
 			if(!surprise.isNull() && dir->cd(surprise))
 			{
 				QStringList list = dir->entryList(QDir::Files|QDir::NoDotAndDotDot);
@@ -72,7 +72,7 @@ void PluginSurprise::OnCron(Bunny * b, QVariant)
 /*******
  * API *
  *******/
- 
+
 void PluginSurprise::InitApiCalls()
 {
 	DECLARE_PLUGIN_BUNNY_API_CALL("setFolder(name)", PluginSurprise, Api_SetFolder);
@@ -85,7 +85,7 @@ void PluginSurprise::InitApiCalls()
 PLUGIN_BUNNY_API_CALL(PluginSurprise::Api_SetFolder)
 {
 	Q_UNUSED(account);
-	
+
 	QString folder = hRequest.GetArg("name");
 	if(availableSurprises.contains(folder))
 	{

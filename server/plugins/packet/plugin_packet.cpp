@@ -4,7 +4,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_packet, PluginPacket)
 
-PluginPacket::PluginPacket():PluginInterface("packet", "Send raw packets to bunny") {}
+PluginPacket::PluginPacket():PluginInterface("packet", "Send raw packets to bunny",BunnyPlugin) {}
 
 void PluginPacket::InitApiCalls()
 {

@@ -18,7 +18,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_weather, PluginWeather)
 
-PluginWeather::PluginWeather():PluginInterface("weather", "Météo")
+PluginWeather::PluginWeather():PluginInterface("weather", "Météo",BunnyZtampPlugin)
 {
 	std::auto_ptr<QDir> dir(GetLocalHTTPFolder());
 	if(dir.get())
@@ -248,7 +248,7 @@ void PluginWeather_Worker::run()
 				QXmlStreamAttributes attrs = xml.attributes();
 				iCurrentCode = attrs.value("code").toString().toInt();
 				iCurrentTemp = attrs.value("temp").toString().toInt();
-				
+
 			}
 			if(currentTag == "forecast")
 			{
@@ -272,11 +272,11 @@ void PluginWeather_Worker::run()
 					iForecastMin = attrs.value("low").toString().toInt();
 					iForecastMax = attrs.value("high").toString().toInt();
 				}
-				
+
 			}
 		}
 	}
-	
+
 	if (xml.error() && xml.error() != QXmlStreamReader::PrematureEndOfDocumentError)
 	{
 		emit done(false, bunny, QByteArray());

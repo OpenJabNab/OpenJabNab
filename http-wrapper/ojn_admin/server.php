@@ -42,51 +42,72 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 <?php
 		$Plugins = $ojnAPI->getListOfPlugins(false);
 		$BPlugins = $ojnAPI->getListOfBunnyPlugins(false);
-		$APlugins = $ojnAPI->getListOfActivePlugins(false);
-		$SPlugins = array();
-        if(!empty($Plugins))
-		foreach($Plugins as $p=>$d) {
-			if(!in_array($p,$BPlugins))
-				$SPlugins[] = $p;
-			$Plugins[$p] = array($d,in_array($p,$APlugins) ? true: false);
-		}
+		$ZPlugins = $ojnAPI->getListOfZtampPlugins(false);
+		$UPlugins = $BPlugins;
+		/* Merge Bunny Plugins and ZTamp Plugins */
+		if(!empty($ZPlugins))
+			foreach($ZPlugins as $v)
+				if(!in_array($v,$BPlugins))
+					$BPlugins[] = $v;
+		$APlugins = $ojnAPI->getListOfEnabledPlugins(false);
+		$SPlugins = $ojnAPI->getApiList("plugins/getListOfSystemPlugins?".$ojnAPI->getToken());
+		$RPlugins = $ojnAPI->getApiList("plugins/getListOfRequiredPlugins?".$ojnAPI->getToken());
 ?>
 <center>
 <table style="width: 80%">
 	<tr>
-		<th>Server Plugins</th>
+		<th>Required Plugins</th>
 		<th colspan="2">Actions</th>
 	</tr>
 <?php
 	$i = 0;
-	foreach($SPlugins as $p){
+	foreach($RPlugins as $p){
 ?>
 	<tr<?php echo $i++ % 2 ? " class='l2'" : "" ?>>
-		<td><?php echo $Plugins[$p][0]; ?></td>
-		<td width="20%"><a href="server_plugin.php?p=<?php echo $p; ?>">Configurer</a></td>
-		<td width="20%"><?php if($Plugins[$p][1]): ?><a href="?stat=reload&plug=<?php echo $p ?>">Recharger</a><?php endif; ?></td>
+		<td><?php echo $Plugins[$p]; ?></td>
+		<td width="21%"><a href="server_plugin.php?p=<?php echo $p; ?>">Configurer</a></td>
+		<td width="21%"><?php if($Plugins[$p][1]): ?><a href="?stat=reload&plug=<?php echo $p ?>">Recharger</a><?php endif; ?></td>
 	</tr>
 <?php } ?>
 </table>
 
 <table style="width: 80%">
 	<tr>
-		<th>Bunnies Plugins</th>
+		<th>System Plugins</th>
+		<th colspan="3">Actions</th>
+	</tr>
+<?php
+	$i = 0;
+	foreach($SPlugins as $p){
+?>
+	<tr<?php echo $i++ % 2 ? " class='l2'" : "" ?>>
+		<td><?php echo $Plugins[$p]; ?></td>
+		<td width="14%"><a href="server_plugin.php?p=<?php echo $p; ?>">Configurer</a></td>
+		<td <?php echo in_array($p,$APlugins) ? 'width="14%"' : 'colspan="2"'; ?>><a href="?stat=<?php echo in_array($p,$APlugins) ? "deactivate" : "activate"; ?>&plug=<?php echo $p ?>"><?php echo in_array($p,$APlugins) ? "D&eacute;sa" : "A"; ?>ctiver le plugin</a>
+		<?php if(in_array($p,$APlugins)): ?><td width="14%"><a href="?stat=reload&plug=<?php echo $p ?>">Recharger</a></td><?php endif; ?>
+	</tr>
+<?php } ?>
+</table>
+
+<table style="width: 80%">
+	<tr>
+		<th>Bunnies &amp; Ztamps Plugins</th>
 		<th colspan="2">Actions</th>
 	</tr>
 <?php
 	$i = 0;
-    if(!empty($BPlugins))
-	foreach($BPlugins as $p){
+    if(!empty($UPlugins))
+	foreach($UPlugins as $p){
 ?>
 	<tr<?php echo $i++ % 2 ? " class='l2'" : "" ?>>
-		<td><?php echo $Plugins[$p][0]; ?></td>
-		<td <?php echo $Plugins[$p][1] ? 'width="20%"' : 'colspan="2"'; ?> ><a href="?stat=<?php echo $Plugins[$p][1] ? "deactivate" : "activate"; ?>&plug=<?php echo $p ?>"><?php echo $Plugins[$p][1] ? "D&eacute;sa" : "A"; ?>ctiver le plugin</a>
-		<?php if($Plugins[$p][1]): ?></td><td width="20%"><a href="?stat=reload&plug=<?php echo $p ?>">Recharger</a><?php endif; ?>
+		<td><?php echo $Plugins[$p]; ?></td>
+		<td <?php echo in_array($p,$APlugins) ? 'width="21%"' : 'colspan="2"'; ?> ><a href="?stat=<?php echo in_array($p,$APlugins) ? "deactivate" : "activate"; ?>&plug=<?php echo $p ?>"><?php echo in_array($p,$APlugins) ? "D&eacute;sa" : "A"; ?>ctiver le plugin</a>
+		<?php if(in_array($p,$APlugins)): ?></td><td width="21%"><a href="?stat=reload&plug=<?php echo $p ?>">Recharger</a><?php endif; ?>
 		</td>
 	</tr>
 <?php } ?>
 </table>
+
 </p>
 <p id="tableBunnyPluginServer">
 </p>

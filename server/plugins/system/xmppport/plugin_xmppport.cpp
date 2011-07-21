@@ -2,7 +2,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_xmppport, PluginXmppport)
 
-PluginXmppport::PluginXmppport():PluginInterface("xmppport", "XMPP Port changer in bootcode", RequiredPlugin)
+PluginXmppport::PluginXmppport():PluginInterface("xmppport", "XMPP Port changer in bootcode", SystemPlugin)
 {
 }
 
@@ -28,7 +28,7 @@ void PluginXmppport::HttpRequestAfter(HTTPRequest & request)
 	{
 		QByteArray port = convertLSBFirst(GlobalSettings::GetInt("OpenJabNabServers/XmppPort", 5222));
 		QByteArray origin = convertLSBFirst(5222);
-		patchBootcode(request, 0x000111CF, 4, origin, port); 
+		patchBootcode(request, 0x000111CF, 4, origin, port);
 	}
 }
 

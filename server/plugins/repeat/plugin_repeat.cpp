@@ -8,7 +8,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_repeat, PluginRepeat)
 
-PluginRepeat::PluginRepeat():PluginInterface("repeat", "Repeat last Violet message", BunnyZtampPlugin)
+PluginRepeat::PluginRepeat():PluginInterface("repeat", "Repeat last Violet message", BunnyPlugin)
 {
 }
 

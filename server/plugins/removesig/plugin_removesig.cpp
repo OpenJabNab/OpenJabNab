@@ -8,7 +8,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_removesig, PluginRemoveSig)
 
-PluginRemoveSig::PluginRemoveSig():PluginInterface("removesig", "Removes signature from ambient message")
+PluginRemoveSig::PluginRemoveSig():PluginInterface("removesig", "Removes signature from ambient message",BunnyPlugin)
 {
 }
 

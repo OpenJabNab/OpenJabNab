@@ -18,7 +18,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_tv, PluginTV)
 
-PluginTV::PluginTV():PluginInterface("tv", "Programme TV") {}
+PluginTV::PluginTV():PluginInterface("tv", "Programme TV",BunnyZtampPlugin) {}
 
 PluginTV::~PluginTV()
 {
@@ -30,7 +30,7 @@ bool PluginTV::Init()
 	QByteArray ceSoir = TTSManager::CreateNewSound("Programme télé de ce soir", "claire");
 	if(ceSoir.isNull())
 		return false;
-	
+
 	ceSoirMessage = "MU " + ceSoir + "\nPL 3\nMW\n";
 	return true;
 }
@@ -135,11 +135,11 @@ PLUGIN_BUNNY_API_CALL(PluginTV::Api_RemoveWebcast)
 		bunnyWebcastList.removeAll(time);
 		bunnyWebcastList.sort();
 		bunny->SetPluginSetting(GetName(), "Webcast/List", bunnyWebcastList);
-		
+
 		// Recreate crons
 		OnBunnyDisconnect(bunny);
 		OnBunnyConnect(bunny);
-		
+
 		return new ApiManager::ApiOk(QString("Remove webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
 	}
 	return new ApiManager::ApiError(QString("No webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
