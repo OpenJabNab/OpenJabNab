@@ -1,9 +1,11 @@
 #include <QCoreApplication>
+#include <QCryptographicHash>
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include "ambientpacket.h"
 #include "messagepacket.h"
+#include "choregraphy.h"
 #include "bunny.h"
 #include "log.h"
 #include "httprequest.h"
@@ -148,9 +150,35 @@ ApiManager::ApiAnswer * Bunny::ProcessVioletApiCall(HTTPRequest const& hRequest)
                                 }
                                 if(hRequest.HasArg("chor"))
                                 {
-                                        if(true) //TODO: Check for good chor
+					Choregraphy c;
+                                        if(c.Parse(hRequest.GetArg("chor"))) //TODO: Check for good chor
                                         {
-                                                answer->AddMessage("CHORSENT", "Your chor has been sent");
+						QDir chorFolder = QDir(GlobalSettings::GetString("Config/RealHttpRoot"));
+						if (!chorFolder.cd("chor"))
+						{
+							if (!chorFolder.mkdir("chor"))
+							{
+								LogError(QString("Unable to create 'chor' directory !\n"));
+                                                		answer->AddMessage("CHORNOTSENT", "Your chor could not be sent (can't create folder)");
+							}
+							chorFolder.cd("chor");
+						}
+						QString fileName = QCryptographicHash::hash(c.GetData(), QCryptographicHash::Md5).toHex().append(".chor");
+						QString filePath = chorFolder.absoluteFilePath(fileName);
+
+						QFile file(filePath);
+						if (!file.open(QIODevice::WriteOnly))
+						{
+							LogError("Cannot open chor file for writing");
+							answer->AddMessage("CHORNOTSENT", "Your chor could not be sent (error in file)");
+						}
+						else
+						{
+							file.write(c.GetData());
+							file.close();
+							SendPacket(MessagePacket(("CH broadcast/ojn_local/chor/" + fileName + "\n").toAscii()));
+							answer->AddMessage("CHORSENT", "Your chor has been sent");
+						}
                                         }
                                         else
                                         {
@@ -158,7 +186,8 @@ ApiManager::ApiAnswer * Bunny::ProcessVioletApiCall(HTTPRequest const& hRequest)
                                         }
                                 }
                         }
-                	SendPacket(p);
+			if(p.GetServices().count() > 0)
+	                	SendPacket(p);
                 }
         }
         else
