@@ -15,7 +15,7 @@ $frequency = isset($frequency['ok']) ? $frequency['ok'] : '';
 ?>
 <form method="post">
 <fieldset>
-<legend>Votre lapin aime les surprise...</legend>
+<legend>Votre lapin aime les surprises...</legend>
 <select name="frequency"> <option value="50" <?php if ($frequency==50) echo 'selected'; ?> >Un peu...</option><option value="125" <?php if ($frequency==125) echo 'selected'; ?>>Beaucoup...</option><option value="250" <?php if ($frequency==250) echo 'selected'; ?>>A la folie...</option><option value="0" <?php if ($frequency==0) echo 'selected'; ?>>Pas du tout!</option></select>
 <input type="submit" value="Enregistrer">
 </fieldset>
