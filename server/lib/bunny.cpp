@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QFile>
 #include "ambientpacket.h"
+#include "messagepacket.h"
 #include "bunny.h"
 #include "log.h"
 #include "httprequest.h"
@@ -51,12 +52,13 @@ ApiManager::ApiAnswer * Bunny::ProcessVioletApiCall(HTTPRequest const& hRequest)
 
         if(true) // TODO: Check for good token
         {
-                AmbientPacket p;
 
                 if(hRequest.GetURI().startsWith("/ojn/FR/api_stream.jsp"))
                 {
                         if(hRequest.HasArg("urlList"))
                         {
+				QByteArray message = ("ST " + hRequest.GetArg("urlList").split("|", QString::SkipEmptyParts).join("\nMW\nST ") + "\nMW\n").toAscii();
+				SendPacket(MessagePacket(message));
                                 answer->AddMessage("WEBRADIOSENT", "Your webradio has been sent");
                         }
                         else
@@ -66,7 +68,7 @@ ApiManager::ApiAnswer * Bunny::ProcessVioletApiCall(HTTPRequest const& hRequest)
                 }
                 else
                 {
-
+                	AmbientPacket p;
                         if(hRequest.HasArg("action")) // TODO: send good values
                         {
                                 switch(hRequest.GetArg("action").toInt())
@@ -156,8 +158,8 @@ ApiManager::ApiAnswer * Bunny::ProcessVioletApiCall(HTTPRequest const& hRequest)
                                         }
                                 }
                         }
+                	SendPacket(p);
                 }
-                SendPacket(p);
         }
         else
         {
