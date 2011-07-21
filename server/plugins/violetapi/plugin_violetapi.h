@@ -17,6 +17,7 @@ public:
 	PLUGIN_BUNNY_API_CALL(Api_disableVApi);
 	PLUGIN_BUNNY_API_CALL(Api_getStatus);
 	PLUGIN_BUNNY_API_CALL(Api_getToken);
+	PLUGIN_BUNNY_API_CALL(Api_setToken);
 };
 
 #endif

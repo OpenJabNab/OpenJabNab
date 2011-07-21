@@ -2,6 +2,7 @@
 #include <QCryptographicHash>
 #include <QUuid>
 #include "bunny.h"
+#include "account.h"
 
 Q_EXPORT_PLUGIN2(plugin_violetapi, PluginVioletapi)
 
@@ -21,6 +22,7 @@ void PluginVioletapi::InitApiCalls()
 	DECLARE_PLUGIN_BUNNY_API_CALL("disable()", PluginVioletapi, Api_disableVApi);
 	DECLARE_PLUGIN_BUNNY_API_CALL("getStatus()", PluginVioletapi, Api_getStatus);
 	DECLARE_PLUGIN_BUNNY_API_CALL("getToken()", PluginVioletapi, Api_getToken);
+	DECLARE_PLUGIN_BUNNY_API_CALL("setToken(tk)", PluginVioletapi, Api_setToken);
 }
 
 PLUGIN_BUNNY_API_CALL(PluginVioletapi::Api_enableVApi)
@@ -62,3 +64,11 @@ PLUGIN_BUNNY_API_CALL(PluginVioletapi::Api_getToken)
 	return new ApiManager::ApiString(bunny->GetPluginSetting(GetName(), "VApiToken", "").toString());
 }
 
+PLUGIN_BUNNY_API_CALL(PluginVioletapi::Api_setToken)
+{
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	bunny->SetPluginSetting(GetName(),"VApiToken",hRequest.GetArg("tk").toAscii());
+	return new ApiManager::ApiOk(QString("VioletAPI Token updated."));
+}
