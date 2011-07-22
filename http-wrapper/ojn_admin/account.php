@@ -4,17 +4,17 @@ if(!isset($_SESSION['connected']))
 	header('Location: index.php');
 $r= false;
 if(!empty($_POST['bname']) && !empty($_POST['bmac'])) {
-    $r = $ojnAPI->getApiString('accounts/addBunny?login='.urlencode($_SESSION['login']).'&bunnyid='.$_POST['bmac'].'&'.$ojnAPI->getToken());
+    $r = $ojnAPI->getApiString('accounts/addBunny?login='.urlencode($_SESSION['login']).'&bunnyid='.preg_replace("|:|", "", strtolower($_POST['bmac'])).'&'.$ojnAPI->getToken());
     if(isset($r['ok'])) {
         $_SESSION['message'] = $r['ok'];
-        $r = $ojnAPI->getApiString("bunny/".$_POST['bmac']."/setBunnyName?name=".urlencode($_POST['bname'])."&".$ojnAPI->getToken());
+        $r = $ojnAPI->getApiString("bunny/".preg_replace("|:|", "", strtolower($_POST['bmac']))."/setBunnyName?name=".urlencode($_POST['bname'])."&".$ojnAPI->getToken());
         $_SESSION['message'] .= '<br />'. (isset($r['ok']) ? $r['ok'] : "Error : ".$r['error']);
     } else
         $_SESSION['message'] = "Error : ".$r['error'];
 }
 
 if(!empty($_POST['bmac_rm'])) {
-    $r = $ojnAPI->getApiString('accounts/removeBunny?login='.urlencode($_SESSION['login']).'&bunnyid='.$_POST['bmac_rm'].'&'.$ojnAPI->getToken());
+    $r = $ojnAPI->getApiString('accounts/removeBunny?login='.urlencode($_SESSION['login']).'&bunnyid='.preg_replace("|:|", "", strtolower($_POST['bmac_rm'])).'&'.$ojnAPI->getToken());
     $_SESSION['message'] = (isset($r['ok']) ? $r['ok'] : "Error : ".$r['error']);
 }
 
