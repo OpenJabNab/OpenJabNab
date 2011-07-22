@@ -215,6 +215,9 @@ API_CALL(AccountManager::Api_AddBunny)
 		return new ApiManager::ApiError("Access denied");
 
 	QString login = hRequest.GetArg("login");
+	if(!account.IsAdmin() && login != account.GetLogin())
+		return new ApiManager::ApiError("Access denied");
+		
 	if(!listOfAccountsByName.contains(login))
 		return new ApiManager::ApiError(QString("Account '%1' doesn't exist").arg(hRequest.GetArg("login")));
 	QString bunnyid = hRequest.GetArg("bunnyid");
@@ -222,12 +225,12 @@ API_CALL(AccountManager::Api_AddBunny)
 	// Lock bunny to this account
 	Bunny *b = BunnyManager::GetBunny(bunnyid.toAscii());
 	QString own = b->GetGlobalSetting("OwnerAccount","").toString();
-	if(own != "")
+	if(own != "" && own != login)
 		return new ApiManager::ApiError(QString("Bunny %1 is already attached to this account: '%2'").arg(bunnyid,own));
 
 	b->SetGlobalSetting("OwnerAccount", login);
-	SaveAccounts();
 	QByteArray id = listOfAccountsByName.value(login)->AddBunny(bunnyid.toAscii());
+	SaveAccounts();
 	return new ApiManager::ApiOk(QString("Bunny '%1' added to account '%2'").arg(QString(id)).arg(login));
 }
 
