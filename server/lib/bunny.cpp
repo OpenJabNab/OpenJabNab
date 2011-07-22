@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 #include <QCryptographicHash>
+#include <QUuid>
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
@@ -14,6 +15,7 @@
 #include "pluginmanager.h"
 #include "sleeppacket.h"
 #include "xmpphandler.h"
+#include "account.h"
 
 #define SINGLE_CLICK_PLUGIN_SETTINGNAME "singleClickPlugin"
 #define DOUBLE_CLICK_PLUGIN_SETTINGNAME "doubleClickPlugin"
@@ -690,6 +692,12 @@ void Bunny::InitApiCalls()
 
 	DECLARE_API_CALL("resetPassword()", &Bunny::Api_ResetPassword);
 	DECLARE_API_CALL("resetOwner()", &Bunny::Api_ResetOwner);
+
+	DECLARE_API_CALL("enableVAPI()", &Bunny::Api_enableVApi);
+	DECLARE_API_CALL("disableVAPI()", &Bunny::Api_disableVApi);
+	DECLARE_API_CALL("getVAPIStatus()", &Bunny::Api_getVApiStatus);
+	DECLARE_API_CALL("getVAPIToken()", &Bunny::Api_getVApiToken);
+	DECLARE_API_CALL("setVAPIToken(tk)", &Bunny::Api_setVApiToken);
 }
 
 API_CALL(Bunny::Api_AddPlugin)
@@ -855,4 +863,48 @@ API_CALL(Bunny::Api_ResetOwner)
 	return new ApiManager::ApiOk("Owner cleared");
 }
 
+API_CALL(Bunny::Api_enableVApi)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+	/* Get Token if exists */
+	QString Token = GetGlobalSetting("VApiToken", "").toString();
+	if(Token == "") {
+		/* Generate random token */
+		QByteArray Token = QCryptographicHash::hash(QUuid::createUuid().toString().toAscii(), QCryptographicHash::Md5).toHex();
+		SetGlobalSetting("VApiToken",Token);
+	}
+	SetGlobalSetting("VApiEnable",true);
+	return new ApiManager::ApiOk(QString("VioletAPI enabled"));
+}
 
+API_CALL(Bunny::Api_disableVApi)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+	SetGlobalSetting("VApiEnable",false);
+	return new ApiManager::ApiOk(QString("VioletAPI disabled"));
+}
+
+API_CALL(Bunny::Api_getVApiStatus)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+	return new ApiManager::ApiString(GetGlobalSetting("VApiEnable", "false").toString());
+}
+
+API_CALL(Bunny::Api_getVApiToken)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+	return new ApiManager::ApiString(GetGlobalSetting("VApiToken", "").toString());
+}
+
+API_CALL(Bunny::Api_setVApiToken)
+{
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	SetGlobalSetting("VApiToken",hRequest.GetArg("tk").toAscii());
+	return new ApiManager::ApiOk(QString("VioletAPI Token updated."));
+}

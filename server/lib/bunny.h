@@ -104,6 +104,12 @@ private:
 	API_CALL(Api_SetService);
 	API_CALL(Api_ResetPassword);
 	API_CALL(Api_ResetOwner);
+	API_CALL(Api_enableVApi);
+	API_CALL(Api_disableVApi);
+	API_CALL(Api_getVApiStatus);
+	API_CALL(Api_getVApiToken);
+	API_CALL(Api_setVApiToken);
+
 	enum State state;
 
 	QByteArray id;

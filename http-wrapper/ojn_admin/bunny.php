@@ -31,6 +31,16 @@ if(!empty($_GET['b'])) {
 	$_SESSION['bunny_name'] = $_GET['bunny_name'];
 	header('Location: bunny.php');
 }
+
+if(!empty($_GET['aVAPI'])) {
+	$st = (string)$_GET['aVAPI'];
+	if($st == "enable" || $st == "disable")
+		$_SESSION['message'] = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/".$st."VAPI?".$ojnAPI->getToken());
+	else
+		$_SESSION['message'] = "Error: Error in choice";
+	header("Location: bunny.php");
+}
+
 if(empty($_SESSION['bunny'])) {
 ?>
 <h1>Choix du lapin &agrave; configurer</h1>
@@ -47,6 +57,12 @@ if(empty($_SESSION['bunny'])) {
 </ul>
 <?php
 } else {
+$Token = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/getVAPIToken?".$ojnAPI->getToken());
+$Token = isset($Token['value']) ? $Token['value'] : '';
+/* Status */
+$Status = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/getVAPIStatus?".$ojnAPI->getToken());
+$Status= (!empty($Status['value']) && $Status['value'] == "true") ? true : false;
+
 ?>
 <h1 id="bunny">Configuration du lapin '<?php echo !empty($_SESSION['bunny_name']) ? $_SESSION['bunny_name'] : $_SESSION['bunny']; ?>'</h1>
 <h2>Le lapin</h2>
@@ -67,14 +83,20 @@ Plugin simple click : <select name="single">
 <?php foreach($actifs as $plugin) { ?>
 <option value="<?=$plugin ?>" <?php echo ($plugin == $clicks[0] ? ' selected="selected"' : '') ?>><?php echo $plugins[$plugin]; ?></option>
 <?php } ?>
-</select>
+</select><br />
 Plugin double click : <select name="double">
 <option value="none">Aucun</option>
 <?php foreach($actifs as $plugin) { ?>
 <option value="<?=$plugin ?>" <?php echo ($plugin == $clicks[1] ? ' selected="selected"' : '') ?>><?php echo $plugins[$plugin]; ?></option>
 <?php } ?>
-</select>
+</select><br />
 <input type="submit" value="Enregistrer">
+</form><br />
+VioletAPIToken: <?php echo $Token ; ?><br />
+<form method="get">
+VioletAPI: <input type="radio" name="aVAPI" value="enable" <?php echo $Status ? 'checked="checked"' : ''; ?>/> Activer
+<input type="radio" name="aVAPI" value="disable" <?php echo !$Status ? 'checked="checked"' : ''; ?> /> D&eacute;sactiver
+<input type="submit" value="Enregister">
 </form>
 </fieldset>
 <fieldset>
