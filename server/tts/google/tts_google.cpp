@@ -46,7 +46,7 @@ QByteArray TTSGoogle::CreateNewSound(QString text, QString voice, bool forceOver
 	QObject::connect(&http, SIGNAL(done(bool)), &loop, SLOT(quit()));
 
 	QByteArray ContentData;
-	ContentData += "q=" + QUrl::toPercentEncoding(text) + "&tl=" + voice;
+	ContentData += "ie=UTF-8&q=" + QUrl::toPercentEncoding(text) + "&tl=" + voice;
 
 	QHttpRequestHeader Header;
 	Header.addValue("Host", "translate.google.com");
