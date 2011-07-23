@@ -19,7 +19,7 @@ win32 {
 }
 unix {
 	QMAKE_LFLAGS += -Wl,-rpath,\'\$$ORIGIN\'
-        QMAKE_CXXFLAGS += -Werror
+	QMAKE_CXXFLAGS += -Werror
 }
 
 # Input

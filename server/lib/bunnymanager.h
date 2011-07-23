@@ -26,6 +26,8 @@ public:
 	static void LoadBunnies();
 	static void Close();
 
+	static QList<QByteArray> GetConnectedBunniesList(void);
+
 	// API
 	static void InitApiCalls();
 	int GetConnectedBunnyCount();

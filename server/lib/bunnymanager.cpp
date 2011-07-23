@@ -27,6 +27,19 @@ void BunnyManager::LoadAllBunnies()
 	}
 }
 
+QList<QByteArray> BunnyManager::GetConnectedBunniesList(void)
+{
+	QList<QByteArray> list;
+	foreach(Bunny *b,Instance().listOfBunnies)
+	{
+		if(b->IsConnected()) {
+			list.append(b->GetID());
+		}
+	}
+
+	return list;
+}
+
 void BunnyManager::InitApiCalls()
 {
 	DECLARE_API_CALL("getListOfConnectedBunnies()", &BunnyManager::Api_GetListOfConnectedBunnies);

@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = auth boot locate record rfid xmppport
+SUBDIRS = auth boot locate record rfid xmppport msgall
