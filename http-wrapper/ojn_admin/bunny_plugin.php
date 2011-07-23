@@ -1,6 +1,6 @@
 <?php
 require_once "include/common.php";
-if(!isset($_SESSION['connected']))
+if(!isset($_SESSION['token']))
 	header('Location: index.php');
 	$plugins = $ojnAPI->getListOfPlugins(false);
 	if(!isset($plugins[$_GET['p']]))

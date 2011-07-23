@@ -1,5 +1,7 @@
 <?php
 require_once "include/common.php";
+if(!isset($_SESSION['token']) || !$Infos['isAdmin'])
+	header('Location: index.php');
 ?>
 <h1>DEVELOPMENT Feature. On this page, you can make a direct API call, your token will be added automatically</h1>
 <br />
@@ -18,10 +20,10 @@ function printr($a,$l=0) {
 					echo str_repeat('    ',$l).$b." => ".$sa."\n";
 				else if(!is_numeric($b))
 					echo str_repeat('    ',$l).$b."\n";
-			}else 
+			}else
 				echo str_repeat('    ',$l).$b."\n";
 				printr($sa,$l+1);
-		}	
+		}
 }
 
 if(!empty($_POST['r'])) {

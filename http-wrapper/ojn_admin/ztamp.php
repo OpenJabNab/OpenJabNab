@@ -1,6 +1,6 @@
 <?php
 require_once "include/common.php";
-if(!isset($_SESSION['connected']))
+if(!isset($_SESSION['token']))
 	header('Location: index.php');
 if(isset($_GET['z']) && empty($_GET['z'])) {
 	unset($_SESSION['ztamp']);
@@ -62,14 +62,16 @@ $ztampPlugins = $ojnAPI->getListOfZtampEnabledPlugins(false);
 $actifs = $ojnAPI->ztampListOfPlugins($_SESSION['ztamp'],false);
 ?>
 Nom : <input type="text" name="ztamp_name" value="<?php echo $_SESSION['ztamp_name']; ?>"> <input type="submit" value="Enregistrer">
+</form>
 </fieldset>
-<form method="get">
+<?php if($Infos['isAdmin']): ?>
 <fieldset>
+<form method="get">
 <legend>Debug features</legend>
 <input name="resetown" type="submit" value="Liberer le ztamp de ce compte">
 </fieldset>
 </form>
-</form>
+<?php endif; ?>
 <h2>Plugins</h2>
 <?php
 if(isset($_SESSION['message']) && empty($_GET)) {

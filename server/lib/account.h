@@ -23,6 +23,7 @@ public:
 
 	QByteArray const& GetPasswordHash() const;
 	QString const& GetLogin() const;
+	QString const& GetUsername() const;
 	QByteArray const& GetToken() const;
 	void SetToken(QByteArray);
 	bool IsAdmin() const;
@@ -87,6 +88,11 @@ inline QByteArray const& Account::GetPasswordHash() const
 inline QString const& Account::GetLogin() const
 {
 	return login;
+}
+
+inline QString const& Account::GetUsername() const
+{
+	return username;
 }
 
 inline QByteArray const& Account::GetToken() const

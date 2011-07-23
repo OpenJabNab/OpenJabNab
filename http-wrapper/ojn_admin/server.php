@@ -1,6 +1,6 @@
 <?php
 require_once "include/common.php";
-if(!isset($_SESSION['connected']))
+if(!isset($_SESSION['token']) || !$Infos['isAdmin'])
 	header('Location: index.php');
 
 $Plugins = $ojnAPI->getListOfPlugins(false);

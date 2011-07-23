@@ -1,6 +1,6 @@
 <?php
 require_once "include/common.php";
-if(!isset($_SESSION['connected']))
+if(!isset($_SESSION['token']))
 	header('Location: index.php');
 if(!empty($_GET['b'])) {
 		$_SESSION['bunny'] = $_GET['b'];
@@ -99,13 +99,15 @@ VioletAPI: <input type="radio" name="aVAPI" value="enable" <?php echo $Status ? 
 <input type="submit" value="Enregister">
 </form>
 </fieldset>
+<?php if($Infos['isAdmin']): ?>
 <fieldset>
 <legend>Debug features</legend>
 <form method="get">
 <input name="resetpwd" type="submit" value="Remettre a zero le mot de passe">
-<input name="resetown" type="submit" value="Liberer le lapin de son maitre"><br />
-</fieldset>
+<input name="resetown" type="submit" value="Liberer le lapin de son maitre">
 </form>
+</fieldset>
+<?php endif; ?>
 <h2>Plugins</h2>
 <?php
 if(isset($_SESSION['message']) && empty($_GET)) {

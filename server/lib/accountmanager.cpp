@@ -135,6 +135,7 @@ QByteArray AccountManager::GetToken(QString const& login, QByteArray const& hash
 			TokenData t;
 			t.account = *it;
 			t.expire_time = QDateTime::currentDateTime().toTime_t() + GlobalSettings::GetInt("Config/SessionTimeout", 300);
+			(*it)->SetToken(token);
 			listOfTokens.insert(token, t);
 			return token;
 		}
@@ -158,6 +159,7 @@ void AccountManager::InitApiCalls()
 	DECLARE_API_CALL("removeBunny(login,bunnyid)", &AccountManager::Api_RemoveBunny);
 	DECLARE_API_CALL("removeZtamp(login,zid)", &AccountManager::Api_RemoveZtamp);
 	DECLARE_API_CALL("settoken(tk)", &AccountManager::Api_SetToken);
+	DECLARE_API_CALL("infos(user)", &AccountManager::Api_GetUserInfos);
 }
 
 API_CALL(AccountManager::Api_Auth)
@@ -288,4 +290,23 @@ API_CALL(AccountManager::Api_SetToken)
 
 	//LogError("Account not found");
 	return new ApiManager::ApiError("Access denied");
+}
+
+API_CALL(AccountManager::Api_GetUserInfos)
+{
+	QString login = hRequest.GetArg("user");
+	if(login == "" || (!account.IsAdmin() && login != account.GetLogin()))
+		return new ApiManager::ApiError("Access denied");
+
+	Account *ac = listOfAccountsByName.value(login.toAscii());
+	if(ac == NULL)
+		return new ApiManager::ApiError("Login not found.");
+
+	QMap<QString, QVariant> list;
+	list.insert("login",ac->GetLogin());
+	list.insert("username",ac->GetUsername());
+	list.insert("isValid",listOfTokens.contains(ac->GetToken()));
+	list.insert("token",QString(ac->GetToken()));
+	list.insert("isAdmin",ac->IsAdmin());
+	return new ApiManager::ApiMappedList(list);
 }

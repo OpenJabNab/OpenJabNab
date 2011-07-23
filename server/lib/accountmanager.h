@@ -47,6 +47,7 @@ private:
 	API_CALL(Api_RemoveBunny);
     API_CALL(Api_RemoveZtamp);
 	API_CALL(Api_SetToken);
+	API_CALL(Api_GetUserInfos);
 };
 
 inline void AccountManager::Init()

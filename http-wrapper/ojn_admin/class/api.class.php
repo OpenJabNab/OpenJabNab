@@ -128,6 +128,7 @@ class ojnApi {
 
 	public function setToken($token) {
 		$_SESSION['token'] = $token;
+		$this->GetApi('accounts/settoken?'.$token.'&'.$this->getToken());
 	}
 
 	public function getToken() {

@@ -1,9 +1,10 @@
 <?php
 require_once "include/common.php";
-if(!isset($_SESSION['connected']))
+
+if(!isset($_SESSION['token']) || !$Infos['isAdmin'])
 	header('Location: index.php');
-	$plugins = $ojnAPI->getListOfPlugins(false);
-	if(!isset($plugins[$_GET['p']]))
+$plugins = $ojnAPI->getListOfPlugins(false);
+if(!isset($plugins[$_GET['p']]))
 		header('Location: server.php');
 ?>
 <h1 id="bunny">Configuration du plugin '<?php echo $plugins[$_GET['p']] ?></h1>

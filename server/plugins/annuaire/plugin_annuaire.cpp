@@ -4,7 +4,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_annuaire, PluginAnnuaire)
 
-PluginAnnuaire::PluginAnnuaire():PluginInterface("annuaire", "Register the bunny on the annuaire", RequiredPlugin)
+PluginAnnuaire::PluginAnnuaire():PluginInterface("annuaire", "Register the bunny on the central directory", SystemPlugin)
 {
 }
 

@@ -1,9 +1,9 @@
 <?php
 require_once('include/common.php');
-if(isset($_SESSION['connected']))
+if(isset($_SESSION['token']))
 	header('Location: index.php');
-    
-if(!empty($_POST['name']) && !empty($_POST['login']) && 
+
+if(!empty($_POST['name']) && !empty($_POST['login']) &&
         !empty($_POST['pwd']) && !empty($_POST['pwd2'])) {
     if((string)$_POST['pwd'] == (string)$_POST['pwd2']) {
         $retour = $ojnAPI->getApiString('accounts/registerNewAccount?login='.urlencode($_POST['login']).'&username='.urlencode($_POST['name']).'&pass='.$_POST['pwd']);
