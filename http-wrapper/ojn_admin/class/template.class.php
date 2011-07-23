@@ -5,7 +5,7 @@ class ojnTemplate {
 	private $soustitre	= "Configuration";
 	private $Api;
 
-	public function __construct($api) {
+	public function __construct(&$api) {
 		$this->Api=$api;
 	}
 

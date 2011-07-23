@@ -7,7 +7,7 @@ session_start('openJabNab');
 require_once(ROOT_SITE.'class/api.class.php');
 require_once(ROOT_SITE.'class/template.class.php');
 $ojnAPI = new ojnApi();
-$ojnTemplate = new ojnTemplate(&$ojnAPI);
+$ojnTemplate = new ojnTemplate($ojnAPI);
 ob_start(array($ojnTemplate,'display'));
 if(isset($_SESSION['connected']) && !strpos($_SERVER['REQUEST_URI'],"logout")) {
     $logout = 1;
