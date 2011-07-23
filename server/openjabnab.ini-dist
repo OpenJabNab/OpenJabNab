@@ -17,6 +17,7 @@ Bootcode =
 SaveBootcode=false
 AllowAnonymousRegistration=false
 AllowUserManageBunny=false
+AllowUserManageZtamp=false
 SessionTimeout=300
 TTS=acapela
 

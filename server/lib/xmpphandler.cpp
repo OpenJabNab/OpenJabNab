@@ -18,9 +18,9 @@ XmppHandler::XmppHandler(QTcpSocket * s, bool standAlone):pluginManager(PluginMa
 	incomingXmppSocket = s;
 	bunny = 0;
 	currentAuthStep = 0;
-	
+
 	isStandAlone = standAlone;
-	
+
 	// Bunny -> OpenJabNab socket
 	connect(incomingXmppSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
 	incomingXmppSocket->setParent(this);
@@ -68,9 +68,9 @@ void XmppHandler::HandleBunnyXmppMessage()
 {
 	QByteArray data = incomingXmppSocket->readAll();
 	bool handled = false;
+	if(data != " ")
+		NetworkDump::Log("XMPP Bunny", data);
 
-	NetworkDump::Log("XMPP Bunny", data);
-	
 	// Replace OpenJabNab's domain if we are connected to Violet
 	if(!isStandAlone)
 		data.replace(OjnXmppDomain, VioletXmppDomain);
@@ -92,7 +92,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 			return;
 		}
 	}
-	
+
 	// No bunny yet, forward unless we are in standAlone mode
 	if(!bunny)
 	{
@@ -213,7 +213,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 		// Bunny's ping packet, nothing to do
 		handled = true;
 	}
-	
+
 	// If the message wasn't handled, forward it to Violet unless we are in standAlone mode
 	if (!handled)
 	{
@@ -321,7 +321,7 @@ void XmppHandler::WriteToBunny(QByteArray const& d)
 	// Replace Violet's domain
 	QByteArray data = d;
 	data.replace(VioletXmppDomain, OjnXmppDomain);
-	
+
 	incomingXmppSocket->write(data);
 	incomingXmppSocket->flush();
 }

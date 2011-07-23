@@ -13,7 +13,7 @@ class PluginManager;
 class OJN_EXPORT XmppHandler : public QObject
 {
 	Q_OBJECT
-	
+
 public:
 	XmppHandler(QTcpSocket *, bool);
 	void WriteDataToBunny(QByteArray const& p);
@@ -23,7 +23,7 @@ public:
 
 public slots:
 	void Disconnect();
-	
+
 protected:
 	virtual ~XmppHandler() {};
 
@@ -44,9 +44,9 @@ private:
 
 	QByteArray OjnXmppDomain;
 	QByteArray VioletXmppDomain;
-	
+
 	bool isStandAlone;
-	
+
 	static unsigned short msgNb;
 };
 

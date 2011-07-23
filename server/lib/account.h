@@ -124,7 +124,7 @@ inline bool Account::HasZtampAccess(QByteArray const& b) const
 {
 	if(isAdmin)
 		return true;
-	return listOfZtamps.contains(QByteArray::fromHex(b));
+	return listOfZtamps.contains(b);
 }
 
 inline bool Account::HasBunnyAccess(QByteArray const& b) const

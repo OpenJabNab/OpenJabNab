@@ -217,7 +217,7 @@ API_CALL(AccountManager::Api_AddBunny)
 	QString login = hRequest.GetArg("login");
 	if(!account.IsAdmin() && login != account.GetLogin())
 		return new ApiManager::ApiError("Access denied");
-		
+
 	if(!listOfAccountsByName.contains(login))
 		return new ApiManager::ApiError(QString("Account '%1' doesn't exist").arg(hRequest.GetArg("login")));
 	QString bunnyid = hRequest.GetArg("bunnyid");
