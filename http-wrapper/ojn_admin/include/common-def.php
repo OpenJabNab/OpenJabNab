@@ -21,7 +21,6 @@ if(isset($_SESSION['token']) && !strpos($_SERVER['REQUEST_URI'],"logout")) {
 	if(!$Infos['isValid'])
 		header('Location: index.php?logout');
 }
-
 $ojnTemplate->setUInfos($Infos);
 ob_start(array($ojnTemplate,'display'));
 ?>
