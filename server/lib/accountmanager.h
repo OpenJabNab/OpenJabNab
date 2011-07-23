@@ -48,6 +48,9 @@ private:
     API_CALL(Api_RemoveZtamp);
 	API_CALL(Api_SetToken);
 	API_CALL(Api_GetUserInfos);
+	API_CALL(Api_GetUserlist);
+	API_CALL(Api_GetConnectedUsers);
+	API_CALL(Api_GetListOfAdmins);
 };
 
 inline void AccountManager::Init()

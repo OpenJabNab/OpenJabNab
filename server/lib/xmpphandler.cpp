@@ -68,9 +68,12 @@ void XmppHandler::HandleBunnyXmppMessage()
 {
 	QByteArray data = incomingXmppSocket->readAll();
 	bool handled = false;
-	if(data != " ")
-		NetworkDump::Log("XMPP Bunny", data);
-
+	if(data != " ") {
+		if(bunny)
+			NetworkDump::Log(QString("XMPP Bunny (%1)").arg(QString(bunny->GetID())), data);
+		else
+			NetworkDump::Log("XMPP Bunny", data);
+	}
 	// Replace OpenJabNab's domain if we are connected to Violet
 	if(!isStandAlone)
 		data.replace(OjnXmppDomain, VioletXmppDomain);
@@ -328,7 +331,10 @@ void XmppHandler::WriteToBunny(QByteArray const& d)
 
 void XmppHandler::WriteToBunnyAndLog(QByteArray const& d)
 {
-	NetworkDump::Log("XMPP To Bunny", d);
+	if(bunny)
+		NetworkDump::Log(QString("XMPP To Bunny (%1)").arg(QString(bunny->GetID())), d);
+	else
+		NetworkDump::Log("XMPP To Bunny", d);
 	WriteToBunny(d);
 }
 
@@ -344,7 +350,7 @@ void XmppHandler::WriteDataToBunny(QByteArray const& b)
 		msg.append("<packet xmlns='violet:packet' format='1.0' ttl='604800'>");
 		msg.append(b.toBase64());
 		msg.append("</packet></message>");
-		NetworkDump::Log("XMPP To Bunny", msg);
+		NetworkDump::Log(QString("XMPP To Bunny (%1)").arg(QString(bunny->GetID())), msg);
 		WriteToBunny(msg);
 		msgNb++;
 	}

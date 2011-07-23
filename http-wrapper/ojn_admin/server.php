@@ -139,6 +139,7 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 <?php } ?>
 </table>
 </center>
+
 <h1 id="ztamps">Liste des Ztamps</h1>
 <p>Voici la liste des ztamps enregistr&eacute;s sur ce serveur.</p>
 <center>
@@ -162,6 +163,33 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 <?php } ?>
 </table>
 </center>
+
+<h1 id="userlist">Liste des Utilisateurs</h1>
+<p>Voici la liste des comptes enregistr&eacute;s sur ce serveur.</p>
+<center>
+<table style="width: 80%">
+	<tr>
+		<th>Login</th>
+		<th>Username</th>
+		<th>Statut</th>
+	</tr>
+<?php
+	$i = 0;
+	$Users = $ojnAPI->getApiMapped("accounts/GetUserlist?".$ojnAPI->getToken());
+	$Online = $ojnAPI->getApiList("accounts/GetConnectedUsers?".$ojnAPI->getToken());
+	$Admins = $ojnAPI->getApiList("accounts/GetListOfAdmins?".$ojnAPI->getToken());
+    if(!empty($Users))
+	foreach($Users as $l=>$name){
+?>
+	<tr<?php echo $i++ % 2 ? " class='l2'" : "" ?>>
+		<td width="20%" <?php echo in_array($l,$Admins) ? 'style="font-weight:bold;"' :''; ?>><?php echo $l; ?></td>
+		<td><?php echo $name; ?></td>
+		<td width="20%"><?php echo in_array($l,$Online) ? "C":"D&eacute;c"; ?>onnect&eacute;</td>
+	</tr>
+<?php } ?>
+</table>
+</center>
+
 <?php
 require_once 'include/append.php'
 ?>

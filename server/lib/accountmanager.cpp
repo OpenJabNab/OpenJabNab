@@ -160,6 +160,9 @@ void AccountManager::InitApiCalls()
 	DECLARE_API_CALL("removeZtamp(login,zid)", &AccountManager::Api_RemoveZtamp);
 	DECLARE_API_CALL("settoken(tk)", &AccountManager::Api_SetToken);
 	DECLARE_API_CALL("infos(user)", &AccountManager::Api_GetUserInfos);
+	DECLARE_API_CALL("GetUserlist()", &AccountManager::Api_GetUserlist);
+	DECLARE_API_CALL("GetConnectedUsers()", &AccountManager::Api_GetConnectedUsers);
+	DECLARE_API_CALL("GetListOfAdmins()", &AccountManager::Api_GetListOfAdmins);
 }
 
 API_CALL(AccountManager::Api_Auth)
@@ -309,4 +312,43 @@ API_CALL(AccountManager::Api_GetUserInfos)
 	list.insert("token",QString(ac->GetToken()));
 	list.insert("isAdmin",ac->IsAdmin());
 	return new ApiManager::ApiMappedList(list);
+}
+
+API_CALL(AccountManager::Api_GetUserlist)
+{
+	Q_UNUSED(hRequest);
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	QMap<QString, QVariant> list;
+	foreach (Account* a, listOfAccounts)
+		list.insert(a->GetLogin(),a->GetUsername());
+
+	return new ApiManager::ApiMappedList(list);
+}
+
+API_CALL(AccountManager::Api_GetConnectedUsers)
+{
+	Q_UNUSED(hRequest);
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	QList<QString> list;
+	foreach (Account* a, listOfAccounts)
+		if(listOfTokens.contains(a->GetToken()))
+			list.append(a->GetLogin());
+	return new ApiManager::ApiList(list);
+}
+
+API_CALL(AccountManager::Api_GetListOfAdmins)
+{
+	Q_UNUSED(hRequest);
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	QList<QString> list;
+	foreach (Account* a, listOfAccounts)
+		if(a->IsAdmin())
+			list.append(a->GetLogin());
+	return new ApiManager::ApiList(list);
 }
