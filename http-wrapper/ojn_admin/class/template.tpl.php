@@ -16,8 +16,8 @@
     <div id="header">
       <div class="superHeader">
         <span>Liens directs:</span>
-        <a href="http://ojnwiki.psnet.fr/" title="openJabNab Wiki">openJabNab</a> |
-        <a href="http://www.nabaztag.com/fr/index.php" title="Nabaztag">Nabaztag</a>
+        <a href="http://ojnwiki.psnet.fr/" title="openJabNab Wiki">Wiki openJabNab</a> |
+        <a href="http://freenabaztag.com/" title="Annuaire des nabaztags">Annuaire openJabNab</a>
       </div>
 
       <div class="midHeader">
