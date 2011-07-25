@@ -159,6 +159,7 @@ void AccountManager::InitApiCalls()
 	DECLARE_API_CALL("removeBunny(login,bunnyid)", &AccountManager::Api_RemoveBunny);
 	DECLARE_API_CALL("removeZtamp(login,zid)", &AccountManager::Api_RemoveZtamp);
 	DECLARE_API_CALL("settoken(tk)", &AccountManager::Api_SetToken);
+	DECLARE_API_CALL("setadmin(user)", &AccountManager::Api_SetAdmin);
 	DECLARE_API_CALL("infos(user)", &AccountManager::Api_GetUserInfos);
 	DECLARE_API_CALL("GetUserlist()", &AccountManager::Api_GetUserlist);
 	DECLARE_API_CALL("GetConnectedUsers()", &AccountManager::Api_GetConnectedUsers);
@@ -351,4 +352,19 @@ API_CALL(AccountManager::Api_GetListOfAdmins)
 		if(a->IsAdmin())
 			list.append(a->GetLogin());
 	return new ApiManager::ApiList(list);
+}
+
+API_CALL(AccountManager::Api_SetAdmin)
+{
+	QString login = hRequest.GetArg("user");
+
+	if(login == "" || !account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	/* Get User */
+	Account *ac = listOfAccountsByName.value(login.toAscii());
+	if(ac == NULL)
+		return new ApiManager::ApiError("Login not found.");
+	ac->setAdmin();
+	return new ApiManager::ApiOk(QString("user '%1' is now admin").arg(login));
 }
