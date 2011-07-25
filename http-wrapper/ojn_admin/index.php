@@ -18,8 +18,25 @@ if(!empty($_POST['login']) && !empty($_POST['password'])) {
 	if(!strpos($r,"AD_")) {
 		$_SESSION['login'] = $_POST['login'];
 		$ojnAPI->setToken($r);
+	} else {
+		$_SESSION['message']['error'] = "Bad authentification.";
 	}
+	session_write_close();
 	header("Location: index.php");
+}
+?>
+<?php
+if(isset($_SESSION['message']) && empty($_GET)) {
+	if(isset($_SESSION['message']['ok'])) { ?>
+	<div class="ok_msg">
+	<?php	echo $_SESSION['message']['ok'];
+	} else { ?>
+	<div class="error_msg">
+	<?php	echo $_SESSION['message']['error'];
+	}
+	if(empty($_GET))
+		unset($_SESSION['message']);
+	echo "</div>";
 }
 ?>
 <div class="three_cols">
