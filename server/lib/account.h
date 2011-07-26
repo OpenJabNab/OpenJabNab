@@ -22,6 +22,7 @@ public:
 	static void Init() { InitApiCalls(); }
 
 	QByteArray const& GetPasswordHash() const;
+	void SetPassword(QByteArray const& p);
 	QString const& GetLogin() const;
 	QString const& GetUsername() const;
 	QByteArray const& GetToken() const;
@@ -83,6 +84,10 @@ inline QList<QByteArray> const& Account::GetZtampsList() const {
 inline QByteArray const& Account::GetPasswordHash() const
 {
 	return passwordHash;
+}
+
+inline void Account::SetPassword(QByteArray const& p) {
+	passwordHash = p;
 }
 
 inline QString const& Account::GetLogin() const

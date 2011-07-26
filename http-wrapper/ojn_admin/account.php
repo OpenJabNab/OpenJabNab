@@ -27,11 +27,8 @@ if(!empty($_POST['zid_rm'])) {
 if(!empty($_POST['npwd']) && !empty($_POST['npwd2'])) {
     $r = 1;
     if($_POST['npwd'] == $_POST['npwd2']) {
-         $r = $ojnAPI->getApiString('accounts/changePassword?pass='.$_POST['npwd'].'&'.$ojnAPI->getToken());
-         if(isset($r['value']))
-            $_SESSION['message'] = (strstr($r['value'],'changed') ? '' : 'Error : ').$r['value'];
-         else
-            $_SESSION['message'] = 'Error : API error.  Should be fixed soon...';
+        $r = $ojnAPI->getApiString('accounts/changePassword?login='.$_SESSION['login'].'&pass='.$_POST['npwd'].'&'.$ojnAPI->getToken());
+		$_SESSION['message'] = (isset($r['ok']) ? $r['ok'] : "Error : ".$r['error']);
     } else
         $_SESSION['message'] = "Passwords mismatch. Try again ;)";
 }

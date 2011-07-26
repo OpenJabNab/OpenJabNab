@@ -153,7 +153,7 @@ QByteArray AccountManager::GetToken(QString const& login, QByteArray const& hash
 void AccountManager::InitApiCalls()
 {
 	DECLARE_API_CALL("auth(login,pass)", &AccountManager::Api_Auth);
-	DECLARE_API_CALL("changePassword(pass)", &AccountManager::Api_ChangePasswd);
+	DECLARE_API_CALL("changePassword(login,pass)", &AccountManager::Api_ChangePasswd);
 	DECLARE_API_CALL("registerNewAccount(login,username,pass)", &AccountManager::Api_RegisterNewAccount);
 	DECLARE_API_CALL("addBunny(login,bunnyid)", &AccountManager::Api_AddBunny);
 	DECLARE_API_CALL("removeBunny(login,bunnyid)", &AccountManager::Api_RemoveBunny);
@@ -180,17 +180,20 @@ API_CALL(AccountManager::Api_Auth)
 
 API_CALL(AccountManager::Api_ChangePasswd)
 {
-	QHash<QString, Account *>::iterator it = listOfAccountsByName.find(account.GetLogin());
-	if(it != listOfAccountsByName.end())
-	{
-		it.value()->passwordHash = QByteArray::fromHex(hRequest.GetArg("pass").toAscii());
-		SaveAccounts();
-		LogInfo(QString("Password change for user '%1'").arg(hRequest.GetArg("login")));
-		return new ApiManager::ApiString("Password changed");
-	}
+	QString login = hRequest.GetArg("login");
+	QString pwd = hRequest.GetArg("pass");
+	LogWarning(QString("Login: %1 Pwd: %2 user %3").arg(login,pwd,account.GetLogin()));
+	if(login == "" || pwd == "" || (!account.IsAdmin() && login != account.GetLogin()))
+		return new ApiManager::ApiError("Access denied");
 
-	LogError("Account not found");
-	return new ApiManager::ApiError("Access denied");
+	Account *ac = listOfAccountsByName.value(login.toAscii());
+	if(ac == NULL)
+		return new ApiManager::ApiError("Login not found.");
+
+	ac->SetPassword(QCryptographicHash::hash(pwd.toAscii(), QCryptographicHash::Md5));
+	LogInfo(QString("Password changed for user '%1'").arg(login));
+	SaveAccounts();
+	return new ApiManager::ApiOk("Password changed");
 }
 
 API_CALL(AccountManager::Api_RegisterNewAccount)
