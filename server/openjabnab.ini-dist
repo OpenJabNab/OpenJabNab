@@ -2,19 +2,16 @@
 httpListener = true
 httpApi = true
 httpVioletApi = true
-httpViolet = true
 xmppListener = true
 RealHttpRoot = /var/www/http-wrapper/ojn_local/
 HttpRoot = ojn_local
 HttpPluginsFolder = plugins
-StandAlone = false
+StandAlone = true
 StandAloneWelcome = false
-StandAloneAuthBypass=false
-StandAloneAuthBypassBunny=
-StandAloneUseLocalBootcode=true
-ProxyUseLocalBootcode=false
-Bootcode = 
-SaveBootcode=false
+StandAloneAuthBypass = false
+StandAloneAuthBypassBunny =
+Bootcode = bootc
+StandAloneUseLocalBootcode = true
 AllowAnonymousRegistration=false
 AllowUserManageBunny=false
 AllowUserManageZtamp=false
@@ -22,6 +19,9 @@ SessionTimeout=300
 TTS=acapela
 MaxNumberOfBunnies=64
 MaxBurstNumberOfBunnies=72
+httpViolet = true
+SaveBootcode=false
+ProxyUseLocalBootcode=false
 
 [DefaultVioletServers]
 BootServer=r.nabaztag.com
@@ -33,9 +33,8 @@ XmppServer=rhoen.violet.net
 [OpenJabNabServers]
 PingServer=my.domain.com
 BroadServer=my.domain.com
-ListeningHttpPort=8080
 XmppServer=my.domain.com
-XmppPort=5222
+ListeningHttpPort=8080
 
 [Log]
 LogFile=openjabnab.log
