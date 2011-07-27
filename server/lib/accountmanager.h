@@ -3,6 +3,7 @@
 
 #include <QDateTime>
 #include <QList>
+#include <QDir>
 #include <QHash>
 #include "global.h"
 #include "account.h"
@@ -35,6 +36,7 @@ private:
 	void LoadAccounts();
 	void SaveAccounts();
 	static void InitApiCalls();
+	QDir accountsDir;
 	QList<Account *> listOfAccounts;
 	QHash<QString, Account *> listOfAccountsByName;
 	QHash<QByteArray, TokenData> listOfTokens;
