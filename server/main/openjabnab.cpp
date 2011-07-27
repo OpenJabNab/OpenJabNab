@@ -73,6 +73,7 @@ OpenJabNab::~OpenJabNab()
 	PluginManager::Close();
 	ZtampManager::Close();
 	BunnyManager::Close();
+	TTSManager::Close();
 	GlobalSettings::Close();
 }
 
