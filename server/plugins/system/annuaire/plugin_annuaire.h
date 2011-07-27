@@ -2,7 +2,7 @@
 #define _PLUGINANNUAIRE_H_
 
 #include "plugininterface.h"
-	
+
 class PluginAnnuaire : public PluginInterface
 {
 	Q_OBJECT
@@ -13,6 +13,11 @@ public:
 	virtual ~PluginAnnuaire();
 
 	void OnBunnyConnect(Bunny *);
+
+	void InitApiCalls();
+	PLUGIN_API_CALL(Api_setURL);
+	PLUGIN_API_CALL(Api_getURL);
+
 };
 
 #endif
