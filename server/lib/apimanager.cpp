@@ -74,6 +74,10 @@ ApiManager::ApiAnswer * ApiManager::ProcessGlobalApiCall(Account const& account,
 	{
 		return new ApiManager::ApiString("OpenJabNab v0.01 - (Build " __DATE__ " / " __TIME__ ")");
 	}
+	else if(request == "ping")
+	{
+		return new ApiManager::ApiString(QString::number(BunnyManager::Instance().GetConnectedBunnyCount()) + "/" + QString::number(GlobalSettings::GetInt("Config/MaxNumberOfBunnies", 64)) + "/" + QString::number(GlobalSettings::GetInt("Config/MaxBurstNumberOfBunnies", GlobalSettings::GetInt("Config/MaxNumberOfBunnies", 64))));
+	}
 	else if (request == "stats")
 	{
 		int bunnies = BunnyManager::Instance().GetBunnyCount();

@@ -20,6 +20,8 @@ AllowUserManageBunny=false
 AllowUserManageZtamp=false
 SessionTimeout=300
 TTS=acapela
+MaxNumberOfBunnies=64
+MaxBurstNumberOfBunnies=72
 
 [DefaultVioletServers]
 BootServer=r.nabaztag.com
