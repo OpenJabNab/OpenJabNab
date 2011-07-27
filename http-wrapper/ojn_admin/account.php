@@ -4,14 +4,17 @@ if(!isset($_SESSION['token']))
 	header('Location: index.php');
 $r= false;
 if(!empty($_POST['bname']) && !empty($_POST['bmac'])) {
-$mac = str_replace(':','',strtolower($_POST['bmac']));
-    $r = $ojnAPI->getApiString('accounts/addBunny?login='.urlencode($_SESSION['login']).'&bunnyid='.$mac.'&'.$ojnAPI->getToken());
-    if(isset($r['ok'])) {
-        $_SESSION['message'] = $r['ok'];
-        $r = $ojnAPI->getApiString("bunny/".$mac."/setBunnyName?name=".urlencode($_POST['bname'])."&".$ojnAPI->getToken());
-        $_SESSION['message'] .= '<br />'. (isset($r['ok']) ? $r['ok'] : "Error : ".$r['error']);
-    } else
-        $_SESSION['message'] = "Error : ".$r['error'];
+	$mac = str_replace(':','',strtolower($_POST['bmac']));
+	if(strlen($mac) == 12 && ctype_xdigit($mac)) {
+		$r = $ojnAPI->getApiString('accounts/addBunny?login='.urlencode($_SESSION['login']).'&bunnyid='.$mac.'&'.$ojnAPI->getToken());
+		if(isset($r['ok'])) {
+			$_SESSION['message'] = $r['ok'];
+			$r = $ojnAPI->getApiString("bunny/".$mac."/setBunnyName?name=".urlencode($_POST['bname'])."&".$ojnAPI->getToken());
+			$_SESSION['message'] .= '<br />'. (isset($r['ok']) ? $r['ok'] : "Error : ".$r['error']);
+		} else
+			$_SESSION['message'] = "Error : ".$r['error'];
+	} else
+		$_SESSION['message'] = "Error : Please enter a valid MAC Address";
 }
 
 if(!empty($_POST['bmac_rm'])) {
