@@ -10,6 +10,9 @@ if(!empty($_GET['b'])) {
 } elseif(isset($_GET['resetpwd'])) {
 	$_SESSION['message'] = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/resetPassword?".$ojnAPI->getToken());
 	header('Location: bunny.php');
+} elseif(isset($_GET['disconnect'])) {
+	$_SESSION['message'] = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/disconnect?".$ojnAPI->getToken());
+	header('Location: bunny.php');
 } elseif(isset($_GET['resetown'])) {
 	$_SESSION['message'] = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/resetOwner?".$ojnAPI->getToken());
 	header('Location: bunny.php');
@@ -97,6 +100,9 @@ VioletAPIToken: <?php echo $Token ; ?><br />
 VioletAPI: <input type="radio" name="aVAPI" value="enable" <?php echo $Status ? 'checked="checked"' : ''; ?>/> Activer
 <input type="radio" name="aVAPI" value="disable" <?php echo !$Status ? 'checked="checked"' : ''; ?> /> D&eacute;sactiver
 <input type="submit" value="Enregister">
+</form>
+<form method="get">
+<input name="disconnect" type="submit" value="Deconnecter le lapin">
 </form>
 </fieldset>
 <?php if($Infos['isAdmin']): ?>

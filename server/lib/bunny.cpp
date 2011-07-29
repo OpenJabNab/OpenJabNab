@@ -693,6 +693,8 @@ void Bunny::InitApiCalls()
 	DECLARE_API_CALL("resetPassword()", &Bunny::Api_ResetPassword);
 	DECLARE_API_CALL("resetOwner()", &Bunny::Api_ResetOwner);
 
+	DECLARE_API_CALL("disconnect()", &Bunny::Api_Disconnect);
+
 	DECLARE_API_CALL("enableVAPI()", &Bunny::Api_enableVApi);
 	DECLARE_API_CALL("disableVAPI()", &Bunny::Api_disableVApi);
 	DECLARE_API_CALL("getVAPIStatus()", &Bunny::Api_getVApiStatus);
@@ -861,6 +863,20 @@ API_CALL(Bunny::Api_ResetOwner)
 
 	RemoveGlobalSetting("OwnerAccount");
 	return new ApiManager::ApiOk("Owner cleared");
+}
+
+API_CALL(Bunny::Api_Disconnect)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+
+        if(xmppHandler)
+        {
+                xmppHandler->Disconnect();
+                xmppHandler = 0;
+        }
+
+	return new ApiManager::ApiOk("Connexion closed");
 }
 
 API_CALL(Bunny::Api_enableVApi)
