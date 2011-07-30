@@ -16,7 +16,7 @@ Cron::Cron() {
 void Cron::OnTimer()
 {
 	unsigned int now = QDateTime::currentDateTime().toTime_t();
-	
+
 	// Find elements to run
 	while(!CronElements.isEmpty() && (CronElements.first().next_run <= now))
 	{
@@ -66,7 +66,7 @@ unsigned int Cron::Register(PluginInterface * p, unsigned int interval, unsigned
 		LogError("Cron : pointer is null !");
 		return 0;
 	}
-	
+
 	Cron & theCron = Instance();
 	unsigned id = ++theCron.lastGivenID;
 	if(!id)
@@ -87,7 +87,7 @@ unsigned int Cron::Register(PluginInterface * p, unsigned int interval, unsigned
 	time.setTime(QTime(offsetH, offsetM));
 	while(time < now)
 		time = time.addSecs(interval*60);
-	
+
 	e.next_run = time.toTime_t();
 	theCron.AddCron(e);
 
@@ -102,7 +102,7 @@ unsigned int Cron::RegisterOneShot(PluginInterface * p, unsigned int interval, B
 		LogError("Cron : pointer is null !");
 		return 0;
 	}
-	
+
 	Cron & theCron = Instance();
 	unsigned id = ++theCron.lastGivenID;
 	if(!id)
@@ -118,7 +118,7 @@ unsigned int Cron::RegisterOneShot(PluginInterface * p, unsigned int interval, B
 
 	// Compute next run
 	QDateTime time = QDateTime::currentDateTime();
-	
+
 	e.next_run = time.toTime_t() + (interval*60);
 	time = time.addSecs(interval*60);
 	theCron.AddCron(e);
@@ -134,7 +134,7 @@ unsigned int Cron::RegisterDaily(PluginInterface * p, QTime const& time, Bunny *
 		LogError("Cron : pointer is null !");
 		return 0;
 	}
-	
+
 	Cron & theCron = Instance();
 	unsigned id = ++theCron.lastGivenID;
 	if(!id)
@@ -154,7 +154,7 @@ unsigned int Cron::RegisterDaily(PluginInterface * p, QTime const& time, Bunny *
 	nextTime.setTime(time);
 	if(nextTime < now)
 		nextTime = nextTime.addDays(1); // Tomorrow
-	
+
 	e.next_run = nextTime.toTime_t();
 	theCron.AddCron(e);
 
@@ -169,7 +169,7 @@ unsigned int Cron::RegisterWeekly(PluginInterface * p, Qt::DayOfWeek day, QTime 
 		LogError("Cron : pointer is null !");
 		return 0;
 	}
-	
+
 	Cron & theCron = Instance();
 	unsigned id = ++theCron.lastGivenID;
 	if(!id)
@@ -207,8 +207,8 @@ void Cron::Unregister(PluginInterface * p, unsigned int id)
 		CronElement const& e = i.next();
 		if(e.plugin == p && e.id == id)
 		{
-			i.remove();
 			LogInfo(QString("Cron Unregister : %1 - next %2").arg(p->GetVisualName(),QDateTime::fromTime_t(e.next_run).toString()));
+			i.remove();
 		}
 	}
 }
@@ -222,8 +222,8 @@ void Cron::UnregisterAllForBunny(PluginInterface * p, Bunny * b)
 		CronElement const& e = i.next();
 		if(e.plugin == p && e.bunny == b)
 		{
-			i.remove();
 			LogInfo(QString("Cron Unregister : %1 - next %2").arg(p->GetVisualName(),QDateTime::fromTime_t(e.next_run).toString()));
+			i.remove();
 		}
 	}
 }

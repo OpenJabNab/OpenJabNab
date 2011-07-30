@@ -166,12 +166,12 @@ ApiManager::ApiAnswer * ApiManager::ProcessBunnyApiCall(Account const& account, 
 ApiManager::ApiAnswer * ApiManager::ProcessBunnyVioletApiCall(QString const& request, HTTPRequest const& hRequest)
 {
 	QStringList list = QString(request).split('/', QString::SkipEmptyParts);
-	
+
 	if(list.size() < 3)
 		return new ApiManager::ApiError(QString("Malformed Bunny Api Call : %1").arg(hRequest.toString()));
-		
+
 	QString serial = hRequest.GetArg("sn");
-	
+
 	Bunny * b = BunnyManager::GetBunny(serial.toAscii());
 
 	if(list.size() == 3)

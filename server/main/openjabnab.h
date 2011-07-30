@@ -9,7 +9,7 @@
 class OpenJabNab : public QCoreApplication
 {
 	Q_OBJECT
-	
+
 public:
 	OpenJabNab(int argc, char ** argv);
 	void Close();

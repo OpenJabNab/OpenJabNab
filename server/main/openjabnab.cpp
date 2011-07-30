@@ -68,16 +68,16 @@ void OpenJabNab::Close()
 
 OpenJabNab::~OpenJabNab()
 {
-	LogInfo("-- OpenJabNab Close --");
 	xmppListener->close();
 	httpListener->close();
 	NetworkDump::Close();
-	AccountManager::Close();
-	PluginManager::Close();
 	ZtampManager::Close();
 	BunnyManager::Close();
 	TTSManager::Close();
+	PluginManager::Close();
+	AccountManager::Close();
 	GlobalSettings::Close();
+	LogInfo("-- OpenJabNab Close --");
 }
 
 void OpenJabNab::NewHTTPConnection()

@@ -72,7 +72,7 @@ void HttpHandler::HandleBunnyHTTPRequest()
 		{
 			if (uri.startsWith("/vl/sendMailXMPP.jsp"))
 			{
-				
+
 				LogWarning("Problem with the bunny, he's calling sendMailXMPP.jsp !");
 				request.reply = "Not Allowed !";
 			}
@@ -97,8 +97,7 @@ void HttpHandler::HandleBunnyHTTPRequest()
 		incomingHttpSocket->write("Request was : <br />");
 		incomingHttpSocket->write(request.toString().toAscii());
 	}
-	incomingHttpSocket->close();
-	deleteLater();
+	Disconnect();
 }
 
 void HttpHandler::Disconnect()

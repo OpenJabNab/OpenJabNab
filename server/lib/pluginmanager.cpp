@@ -27,11 +27,12 @@ void PluginManager::UnloadPlugins()
 {
 	foreach(PluginInterface * p, listOfPlugins)
 		delete p;
+
 	foreach(QPluginLoader * l, listOfPluginsLoader.values())
 	{
-		l->unload();
 		delete l;
 	}
+
 }
 
 int PluginManager::GetEnabledPluginCount()
@@ -112,8 +113,10 @@ bool PluginManager::UnloadPlugin(QString const& name)
 	if(listOfPluginsByName.contains(name))
 	{
 		PluginInterface * p = listOfPluginsByName.value(name);
-		if(p->GetType() == PluginInterface::BunnyPlugin || p->GetType() == PluginInterface::BunnyZtampPlugin || p->GetType() == PluginInterface::ZtampPlugin)
+		if(p->GetType() == PluginInterface::BunnyPlugin || p->GetType() == PluginInterface::BunnyZtampPlugin)
 			BunnyManager::PluginUnloaded(p);
+		if(p->GetType() == PluginInterface::ZtampPlugin || p->GetType() == PluginInterface::BunnyZtampPlugin)
+			ZtampManager::PluginUnloaded(p);
 		QString fileName = listOfPluginsFileName.value(p);
 		QPluginLoader * loader = listOfPluginsLoader.value(p);
 		listOfPluginsByFileName.remove(fileName);

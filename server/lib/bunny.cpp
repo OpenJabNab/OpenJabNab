@@ -750,7 +750,7 @@ API_CALL(Bunny::Api_SetSingleClickPlugin)
 	{
 		RemoveGlobalSetting(SINGLE_CLICK_PLUGIN_SETTINGNAME);
 		singleClickPlugin = NULL;
-		return new ApiManager::ApiOk(QString("Removed preferred double click plugin"));
+		return new ApiManager::ApiOk(QString("Removed preferred single click plugin"));
 	}
 
 	PluginInterface * plugin = PluginManager::Instance().GetPluginByName(hRequest.GetArg("name"));

@@ -84,13 +84,13 @@ Nom : <input type="text" name="bunny_name" value="<?php echo $_SESSION['bunny_na
 Plugin simple click : <select name="single">
 <option value="none">Aucun</option>
 <?php foreach($actifs as $plugin) { ?>
-<option value="<?=$plugin ?>" <?php echo ($plugin == $clicks[0] ? ' selected="selected"' : '') ?>><?php echo $plugins[$plugin]; ?></option>
+<option value="<?php echo $plugin; ?>" <?php echo ($plugin == $clicks[0] ? ' selected="selected"' : '') ?>><?php echo $plugins[$plugin]; ?></option>
 <?php } ?>
 </select><br />
 Plugin double click : <select name="double">
 <option value="none">Aucun</option>
 <?php foreach($actifs as $plugin) { ?>
-<option value="<?=$plugin ?>" <?php echo ($plugin == $clicks[1] ? ' selected="selected"' : '') ?>><?php echo $plugins[$plugin]; ?></option>
+<option value="<?php echo $plugin; ?>" <?php echo ($plugin == $clicks[1] ? ' selected="selected"' : '') ?>><?php echo $plugins[$plugin]; ?></option>
 <?php } ?>
 </select><br />
 <input type="submit" value="Enregistrer">

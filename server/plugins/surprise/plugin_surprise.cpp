@@ -18,12 +18,13 @@ void PluginSurprise::createCron(Bunny * b)
 	unsigned int frequency = b->GetPluginSetting(GetName(), "frequency", (uint)0).toUInt();
 	if(!frequency)
 	{
-		LogError(QString("Bunny '%1' has invalid frequency '%2'").arg(b->GetID(), QString::number(frequency)));
+		// Stable. Warning Removed.
+		LogDebug(QString("Bunny '%1' has invalid frequency '%2'").arg(b->GetID(), QString::number(frequency)));
 		return;
 	}
 
 	// Register cron
-	Cron::RegisterOneShot(this, qrand() % frequency, b, QVariant(), NULL);
+	Cron::RegisterOneShot(this, qrand()/frequency, b, QVariant(), NULL);
 }
 
 void PluginSurprise::OnBunnyConnect(Bunny * b)

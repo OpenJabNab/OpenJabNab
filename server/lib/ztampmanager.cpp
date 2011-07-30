@@ -6,7 +6,15 @@
 ZtampManager::ZtampManager()
 {
 	ztampsDir = QCoreApplication::applicationDirPath();
-	ztampsDir.cd("ztamps");
+	if (!ztampsDir.cd("ztamps"))
+	{
+		if (!ztampsDir.mkdir("ztamps"))
+		{
+			LogError("Unable to create ztamps directory !\n");
+			exit(-1);
+		}
+		ztampsDir.cd("ztamps");
+	}
 }
 
 

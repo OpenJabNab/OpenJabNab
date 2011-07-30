@@ -196,7 +196,7 @@ void Ztamp::PluginUnloaded(PluginInterface * p)
 	{
 		listOfPluginsPtr.removeAll(p);
 		if(p->GetEnable())
-			p->OnZtampConnect(this);
+			p->OnZtampDisconnect(this);
 	}
 }
 

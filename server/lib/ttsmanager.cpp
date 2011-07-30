@@ -11,17 +11,17 @@
 #include "log.h"
 #include "settings.h"
 #include "ttsmanager.h"
-
-QStringList TTSManager::voiceList;
-QDir TTSManager::ttsFolder;
-QString TTSManager::ttsHTTPUrl;
-
+#include <cstdlib>
 
 TTSManager::TTSManager()
 {
-        // Load all tts
-        ttsDir = QCoreApplication::applicationDirPath();
-        ttsDir.cd("tts");
+		// Load all tts
+		ttsDir = QCoreApplication::applicationDirPath();
+		if (!ttsDir.cd("tts"))
+		{
+			LogError("Unable to open tts directory !\n");
+			exit(-1);
+		}
 }
 
 TTSManager & TTSManager::Instance()
@@ -33,7 +33,8 @@ TTSManager & TTSManager::Instance()
 void TTSManager::UnloadTTSs()
 {
         foreach(TTSInterface * p, listOfTTSs)
-                delete p;
+			delete p;
+
         foreach(QPluginLoader * l, listOfTTSsLoader.values())
         {
                 l->unload();
@@ -44,8 +45,11 @@ void TTSManager::UnloadTTSs()
 void TTSManager::LoadTTSs()
 {
         LogInfo(QString("Finding tts in : %1").arg(ttsDir.path()));
-        foreach (QString fileName, ttsDir.entryList(QDir::Files))
-                LoadTTS(fileName);
+		QStringList filters;
+		filters << "*.so";
+		ttsDir.setNameFilters(filters);
+		foreach (QFileInfo file, ttsDir.entryInfoList(QDir::Files))
+			LoadTTS(file.fileName().toAscii());
 }
 
 bool TTSManager::LoadTTS(QString const& fileName)

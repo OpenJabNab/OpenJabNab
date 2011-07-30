@@ -11,7 +11,7 @@ class VioletApiManager;
 class OJN_EXPORT HttpHandler : public QObject
 {
 	Q_OBJECT
-	
+
 public:
 	HttpHandler(QTcpSocket *, bool, bool, bool, bool);
 	virtual ~HttpHandler();
@@ -21,7 +21,7 @@ public slots:
 
 private slots:
 	void ReceiveData();
-	
+
 private:
     void HandleBunnyHTTPRequest();
 	QTcpSocket * incomingHttpSocket;
