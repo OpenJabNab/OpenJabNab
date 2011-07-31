@@ -51,9 +51,9 @@ void PluginSleep::OnInitPacket(const Bunny * b, AmbientPacket &, SleepPacket & s
 		return;
 
 	QTime currentTime = QTime::currentTime();
-	int day = QDate::currentDate().dayOfWeek();
+	int day = QDate::currentDate().dayOfWeek()-1;
 
-	if (wakeupList.at(day-1).toTime() <= currentTime && currentTime < sleepList.at(day-1).toTime())
+	if (wakeupList.at(day).toTime() <= currentTime && currentTime < sleepList.at(day).toTime())
 		s.SetState(SleepPacket::Wake_Up);
 	else
 		s.SetState(SleepPacket::Sleep);
@@ -69,7 +69,7 @@ void PluginSleep::UpdateState(Bunny * b)
 		return;
 
 	QTime currentTime = QTime::currentTime();
-	int day = QDate::currentDate().dayOfWeek();
+	int day = QDate::currentDate().dayOfWeek()-1;
 
 	bool wakeup = (wakeupList.at(day).toTime() <= currentTime && currentTime < sleepList.at(day).toTime());
 
