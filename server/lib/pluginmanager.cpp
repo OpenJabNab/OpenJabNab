@@ -30,6 +30,7 @@ void PluginManager::UnloadPlugins()
 
 	foreach(QPluginLoader * l, listOfPluginsLoader.values())
 	{
+		l->unload();
 		delete l;
 	}
 
