@@ -90,4 +90,3 @@ QByteArray IQ::Reply(Iq_Types newType, QByteArray const& format, QByteArray cons
 
 	return reply;
 }
-

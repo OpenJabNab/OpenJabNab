@@ -28,7 +28,7 @@ QByteArray Choregraphy::GetData()
 	}
 	else
 		t = (tempo / 10);
-	
+
 	QByteArray tmp(4,0); // Allocate size, will be set later
 	// Set Tempo
 	tmp.append((char)0x00);
@@ -76,7 +76,7 @@ bool Choregraphy::Parse(QString chor)
 	if(orders.count() > 1)
 	{
 		SetTempo(orders.at(0).toInt());
-		
+
 		int i = 1;
 		while(i < orders.count())
 		{
@@ -140,4 +140,3 @@ QByteArray Choregraphy::LedAction::GetData()
 	tmp.append((char)0x00);
 	return tmp;
 }
-

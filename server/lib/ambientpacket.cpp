@@ -53,4 +53,3 @@ QByteArray AmbientPacket::GetPrintableData() const
 {
 	return GetHexData();
 }
-

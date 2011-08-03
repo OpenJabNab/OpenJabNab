@@ -74,4 +74,3 @@ template <class T> ApiCallsMap<T> ApiHandler<T>::apiCalls;
 #define API_CALL(FUNC_NAME) ApiManager::ApiAnswer * FUNC_NAME(Account const& account, HTTPRequest const& hRequest)
 #define DECLARE_API_CALL(API_NAME, FUNC_NAME) createApiCall(API_NAME, FUNC_NAME)
 #endif
-

@@ -317,5 +317,3 @@ API_CALL(Ztamp::Api_ResetOwner)
 	RemoveGlobalSetting("OwnerAccount");
 	return new ApiManager::ApiOk("Owner cleared");
 }
-
-
