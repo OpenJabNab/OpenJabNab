@@ -102,6 +102,8 @@ void HttpHandler::HandleBunnyHTTPRequest()
 
 void HttpHandler::Disconnect()
 {
-	incomingHttpSocket->close();
+	incomingHttpSocket->disconnectFromHost();
+	// Delete incomingHttpSocket when it will be disconnected
+	connect(incomingHttpSocket, SIGNAL(disconnected()), incomingHttpSocket, SLOT(deleteLater()));
 	deleteLater();
 }

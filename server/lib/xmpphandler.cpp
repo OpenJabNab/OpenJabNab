@@ -54,6 +54,9 @@ void XmppHandler::Disconnect()
 		bunny->RemoveXmppHandler(this);
 		bunny = 0;
 	}
+
+	delete incomingXmppSocket;
+	delete outgoingXmppSocket;
 	deleteLater();
 }
 
