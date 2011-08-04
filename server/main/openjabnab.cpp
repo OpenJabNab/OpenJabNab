@@ -68,8 +68,14 @@ void OpenJabNab::Close()
 
 OpenJabNab::~OpenJabNab()
 {
-	xmppListener->close();
-	httpListener->close();
+	if(xmppListener)
+	{
+		xmppListener->close();
+	}
+	if(httpListener)
+	{
+		httpListener->close();
+	}
 	NetworkDump::Close();
 	ZtampManager::Close();
 	BunnyManager::Close();
