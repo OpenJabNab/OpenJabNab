@@ -17,7 +17,7 @@ PluginAuth::PluginAuth():PluginAuthInterface("auth", "Manage Authentication proc
 	listOfAuthFunctions.insert("patched", &PatchedAuth);
 
 	// Load authFunction from config
-	currentAuthFunction = listOfAuthFunctions.value(GetSettings("global/authMethod", QString()).toString(), NULL);
+	currentAuthFunction = listOfAuthFunctions.value(GetSettings("global/authMethod", QString("full")).toString(), NULL);
 	if(currentAuthFunction == NULL)
 	{
 		LogError("Bad authentication method or not set. Authentication will not work.");
