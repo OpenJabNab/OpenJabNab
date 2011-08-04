@@ -28,8 +28,6 @@ public:
 	void HttpRequestAfter(HTTPRequest &);
 
 	void XmppBunnyMessage(Bunny *, QByteArray const&);
-	void XmppVioletMessage(Bunny *, QByteArray const&);
-	bool XmppVioletPacketMessage(Bunny *, Packet const& p);
 
 	bool OnClick(Bunny *, PluginInterface::ClickType);
 	bool OnEarsMove(Bunny *, int, int);

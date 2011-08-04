@@ -19,26 +19,6 @@ bool PluginLocate::HttpRequestHandle(HTTPRequest & request)
 		
 		LogInfo(QString("Requesting LOCATE for tag %1").arg(serialnumber));
 		
-		if(GlobalSettings::Get("Config/StandAlone", true) == false)
-		{
-			// Forward request to Violet
-			QByteArray violetAnswer = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BootServer"));
-
-			// Analyse the answer to see if servers has changed
-			QList<QByteArray> lines = violetAnswer.split('\n');
-			foreach(QByteArray line, lines)
-			{
-				if (line.startsWith("ping")) 
-				{}
-				else if (line.startsWith("broad"))
-				{}
-				else if (line.startsWith("xmpp_domain"))
-				{}
-				else
-					if (line.size() != 0)
-						LogError(QString("Unknown locate server : ") + line);
-			}
-		}
 		QString locateString;
 		locateString += QString("ping %1\n").arg(GlobalSettings::GetString("OpenJabNabServers/PingServer"));
 		locateString += QString("broad %1\n").arg(GlobalSettings::GetString("OpenJabNabServers/BroadServer"));

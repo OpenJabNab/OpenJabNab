@@ -13,42 +13,23 @@
 
 unsigned short XmppHandler::msgNb = 0;
 
-XmppHandler::XmppHandler(QTcpSocket * s, bool standAlone):pluginManager(PluginManager::Instance())
+XmppHandler::XmppHandler(QTcpSocket * s):pluginManager(PluginManager::Instance())
 {
 	incomingXmppSocket = s;
 	bunny = 0;
 	currentAuthStep = 0;
 
-	isStandAlone = standAlone;
-
 	// Bunny -> OpenJabNab socket
-	connect(incomingXmppSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
 	incomingXmppSocket->setParent(this);
-
-	// OpenJabNab -> Violet socket
-	if(!isStandAlone)
-	{
-		outgoingXmppSocket = new QTcpSocket(this);
-		outgoingXmppSocket->connectToHost(GlobalSettings::GetString("DefaultVioletServers/XmppServer"), 5222);
-		connect(outgoingXmppSocket, SIGNAL(connected()), this, SLOT(VioletConnected()));
-		connect(outgoingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleVioletXmppMessage()));
-		connect(outgoingXmppSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
-	}
-	else
-	{
-		// Stand alone mode, we can handle bunny messages directly
-		connect(incomingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleBunnyXmppMessage()));
-	}
+	connect(incomingXmppSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
+	connect(incomingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleBunnyXmppMessage()));
 
 	OjnXmppDomain = GlobalSettings::GetString("OpenJabNabServers/XmppServer").toAscii();
-	VioletXmppDomain = GlobalSettings::GetString("DefaultVioletServers/XmppDomain").toAscii();
 }
 
 void XmppHandler::Disconnect()
 {
 	incomingXmppSocket->abort();
-	if(!isStandAlone)
-		outgoingXmppSocket->abort();
 	if(bunny)
 	{
 		bunny->RemoveXmppHandler(this);
@@ -56,13 +37,6 @@ void XmppHandler::Disconnect()
 	}
 
 	deleteLater();
-}
-
-void XmppHandler::VioletConnected()
-{
-	if(incomingXmppSocket->bytesAvailable())
-		HandleBunnyXmppMessage();
-	connect(incomingXmppSocket, SIGNAL(readyRead()), this, SLOT(HandleBunnyXmppMessage()));
 }
 
 void XmppHandler::HandleBunnyXmppMessage()
@@ -75,9 +49,6 @@ void XmppHandler::HandleBunnyXmppMessage()
 		else
 			NetworkDump::Log("XMPP Bunny", data);
 	}
-	// Replace OpenJabNab's domain if we are connected to Violet
-	if(!isStandAlone)
-		data.replace(OjnXmppDomain, VioletXmppDomain);
 
 	// If we don't know which bunny is connected, try to authenticate it
 	if (!bunny || !bunny->IsAuthenticated())
@@ -97,13 +68,10 @@ void XmppHandler::HandleBunnyXmppMessage()
 		}
 	}
 
-	// No bunny yet, forward unless we are in standAlone mode
+	// No bunny yet
 	if(!bunny)
 	{
-		if(!isStandAlone)
-			outgoingXmppSocket->write(data);
-		else
-			LogError(QString("Unable to handle xmpp message : %1").arg(QString(data)));
+		LogError(QString("Unable to handle xmpp message : %1").arg(QString(data)));
 		return;
 	}
 
@@ -155,29 +123,21 @@ void XmppHandler::HandleBunnyXmppMessage()
 			{
 				QByteArray resource = rx.cap(1).toAscii();
 				bunny->SetXmppResource(resource);
-				if(isStandAlone)
-				{
-					QByteArray from = bunny->GetID()+"@"+OjnXmppDomain+"/"+resource;
-					WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%1 %4", "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><jid>"+from+"</jid></bind>"));
-					handled = true;
-				}
+
+				QByteArray from = bunny->GetID()+"@"+OjnXmppDomain+"/"+resource;
+				WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%1 %4", "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><jid>"+from+"</jid></bind>"));
+				handled = true;
 			}
 			else if(iq.Content() == "<session xmlns='urn:ietf:params:xml:ns:xmpp-session'/>")
 			{
-				if(isStandAlone)
-				{
-					WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%4 %3 %2 %1", "<session xmlns='urn:ietf:params:xml:ns:xmpp-session'/>"));
-					handled = true;
-				}
+				WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%4 %3 %2 %1", "<session xmlns='urn:ietf:params:xml:ns:xmpp-session'/>"));
+				handled = true;
 			}
 			else if(iq.Content() == "<query xmlns=\"violet:iq:sources\"><packet xmlns=\"violet:packet\" format=\"1.0\"/></query>")
 			{
-				if(isStandAlone)
-				{
-					QByteArray status = bunny->GetInitPacket();
-					WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%2 %3 %1 %4", "<query xmlns='violet:iq:sources'><packet xmlns='violet:packet' format='1.0' ttl='604800'>"+(status.toBase64())+"</packet></query>"));
-					handled = true;
-				}
+				QByteArray status = bunny->GetInitPacket();
+				WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%2 %3 %1 %4", "<query xmlns='violet:iq:sources'><packet xmlns='violet:packet' format='1.0' ttl='604800'>"+(status.toBase64())+"</packet></query>"));
+				handled = true;
 			}
 			else if(rx.setPattern("<unbind[^>]*><resource>([^<]*)</resource></unbind>"), rx.indexIn(iq.Content()) != -1)
 			{
@@ -186,11 +146,8 @@ void XmppHandler::HandleBunnyXmppMessage()
 					// Boot process finished
 					bunny->Ready();
 				}
-				if(isStandAlone)
-				{
-					WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%1 %4", QByteArray()));
-					handled = true;
-				}
+				WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%1 %4", QByteArray()));
+				handled = true;
 			}
 			else
 			{
@@ -204,129 +161,28 @@ void XmppHandler::HandleBunnyXmppMessage()
 	}
 	else if(rx.setPattern("<presence from='(.*)' id='(.*)'></presence>"), rx.indexIn(data) != -1)
 	{
-		if(isStandAlone)
-		{
-			QByteArray from = rx.cap(1).toAscii();
-			QByteArray id = rx.cap(2).toAscii();
-			WriteToBunnyAndLog("<presence from='"+from+"' to='"+from+"' id='"+id+"'/>");
-			handled = true;
-		}
+		QByteArray from = rx.cap(1).toAscii();
+		QByteArray id = rx.cap(2).toAscii();
+		WriteToBunnyAndLog("<presence from='"+from+"' to='"+from+"' id='"+id+"'/>");
+		handled = true;
 	}
-	else if(data.length() == 1 && isStandAlone)
+	else if(data.length() == 1)
 	{
 		// Bunny's ping packet, nothing to do
 		handled = true;
 	}
 
-	// If the message wasn't handled, forward it to Violet unless we are in standAlone mode
+	// If the message wasn't handled
 	if (!handled)
 	{
-		if(!isStandAlone)
-			outgoingXmppSocket->write(data);
-		else
-			LogError(QString("Unable to handle bunny xmpp message : %1").arg(QString(data)));
+		LogError(QString("Unable to handle bunny xmpp message : %1").arg(QString(data)));
 	}
 }
 
-void XmppHandler::HandleVioletXmppMessage()
-{
-	QByteArray data = outgoingXmppSocket->readAll();
-
-	QList<QByteArray> list = XmlParse(data);
-	foreach(QByteArray msg, list)
-	{
-		NetworkDump::Log("XMPP Violet", msg);
-
-		if(msg.startsWith("</stream:stream>"))
-		{
-			// Disconnect as soon as possible
-			QTimer::singleShot(0, this, SLOT(Disconnect()));
-			return;
-		}
-
-		if(!bunny)
-		{
-			// Send info to all 'system' plugins only and forward
-			pluginManager.XmppVioletMessage(bunny, msg);
-			WriteToBunny(msg);
-			continue;
-		}
-		else
-			bunny->XmppVioletMessage(msg); 	// Send info to all 'system' plugins and bunny's plugins
-
-
-		// Check if the data contains <packet></packet>
-		QRegExp rx("<packet[^>]*format='([^']*)'[^>]*>(.*)</packet>");
-		if (rx.indexIn(msg) != -1)
-		{
-			bool drop = false;
-			// Try to decode it
-			try
-			{
-				if (rx.cap(1) != "1.0")
-					throw QString("Unknown packet format : %1").arg(QString(msg));
-
-				try
-				{
-					QList<Packet*> list = Packet::Parse(QByteArray::fromBase64(rx.cap(2).toAscii()));
-					QList<Packet*>::iterator it = list.begin();
-					while(it != list.end())
-					{
-						NetworkDump::Log("XMPP Violet Packet", (*it)->GetPrintableData());
-						if (bunny->XmppVioletPacketMessage(**it))
-						{
-							delete *it; // Packed used and dropped
-							it = list.erase(it);
-							drop = true; // List changed
-						}
-						else
-							it++;
-					}
-					if(drop) // If list changed
-					{
-						if(list.count()) // If there is still one packet to send
-						{
-							QByteArray data = Packet::GetData(list);
-							NetworkDump::Log("XMPP Violet PacketSent", data);
-							msg.replace(rx.cap(2), data.toBase64());
-							drop = false;
-						}
-						else
-							drop = true; // Nothing to send, drop all
-					}
-					// Free Packets
-					foreach(Packet * p, list)
-						delete p;
-				}
-				catch (QString const& errorMsg)
-				{
-					LogWarning(errorMsg);
-				}
-			}
-			catch (QString const& errorMsg)
-			{
-				LogWarning(errorMsg);
-				// Can't handle it so forward it to the bunny
-				WriteToBunny(msg);
-			}
-			if (!drop)
-				WriteToBunny(msg);
-		}
-		else
-		{
-			// Just some signaling informations, forward directly
-			WriteToBunny(msg);
-		}
-	}
-}
 
 void XmppHandler::WriteToBunny(QByteArray const& d)
 {
-	// Replace Violet's domain
-	QByteArray data = d;
-	data.replace(VioletXmppDomain, OjnXmppDomain);
-
-	incomingXmppSocket->write(data);
+	incomingXmppSocket->write(d);
 	incomingXmppSocket->flush();
 }
 
@@ -338,7 +194,6 @@ void XmppHandler::WriteToBunnyAndLog(QByteArray const& d)
 		NetworkDump::Log("XMPP To Bunny", d);
 	WriteToBunny(d);
 }
-
 
 void XmppHandler::WriteDataToBunny(QByteArray const& b)
 {

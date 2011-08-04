@@ -10,14 +10,12 @@
 #include "openjabnab.h"
 #include "settings.h"
 
-HttpHandler::HttpHandler(QTcpSocket * s, bool api, bool violetapi, bool violet, bool standAlone):pluginManager(PluginManager::Instance())
+HttpHandler::HttpHandler(QTcpSocket * s, bool api, bool violetapi):pluginManager(PluginManager::Instance())
 {
 	incomingHttpSocket = s;
 	httpApi = api;
 	httpVioletApi = violetapi;
-	httpViolet = violet;
 	bytesToReceive = 0;
-	isStandAlone = standAlone;
 	connect(s, SIGNAL(readyRead()), this, SLOT(ReceiveData()));
 }
 
@@ -63,39 +61,19 @@ void HttpHandler::HandleBunnyHTTPRequest()
 		else
 			incomingHttpSocket->write("Violet Api is disabled");
 	}
-	else if(httpViolet)
+	else
 	{
 		NetworkDump::Log("HTTP Request", request.GetRawURI());
 		pluginManager.HttpRequestBefore(request);
-		// If none can answer, try to forward it directly to Violet's servers unless we are standalone
 		if (!pluginManager.HttpRequestHandle(request))
 		{
-			if (uri.startsWith("/vl/sendMailXMPP.jsp"))
-			{
-
-				LogWarning("Problem with the bunny, he's calling sendMailXMPP.jsp !");
-				request.reply = "Not Allowed !";
-			}
-			else if (uri.startsWith("/vl/") && !isStandAlone)
-				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/PingServer"));
-			else if (uri.startsWith("/broad/") && !isStandAlone)
-				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BroadServer"));
-			else
-			{
-				LogError(QString("Unable to handle HTTP Request : ") + request.toString());
-				request.reply = "404 Not Found";
-			}
+			LogError(QString("Unable to handle HTTP Request : ") + request.toString());
+			request.reply = "404 Not Found";
 		}
 		pluginManager.HttpRequestAfter(request);
 		incomingHttpSocket->write(request.reply);
 		if(!uri.contains("itmode.jsp") && !uri.contains(".mp3") && !uri.contains(".chor") && !uri.contains("bc.jsp") && request.reply.size() < 256) // Don't dump too big answers
 			NetworkDump::Log("HTTP Answer", request.reply);
-	}
-	else
-	{
-		incomingHttpSocket->write("Bunny's message parsing is disabled <br />");
-		incomingHttpSocket->write("Request was : <br />");
-		incomingHttpSocket->write(request.toString().toAscii());
 	}
 	Disconnect();
 }

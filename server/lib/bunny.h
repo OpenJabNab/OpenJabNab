@@ -50,8 +50,6 @@ public:
 	QList<QString> GetListOfPlugins();
 
 	void XmppBunnyMessage(QByteArray const&);
-	void XmppVioletMessage(QByteArray const&);
-	bool XmppVioletPacketMessage(Packet const& p);
 
 	void Booting();
 	void Authenticating();

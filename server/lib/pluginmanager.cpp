@@ -180,31 +180,12 @@ void PluginManager::HttpRequestAfter(HTTPRequest & request)
 /*****************************************************/
 /* Others requests are sent only to "system" plugins */
 /*****************************************************/
-// Bunny -> Violet Message
+// Bunny -> OJN Message
 void PluginManager::XmppBunnyMessage(Bunny * b, QByteArray const& data)
 {
 	foreach(PluginInterface * plugin, listOfSystemPlugins)
 		if(plugin->GetEnable())
 			plugin->XmppBunnyMessage(b, data);
-}
-
-// Violet -> Bunny Message
-void PluginManager::XmppVioletMessage(Bunny * b, QByteArray const& data)
-{
-	foreach(PluginInterface * plugin, listOfSystemPlugins)
-		if(plugin->GetEnable())
-			plugin->XmppVioletMessage(b, data);
-}
-
-// Violet -> Bunny Packet
-// Send the packet to all 'system' plugins, if one returns true, the message will be dropped !
-bool PluginManager::XmppVioletPacketMessage(Bunny * b, Packet const& p)
-{
-	bool drop = false;
-	foreach(PluginInterface * plugin, listOfSystemPlugins)
-		if(plugin->GetEnable())
-			drop |= plugin->XmppVioletPacketMessage(b, p);
-	return drop;
 }
 
 // Bunny OnClick

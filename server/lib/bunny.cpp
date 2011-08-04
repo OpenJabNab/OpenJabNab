@@ -589,29 +589,6 @@ void Bunny::XmppBunnyMessage(QByteArray const& data)
 	}
 }
 
-// Received XMPP Message from Violet (proxy mode)
-void Bunny::XmppVioletMessage(QByteArray const& data)
-{
-	// Send to all 'system' plugins
-	PluginManager::Instance().XmppVioletMessage(this, data);
-	// And all bunny's plugins
-	foreach(PluginInterface * p, listOfPluginsPtr)
-	{
-		if(p->GetEnable())
-			p->XmppVioletMessage(this, data);
-	}
-}
-
-// Received <packet> from Violet (proxy mode)
-bool Bunny::XmppVioletPacketMessage(Packet const& packet)
-{
-	bool drop = PluginManager::Instance().XmppVioletPacketMessage(this, packet);
-	foreach(PluginInterface * p, listOfPluginsPtr)
-		if(p->GetEnable())
-			drop |= p->XmppVioletPacketMessage(this, packet);
-	return drop;
-}
-
 // Called when top button is pushed
 bool Bunny::OnClick(PluginInterface::ClickType type)
 {

@@ -22,57 +22,20 @@ bool PluginBoot::HttpRequestHandle(HTTPRequest & request)
 		b->Booting();
 	
 		LogInfo(QString("Requesting BOOT for tag %1 with version %2").arg(serialnumber,version));
-		if(GlobalSettings::Get("Config/StandAlone", true) == false)
+
+		QString bcFileName = GlobalSettings::Get("Config/Bootcode", "").toString();
+		QFile bootcodeFile(bcFileName);
+		if(bootcodeFile.open(QFile::ReadOnly))
 		{
-			if(GlobalSettings::Get("Config/StandAloneUseLocalBootcode", true) == true)
-			{
-				QString bcFileName = GlobalSettings::Get("Config/Bootcode", "").toString();
-				QFile bootcodeFile(bcFileName);
-				if(bootcodeFile.open(QFile::ReadOnly))
-				{
-					QByteArray dataByteArray = bootcodeFile.readAll();
-					request.reply = dataByteArray;
-				}
-				else
-					LogError("Bootcode not found : " + bcFileName);
-			}
-			else
-			{
-				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BootServer"));
-	
-				if(GlobalSettings::Get("Config/SaveBootcode", false) == true)
-				{
-					QString bcFileName = GlobalSettings::Get("Config/Bootcode", "").toString();
-					QFile bootcodeFile(bcFileName);
-					if(bootcodeFile.open(QFile::WriteOnly))
-					{
-						bootcodeFile.write(request.reply);
-					}
-				}
-			}
+			QByteArray dataByteArray = bootcodeFile.readAll();
+			request.reply = dataByteArray;
 			return true;
 		}
 		else
 		{
-			if(GlobalSettings::Get("Config/StandAloneUseLocalBootcode", true) == true)
-			{
-				QString bcFileName = GlobalSettings::Get("Config/Bootcode", "").toString();
-				QFile bootcodeFile(bcFileName);
-				if(bootcodeFile.open(QFile::ReadOnly))
-				{
-					QByteArray dataByteArray = bootcodeFile.readAll();
-					request.reply = dataByteArray;
-				}
-				else
-					LogError("Bootcode not found : " + bcFileName);
-			}
-			else
-			{
-				request.reply = request.ForwardTo(GlobalSettings::GetString("DefaultVioletServers/BootServer"));
-			}
-			return true;
+			LogError("Bootcode not found : " + bcFileName);
+			return false;
 		}
-		return false;
 	}
 	else
 		return false;

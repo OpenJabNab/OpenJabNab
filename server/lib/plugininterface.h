@@ -41,11 +41,6 @@ public:
 	
 	// Raw XMPP Messages
 	virtual void XmppBunnyMessage(Bunny *, QByteArray const&) {}
-	virtual void XmppVioletMessage(Bunny *, QByteArray const&) {}
-
-	// Violet's Packets
-	// If the plugin returns true, the packet will be dropped
-	virtual bool XmppVioletPacketMessage(Bunny *, Packet const&) { return false; }
 
 	// Bunny's Messages
 	virtual void OnInitPacket(const Bunny *, AmbientPacket &, SleepPacket &) {}

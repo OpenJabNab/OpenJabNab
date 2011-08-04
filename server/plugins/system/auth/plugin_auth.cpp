@@ -13,7 +13,6 @@ Q_EXPORT_PLUGIN2(plugin_auth, PluginAuth)
 
 PluginAuth::PluginAuth():PluginAuthInterface("auth", "Manage Authentication process")
 {
-	listOfAuthFunctions.insert("proxy", &ProxyAuth);
 	listOfAuthFunctions.insert("full", &FullAuth);
 	listOfAuthFunctions.insert("patched", &PatchedAuth);
 
@@ -434,28 +433,6 @@ bool PluginAuth::PatchedAuth(XmppHandler * xmpp, QByteArray const& data, Bunny *
 			LogError("Unknown Auth Step, disconnect");
 			return false;
 	}
-}
-
-bool PluginAuth::ProxyAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray &)
-{
-	QRegExp rx("<response[^>]*>(.*)</response>");
-	if (rx.indexIn(data) != -1)
-	{
-		// Response message contains username, catch it to create the Bunny
-		QByteArray authString = QByteArray::fromBase64(rx.cap(1).toAscii());
-		rx.setPattern("username=[\'\"]([^\'\"]*)[\'\"]");
-		if (rx.indexIn(authString) != -1)
-		{
-			QByteArray bunnyID = rx.cap(1).toAscii();
-			Bunny * bunny = BunnyManager::GetBunny(bunnyID);
-			bunny->Authenticated();
-			bunny->SetXmppHandler(xmpp);
-			*pBunny = bunny;
-		}
-		else
-			LogWarning(QString("Unable to parse response message : %1").arg(QString(authString)));
-	}
-	return true;
 }
 
 /*******/

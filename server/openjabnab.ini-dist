@@ -6,7 +6,6 @@ xmppListener = true
 RealHttpRoot = /var/www/http-wrapper/ojn_local/
 HttpRoot = ojn_local
 HttpPluginsFolder = plugins
-StandAlone = true
 StandAloneWelcome = false
 StandAloneAuthBypass = false
 StandAloneAuthBypassBunny =
@@ -19,16 +18,7 @@ SessionTimeout=300
 TTS=acapela
 MaxNumberOfBunnies=64
 MaxBurstNumberOfBunnies=72
-httpViolet = true
-SaveBootcode=false
 ProxyUseLocalBootcode=false
-
-[DefaultVioletServers]
-BootServer=r.nabaztag.com
-BroadServer=broad.violet.net
-PingServer=tagtag.nabaztag.objects.violet.net
-XmppDomain=xmpp.nabaztag.com
-XmppServer=rhoen.violet.net
 
 [OpenJabNabServers]
 PingServer=my.domain.com
