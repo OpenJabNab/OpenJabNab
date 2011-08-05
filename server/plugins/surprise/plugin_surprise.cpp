@@ -6,7 +6,8 @@
 
 Q_EXPORT_PLUGIN2(plugin_surprise, PluginSurprise)
 
-#define RANDOMIZE(x) x
+// +/- 20% - 30min => rand(24,36)
+#define RANDOMIZEDRATIO 20
 
 PluginSurprise::PluginSurprise():PluginInterface("surprise", "Send random mp3 at random intervals",BunnyPlugin) {}
 
@@ -24,7 +25,27 @@ void PluginSurprise::createCron(Bunny * b)
 	}
 
 	// Register cron
-	Cron::RegisterOneShot(this, qrand()/frequency, b, QVariant(), NULL);
+	Cron::RegisterOneShot(this, GetRandomizedFrequency(frequency), b, QVariant(), NULL);
+}
+
+int PluginSurprise::GetRandomizedFrequency(unsigned int freq)
+{
+	// 250 => ~30min, 125 => ~1h, 50 => ~2h30
+	unsigned int meanTimeInSec = (250/freq) * 30;
+	
+	int deviation = 0;
+
+	if(RANDOMIZEDRATIO > 0 && RANDOMIZEDRATIO < 100)
+	{
+		unsigned int maxDeviation = (meanTimeInSec * 2 * RANDOMIZEDRATIO) / 100;
+		if(maxDeviation > 0)
+		{
+			deviation = qrand() % (maxDeviation);
+		}
+		deviation -= (maxDeviation/2);
+	}
+
+	return meanTimeInSec + deviation;
 }
 
 void PluginSurprise::OnBunnyConnect(Bunny * b)

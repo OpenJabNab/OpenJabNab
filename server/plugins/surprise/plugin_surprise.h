@@ -19,7 +19,9 @@ public:
 	void InitApiCalls();
 	
 protected:
-	void createCron(Bunny * b);
+	void createCron(Bunny *);
+	int GetRandomizedFrequency(unsigned int);
+
 	PLUGIN_BUNNY_API_CALL(Api_GetFolderList);
 	PLUGIN_BUNNY_API_CALL(Api_SetFolder);
 	PLUGIN_BUNNY_API_CALL(Api_GetFolder);
