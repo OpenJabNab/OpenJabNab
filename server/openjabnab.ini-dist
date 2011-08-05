@@ -6,11 +6,8 @@ xmppListener = true
 RealHttpRoot = /var/www/http-wrapper/ojn_local/
 HttpRoot = ojn_local
 HttpPluginsFolder = plugins
-StandAloneWelcome = false
 StandAloneAuthBypass = false
-StandAloneAuthBypassBunny =
 Bootcode = bootc
-StandAloneUseLocalBootcode = true
 AllowAnonymousRegistration=false
 AllowUserManageBunny=false
 AllowUserManageZtamp=false
@@ -18,7 +15,6 @@ SessionTimeout=300
 TTS=acapela
 MaxNumberOfBunnies=64
 MaxBurstNumberOfBunnies=72
-ProxyUseLocalBootcode=false
 
 [OpenJabNabServers]
 PingServer=my.domain.com
