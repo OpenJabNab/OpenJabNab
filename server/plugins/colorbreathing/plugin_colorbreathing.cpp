@@ -26,11 +26,10 @@ void PluginColorbreathing::patchBootcode(HTTPRequest & request, long address, in
 {
 	if(request.reply.indexOf(origin, address) != address)
 	{
-		LogDebug("Firmware can't be patched");
+		LogDebug("Firmware can't be patched for colorbreathing");
 	}
 	else
 	{
-		LogDebug("Patching firmware");
 		request.reply.replace(address, size, patch);
 	}
 }
@@ -50,46 +49,38 @@ void PluginColorbreathing::HttpRequestAfter(HTTPRequest & request)
 
 			if(color == "violet")
 			{
-				LogDebug(QString("No color change for bunny '%1'").arg(QString(b->GetID())));
 			}
 			else if(color == "none")
 			{
-				LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
 				patchBootcode(request, 0x000183D8, (char)0x01, (char)0x00); 
 				patchBootcode(request, 0x000183DA, (char)0x01, (char)0x00); 
 			}
 			else if(color == "yellow")
 			{
-				LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
 				patchBootcode(request, 0x000183D8, (char)0x01, (char)0x00); 
 				patchBootcode(request, 0x000183D9, (char)0x00, (char)0x01);
 			}
 			else if(color == "cyan")
 			{
-				LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
 				patchBootcode(request, 0x000183D9, (char)0x00, (char)0x01);
 				patchBootcode(request, 0x000183DA, (char)0x01, (char)0x00); 
 			}
 			else if(color == "blue")
 			{
-				LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
 				patchBootcode(request, 0x000183DA, (char)0x01, (char)0x00); 
 			}
 			else if(color == "red")
 			{
-				LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
 				patchBootcode(request, 0x000183D8, (char)0x01, (char)0x00); 
 			}
 			else if(color == "green")
 			{
-				LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
 				patchBootcode(request, 0x000183D8, (char)0x01, (char)0x00); 
 				patchBootcode(request, 0x000183D9, (char)0x00, (char)0x01);
 				patchBootcode(request, 0x000183DA, (char)0x01, (char)0x00); 
 			}
 			else if(color == "white")
 			{
-				LogDebug(QString("Applying color '%1' for bunny '%2'").arg(color, QString(b->GetID())));
 				patchBootcode(request, 0x000183D9, (char)0x00, (char)0x01);
 			}
 		}
