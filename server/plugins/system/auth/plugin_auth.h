@@ -21,17 +21,6 @@ public:
 	void InitApiCalls();
 	PLUGIN_API_CALL(Api_SelectAuth);
 	PLUGIN_API_CALL(Api_GetListOfAuths);
-	
-private:
-	static bool DummyAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray & answer);
-	static bool FullAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray & answer);
-	static bool PatchedAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray & answer);
-
-	typedef bool (*pAuthFunction)(XmppHandler *, QByteArray const&, Bunny **, QByteArray &);
-
-	pAuthFunction currentAuthFunction;
-	
-	QMap<QString, pAuthFunction> listOfAuthFunctions;
 };
 
 #endif
