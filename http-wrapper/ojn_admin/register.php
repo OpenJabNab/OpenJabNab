@@ -28,6 +28,7 @@ if(isset($_SESSION['message']) && empty($_POST)) {
 <fieldset>
     <legend>Registration form</legend>
     <form method="post">
+<strong style="color: red">use only lowercase letters and numbers (no space,accentued character, or other weird stuff...) / Utilisez uniquement des minuscules et des chiffres (pas d'espace, d'accents ou de caractères exotics)</strong><br />
     <label>Name<input type="text" name="name" /></label><br />
     <label>Username<input type="text" name="login" /></label> <em>Will be used for login</em><br />
     <label>Password<input type="password" name="pwd" /></label><br />
