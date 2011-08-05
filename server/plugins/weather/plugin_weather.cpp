@@ -1,10 +1,11 @@
 #include <QDateTime>
 #include <QCryptographicHash>
 #include <QXmlStreamReader>
-#include <QHttp>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 #include <QMapIterator>
 #include <QRegExp>
-#include <QUrl>
 #include <memory>
 #include "bunny.h"
 #include "bunnymanager.h"
@@ -35,120 +36,165 @@ PluginWeather::~PluginWeather()
 void PluginWeather::OnCron(Bunny * b, QVariant v)
 {
 	QString ville = v.value<QString>();
-	//Bunny * b = QVariantHelper::ToBunnyPtr(v);
-	LogDebug(ville);
 	getWeatherPage(b, ville);
+}
+
+
+bool PluginWeather::OnRFID(Bunny * b, QByteArray const& tag)
+{
+	QString city = b->GetPluginSetting(GetName(), QString("RFIDWeather/%1").arg(QString(tag.toHex())), QString()).toString();
+	if(city != "")
+	{
+		getWeatherPage(b, city);
+		return true;
+	}
+	return false;
 }
 
 bool PluginWeather::OnClick(Bunny * b, PluginInterface::ClickType type)
 {
-	if (type == PluginInterface::SingleClick)
-	{
-		getWeatherPage(b, "612977");
-		return true;
+	if (type == PluginInterface::SingleClick) {
+		QString city = b->GetPluginSetting(GetName(), "Default/City", "").toString();
+		if(city != "") {
+			getWeatherPage(b, city);
+			return true;
+		}
 	}
 	return false;
 }
 
 void PluginWeather::getWeatherPage(Bunny * b, QString ville)
 {
-	QHttp* http = new QHttp(this);
-	http->setProperty("BunnyID", b->GetID());
-	connect(http, SIGNAL(done(bool)), this, SLOT(analyseXml()));
-	http->setHost("weather.yahooapis.com");
-	http->get("/forecastrss?w="+ville+"&u=c");
+	Q_UNUSED(b);
+	QUrl url("http://www.google.com/ig/api");
+	//url.addEncodedQueryItem("hl", "en");
+	url.addEncodedQueryItem("weather", QUrl::toPercentEncoding(ville));
+	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+	manager->setProperty("BunnyID", b->GetID());
+	connect(manager, SIGNAL(finished(QNetworkReply*)),this, SLOT(analyseXml(QNetworkReply*)));
+	manager->get(QNetworkRequest(url));
 }
 
-void PluginWeather::analyseXml()
+void PluginWeather::analyseXml(QNetworkReply* networkReply)
 {
-	std::auto_ptr<QHttp> http(qobject_cast<QHttp *>(sender()));
-	Bunny * bunny = BunnyManager::GetBunny(this, http->property("BunnyID").toByteArray());
-	if(!bunny)
-		return;
-
-	PluginWeather_Worker * p = new PluginWeather_Worker(this, bunny, http->readAll());
-	connect(p, SIGNAL(done(bool,Bunny*,QByteArray)), this, SLOT(analyseDone(bool,Bunny*,QByteArray)));
-	connect(p, SIGNAL(finished()), p, SLOT(deleteLater()));
-	p->start();
+	if (!networkReply->error()) {
+		Bunny * bunny = BunnyManager::GetBunny(this, networkReply->parent()->property("BunnyID").toByteArray());
+		if(bunny) {
+			PluginWeather_Worker * p = new PluginWeather_Worker(this, bunny, QString::fromUtf8(networkReply->readAll()));
+			connect(p, SIGNAL(done(bool,Bunny*,QByteArray)), this, SLOT(analyseDone(bool,Bunny*,QByteArray)));
+			connect(p, SIGNAL(finished()), p, SLOT(deleteLater()));
+			p->start();
+		}
+	}
+	networkReply->deleteLater();
+	networkReply->parent()->deleteLater();
 }
 
 void PluginWeather::analyseDone(bool ret, Bunny * b, QByteArray message)
 {
-	if(ret && b->IsConnected())
+	if(ret && b && b->IsIdle())
 		 b->SendPacket(MessagePacket(message));
 }
 
 void PluginWeather::OnBunnyConnect(Bunny * b)
 {
-	if(!webcastList.contains(b))
-	{
-		QStringList webcasts = b->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList();
-		foreach(QString webcast, webcasts)
-		{
-			QStringList time = webcast.split(":");
-			int id = Cron::Register(this, 60*24, time[0].toInt(), time[1].toInt(), b, QVariant::fromValue( QString("612977") ));
-			webcastList.insert(b , qMakePair(id, webcast));
-		}
+	QMap<QString, QVariant> list = b->GetPluginSetting(GetName(), "Webcasts", QMap<QString, QVariant>()).toMap();
+	QMapIterator<QString, QVariant> i(list);
+	while (i.hasNext()) {
+		i.next();
+		QString time = i.key();
+		QString name = i.value().toString();
+		Cron::RegisterDaily(this, QTime::fromString(time, "hh:mm"), b, QVariant::fromValue(name));
 	}
 }
 
 void PluginWeather::OnBunnyDisconnect(Bunny * b)
 {
-	typedef QPair<int, QString> listElement;
-	QList<listElement> listOfWebcasts = webcastList.values(b);
-	foreach(listElement l, listOfWebcasts)
-	{
-		Cron::Unregister(this, l.first);
-	}
-	webcastList.remove(b);
+	Cron::UnregisterAllForBunny(this, b);
 }
 
 void PluginWeather::InitApiCalls()
 {
-	DECLARE_PLUGIN_BUNNY_API_CALL("defaultcity(city)", PluginWeather, Api_DefaultCity);
+	DECLARE_PLUGIN_BUNNY_API_CALL("addrfid(tag,city)", PluginWeather, Api_AddRFID);
+	DECLARE_PLUGIN_BUNNY_API_CALL("removerfid(tag)", PluginWeather, Api_RemoveRFID);
+	DECLARE_PLUGIN_BUNNY_API_CALL("addcity(city)", PluginWeather, Api_addCity);
+	DECLARE_PLUGIN_BUNNY_API_CALL("removecity(city)", PluginWeather, Api_removeCity);
+	DECLARE_PLUGIN_BUNNY_API_CALL("getcitieslist()", PluginWeather, Api_getCitiesList);
+	DECLARE_PLUGIN_BUNNY_API_CALL("setdefaultcity(city)", PluginWeather, Api_setDefaultCity);
+	DECLARE_PLUGIN_BUNNY_API_CALL("getdefaultcity()", PluginWeather, Api_getDefaultCity);
 	DECLARE_PLUGIN_BUNNY_API_CALL("addwebcast(time,city)", PluginWeather, Api_AddWebcast);
-	DECLARE_PLUGIN_BUNNY_API_CALL("removewebcast(time,city)", PluginWeather, Api_RemoveWebcast);
-	DECLARE_PLUGIN_BUNNY_API_CALL("listwebcast()", PluginWeather, Api_ListWebcast);
+	DECLARE_PLUGIN_BUNNY_API_CALL("removewebcast(time)", PluginWeather, Api_RemoveWebcast);
+	DECLARE_PLUGIN_BUNNY_API_CALL("getwebcastslist()", PluginWeather, Api_ListWebcast);
 }
 
-PLUGIN_BUNNY_API_CALL(PluginWeather::Api_DefaultCity)
+PLUGIN_BUNNY_API_CALL(PluginWeather::Api_addCity) {
+	Q_UNUSED(account);
+
+	if(!hRequest.HasArg("city"))
+		return new ApiManager::ApiError(QString("Missing argument 'city' for plugin Weather"));
+	QString city = hRequest.GetArg("city");
+	QStringList list = bunny->GetPluginSetting(GetName(), "Cities", QStringList()).toStringList();
+	list.append(city);
+	bunny->SetPluginSetting(GetName(), "Cities", list);
+
+	return new ApiManager::ApiOk(QString("Added city '%1' for bunny '%2'").arg(city, QString(bunny->GetID())));
+}
+
+PLUGIN_BUNNY_API_CALL(PluginWeather::Api_removeCity)
 {
 	Q_UNUSED(account);
 
 	if(!hRequest.HasArg("city"))
 		return new ApiManager::ApiError(QString("Missing argument 'city' for plugin Weather"));
 
-	if(!bunny->IsConnected())
-		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(hRequest.GetArg("to")));
+	QString city = hRequest.GetArg("city");
+	QStringList list = bunny->GetPluginSetting(GetName(), "Cities", QStringList()).toStringList();
+	list.removeAll(city);
+	bunny->SetPluginSetting(GetName(), "Cities", list);
+
+	return new ApiManager::ApiOk(QString("Removed city '%1' for bunny '%2'").arg(city, QString(bunny->GetID())));
+}
+
+PLUGIN_BUNNY_API_CALL(PluginWeather::Api_getCitiesList) {
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+	return new ApiManager::ApiList(bunny->GetPluginSetting(GetName(), "Cities", QStringList()).toStringList());
+}
+
+PLUGIN_BUNNY_API_CALL(PluginWeather::Api_setDefaultCity)
+{
+	Q_UNUSED(account);
+
+	if(!hRequest.HasArg("city"))
+		return new ApiManager::ApiError(QString("Missing argument 'city' for plugin Weather"));
 
 	bunny->SetPluginSetting(GetName(), "Default/City", hRequest.GetArg("city"));
 	return new ApiManager::ApiOk(QString("New default city defined '%1' for bunny '%2'").arg(hRequest.GetArg("city"), QString(bunny->GetID())));
 }
 
+PLUGIN_BUNNY_API_CALL(PluginWeather::Api_getDefaultCity)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+
+	return new ApiManager::ApiString(bunny->GetPluginSetting(GetName(), "Default/City",QString()).toString());
+}
+
 PLUGIN_BUNNY_API_CALL(PluginWeather::Api_AddWebcast)
 {
 	Q_UNUSED(account);
-/*
-	if(!hRequest.HasArg("time"))
-		return new ApiManager::ApiError(QString("Missing argument 'time' for plugin Weather"));
-
-	if(!hRequest.HasArg("city"))
-		return new ApiManager::ApiError(QString("Missing argument 'city' for plugin Weather"));
-*/
-	if(!bunny->IsConnected())
-		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(hRequest.GetArg("to")));
 
 	QString hTime = hRequest.GetArg("time");
-	if(!bunny->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList().contains(hTime))
+	QString city = hRequest.GetArg("city");
+	QMap<QString, QVariant> list = bunny->GetPluginSetting(GetName(), "Webcasts", QMap<QString, QVariant>()).toMap();
+	if(!list.contains(hTime))
 	{
-		QStringList time = hTime.split(":");
-		int id = Cron::RegisterDaily(this, QTime(time[0].toInt(), time[1].toInt()), bunny, QVariant::fromValue( QString("612977") ));
-		webcastList.insert(bunny , qMakePair(id, hTime));
-		QStringList bunnyWebcastList = bunny->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList() << hTime;
-		bunnyWebcastList.sort();
-		bunny->SetPluginSetting(GetName(), "Webcast/List", bunnyWebcastList);
+		Cron::RegisterDaily(this, QTime::fromString(hTime, "hh:mm"), bunny, QVariant::fromValue(city));
+		list.insert(hTime,city);
+		bunny->SetPluginSetting(GetName(), "Webcasts", list);
+		return new ApiManager::ApiOk(QString("Add webcast at '%1' to bunny '%2'").arg(hTime, QString(bunny->GetID())));
 	}
-	return new ApiManager::ApiOk(QString("Add webcast at '%1' to bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
+	return new ApiManager::ApiError(QString("Webcast already exists at '%1' for bunny '%2'").arg(hTime, QString(bunny->GetID())));
 }
 
 PLUGIN_BUNNY_API_CALL(PluginWeather::Api_RemoveWebcast)
@@ -158,63 +204,50 @@ PLUGIN_BUNNY_API_CALL(PluginWeather::Api_RemoveWebcast)
 	if(!hRequest.HasArg("time"))
 		return new ApiManager::ApiError(QString("Missing argument 'time' for plugin Weather"));
 
-	if(!bunny->IsConnected())
-		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(QString(bunny->GetID())));
+	QMap<QString, QVariant> list = bunny->GetPluginSetting(GetName(), "Webcasts", QMap<QString, QVariant>()).toMap();
+	QString time = hRequest.GetArg("time");
+    if(list.contains(time))
+    {
+		list.remove(time);
+        bunny->SetPluginSetting(GetName(), "Webcasts", list);
 
-	int remove = 0;
-	QMultiMap<Bunny*, QPair<int, QString> >::iterator i = webcastList.find(bunny);
-	while (i != webcastList.end() && i.key() == bunny)
-	{
-		if(i.value().second == hRequest.GetArg("time"))
-		{
-			Cron::Unregister(this, i->first);
-			i = webcastList.erase(i);
-			remove++;
-		}
-		else
-			++i;
-	}
-
-	QStringList bunnyWebcastList = bunny->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList();
-	bunnyWebcastList.removeAll(hRequest.GetArg("time"));
-	bunnyWebcastList.sort();
-	bunny->SetPluginSetting(GetName(), "Webcast/List", bunnyWebcastList);
-	if(remove > 0)
-		return new ApiManager::ApiOk(QString("Remove webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
-	return new ApiManager::ApiError(QString("No webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
+		// Recreate crons
+        OnBunnyDisconnect(bunny);
+        OnBunnyConnect(bunny);
+        return new ApiManager::ApiOk(QString("Remove webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
+    }
+    return new ApiManager::ApiError(QString("No webcast at '%1' for bunny '%2'").arg(hRequest.GetArg("time"), QString(bunny->GetID())));
 }
 
 PLUGIN_BUNNY_API_CALL(PluginWeather::Api_ListWebcast)
 {
 	Q_UNUSED(account);
 	Q_UNUSED(hRequest);
+	return new ApiManager::ApiMappedList(bunny->GetPluginSetting(GetName(), "Webcasts", QMap<QString, QVariant>()).toMap());
+}
 
-	if(!bunny->IsConnected())
-		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(QString(bunny->GetID())));
+PLUGIN_BUNNY_API_CALL(PluginWeather::Api_AddRFID)
+{
+	Q_UNUSED(account);
 
-	//QMap<QString, QString> list;
-	QList<QString> list;
-	foreach (QString webcast, bunny->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList())
-		list.append(webcast);
-		//list.insert(webcast, ville);
+	bunny->SetPluginSetting(GetName(), QString("RFIDWeather/%1").arg(hRequest.GetArg("tag")), hRequest.GetArg("city"));
 
-	//return new ApiManager::ApiMappedList(list);
-	return new ApiManager::ApiList(list);
+	return new ApiManager::ApiOk(QString("Add weather for '%1' for RFID '%2', bunny '%3'").arg(hRequest.GetArg("city"), hRequest.GetArg("tag"), QString(bunny->GetID())));
+}
+
+PLUGIN_BUNNY_API_CALL(PluginWeather::Api_RemoveRFID)
+{
+	Q_UNUSED(account);
+
+	bunny->RemovePluginSetting(GetName(), QString("RFIDWeather/%1").arg(hRequest.GetArg("tag")));
+
+	return new ApiManager::ApiOk(QString("Remove RFID '%2' for bunny '%3'").arg(hRequest.GetArg("tag"), QString(bunny->GetID())));
 }
 
 /* WORKER THREAD */
-PluginWeather_Worker::PluginWeather_Worker(PluginWeather * p, Bunny * bu, QByteArray b):plugin(p),bunny(bu),buffer(b.replace("&amp;", "and"))
+PluginWeather_Worker::PluginWeather_Worker(PluginWeather * p, Bunny * bu, QString b):plugin(p),bunny(bu),buffer(b.replace("&amp;", "and").replace("</script>",""))
 {
-	weatherCodes << "tornade" << "tornade" << "ouragans" << "orages" << "orages";
-	weatherCodes << "neige et pluie" << "neige et pluie" << "neige et pluie" << "bruine" << "bruine";
-	weatherCodes << "pluie verglaçante" << "averses" << "averses" << "averses de neige" << "averses de neige";
-	weatherCodes << "neige" << "neige" << "grêle" << "neige" << "brouillard";
-	weatherCodes << "brouillard" << "brume" << "brume" << "vent" << "vent";
-	weatherCodes << "froid" << "nuageux" << "nuageux" << "nuageux" << "nuageux";
-	weatherCodes << "nuageux" << "dégagé" << "ensoleillé" << "ensoleillé" << "ensoleillé";
-	weatherCodes << "pluie et grêle" << "chaud" << "orages isolés" << "orages isolés" << "orages isolés";
-	weatherCodes << "averses" << "neige" << "averses de neige" << "neige" << "nuageux";
-	weatherCodes << "orages" << "averses de neige" << "orages" << "pas de prévisions";
+
 }
 
 void PluginWeather_Worker::run()
@@ -222,154 +255,100 @@ void PluginWeather_Worker::run()
 	QXmlStreamReader xml;
 	xml.clear();
 	xml.addData(buffer);
-
+	/*LogDebug("======================================");
+	LogDebug(QString(buffer));
+	LogDebug("======================================");*/
 	QString currentTag;
 	QString chaine;
 	QByteArray message;
-	int iForecast = 0;
-	bool current = false;
-	bool forecast = false;
+	char current = 0;
+	bool doCurrent = false;
+	char forecast = 0;
+	bool doForecast = false;
 
-	int iCurrentCode=0;
 	int iCurrentTemp=0;
-	int iForecastCode=0;
-	int iForecastMin=0;
-	int iForecastMax=0;
-	QString sForecast;
-	while (!xml.atEnd())
+	int iForecastLow=0;
+	int iForecastHigh=0;
+	QString sCurrentCond;
+	QString sForecastCond;
+	QString sForecast("Prévisions:");
+	QString sCity;
+	while (!xml.atEnd() && (current!=2 || forecast!=3))
 	{
 		xml.readNext();
 		if (xml.isStartElement())
 		{
 			currentTag = xml.name().toString();
-			if(currentTag == "condition")
-			{
-				current = true;
-				QXmlStreamAttributes attrs = xml.attributes();
-				iCurrentCode = attrs.value("code").toString().toInt();
-				iCurrentTemp = attrs.value("temp").toString().toInt();
+			if(currentTag == "postal_code")
+				sCity =  xml.attributes().value("data").toString();
 
+			if(current==0 && currentTag == "current_conditions") {
+				doCurrent = true;
 			}
-			if(currentTag == "forecast")
-			{
-				iForecast++;
-				// before 15:00, gives current and day forecast
-				if(QDateTime::currentDateTime().toString("hh").toInt() <= 14 && iForecast == 1)
-				{
-					forecast = true;
-					sForecast = "Prévisions pour aujourd'hui";
-					QXmlStreamAttributes attrs = xml.attributes();
-					iForecastCode = attrs.value("code").toString().toInt();
-					iForecastMin = attrs.value("low").toString().toInt();
-					iForecastMax = attrs.value("high").toString().toInt();
+			if(doCurrent) {
+				if(currentTag == "condition") {
+					sCurrentCond = xml.attributes().value("data").toString();
+					current++;
+				}else if(currentTag == "temp_c") {
+					iCurrentTemp = xml.attributes().value("data").toString().toInt();
+					current++;
 				}
-				else if(QDateTime::currentDateTime().toString("hh").toInt() > 14 && iForecast == 2)
-				{
-					forecast = true;
-					sForecast = "Prévisions pour demain";
-					QXmlStreamAttributes attrs = xml.attributes();
-					iForecastCode = attrs.value("code").toString().toInt();
-					iForecastMin = attrs.value("low").toString().toInt();
-					iForecastMax = attrs.value("high").toString().toInt();
+				if(current==2)
+					doCurrent = false;
+			}
+			if(forecast==0 && currentTag == "forecast_conditions") {
+				doForecast = true;
+			}
+			if(doForecast) {
+				if(currentTag == "condition") {
+					sForecastCond = xml.attributes().value("data").toString();
+					forecast++;
+				}else if(currentTag == "low") {
+					iForecastLow = xml.attributes().value("data").toString().toInt();
+					forecast++;
+				}else if(currentTag == "high") {
+					iForecastHigh = xml.attributes().value("data").toString().toInt();
+					forecast++;
 				}
-
+				if(forecast==3)
+					doForecast = false;
 			}
 		}
 	}
-
 	if (xml.error() && xml.error() != QXmlStreamReader::PrematureEndOfDocumentError)
 	{
+		LogDebug(QString("Error: %1").arg(xml.errorString()));
 		emit done(false, bunny, QByteArray());
 	}
 	else
 	{
-		if(current || forecast)
+		if(current==0 && forecast==0)
 		{
-			if(current)
+			emit done(false, bunny, QByteArray());
+		}
+		else
+		{
+			QByteArray where = TTSManager::CreateNewSound(QString("Météo pour %1.").arg(sCity), "claire");
+			message += "MU "+where+"\nPL 3\nMW\n";
+			if(current!=0)
 			{
-
 				QByteArray maintenant = TTSManager::CreateNewSound("actuellement, ", "claire");
-				QByteArray meteo = TTSManager::CreateNewSound(QString::number(iCurrentTemp) + " degrés", "claire");
-				QByteArray temperature = TTSManager::CreateNewSound(weatherCodes.at(iCurrentCode), "claire");
+				QByteArray temperature = TTSManager::CreateNewSound(QString::number(iCurrentTemp) + " degrés", "claire");
+				QByteArray meteo = TTSManager::CreateNewSound(sCurrentCond, "claire");
  				message += "MU "+maintenant+"\nPL 3\nMW\n";
  				message += "MU "+meteo+"\nPL 3\nMW\n";
  				message += "MU "+temperature+"\nPL 3\nMW\n";
 			}
-			if(forecast)
+			if(forecast!=0)
 			{
 				QByteArray prevision = TTSManager::CreateNewSound(sForecast, "claire");
-				QByteArray meteo = TTSManager::CreateNewSound(weatherCodes.at(iForecastCode), "claire");
-				QByteArray temperature = TTSManager::CreateNewSound("entre "+QString::number(iForecastMin) + " et "+QString::number(iForecastMax) + " degrés", "claire");
+				QByteArray meteo = TTSManager::CreateNewSound(sForecastCond, "claire");
+				QByteArray temperature = TTSManager::CreateNewSound("entre "+QString::number(iForecastLow) + " et "+QString::number(iForecastHigh) + " degrés", "claire");
  				message += "MU "+prevision+"\nPL 3\nMW\n";
  				message += "MU "+meteo+"\nPL 3\nMW\n";
  				message += "MU "+temperature+"\nPL 3\nMW\n";
 			}
 			emit done(true, bunny, message);
 		}
-		else
-		{
-			emit done(false, bunny, QByteArray());
-		}
 	}
 }
-/*
-Weather_Sun = 0, Weather_Cloudy, Weather_Smog, Weather_Rain, Weather_Snow, Weather_Storm
-0 tornade
-1 tornade tropicale
-2 ouragans
-3 orages violents
-4 orages
-
-5 pluie et neige
-6 pluie et grésil
-7 neige et grésil
-8 bruine verglaçante
-9 bruine
-
-10 pluie verglaçante
-11 douches
-12 douches
-13 averses de neige
-14 légères averses de neige
-
-15 poudrerie
-16 neige
-17 grêle
-18 grésil
-19 brouillard
-
-20 brouillard
-21 brume
-22 brume
-23 vent
-24 vent
-
-25 froid
-26 nuageux
-27 principalement nuageux
-28 principalement nuageux
-29 partiellement nuageux
-
-30 partiellement nuageux
-31 nuit claire
-32 ensoleillé
-33 ensoleillé
-34 ensoleillé
-
-35 pluie mêlée de grêle
-36 chaud
-37 orages isolés
-38 orages dispersés
-39 orages dispersés
-
-40 averses dispersés
-41 fortes chutes de neige
-42 des averses de neige dispersées
-43 fortes chutes de neige
-44 nuageux
-
-45 orages
-46 averses de neige
-47 orages isolés
-3200 pas disponible
-*/

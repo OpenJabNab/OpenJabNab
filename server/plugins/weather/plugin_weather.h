@@ -1,26 +1,28 @@
 #ifndef _PLUGINWEATHER_H_
 #define _PLUGINWEATHER_H_
 
-#include <QHttp>
+#include <QUrl>
+#include <QNetworkAccessManager>
 #include <QMultiMap>
 #include <QTextStream>
 #include <QThread>
 #include "plugininterface.h"
-	
+
 class PluginWeather : public PluginInterface
 {
 	friend class PluginWeather_Worker;
 	Q_OBJECT
 	Q_INTERFACES(PluginInterface)
-	
+
 private slots:
-	void analyseXml();
+	void analyseXml(QNetworkReply*);
 	void analyseDone(bool, Bunny*, QByteArray);
 
 public:
 	PluginWeather();
 	virtual ~PluginWeather();
 	bool OnClick(Bunny *, PluginInterface::ClickType);
+	bool OnRFID(Bunny * b, QByteArray const& tag);
 	void OnCron(Bunny *, QVariant);
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);
@@ -28,14 +30,19 @@ public:
 
 	// API
 	void InitApiCalls();
-	PLUGIN_BUNNY_API_CALL(Api_DefaultCity);
+	PLUGIN_BUNNY_API_CALL(Api_setDefaultCity);
 	PLUGIN_BUNNY_API_CALL(Api_AddWebcast);
 	PLUGIN_BUNNY_API_CALL(Api_RemoveWebcast);
 	PLUGIN_BUNNY_API_CALL(Api_ListWebcast);
+	PLUGIN_BUNNY_API_CALL(Api_addCity);
+	PLUGIN_BUNNY_API_CALL(Api_removeCity);
+	PLUGIN_BUNNY_API_CALL(Api_getCitiesList);
+	PLUGIN_BUNNY_API_CALL(Api_getDefaultCity);
+	PLUGIN_BUNNY_API_CALL(Api_AddRFID);
+	PLUGIN_BUNNY_API_CALL(Api_RemoveRFID);
 
 private:
 	void getWeatherPage(Bunny *, QString);
-	QMultiMap<Bunny*, QPair<int, QString> > webcastList;
 	QDir weatherFolder;
 
 };
@@ -48,15 +55,14 @@ signals:
 	void done(bool, Bunny*, QByteArray);
 
 public:
-	PluginWeather_Worker(PluginWeather * , Bunny *, QByteArray);
+	PluginWeather_Worker(PluginWeather * , Bunny *, QString);
 	virtual ~PluginWeather_Worker() {}
 	void run();
 
 private:
 	PluginWeather * plugin;
 	Bunny * bunny;
-	QByteArray buffer;
-	QStringList weatherCodes;
+	QString buffer;
 
 };
 
