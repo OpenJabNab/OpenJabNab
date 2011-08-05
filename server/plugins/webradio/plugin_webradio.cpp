@@ -34,15 +34,15 @@ bool PluginWebradio::OnRFID(Ztamp * z, Bunny * b)
 	if(radio != "")
 	{
 		LogInfo(QString("Will now stream from ztamp : %1").arg(radio));
-        	return streamPresetWebradio(b, radio);
+		return streamPresetWebradio(b, radio);
 	}
 	return false;
 }
 
 bool PluginWebradio::OnRFID(Bunny * b, QByteArray const& tag)
 {
-	LogInfo(QString("OnRFID bunny %1 %2").arg(b->GetBunnyName(), QString(tag)));
-	QString radio = b->GetPluginSetting(GetName(), QString("RFIDPlay/%1").arg(QString(QByteArray::fromHex(tag))), QString()).toString();
+	LogInfo(QString("OnRFID bunny %1 %2").arg(b->GetBunnyName(), QString(tag.toHex())));
+	QString radio = b->GetPluginSetting(GetName(), QString("RFIDPlay/%1").arg(QString(tag.toHex())), QString()).toString();
 	if(radio != "")
 	{
 		LogInfo(QString("Will now stream : %1").arg(radio));
@@ -266,7 +266,7 @@ PLUGIN_BUNNY_API_CALL(PluginWebradio::Api_ListWebcast)
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(hRequest.GetArg("to")));
 
 	QMap<QString, QVariant> list = bunny->GetPluginSetting(GetName(), "Webcasts", QMap<QString, QVariant>()).toMap();
-	
+
 	return new ApiManager::ApiMappedList(list);
 }
 
@@ -278,6 +278,6 @@ PLUGIN_BUNNY_API_CALL(PluginWebradio::Api_ListPreset)
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(hRequest.GetArg("to")));
 
 	QMap<QString, QVariant> list = bunny->GetPluginSetting(GetName(), "Presets", QMap<QString, QVariant>()).toMap();
-	
+
 	return new ApiManager::ApiMappedList(list);
 }
