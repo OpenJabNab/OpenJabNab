@@ -16,7 +16,6 @@ public:
 	virtual ~PluginAuth() {};
 
 	virtual bool DoAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray & answer);
-	void HttpRequestAfter(HTTPRequest &);
 
 	void InitApiCalls();
 	PLUGIN_API_CALL(Api_SelectAuth);
