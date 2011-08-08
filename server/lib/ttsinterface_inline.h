@@ -33,7 +33,7 @@ inline TTSInterface::TTSInterface(QString name, QString visualName):ttsName(name
 			LogError(QString("Unable to create %1 directory !\n").arg(name));
 			return;
 		}
-		folder.cd(TTS_FOLDER);
+		folder.cd(name);
 	}
 	ttsFolder = folder;
 	ttsHTTPUrl = "broadcast/ojn_local/"TTS_FOLDER"/"+name+"/%1/%2"; // %1 For voice, %2 for FileName
