@@ -3,7 +3,7 @@
 
 #include "plugininterface.h"
 #include "httprequest.h"
-	
+
 class PluginColorbreathing : public PluginInterface
 {
 	Q_OBJECT
@@ -20,7 +20,7 @@ protected:
         PLUGIN_BUNNY_API_CALL(Api_SetColor);
         PLUGIN_BUNNY_API_CALL(Api_GetColor);
 
-        QStringList availableColors;
+	QHash<QString, QByteArray> availableColors;
 private:
 	void patchBootcode(HTTPRequest &, long, int, QByteArray, QByteArray);
 	void patchBootcode(HTTPRequest &, long, char, char);
