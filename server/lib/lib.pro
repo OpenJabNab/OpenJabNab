@@ -43,6 +43,8 @@ HEADERS +=	httphandler.h \
 			apimanager.h \
 			cron.h \
 			ttsmanager.h \
+			ttsinterface.h \
+			ttsinterface_inline.h \
 			accountmanager.h \
 			account.h \
 			apihandler.h \
