@@ -40,6 +40,8 @@ public:
 	PLUGIN_BUNNY_API_CALL(Api_getDefaultCity);
 	PLUGIN_BUNNY_API_CALL(Api_AddRFID);
 	PLUGIN_BUNNY_API_CALL(Api_RemoveRFID);
+	PLUGIN_BUNNY_API_CALL(Api_getLang);
+	PLUGIN_BUNNY_API_CALL(Api_setLang);
 
 private:
 	void getWeatherPage(Bunny *, QString);

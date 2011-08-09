@@ -67,7 +67,7 @@ void PluginWeather::getWeatherPage(Bunny * b, QString ville)
 {
 	Q_UNUSED(b);
 	QUrl url("http://www.google.com/ig/api");
-	//url.addEncodedQueryItem("hl", "en");
+	url.addEncodedQueryItem("hl", b->GetPluginSetting(GetName(), "Lang","fr").toByteArray());
 	url.addEncodedQueryItem("weather", QUrl::toPercentEncoding(ville));
 	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
 	manager->setProperty("BunnyID", b->GetID());
@@ -125,6 +125,8 @@ void PluginWeather::InitApiCalls()
 	DECLARE_PLUGIN_BUNNY_API_CALL("addwebcast(time,city)", PluginWeather, Api_AddWebcast);
 	DECLARE_PLUGIN_BUNNY_API_CALL("removewebcast(time)", PluginWeather, Api_RemoveWebcast);
 	DECLARE_PLUGIN_BUNNY_API_CALL("getwebcastslist()", PluginWeather, Api_ListWebcast);
+	DECLARE_PLUGIN_BUNNY_API_CALL("setlang(lg)", PluginWeather, Api_setLang);
+	DECLARE_PLUGIN_BUNNY_API_CALL("getlang()", PluginWeather, Api_getLang);
 }
 
 PLUGIN_BUNNY_API_CALL(PluginWeather::Api_addCity) {
@@ -243,6 +245,23 @@ PLUGIN_BUNNY_API_CALL(PluginWeather::Api_RemoveRFID)
 
 	return new ApiManager::ApiOk(QString("Remove RFID '%2' for bunny '%3'").arg(hRequest.GetArg("tag"), QString(bunny->GetID())));
 }
+
+PLUGIN_BUNNY_API_CALL(PluginWeather::Api_getLang)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+
+	return new ApiManager::ApiString(bunny->GetPluginSetting(GetName(), "Lang","fr").toString());
+}
+
+PLUGIN_BUNNY_API_CALL(PluginWeather::Api_setLang)
+{
+	Q_UNUSED(account);
+	bunny->SetPluginSetting(GetName(), "Lang",hRequest.GetArg("lg"));
+
+	return new ApiManager::ApiOk("Lang Updated!");
+}
+
 
 /* WORKER THREAD */
 PluginWeather_Worker::PluginWeather_Worker(PluginWeather * p, Bunny * bu, QString b):plugin(p),bunny(bu),buffer(b.replace("&amp;", "and").replace("</script>",""))

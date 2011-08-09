@@ -1,5 +1,6 @@
 <?php
 $Ztamps = $ojnAPI->GetListofZtamps(false);
+$Langs = array('fr'=>'Francais','en'=>'Anglais');
 if(!empty($_POST['a'])) {
 	if($_POST['a']=="addcity") {
 		if(!empty($_POST['addC'])) {
@@ -27,6 +28,12 @@ if(!empty($_POST['a'])) {
 			$_SESSION['message'] = isset($retour['ok']) ? $retour['ok'] : "Error : ".$retour['error'];
 			header("Location: bunny_plugin.php?p=weather");
 		}
+	} else if($_POST['a'] == "setlang") {
+		if(!empty($_POST['Lang']) && isset($Langs[$_POST['Lang']])) {
+			$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/weather/setlang?lg=".$_POST['Lang']."&".$ojnAPI->getToken());
+			$_SESSION['message'] = isset($retour['ok']) ? $retour['ok'] : "Error : ".$retour['error'];
+			header("Location: bunny_plugin.php?p=weather");
+		}
 	}
 }
 else if(!empty($_GET['rp'])) {
@@ -48,6 +55,9 @@ $default = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/weather/getdefaul
 $default = isset($default['value']) ? (string)($default['value']) : '';
 $pList = $ojnAPI->getApiList("bunny/".$_SESSION['bunny']."/weather/getcitieslist?".$ojnAPI->getToken());
 $wList = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/weather/getwebcastslist?".$ojnAPI->getToken());
+$lang =  $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/weather/getlang?".$ojnAPI->getToken());
+$lang = isset($lang['value']) ? (string)($lang['value']) : 'fr';
+
 ?>
 <form method="post">
 <fieldset>
@@ -78,6 +88,13 @@ $wList = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/weather/getwebcasts
 	<option value="<?php echo $k; ?>"><?php echo $v; ?> (<?php echo $k; ?>)</option>
 	<?php endforeach; ?>
 	</select><br />
+<input type="radio" name="a" value="setlang" /> Default Language (for weather infos only for now) <select name="Lang">
+	<option value=""></option>
+	<?php  if(!empty($Langs))
+	foreach($Langs as $k=>$v) { ?>
+		<option value="<?php echo urldecode($k) ?>" <?php echo ($lang == $k) ? 'selected="true"': ''; ?>><?php echo urldecode($v); ?></option>
+	<?php } ?>
+</select><br />
 <input type="submit" value="Enregister">
 
 <?php
