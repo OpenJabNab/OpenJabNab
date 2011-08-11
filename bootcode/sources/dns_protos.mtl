@@ -1,0 +1,5 @@
+proto addnewdns 2 ;;
+proto startdnsclient 0 ;;
+proto dnstime 0 ;;
+proto dnslistfromdhcp 1 ;;
+proto dnslisttostr 0 ;;

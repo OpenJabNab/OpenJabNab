@@ -1,0 +1,19 @@
+proto confGetWifissid 0 ;;
+proto confGetWificrypt 0 ;;
+proto confGetWifikey0 0 ;;
+proto confGetWifiauth 0 ;;
+proto confGetWifipmk 0 ;;
+
+proto confGetDhcp 0 ;;
+proto confGetNetip 0 ;;
+proto confGetNetmask 0 ;;
+proto confGetNetgateway 0 ;;
+proto confGetNetdns 0 ;;
+
+proto confGetServerUrl 0 ;;
+proto confGetLogin 0 ;;
+proto confGetPwd 0 ;;
+
+proto confGetProxy 0 ;;
+proto confGetProxyip 0 ;;
+proto confGetProxyport 0 ;;

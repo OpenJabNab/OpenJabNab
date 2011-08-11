@@ -1,0 +1,9 @@
+/** (some) colors that can be used for the leds */
+
+const RGB_WHITE  = 0xffffff ;;
+const RGB_BLACK  = 0x000000 ;;
+const RGB_RED    = 0xff0000 ;;
+const RGB_BLUE   = 0x0000ff ;;
+const RGB_GREEN  = 0x00ff00 ;;
+const RGB_AMBER  = 0xff8000 ;;
+const RGB_VIOLET = 0xff00ff ;;

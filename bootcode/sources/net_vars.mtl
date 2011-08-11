@@ -1,0 +1,15 @@
+var netip="\0\0\0\0";;
+var netmask="\255\255\255\0";;
+var netgateway="\0\0\0\0";;
+var netdnslist=nil;;
+
+var mymac;;
+
+const macbroadcast="\$ff\$ff\$ff\$ff\$ff\$ff";;
+const ipbroadcast="\$ff\$ff\$ff\$ff";;
+
+const netip_empty="\0\0\0\0";;
+
+const netip_master="\192\168\2\1";;
+const netmask_master="\255\255\255\0";;
+const netgateway_master="\192\168\0\1";;

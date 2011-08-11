@@ -1,0 +1,52 @@
+#include udp_protos.mtl
+#include arp_protos.mtl
+
+fun mkudp ipsrc ipdst portsrc portdst content=
+	let strcatlist 
+	"\$aa\$aa\$03\$00\$00\$00\$08\$00\$45\$00\$00\$00\$00\$00\$00\$00\100\17\0\0"::
+	ipsrc::
+	ipdst::
+	"\0\0\0\0\0\0\0\0"::
+	content::
+	nil -> udp in
+	(
+		strputword udp 8+2 28+strlen content;
+		strputword udp 8+20 portsrc;
+		strputword udp 8+22 portdst;
+		strputword udp 8+24 8+strlen content;
+		strputchk udp 8+10 netChk udp 8 20 0;
+		strputchk udp 8+26 netChk udp 8+20 (8+strlen content) netChk udp 8+24 2 netChk "\0\17" 0 nil netChk udp 8+12 8 0;
+		udp
+	);;
+
+fun udpSend2 mac udp=
+	Secho ">u";
+//	dump udp;
+	netSend udp 0 nil (MACecho mac 0 1) 0 1;;
+
+fun udpsend local localp dst dstp content mac=
+	let mkudp local dst localp dstp content -> udp in
+	if mac!=nil then udpSend2 mac udp
+	else let dst -> ip in	//	ajouter le test de passerelle
+	arpreq ip fixarg2 #udpSend2 udp;;
+
+var ludp;;
+
+fun remudp l port=
+	if l!=nil then let hd l ->[p _] in if p==port then remudp tl l port else (hd l)::remudp tl l port;;
+
+fun regudp port cb=
+	set ludp=[port cb]::remudp ludp port;;
+
+fun unregudp port=
+	set ludp=remudp ludp port;;
+
+fun resetudp= set ludp=nil;;
+
+fun cbnetudp src mac=
+	//Secho "<u";
+	let /*Iecholn*/ strgetword src 8+20+2 -> locp in
+	let listswitch ludp locp -> cb in
+	call cb [strsub src 8+20+8 nil mac strsub src 20 4];;
+
+#include arp.mtl

@@ -1,0 +1,290 @@
+// gestion des services
+
+// infodata : les definitions des animations visuelles des services (meteo, traffic, etc..)
+// Liste de tuples. Un tuple = [<type de service> <animations>]
+// animations = tableau de N animations, une par valeur du service. Animation = tuple = [tempo <couleurs>]
+// couleurs = X fois 3 couleurs pour les 3 leds du ventre (led 1, 2, 3)
+// couleur = index dans le tableau 'infoPalette'
+// tempo = 0.5*log2 du nombre d'itérations à durer sur la couleur courante (ex : tempo = 3, durée = 16 itérations)
+var infodata;;
+
+// infosrc : les services courants affichés par ce lapin (envoyé par le serveur et mis à jour par le fonction 'infoUpdate')
+// Un tableau de 16 valeurs, pour les services courants. 2 valeurs par service donc 8 services max.
+// 2 valeurs par service : la première valeur vaut 1+infoType (ex : 1 pour meteo), la deuxième vaut infoVal, la valeur du service (ex : 0 pour soleil)
+var infosrc;;
+
+// nombre de messages utilisateur en attente (0, 1, 2 et +)
+var infomessages=0;;
+
+// valeur de frequence du taichi (40: peu fréquent, 80: normal, 255: très fréquent)
+var infotaichi=0;;
+
+fun infoInit=
+	set infosrc=tabnew 0 16;
+	set infomessages=0;
+	set infotaichi = 0;
+	
+	set infodata=
+[0 // meteo
+{
+	[25 {3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 0 0 0 0 0 0 0 0 0}] // soleil
+	[125 {0 3 0 4 0 4}] // nuages
+	[25 {4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 0 0 0}] // brouillard
+	[20 {0 0 0 0 4 0 4 0 4 0 0 0 0 0 4 4 0 0 0 0 0 0 4 0 0 0 4}] // pluie
+	[40 {4 0 0 0 0 0 0 0 4 0 0 0 0 4 0 0 0 0 0 0 4 0 0 0 0 4 0 0 0 0 4 0 0 0 0 0}] // neige
+	[25 {0 4 3 0 0 0 0 0 0 0 0 0 0 0 0 4 3 0 0 4 3 0 0 0 0 0 0 0 3 4 3 4 0}] // orage
+}
+]::
+[1 // bourse
+{
+	[7 {0 0 11 0 11 0 11 0 0 0 0 0 0 0 0 0 0 0}]
+	[14 {0 0 11 0 11 0 11 0 0 0 0 0}]
+	[28 {0 0 11 0 11 0 11 0 0 0 0 0}]
+	[28 {0 11 0 0 0 0}]
+	[28 {11 0 0 0 11 0 0 0 11 0 0 0}]
+	[14 {11 0 0 0 11 0 0 0 11 0 0 0}]
+	[7 {11 0 0 0 11 0 0 0 11 0 0 0 0 0 0 0 0 0}]
+}
+]::
+[2 // traffic
+{
+	[100 {1 0 1 1 0 1 1 0 1 0 0 0 0 0 0 0 0 0}]
+	[100 {0 1 0 1 0 1 0 0 0 0 0 0 0 0 0}]
+	[50 {0 1 0 1 0 1 0 0 0 0 0 0 0 0 0}]
+	[25 {0 1 0 1 0 1 0 0 0 0 0 0 0 0 0}]
+	[12 {0 1 0 1 0 1 0 0 0 0 0 0 0 0 0}]
+	[8 {0 1 0 1 0 1 0 0 0 0 0 0 0 0 0}]
+	[4 {0 1 0 1 0 1 0 1 0 1 0 1 0 0 0 0 0 0}]
+}
+]::
+[5 // mails
+{
+	[70 {5 0 0 0 5 0 0 0 5 0 5 0}]
+	[56 {0 5 0 0 0 0}]
+	[56 {5 0 5 0 0 0}]
+	[56 {5 5 5 0 0 0}]
+}
+]::
+[6 // pollution
+{
+	[42 {6 6 6 6 6 6 6 6 6 0 0 0}]
+	[42 {6 6 6 6 6 6 6 6 6 0 0 0}]
+	[42 {6 6 6 6 6 6 6 6 6 0 0 0}]
+	[42 {6 6 6 6 6 6 6 6 6 0 0 0}]
+	[42 {6 6 6 6 6 6 6 6 6 0 0 0}]
+	[14 {0 6 6 6 6 0 6 6 6 6 6 6 6 6 6 6 6 6 6 0 6 0 0 6 0 0 0 0 6 0 0 6 6 6 6 6 6 6 6 6 6 6 6 6 0 6 0 6 0 6 6}]
+	[14 {0 6 6 6 6 0 6 6 6 6 6 6 6 6 6 6 6 6 6 0 6 0 0 6 0 0 0 0 6 0 0 6 6 6 6 6 6 6 6 6 6 6 6 6 0 6 0 6 0 6 6}]
+	[14 {0 6 6 6 6 0 6 6 6 6 6 6 6 6 6 6 6 6 6 0 6 0 0 6 0 0 0 0 6 0 0 6 6 6 6 6 6 6 6 6 6 6 6 6 0 6 0 6 0 6 6}]
+	[14 {0 6 0 0 6 6 6 6 6 6 0 0 0 0 0 0 6 0 0 6 6 0 0 0 6 6 0 6 6 6 0 0 6 6 0 0 0 6 0 0 0 0 6 0 6 0 6 0}]
+	[14 {0 6 0 0 6 6 6 6 6 6 0 0 0 0 0 0 6 0 0 6 6 0 0 0 6 6 0 6 6 6 0 0 6 6 0 0 0 6 0 0 0 0 6 0 6 0 6 0}]
+	[14 {0 6 0 0 6 6 6 6 6 6 0 0 0 0 0 0 6 0 0 6 6 0 0 0 6 6 0 6 6 6 0 0 6 6 0 0 0 6 0 0 0 0 6 0 6 0 6 0}]
+}
+]::
+nil;;
+
+// v21 : changé couleur jaune clair (11) de 0xffff80 à 0xffcc00 (bug 197)
+const infoPalette={
+//  noir     rouge    vert     jaune    bleu     violet   cyan     blanc
+	0x000000 0xff0000 0x00ff00 0xffff00 0x0000ff 0xff00ff 0x00ffff 0xffffff
+//  gris     rose     G clair  J clair  B clair  V clair  C clair  orange
+	0x808080 0xff8080 0x80ff80 0xffcc00 0x8080ff 0xff80ff 0x80ffff 0xff8000
+};;
+
+
+// heure de démarrage du service courant
+var infoStartTime;;
+// index du service courant (dans infosrc)
+var infoIndex=0;;
+// type du service courant
+var infoType;;
+// valeur du service courant
+var infoVal;;
+// index de la couleur dans le tableau des couleurs de l'animation courante
+var infoAnimColori;;
+// Date de démarrage de la couleur..
+var infoAnimColorStart;;
+// durée de la couleur...
+var infoAnimColorDur;;
+
+// durée d'affichage d'un service, en secondes
+const INFO_TIMEOUT=15;;
+
+fun infoAnimationsOf typ=listswitch infodata typ;;
+
+// retourne le prochain index utile (infoType non nul)
+fun _infoNextIndex i=
+	let i+2-> i in
+	if i>=16 then 0 else if infosrc.i then i else _infoNextIndex i;;
+
+// le service suivant
+fun infoStartOne i=
+	set infoIndex= i;
+	set infoType=(infosrc.(infoIndex))-1;
+	set infoVal=infosrc.(infoIndex+1);
+	set infoStartTime=time;
+	set infoAnimColori=0;
+	set infoAnimColorStart=time_ms;
+	let infoAnimationsOf infoType -> anims in
+	if anims==nil then set infoStartTime=nil
+	else let anims.infoVal ->[dur _] in set infoAnimColorDur= dur*10;
+	0;;
+
+fun infoNext=
+	infoStartOne (_infoNextIndex infoIndex);
+	0;;
+
+fun _dumpinfosrc i=
+	if (i < 16) then (
+		let infosrc.i -> key in
+		let infosrc.(i+1) -> val in
+		if key == 1 then ( Secho "Meteo="; Iecho val; Secho ",")
+		else if key == 2 then ( Secho "Bourse="; Iecho val; Secho ",")
+		else if key == 3 then ( Secho "Traffic="; Iecho val; Secho ",")
+		else if key == 6 then ( Secho "Mails="; Iecho val; Secho ",")
+		else if key == 7 then ( Secho "Pollution="; Iecho val; Secho ",");
+		_dumpinfosrc i+2
+	);;
+fun dumpinfo=
+	Secho "infos=[";
+	_dumpinfosrc 0;
+	Secho "Messages#="; Iecho infomessages; Secho ",";
+	Secho "TaiChi="; Iecho infotaichi; Secho ",";
+	Secho "EarL="; Iecho extleft; Secho ",";
+	Secho "EarR="; Iecho extright; Secho "]"
+	;;
+
+fun infoRun=
+	if gSleepState == 0 then // no info while sleeping
+	if (!gItState) then // no info while in interactive mode
+	if !earDetecting then
+	(
+		// passage au service suivant ?
+		set infoType=(infosrc.(infoIndex))-1;
+		if infoStartTime==nil || (time-infoStartTime>INFO_TIMEOUT) || infoType<0 then infoNext;
+
+		// Allumage de la tête en violet si message(s) en attente (infomessages)
+		let (time_ms>>8)&7 -> t in
+			led LED_NOSE if (((infomessages>1) && ((t==1)||(t==3))) || ((infomessages==1) && (t==1))) then RGB_VIOLET else RGB_BLACK;
+
+		// couleurs des 3 leds du ventre (service courant/animation courante/couleur courante)
+		set infoType=(infosrc.(infoIndex))-1;
+		set infoVal=infosrc.(infoIndex+1);
+		let infoAnimationsOf infoType -> anims in
+		let anims.infoVal ->[dur anime] in
+		if anime!=nil then
+		(
+			led LED_BODY_LEFT infoPalette.(anime.infoAnimColori);
+			led LED_BODY_MIDDLE infoPalette.(anime.(1+infoAnimColori));
+			led LED_BODY_RIGHT infoPalette.(anime.(2+infoAnimColori));
+			if (time_ms-infoAnimColorStart >= infoAnimColorDur) then
+			(
+				// next colors
+				set infoAnimColori=infoAnimColori+3;
+				set infoAnimColorStart=time_ms;
+				set infoAnimColorDur= dur*10;
+				if infoAnimColori>=tablen anime then set infoAnimColori=0
+			)
+		)
+		else
+		(
+			led LED_BODY_LEFT RGB_BLACK; led LED_BODY_MIDDLE RGB_BLACK; led LED_BODY_RIGHT RGB_BLACK
+		)
+	);;
+		
+// met à jour ou rajoute cette source
+fun __infosrc_update key val i=
+	if (i < 16) then
+	if (infosrc.i == 0 || infosrc.i == key) then (
+		// add or update
+		set infosrc.(i+1) = val;
+		if (infosrc.i == 0) then (
+			// add
+			set infosrc.i = key;
+			// set lapin to play this new one now
+			infoStartOne i
+		)
+	) else __infosrc_update key val i+2;; // recurse
+fun _infosrc_update key val=
+	// debug : hack special pour envoyer des commandes cachées au lapin... [as]
+	if ((key == 1) && (val == 6)) then ( // meteo 6 (n'existe pas)
+		// force reconnecte
+		Secholn "Forced XmppSessionStart!";
+		// XmppSessionStop; DEBUT
+		//XmppSessionStart gXmpps_cur.sDomain #Xmpps_statusChangedCb; DEBUG
+		0
+	);
+	__infosrc_update key val 0;;
+
+// util : slide tableau pour effacer case vide
+fun __infoslide i=
+	if (i == 16-2) then (
+		set infosrc.i = 0;
+		set infosrc.(i+1) = 0
+	) else (
+		set infosrc.i = infosrc.(i+2);
+		set infosrc.(i+1) = infosrc.(i+3);
+		// recurse
+		if (infosrc.i > 0) then __infoslide i+2
+	);;
+
+// enlève cette source de la liste
+fun __infosrc_del key i=
+	if (i < 16) then
+	if (infosrc.i == key) then (
+		// delete
+		__infoslide i
+	) else __infosrc_del key i+2;;
+fun _infosrc_del key=
+	__infosrc_del key 0;;
+
+proto controlsound 1;;
+
+const midi_communion=
+"\$4d\$54\$68\$64\$00\$00\$00\$06\$00\$00\$00\$01\$01\$e0\$4d\$54\
+\$72\$6b\$00\$00\$00\$9b\$00\$ff\$03\$0b\$63\$6f\$6d\$6d\$75\$6e\
+\$69\$6f\$6e\$30\$30\$00\$ff\$51\$03\$10\$59\$43\$00\$ff\$58\$04\
+\$04\$02\$18\$08\$00\$c0\$0c\$02\$90\$60\$67\$04\$48\$6a\$7b\$5f\
+\$4d\$12\$80\$60\$65\$2a\$90\$5d\$51\$0b\$80\$5f\$76\$18\$48\$2b\
+\$10\$5d\$7f\$07\$90\$60\$64\$08\$4f\$5e\$7c\$5f\$52\$15\$80\$60\
+\$71\$19\$90\$5d\$56\$1a\$80\$5f\$6c\$15\$5d\$7f\$0e\$90\$58\$56\
+\$0c\$80\$4f\$7c\$14\$90\$4d\$5e\$6e\$80\$58\$73\$01\$90\$5d\$62\
+\$75\$80\$5d\$7a\$0d\$4d\$67\$05\$90\$5b\$5a\$05\$54\$60\$2a\$80\
+\$5b\$65\$81\$1e\$54\$60\$51\$90\$58\$60\$15\$4c\$6a\$81\$1e\$80\
+\$58\$63\$0e\$4c\$45\$4d\$90\$24\$01\$72\$80\$24\$40\$00\$ff\$2f\
+\$00";;
+
+fun newInfoUpdate data=
+	Secho "newInfoUpdate:";
+	let 0 -> i in
+	let nil -> newleft in
+	let nil -> newright in (
+		while (i < strlen data) do (
+			let strget data i -> key in
+			let strget data i+1 -> val in (
+				Secho "key:"; Iecho key; Secho "="; Iecho val; Secho ",";
+				if key == 8 then set infomessages = val
+				else if key == 0 then _infosrc_del val
+				else if key == 1 || key == 2 || key == 3 || key == 6 || key == 7 then _infosrc_update key val
+				else if key == 4 then set newleft = val
+				else if key == 5 then set newright = val
+				else if key == 14 then set infotaichi = val
+				else (
+					Secho "ERROR newInfoUpdate unknown key="; Iecholn key;0
+				)
+			);
+			set i = i + 2
+		);
+		// process ears
+		Secho "newleft="; Iecho newleft; Secho "newright="; Iecho newright; Secho "extleft="; Iecho extleft; Secho "extright="; Iecho extright;
+		Secho "gSleepState="; Iecho gSleepState; Secho "earResetting="; Iecho earResetting;  
+		if (newleft != nil || newright != nil) && ((newleft!=extleft) || (newright!=extright)) then (
+			set extleft=newleft;
+			set extright=newright;
+			if ((!gSleepState) && (!earResetting)) then (
+				controlsound midi_communion;
+				earsGoToRefPos
+			)
+		)
+	);
+	dumpinfo
+	;;

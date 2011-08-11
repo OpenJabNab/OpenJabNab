@@ -1,0 +1,223 @@
+#include dhcp_protos.mtl
+#include dns_protos.mtl
+
+const DHCP_DISCOVER=1;;
+const DHCP_OFFER=2;;
+const DHCP_REQUEST=3;;
+const DHCP_DECLINE=4;;
+const DHCP_ACK=5;;
+const DHCP_NACK=6;;
+
+
+/* 1 if the dhcp client is running */
+var dhcp_client_started=0;;
+
+/* length, in seconds, of the dhcp lease */
+var dhcp_lease_len=0;;
+
+/* the time when we received the lease */
+var dhcp_lease_start=0;;
+
+/* if 1, then the dhcp has been granted for an infinite time */
+var dhcp_infinite_lease=0;;
+
+/***
+	According to the DHCP RFC (1541 and 2132), the leases are timed from
+  the time of the request sending, and one should try to renew the lease
+	with the previous host from t1 = (start_time+lease_duration*0.5) to t2 =
+  (start_time+lease_duration*0.875). After t2, the dhcp request is to be
+	asked to every reachable server (broadcasting).
+
+	TODO for the moment only t1 is used and all messages are broadcasted
+*/
+var dhcp_lease_t1=0;;
+
+// debug
+fun Dhcpw s = Secholn strcatlist "[dhcp] " :: s :: nil ;;
+
+/**
+	Updates the var dhcp_lease_t1, that contains the time of the dhcp renewal time
+*/
+fun updatedhcpleasetimes leaselen =
+	if (leaselen == -1) then
+	(
+		 set dhcp_infinite_lease = 1;
+		 Dhcpw "Infinite DHCP lease !"
+	)
+	else
+	(
+		set dhcp_lease_t1 = dhcp_lease_start + leaselen/2;
+		Dhcpw strcatlist "Next dhcp renewal in " :: (itoa (dhcp_lease_t1 -time )) :: "seconds"::nil
+	);
+	0
+;;
+
+fun mkdhcp op netip hostip newip =
+	let 236+16+14->n in
+	let strnew n -> b in
+	(
+		for i=0;i<n do strset b  i 0;
+		strcpy b 0 "\1\1\6" 0 3;
+		strcpy b 12 netip 0 4;
+		strcpy b 12+16 mymac 0 6;
+		strcpy b 236 "\99\130\83\99\53\1" 0 6; // magic cookie + champ op
+		strset b 236+6 op; // op
+		strcpy b 236+7 "\61\7\1" 0 3; // id unique.
+		strcpy b 236+10 mymac 0 6;    // id unique
+		strcpy b 236+16 "\12\7Pabcdef\55\3\1\3\6" 0 14; // nom d'hote : Pabcdef. Options demandées en retour: 1 (masque de sous-reseau), 3 (addr routeur), 6 (addr dns)
+		if op==DHCP_REQUEST then
+			(strcatlist b:: ((if nil != hostip then strcatlist "\54\4"::hostip::nil else "")::(if nil != newip then strcatlist "\50\4"::newip::nil else "")::"\255"::nil))
+		else
+			(strcat b "\255")
+	)
+;;
+
+fun mkdhcpans op tid newip dmac=
+	let 236+7->n in
+	let strnew n -> b in
+	(
+		for i=0;i<n do strset b  i 0;
+		strcpy b 0 "\2\1\6" 0 3;
+		strcpy b 4 tid 0 4;
+		strcpy b 16 newip 0 4;
+		strcpy b 12+16 dmac 0 6;
+		strcpy b 236 "\99\130\83\99\53\1" 0 6;
+		strset b 236+6 op;
+		strcatlist b::"\54\4"::newip::"\51\4\0\1\$51\$80\1\4"::netmask::"\3\4"::netip::"\6\4"::netip::"\15\4home\255"::nil
+	);;
+
+/**
+	returns a list of the ip adresses contained in src from start to start + len
+*/
+fun extractdhcp_helper_dnslist src start len =
+	if (len < 4) then
+		nil
+	else
+		(strsub src start 4) :: (extractdhcp_helper_dnslist src (start+4) (len-4))
+	;;
+
+fun extractdhcp src i type lease submask dnslist gateway mac=
+	if i<strlen src then
+	let strget src i -> c in
+	if c==255 then [type lease submask dnslist gateway mac]
+	else let strget src i+1 -> len in
+	let i+2->i in
+	if c==53 then extractdhcp src i+len (strget src i) lease submask dnslist gateway mac
+	else if c==51 then extractdhcp src i+len type (strgetnum src i len) submask dnslist gateway mac
+	else if c==1 then extractdhcp src i+len type lease (strsub src i 4) dnslist gateway mac
+	else if c==6 then extractdhcp src i+len type lease submask (extractdhcp_helper_dnslist src i len) gateway mac
+	else if c==3 then extractdhcp src i+len type lease submask dnslist (strsub src i 4) mac
+	else if c==61 then extractdhcp src i+len type lease submask dnslist gateway (strsub src i+1 6)
+	else extractdhcp src i+len type lease submask dnslist gateway mac;;
+
+fun mkdhcpip mac=
+	let strnew 4 -> s in
+	(
+		strcpy s 0 netip 0 4;
+		strset s 3 ((strget mac 5)&0x7f)+100;
+		s
+	);;
+
+fun cbnetdhcp src macfrom hostip=
+	Secholn "<dhcp"; MACecho macfrom 0 1;
+	let strget src 0 -> x in
+	let MACecho (strsub src 28 6)0 1 -> mac in
+	if x==2 && !strcmp mac mymac then
+	(
+		let IPecho (strsub src 16 4) 0 1-> newip in
+		let extractdhcp src 240 0 nil nil nil nil nil->[type lease submask dnslist gateway _] in
+		if type==DHCP_OFFER then
+		(
+			Secholn ">>>>>>>>>>>>>>>OFFER";
+			udpsend netip 68 ipbroadcast 67 (mkdhcp DHCP_REQUEST netip hostip newip) macbroadcast;
+			nil
+		)
+		else if type==DHCP_ACK then
+		(
+			Secholn ">>>>>>>>>>>>>>>ACK";
+			Secho "server    ";IPecho hostip 0 1;
+			Secho "ip        ";IPecho set netip=newip 0 1;
+			Secho "type      ";Iecholn type;
+			Secho "leasetime ";Iecholn lease; updatedhcpleasetimes lease;
+			Secho "submask   ";IPecho set netmask=submask 0 1;
+			Secho "dns       "; dnslistfromdhcp dnslist; Secholn dnslisttostr;
+			Secho "gateway   ";IPecho set netgateway=gateway 0 1;
+			nil
+		)
+		else if type==DHCP_NACK then
+		(
+			// TODO
+			Dhcpw "DHCP_NACK"; nil
+		)
+	);;
+
+fun cbnetdhcp67 src macfrom hostip=
+	Secholn "<dhcp"; MACecho macfrom 0 1;
+	let strget src 0 -> x in
+	let MACecho (strsub src 28 6)0 1 -> mac in
+	if x==1 /*&& !strcmp mac mymac*/ then
+	(
+		let extractdhcp src 240 0 nil nil nil nil nil ->[type _ _ _ _ dmac] in
+		let strsub src 4 4 -> tid in
+		let mkdhcpip macfrom -> newip in
+		if type==DHCP_DISCOVER then
+		(
+			Secholn ">>>>>>>>>>>>>>>DISCOVER";
+//			dump src;
+			udpsend netip 67 ipbroadcast 68 (mkdhcpans DHCP_OFFER tid newip dmac) macbroadcast;
+			nil
+		)
+		else if type==DHCP_REQUEST then
+		(
+			Secholn ">>>>>>>>>>>>>>>REQUEST";
+//			dump src;
+			udpsend netip 67 ipbroadcast 68 (mkdhcpans DHCP_ACK tid newip dmac) macbroadcast;
+			nil
+		)
+	);;
+
+
+/**
+	checks if the dhcp lease is about to expire and checks if the rabbit
+  should ask for a renewal
+*/
+fun checkdhcp force =
+	if (force || (dhcp_client_started && dhcp_lease_t1 != 0 && time > dhcp_lease_t1 && !dhcp_infinite_lease)) then
+	(
+		Dhcpw "checkdhcp";
+		/* ask to renew the lease */
+		udpsend netip 68 ipbroadcast 67 (mkdhcp DHCP_REQUEST netip nil nil) macbroadcast;
+		set dhcp_lease_start=time;
+		if (0 != dhcp_lease_t1) then
+			// if the request fails, try again in 10 seconds
+			set dhcp_lease_t1=dhcp_lease_t1+10;
+		0
+	)
+;;
+
+
+/**
+	Starts a dhcp client if needed, sending a DHCP_DISCOVER request.
+	As the boot will have ran before, we should always already have done
+	a dhcp request during the boot and therefore already have a ip.
+*/
+fun startdhcp=
+	Dhcpw "startdhcp";
+	if (confGetDhcp && !dhcp_client_started) then
+	(
+		Dhcpw "really do startdhcp";
+		regudp 68 #cbnetdhcp;
+		if (!strcmp netip netip_empty) then
+			udpsend netip 68 ipbroadcast 67 (mkdhcp DHCP_DISCOVER netip nil nil) macbroadcast
+		else
+			checkdhcp 1;
+		set dhcp_client_started=1
+	);
+0;;
+
+
+fun startdhcpserver=
+	regudp 67 #cbnetdhcp67;
+	0;;
+
+#include dns.mtl

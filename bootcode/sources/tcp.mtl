@@ -1,0 +1,290 @@
+#include tcp_protos.mtl
+#include arp_protos.mtl
+
+const TFIN=0x01;;
+const TSYN=0x02;;
+const TRST=0x04;;
+const TPUSH=0x08;;
+const TACK=0x10;;
+const TURGE=0x20;;
+
+const STOFF=-1;;
+const STSYN=0;;
+const STEST=1;;
+const STLISTEN=2;;
+const STFIN=3;;
+
+const CLIENT_SEQ_START="\0\0\1\0";;
+const CLIENT_SEQ_NULL="\0\0\0\0";;
+
+const TCPWRITE=0;;
+const TCPREAD=1;;
+const TCPCLOSE=-1;;
+const TCPSTART=2;;
+
+const TCPMAX=1024;;
+
+// debug
+fun Tcpw str = nil;; //Secholn strcatlist "[tcp] " :: str :: nil;;
+
+type Tcp=[stateT locT dstT locpT dstpT seqT ackT cbT macT lastsentT retryT locksendT enableT];;
+
+/**
+	creates the full tcp frame
+*/
+fun mktcp t flag content=
+	let strcatlist 
+	"\$aa\$aa\$03\$00\$00\$00\$08\$00\$45\$00\$00\$00\$00\$00\$00\$00\100\6\0\0"::
+	(t.locT)::
+	(t.dstT)::
+	"\0\0\0\0"::
+	(t.seqT)::
+	(t.ackT)::
+	"\0\0\$16\$d0\0\0\0\0"::
+	if flag&TSYN then "\2\4\5\$b4"::content::nil	// 5.b4 final : taille MSS
+	else content::nil
+	-> tcp in
+	let strlen tcp ->len in
+	(
+		strputword tcp 8+2 len-8;
+		strputword tcp 8+20 (t.locpT);
+		strputword tcp 8+22 (t.dstpT);
+
+		strset tcp 8+32 4*if flag&TSYN then 24 else 20;
+		strset tcp 8+33 flag;
+
+		strputchk tcp 8+10 netChk tcp 8 20 0;
+
+		let strnew 2 -> s in
+		(
+			strputword s 0 len-28;
+			strputchk tcp 8+36
+			 netChk tcp 8+20 (len-28) netChk s 0 2 netChk "\0\6" 0 nil netChk tcp 8+12 8 0
+		);
+		tcp
+	);;
+
+fun resendtcp t=
+	netSend t.lastsentT 0 nil (MACecho t.macT 0 1) 0 1;
+	0;;
+
+fun headerlen src=((strget src 8+32)>>4)<<2;;
+
+fun datalength src=(strgetword src 10)-20-headerlen src;;
+
+fun sendtcp t trame=
+//	Secholn "tcpSend"; dump trame; 
+	netSend trame 0 nil (/*MACecho*/ t.macT /*0 1*/) 0 1;
+	let strget trame 8+33 -> flag in
+	set t.seqT=netSeqAdd t.seqT (datalength trame)+(if flag&(TSYN|TFIN) then 1 else 0);
+	0;;
+
+fun sendtcpforretry t trame=
+	set t.lastsentT=trame;
+	set t.retryT=nil;
+	sendtcp t trame;;
+
+
+fun tcpSend2 mac tcp trame=
+	set tcp.macT=mac;
+	sendtcpforretry/*sendtcp*/ tcp trame;;
+
+// List of all current tcp requests
+var ltcp;;
+
+
+fun remtcp t=set t.stateT=STOFF; set ltcp=remfromlist ltcp t;;
+
+var counttcp;;
+
+fun opentcp local localp dst dstp cb=
+	let if localp==nil then 1024+set counttcp=((if counttcp==nil then time_ms else counttcp)+1)&16383 else localp -> localp in
+	let [stateT:STSYN locT:local dstT:dst locpT:localp dstpT:dstp seqT:CLIENT_SEQ_START ackT:CLIENT_SEQ_NULL cbT:cb enableT:1] -> tcp in
+	let mktcp tcp TSYN nil -> trame in
+	let dst -> ip in	//	ajouter le test de passerelle
+	(
+		set ltcp=tcp::ltcp;
+		arpreq ip fixarg2 fixarg3 #tcpSend2 trame tcp;
+		tcp
+	);;
+
+fun listentcp localp cb=
+	let [stateT:STLISTEN locpT:localp cbT:cb enableT:1] -> tcp in
+	(
+		set ltcp=tcp::ltcp
+	);;
+	
+fun findtcp l localp dstp src=
+	if l!=nil then let hd l-> t in
+	if t.locpT==localp && t.dstpT==dstp && (!vstrcmp src 8+16 t.locT 0 4)&& (!vstrcmp src 8+12 t.dstT 0 4)
+	then t
+	else if t.stateT==STLISTEN && t.locpT==localp then t
+	else findtcp tl l localp dstp src;;
+
+fun sendclose t=
+	Tcpw "## sendclose";
+	sendtcp t mktcp t TFIN+TACK nil;
+	set t.stateT=STFIN;
+	0;; 
+
+fun cbnettcp src mac=
+	//Secho "t";
+	let /*Iecholn*/ strgetword src 8+20+2 -> locp in
+	let /*Iecholn*/ strgetword src 8+20+0 -> dstp in
+	let findtcp ltcp locp dstp src -> t in
+	if t!=nil && t.enableT then let t.stateT -> st in
+		let /*Iecholn*/ strget src 8+33 -> flag in
+		let /*SEQecho*/ (strsub src 8+24 4) /*0 1*/-> rseq in
+		let /*SEQecho*/ (strsub src 8+28 4) /*0 1*/-> rack in
+		if st==STSYN then
+		(
+			Tcpw "stsyn";
+			if (flag==TSYN+TACK) && !vstrcmp (SEQecho(t.seqT)0 1) 0 rack 0 4 then
+			(
+				set t.ackT=SEQecho (netSeqAdd rseq 1) 0 1;
+				sendtcp t mktcp t TACK nil;
+				set t.stateT=STEST;
+				set t.lastsentT=nil;
+				Tcpw "call TCPWRITE";
+				call t.cbT [t TCPWRITE nil]
+			)
+			else
+			(
+				Tcpw "TSRT+TACK";
+				sendtcp t mktcp t TRST+TACK nil;
+				remtcp t;
+				nil
+			)
+		)
+		else if st==STEST then
+			if !vstrcmp t.ackT 0 rseq 0 4 then
+			let strgetword src 10 -> iplen in
+			let ((strget src 8+32)>>4)<<2 -> tcplen in
+			let datalength src -> datalen in
+			(
+				if datalen then
+				(
+	//				dump src;
+	//				Iecholn iplen;
+	//				Iecholn tcplen;
+//					Secho "update ackT : add ";
+					set t.ackT=netSeqAdd t.ackT datalen
+				);
+				if (flag&TFIN) then
+				(
+					set t.ackT=netSeqAdd t.ackT 1;
+					nil
+				)
+				else if (!vstrcmp t.seqT 0 rack 0 4) then
+				(
+//					Tcpw "acquittement de l'envoi";
+					set t.lastsentT=nil;	// acquittement de l'envoi
+					if t.locksendT==1 then
+					(
+						set t.locksendT=0;
+						call t.cbT [t TCPWRITE nil]
+					)
+					else if t.locksendT==2 then
+					(
+						sendclose t;
+						nil
+					)
+				)
+				else (Tcpw "##bad ack"; /* SEQecho t.seqT 0 1;SEQecho rack 0 1; */ nil);
+				if datalen then
+					let 8+20+headerlen src -> start in
+					let strsub src start datalen -> data in
+					call t.cbT [t TCPREAD data];
+				if (datalen || (flag&TFIN)) then				
+					sendtcp t mktcp t TACK nil;
+				if (flag&TFIN) then
+				(
+					Tcpw "tcp : sender closes";
+					//Iecholn t.stateT;
+					sendtcp t mktcp t TFIN+TACK nil;
+					remtcp t;	
+					call t.cbT [t TCPCLOSE nil]
+				)
+			)
+			else (/*SEQecho(t.ackT)0 1; SEQecho rseq 0 1;*/Secho "##bs/";sendtcp t mktcp t TACK nil; nil)
+		else if st==STFIN then
+			(
+				Tcpw "STFIN";
+				set t.ackT=SEQecho (netSeqAdd rseq 1) 0 1;
+				sendtcp t mktcp t TACK nil;
+				remtcp t;
+				nil
+			)
+		else if (st==STLISTEN) then
+			if (flag&TSYN) then
+			(
+				let [stateT:STEST locT:(strsub src 8+16 4) dstT:(strsub src 8+12 4) locpT:locp dstpT:dstp
+				seqT:CLIENT_SEQ_START ackT:(netSeqAdd rseq 1) cbT:t.cbT macT:mac  enableT:1] -> tcp in
+				(
+					set ltcp=tcp::ltcp;
+					sendtcpforretry tcp mktcp tcp (TACK+TSYN) nil;
+					call tcp.cbT [tcp TCPSTART nil]
+				)
+			)
+	;;
+
+
+fun writetcp t msg i=
+	if t.stateT!=STEST then nil
+	else if t.lastsentT!=nil then
+	(
+		Tcpw "locksend";
+		set t.locksendT=1;
+		i
+	)
+	else let strsub msg i TCPMAX -> content in
+	let mktcp t TACK content -> trame in
+	(
+		Tcpw strcatlist "writetcp. len: " :: (itoa (strlen msg)) :: nil;
+		sendtcpforretry t trame;
+		let i+strlen content -> ni in
+		(
+			if ni!=strlen msg then set t.locksendT=1;
+			ni
+		)
+	);;
+
+
+fun closetcp t=
+	if t.stateT!=STEST then 0
+	else if t.lastsentT!=nil then
+	(
+		set t.locksendT=2;
+		0
+	)
+	else sendclose t;
+	0;;
+
+fun tcpcb t cb= set t.cbT=cb;;
+
+fun enabletcp t v= set t.enableT=v;;
+fun enabledtcpP t= t.enableT;;
+
+fun tcptime =
+	for l=ltcp;l!=nil;tl l do let hd l-> t in
+	if (nil != t.lastsentT) then
+	(
+		if (nil != t.retryT) then
+		(
+			set t.retryT = (1+t.retryT);
+			if (t.retryT>10) then
+			(
+				remtcp t;
+				Tcpw "TCP > 10 send retries => closing";
+				call t.cbT [t TCPCLOSE nil];
+				nil
+			)
+			else resendtcp t
+		)
+		else set t.retryT=0
+	);
+	0;;
+
+fun resettcp=
+	set ltcp=nil;
+	0;;

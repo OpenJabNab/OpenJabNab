@@ -1,0 +1,6 @@
+proto cbnettcp 2 ;;
+proto opentcp 5 ;;
+proto writetcp 3 ;;
+proto closetcp 1 ;;
+proto tcptime 0 ;;
+proto resettcp 0 ;;

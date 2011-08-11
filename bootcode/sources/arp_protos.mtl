@@ -1,0 +1,4 @@
+proto resetarp 0 ;;
+proto cbnetarp 2 ;;
+proto arptime 0 ;;
+proto arpreq 2 ;;

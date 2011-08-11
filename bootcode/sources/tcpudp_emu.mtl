@@ -1,0 +1,82 @@
+const TCPWRITE=0;;
+const TCPREAD=1;;
+const TCPCLOSE=-1;;
+const TCPSTART=2;;
+
+fun udpsend local localp dst dstp content mac=
+	udpSend localp dst dstp content 0 nil;;
+
+var ludp;;
+
+fun regudp port cb=
+	set ludp=[udpStart port cb]::ludp;;
+
+fun resetudp=set ludp=nil;;
+
+fun netudp t src ip=
+	let listswitch ludp t -> cb in
+	call cb [src nil ip];;
+
+var ltcp;;
+
+fun writetcp t msg i=
+	tcpSend t msg i nil;;
+
+fun remtcp l t= if l!=nil then let hd l->[tt _] in if t==tt then tl l
+	else (hd l)::remtcp tl l t;;
+
+fun updatetcp l t cb= if l!=nil then let hd l->[tt _] in if t==tt then [t cb]::tl l
+	else (hd l)::updatetcp tl l t cb;;
+
+fun closetcp t=
+	set ltcp=remtcp ltcp t;
+	tcpClose t;;
+
+fun tcpcb t cb=
+	set ltcp=updatetcp ltcp t cb;
+	cb;;
+
+fun listentcp port cb=
+	set ltcp=[tcpListen port cb]::ltcp;;
+	
+fun opentcp local localp dst dstp cb=
+//	Secholn "opentcp";IPecho dst 0 0; Secho ":"; Iecholn dstp;
+
+	let tcpOpen dst dstp -> t in
+	if t!=nil then
+	(
+		set ltcp=[t cb]::ltcp;
+		t
+	);;
+
+fun enabletcp t v=
+	tcpEnable t v;;
+fun enabledtcpP t= 1;;
+
+fun nettcp t val msg=
+	if val==TCPSTART then
+		let listswitch ltcp atoi msg -> cb in
+		(
+			if cb==nil then Secholn "callback is nil"
+			else Secholn "callback is not nil";
+			set ltcp=[t cb]::ltcp;
+			call cb [t val msg]
+		)
+	else let listswitch ltcp t -> cb in
+		call cb [t val msg];;
+
+fun startdhcp=0;;
+fun startdhcpserver=0;;
+fun checkdhcp unused=0;;
+
+fun nettime=0;;
+
+fun netstart=
+	tcpCb #nettcp;
+	udpCb #netudp;
+	set ltcp=nil;
+	set ludp=nil;
+//	set wifi=stationW;
+	addnewdns "\192\168\1\1" 1;
+	set netip="\127\0\0\1";
+	0;;

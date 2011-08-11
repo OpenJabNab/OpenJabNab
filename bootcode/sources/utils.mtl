@@ -1,0 +1,218 @@
+//fun strcmp a b = vstrcmp a 0 b 0 nil;;
+fun strstr s p i=strfind s i p 0 nil;;
+fun itoanil l=if l==nil then '0'::nil else l;;
+fun listlen l=if l==nil then 0 else 1+listlen tl l;;
+fun listrem l x=if l!=nil then if x==hd l then tl l else (hd l)::listrem tl l x;;
+fun slistlen l=	if l==nil then 0 else (strlen hd l)+slistlen tl l;;
+fun listnth l i=if !i then hd l else if i>0 then listnth tl l i-1;;
+
+
+/**
+	Extracts a number from a string, according to the length used the
+number of bytes it is encoded on. (1, 2, 4)
+*/
+fun strgetnum src i nbbytes =
+	if (nbbytes == 1) then
+		strget src i
+	else if (nbbytes == 2) then
+		strgetword src i
+	else if (nbbytes == 4) then
+		(strgetword src i) * 65536 + (strgetword src i+2)
+;;
+
+fun listtostr l=
+	let strnew listlen l -> s in
+	let 0->i in
+	(
+		for p=l;p!=nil;tl p do
+		(
+			strset s i hd p;
+			set i=i+1
+		);
+	s
+	);;
+
+fun atoibin2 val=itobin2 atoi val;;
+
+fun countpattern s p i=
+	let strstr s p i -> j in
+	if j==nil then 0
+	else 1+countpattern s p j+strlen p;;
+
+fun strreplace2 sn s p v i id=
+	if i<strlen s then
+	let strstr s p i -> j in
+	let if j==nil then strlen s else j -> k in
+	(
+		strcpy sn id s i k-i;
+		if j!=nil then strcpy sn id+k-i v 0 nil;
+		strreplace2 sn s p v k+strlen p id+k-i+strlen v
+	);;
+	
+fun strreplace s p v=
+	let countpattern s p 0 -> i in
+	if !i then s
+	else let strnew (strlen s) + ((strlen v)-(strlen p))*i -> sn in
+	(
+		strreplace2 sn s p v 0 0;
+		sn
+	);;
+
+
+fun rev p q=if p==nil then q else rev tl p (hd p)::q;;
+
+fun remfromlist l t= if l!=nil then if t==hd l then tl l else (hd l)::remfromlist tl l t;;
+
+fun insert x l f=
+	if l==nil then x::nil
+	else let call f [x hd l] -> r in
+	if r>0 then (hd l)::insert x tl l f
+	else if r<0 then x::l
+	else insert x tl l f;;
+
+fun sort l f= if l!=nil then insert hd l sort tl l f f;;
+
+fun select l a f= if l!=nil then let hd l-> x in if call f [x a] then x::select tl l a f else select tl l a f;;
+
+fun conc p q=if p==nil then q else (hd p)::conc tl p q;;
+
+fun random n= ((rand&255)*n)>>8;; // nombre entre 0 et n-1 inclus
+
+fun _useparamip s i val j=
+	if i<4 then
+	let strstr val "." j -> k in
+	(
+		strset s i atoi strsub val j if k==nil then nil else k-j;
+		_useparamip s i+1 val if k==nil then strlen val else k+1
+	);;
+
+fun useparamip val=
+	let strnew 4 -> ip in
+	(
+		_useparamip ip 0 val 0;
+		ip
+	);;
+
+fun webip ip=
+	strcatlist (itoa strget ip 0)::"."::(itoa strget ip 1)::"."::(itoa strget ip 2)::"."::(itoa strget ip 3)::nil;;
+
+/***
+	like strcmp, but for ip addresses
+*/
+fun ipcmp a b =
+	strcmp (strsub a 0 4) (strsub b 0 4);;
+
+// Ceci s'appelait webmac avant, mais il y a avait un conflit : 2 fonctions webmac.. J'ai renommé en fonction de la précédence dans le fichier source.
+fun _fullwebmac key i=
+	if i<strlen key then (ctoh strget key i)::if i+1<strlen key then ":"::_fullwebmac key i+1 else _fullwebmac key i+1;;
+fun fullwebmac key=strcatlist _fullwebmac key 0;;
+
+// "001904031Dcc"
+fun _webmac key i=
+	if i<strlen key then (ctoh strget key i)::_webmac key i+1;;
+fun webmac key=strcatlist _webmac key 0;;
+
+/* Si une chaine commence par un '\0', la remplace par une chaine vide */
+fun makestremptyifzero s =
+	if 0 == strget s 0 then "" else s ;;
+
+
+fun AsciiToInt asccode =
+	if asccode <= 57 then // '9' /  
+		asccode - 48 // '0' 
+	else if asccode <= 70 then // 'F' 
+		asccode - 55 // 'F' - 15 
+	else asccode - 87 // 'f' - 15 
+;;
+
+fun IntToAscii intval =
+	if intval < 10 then
+		intval + 48	// '0' 
+	else
+		intval + 87	// 'f' - 15 
+;;
+
+fun XorHexStr str1 str2 =
+	let strlen str1 -> length in
+	let strnew length -> result in (
+	for i=0; i<length do (
+        		let strget str1 i -> ch1 in
+			let strget str2 i -> ch2 in
+			let AsciiToInt ch1 -> int1 in
+			let AsciiToInt ch2 -> int2 in
+			let IntToAscii (int1 ^ int2) -> intval in (
+        			strset result i intval
+			)
+	);
+	result )
+;;
+
+
+/** splits a number in the form of 4 bytes into a couple [ highBytes, lowBytes ] */
+fun seqSplitHighLow s =
+	[ (strgetnum s 0 2) (strgetnum s 2 2) ]
+;;
+
+/* helper fun for seqHighLowCmp */
+fun seqHighLowCmpHelper a b =
+	if (a > b) then 1 else if (a == b) then 0 else -1 ;;
+
+/* returns 1 if s1 > s2, 0 if s1==s2, -1 if s1 < s2 */
+fun seqHighLowCmp s1 s2 =
+	let s1 -> [ h1 l1 ] in
+	let s2 -> [ h2 l2 ] in
+	let seqHighLowCmpHelper h1 h2 -> res1 in
+		if 0 == res1 then seqHighLowCmpHelper l1 l2 else res1
+;;
+
+/* converts raw data to a printable form */
+fun dataToHexStr s =
+	let strlen s -> len in
+	let strnew (2*len) -> res in
+	(
+		for i=0 ; i< len do
+			strcpy res (2*i) (ctoh strget s i) 0 2;
+		res
+	)
+;;
+
+
+
+fun MACecho src i0 ln=
+	for i=0;i<6 do (Secho ctoh strget src i0+i; Secho ".");	if ln then Secholn "";
+	src;;
+
+fun SEQecho src i0 ln=
+	for i=0;i<4 do (Secho ctoh strget src i0+i; Secho ".");	if ln then Secholn "";
+	src;;
+
+fun IPecho src i0 ln=
+	for i=0;i<4 do (Iecho strget src i0+i; Secho ".");if ln then Secholn "";
+	src;;
+
+fun itoh4 i = strcatlist (ctoh i>>24)::(ctoh i>>16)::(ctoh i>>8)::(ctoh i)::nil;;
+
+fun strputchk s i w=
+	strset s i ~(w>>8);
+	strset s i+1 ~w;
+	0;;
+
+fun dump s=
+	for i0=0;i0<strlen s;i0+16 do
+	(
+		Secho itoh4 i0;
+		Secho " ";
+		for i=0;i<16 do let strget s i0+i -> c in
+		(
+			Secho if c==nil then "  " else ctoh c;
+			Secho " "
+		);
+		Secho " ";
+		for i=0;i<16 do let strget s i0+i -> c in
+		(
+			Secho if c==nil then "  " else if c<32 then "." else ctoa c
+		);
+		Secholn ""
+	);
+
+	s;;

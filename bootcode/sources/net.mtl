@@ -1,0 +1,45 @@
+#include net_protos.mtl
+#include net_vars.mtl
+
+#include tcp_protos.mtl
+#include udp_protos.mtl
+#include arp_protos.mtl
+
+proto cbnetarp 2 ;;
+
+fun net src mac=
+	let strget src 7 -> p in
+	(
+		if p==6 then cbnetarp src mac // ARP
+		else if p==0 then
+			let strget src 17 -> ip in
+			if ip==6 then cbnettcp src mac
+			else if ip==17 then cbnetudp src mac;
+		0
+	);
+// 	buttoncheckevent; // don't understand why there should be a buttoncheckevent here, it's already in the loop !
+	0;;
+
+fun netstart=
+	netCb #net;
+	resetarp;
+	resettcp;
+	resetudp;
+	0;;
+
+fun nettime=
+	arptime;
+	tcptime;
+	0;;
+
+
+/**
+	Simplified version of the builtin netSend.
+*/
+fun netSend2 trame mac =
+	netSend trame 0 nil mac 0 1
+;;
+
+#include tcp.mtl
+#include udp.mtl
+#include arp.mtl

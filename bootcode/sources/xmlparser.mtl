@@ -1,0 +1,256 @@
+// ################################################
+// ##### XML Parser // Novembre 2007 // Romain COCHET
+// ################################################	
+	
+type Attribute = [tagS valueS];;
+type Element = [nameS attribute content];;
+type Content = ContentElement Element | ContentText S;;
+type XmlResponse = [inXml EndStrS];;
+type AttributeResponse = [ListAttributes toAnalyseS];;
+
+fun BuildAttributes XmlAttr =
+	if (strlen XmlAttr) != 0 then (
+		let [ListAttributes:nil toAnalyseS:nil] -> Resp in (
+			if (strget XmlAttr 0) == 32 /* Caractere espace */ then ( // Si on a un espace au début de la chaine, on ne le prend pas en compte
+				set Resp = BuildAttributes strsub XmlAttr 1 (strlen XmlAttr)
+			)else if (strget XmlAttr 0) == '>' || ((strget XmlAttr 0) == '/' && (strget XmlAttr 1) == '>') then ( // Si on arrive à la fin de la balise contenant des attributs on retourne une réponse vide
+				set Resp = [ListAttributes:nil toAnalyseS:(strsub XmlAttr 0 strlen XmlAttr)]
+			)else (
+				let (strfind XmlAttr 0 "=" 0 nil)+2 -> EqualTo in
+				let strget XmlAttr (EqualTo-1) -> QuoteType in
+				let 0 -> PosQuote in
+				let [tagS:nil valueS:nil] -> NewAttribute in
+				let "'" -> Quote in (
+					if QuoteType != 39 /* Simple Quote */ then set Quote = "\""; // Si il ne s'agit pas d'un Simple, on recherche le double
+					set PosQuote = strfind XmlAttr EqualTo Quote 0 nil; // On détermine le prochaine Quote (Double ou Simple)
+					set NewAttribute.tagS = strsub XmlAttr 0 EqualTo-2;
+					set NewAttribute.valueS = strsub XmlAttr EqualTo (PosQuote-EqualTo);
+					let BuildAttributes strsub XmlAttr (PosQuote+1) strlen XmlAttr -> GetAll in (
+						set GetAll.ListAttributes = NewAttribute::GetAll.ListAttributes;
+						set Resp = GetAll
+					)
+				)
+			)
+		)
+	)
+;;
+
+// First function, prepare the string xml
+fun ReverseElements List =
+	let hd List -> Maille in
+	let nil -> NewList in (
+		while Maille != nil do (
+			if NewList == nil then
+				set NewList = Maille::nil
+			else
+				set NewList = Maille::NewList;
+			set List = tl List;
+			set Maille = hd List
+		);
+		NewList
+	)
+;;
+
+
+/** reste quelques bugs, mais normalement, ça n'arrive pas dans notre cas..
+		- bad XML non géré "<m><a</m>" ou "<m><a></m>"
+		- recursive balises non géré "<m><m></m></m>"...
+***/
+fun ParseXML XML =
+	if (strlen XML) != 0 then (
+		let [inXml:nil EndStrS:nil] -> XmlResp in
+		let strlen XML -> StrLen in
+		let strlen XML -> NewLen in
+		let strfind XML 0 "<" 0 nil -> FirstElement in
+		(
+			// In an Element (could be <xml> or <xml attribute=''>...)
+			if FirstElement == 0 then
+			(
+				let strfind XML 0 " " 0 nil -> Space in
+				let strfind XML 0 ">" 0 nil -> Ending in
+				let nil -> Name in
+				let nil -> Attributes in
+				let nil -> Contents in
+				let nil -> NewList in
+				let nil -> ToAnalyseAfter in
+				let nil -> ToAnalyseNow in
+				(
+					if Ending == nil then (
+						// pas de Ending "<m" : n'était pas traité [AS 5dec07]
+						set ToAnalyseAfter = XML;
+						0
+					) else (
+						if Space == nil then set Space = Ending+1;
+						if Ending < Space then ( // we have <balise>
+							set Name = strsub XML 1 (Ending-1);
+							set NewLen = (strfind XML 0 (strcatlist "</"::Name::">"::nil) 0 nil);
+							
+							if NewLen != nil then ( // si on ne trouve pas la fin, on ne donne rien à analyser
+								set ToAnalyseNow = strsub XML (Ending+1) (NewLen-Ending-1);
+								set ToAnalyseAfter = strsub XML (NewLen + (strlen Name) + 3) strlen XML
+							)else(
+								set ToAnalyseAfter = XML
+							);
+							0
+						)else( // we have an attribute
+							set Name = strsub XML 1 (Space-1);
+							
+							set NewLen = (strfind XML 0 (strcatlist "</"::Name::">"::nil) 0 nil);
+							if NewLen != nil then set StrLen = NewLen;
+							
+							// Get attributes
+							let BuildAttributes (strsub XML (Space+1) (StrLen-Space-1)) -> AttributesResp in (
+								set Attributes = AttributesResp.ListAttributes;
+								set ToAnalyseNow = AttributesResp.toAnalyseS
+							);
+							// Check balise
+							if (strfind ToAnalyseNow 0 "/>" 0 nil) == 0 then ( // we got this : <balise atr="" />
+								set XmlResp.inXml = ContentElement [nameS:Name attribute:Attributes content:nil];
+								set XmlResp.EndStrS = strsub ToAnalyseNow 2 strlen ToAnalyseNow;
+								set ToAnalyseAfter = XmlResp.EndStrS;
+								set ToAnalyseNow = nil
+							)else if NewLen != nil then ( // si on ne trouve pas la fin, on ne donne rien à analyser
+								set ToAnalyseNow = strsub ToAnalyseNow 1 strlen ToAnalyseNow;
+								set ToAnalyseAfter = strsub XML (NewLen + (strlen Name) + 3) strlen XML
+							)else (
+								set ToAnalyseNow = nil;
+								set ToAnalyseAfter = XML
+							);
+							0
+						)
+					);
+					
+					if ToAnalyseNow != nil then (
+						let ParseXML ToAnalyseNow -> NewContent in
+						(
+								while NewContent.EndStrS != nil do
+								(
+									if Contents == nil then		set Contents = (NewContent.inXml)::nil
+									else						set Contents = (NewContent.inXml)::Contents;
+									set NewContent = ParseXML NewContent.EndStrS
+								);
+								if NewContent != nil then (
+									if Contents == nil then		set Contents = (NewContent.inXml)::nil
+									else						set Contents = (NewContent.inXml)::Contents
+								)
+						);
+						set Contents = ReverseElements Contents; // On renverse les elements pour les remettres dans le bon ordre
+						set XmlResp.inXml = ContentElement [nameS:Name attribute:Attributes content:Contents];
+						set XmlResp.EndStrS = ToAnalyseAfter
+					)else (
+						if XmlResp.inXml == nil then (
+							set XmlResp.inXml = ContentText ToAnalyseAfter;
+							set XmlResp.EndStrS = nil
+						)
+					)
+				);
+				0
+			// Not in an Element (could be text...)
+			)else if FirstElement != nil then // There is a balise after
+			(
+				set XmlResp.inXml = ContentText strsub XML 0 FirstElement;
+				set XmlResp.EndStrS	= strsub XML FirstElement StrLen;
+				0
+			)else ( // There is no balise after
+				set XmlResp.inXml = ContentText strsub XML 0 strlen XML;
+				set XmlResp.EndStrS	= nil;
+				0
+			);
+		if (strlen XmlResp.EndStrS) == 0 then set XmlResp.EndStrS = nil;
+		XmlResp
+		
+		)
+	)
+;;
+// Qui n'accepte que des paquets XML bien formés
+fun ParseXMLPacket XML =
+    let ParseXML XML -> xml in
+    (
+        match xml.inXml with
+        (ContentText Texte ->
+            set xml.inXml = nil;
+            set xml.EndStrS = Texte;
+        0)|
+        (_ -> -1);
+        xml
+    )
+;;
+
+// ----- XML utils
+fun Xml_FindFirstElementNamed elem nam=
+	let nil -> res in (
+		let elem.content -> l in
+		while ((hd l) != nil) && (res == nil) do (
+			let (hd l) -> xmlPaqi in (
+				match xmlPaqi with
+				(ContentElement subXml -> if (!strcmp subXml.nameS nam) then set res = subXml; 0) |
+				(_ -> 0)
+			);
+			set l = tl l
+		);
+		res
+	);;
+
+// returns the content's content, if it is a ContentText, nil otherwise
+fun Xmp_GetTextContent elem=
+	let hd elem.content -> firstcontent in let nil -> res in (
+		set res = match firstcontent with (ContentElement _ -> nil)|(ContentText txt -> txt);
+		res
+	);;
+
+fun Xml_GetElementAttribute elem tag=
+	//Secho "Xml_GetElementAttribute:"; XMLPrintElement elem 0;
+	let nil -> res in (
+		let elem.attribute -> l in
+			while ((hd l) != nil) && (res == nil) do (
+				let hd l -> att in (
+					//Secho att.tagS; Secho ",";
+					if (!strcmp att.tagS tag) then set res = att.valueS
+				);
+				set l = tl l
+			);
+		//Secho "Xml_GetElementAttribute("; Secho tag; Secho ")="; Secholn res;
+		res);;
+
+
+// Printing XML
+proto XMLPrintContent 2;;
+
+// prints an Element
+fun XMLPrintElement Balise First=
+	Secho "    |";
+	for i=0; i<First do Secho ".";
+	Secholn (Balise.nameS);
+	let Balise.attribute -> ListAttribut in
+	let Balise.content -> Recur in
+	(
+		while (hd ListAttribut) != nil do (
+			let hd ListAttribut -> Attr in (
+				Secho "    | ";
+				for i=0; i<First do Secho " ";
+				Secho Attr.tagS;
+				Secho " => ";
+				Secholn Attr.valueS
+			);
+			set ListAttribut = tl ListAttribut
+		);
+		while (hd Recur) != nil do (
+			XMLPrintContent (hd Recur) (First+2);
+			set Recur = tl Recur
+		)
+	);;
+			
+// prints a ContentXXX
+fun XMLPrintContent Xml First = // was print_r
+	let match Xml with
+		(ContentElement Balise ->
+			XMLPrintElement Balise First;
+		0)|
+		(ContentText Texte ->
+			Secho "    !";
+			for i=0; i<First do Secho ".";
+			Secholn Texte;
+		0)|
+		(_ -> -1)-> Expect in
+		if Expect == -1 then Secholn "Erreur"
+;;

@@ -1,0 +1,96 @@
+#include arp_protos.mtl
+
+const ARPREQ=1;;
+const ARPANS=2;;
+
+var larp;;
+var larpreq;;
+
+
+fun mkarp op ipsrc macdst ipdst=
+	strcatlist
+	"\$aa\$aa\$03\$00\$00\$00\$08\$06\$00\$01\$08\$00\$06\$04\$00"::(ctoa op)::
+	mymac::
+	netip::
+	macdst::
+	ipdst
+	::nil;;
+
+fun sendarp ip=
+	netSend (mkarp ARPREQ netip macbroadcast ip) 0 nil macbroadcast 0 1;;
+
+
+fun filterarpip l src =
+	if l!=nil then let hd l->[ip _ _] in if !vstrcmp src 8+14 ip 0 4  then filterarpip tl l src
+	else (hd l)::filterarpip tl l src;;
+
+fun checkarp l src=
+	if l!=nil then let hd l->[ip _ cb] in 
+	(
+		if !vstrcmp src 8+14 ip 0 4 then
+		let strsub src 8+8 6 -> mac in
+		(
+			Secho "found MAC target : "; MACecho mac 0 1;
+			set larp=[ip mac]::larp;
+			call cb [mac]
+		);
+		checkarp tl l src
+	);
+	nil
+;;
+
+fun cbnetarp src mac=
+	//Secho "<a";
+	let strget src 8+7-> op in
+	if op==1 then // req
+	(
+//		Secho "ask ";MACecho src 16+10 1; IPecho src 16+16 1;
+		if !vstrcmp src 32 netip 0 4 then
+			netSend (mkarp ARPANS netip strsub src 16 6 strsub src 22 4) 0 nil mac 0 1;
+		nil
+	)
+	else if op==2 then
+		let larpreq->l in
+		(
+			set larpreq=filterarpip larpreq src;
+			checkarp l src
+		)
+	; 0
+;;
+
+fun subnet_ ip i=
+	if i<0 then 1
+	else if ((strget ip i)^(strget netip i))&(strget netmask i) then 0
+	else subnet_ ip i-1;;
+
+fun subnet ip=
+	//Secho "test subnet "; IPecho ip 0 1;
+	/*Iecholn */ subnet_ ip 3;;
+	
+	
+fun arpreq ip cb=
+	let /* IPecho */ (if subnet ip then ip else netgateway) /* 0 1 */ -> ip in
+	let listswitchstr larp ip -> mac in
+	if mac!=nil then call cb [mac]
+	else
+	(
+		sendarp ip;
+		set larpreq=[ip time cb]::larpreq;	// ### attention à la taille de la liste
+		0
+	);;
+
+fun filterarp l dt =
+	if l!=nil then let hd l->[ip t _] in if (time-t)>dt then filterarp tl l dt
+	else
+	(
+		sendarp ip;
+		(hd l)::filterarp tl l dt
+	);;
+
+fun arptime =
+	set larpreq=filterarp larpreq 10;;
+
+fun resetarp=
+	set larp=nil;
+	set larpreq=nil;
+	0;;

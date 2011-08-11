@@ -1,0 +1,96 @@
+#include config_protos.mtl
+
+const CONF_SERVERURL=0;;		//41
+const CONF_NETDHCP=41;;		//1
+const CONF_NETIP=42;;			//4
+const CONF_NETMASK=46;;		//4
+const CONF_NETGATEWAY=50;;	//4
+const CONF_NETDNS=54;;		//4
+const CONF_WIFISSID=58;;		//32
+const CONF_WIFIAUTH=90;;		//1
+const CONF_WIFICRYPT=91;;		//1
+const CONF_WIFIKEY0=92;;		//64
+const CONF_PROXYENABLE=156;;	//1
+const CONF_PROXYIP=157;;		//4
+const CONF_PROXYPORT=161;;	//2
+const CONF_LOGIN=163;;		//6
+const CONF_PWD=169;;			//6
+const CONF_WIFIPMK=175;;		//32
+const CONF_MAGIC=207;;		//1
+const CONF_LENGTH=208;;
+
+var conf;;
+
+/*
+var conf0=
+"r.nabaztag.com/vl\0-----------------------\
+\1\0\0\0\0\255\255\255\0\0\0\0\0\0\0\0\0\
+\0-------------------------------\
+\0\0abcde\0----------------------------------------------------------\
+\0\0\0\0\0\0\0\
+\0\0\0\0\0\0\
+\0\0\0\0\0\0\
+--------------------------------\
+\$48";;
+*/
+
+fun confSave=
+	Secholn "## save configuration";
+	dump conf;
+	save conf 0 "conf.bin" 0 CONF_LENGTH;;
+
+fun confInit=
+	set conf=strnew CONF_LENGTH;
+	load conf 0 "conf.bin" 0 CONF_LENGTH;
+/*	if (strget conf CONF_MAGIC)!=0x48 then
+	(
+		set conf=strnew CONF_LENGTH;
+		strcpy conf 0 conf0 0 nil;
+		confSave;
+		set conf=strnew CONF_LENGTH;
+		load conf 0 "conf.bin" 0 CONF_LENGTH
+	);
+*/	dump conf;;
+
+fun confGet i len= strsub conf i len;;
+
+fun confGetbin i len= strsub conf i len;;
+
+fun confGetstr i len=
+	let strstr conf "\0" i -> j in
+	strsub conf i (if j==nil then len else min len j-i);;
+
+fun confSet i val len=
+	strcpy conf i val 0 len;;
+
+fun confSetbin i val len=strcpy conf i val 0 len;;
+
+fun confSetstr i val len=
+	let min strlen val len-1 -> len in
+	(
+		strcpy conf i val 0 len;
+		strset conf i+len 0
+	);;
+
+fun webport s= ((strget s 0)<<8)+strget s 1;;
+
+fun confGetWifissid=confGetstr CONF_WIFISSID 32;;
+fun confGetWificrypt=strget confGet CONF_WIFICRYPT 1 0;;
+fun confGetWifikey0=confGetstr CONF_WIFIKEY0 64;;
+fun confGetWifiauth=strget confGet CONF_WIFIAUTH 1 0;;
+fun confGetWifipmk=confGetbin CONF_WIFIPMK 32;;
+
+fun confGetDhcp=strget confGet CONF_NETDHCP 1 0;;
+fun confGetNetip=confGet CONF_NETIP 4;;
+fun confGetNetmask=confGet CONF_NETMASK 4;;
+fun confGetNetgateway=confGet CONF_NETGATEWAY 4;;
+fun confGetNetdns=confGet CONF_NETDNS 4;;
+
+fun confGetServerUrl=confGetstr CONF_SERVERURL 40;;
+fun confGetLogin=confGet CONF_LOGIN 6;;
+fun confGetPwd=confGet CONF_PWD 6;;
+
+fun confGetProxy=strget confGet CONF_PROXYENABLE 1 0;;
+fun confGetProxyip=confGet CONF_PROXYIP 4;;
+fun confGetProxyport=webport confGet CONF_PROXYPORT 2;;
+

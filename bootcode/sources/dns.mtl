@@ -1,0 +1,441 @@
+#include dns_protos.mtl
+
+/*
+	Réponse DNS. voir http://www.zytrax.com/books/dns/ch15/
+
+	Section |	Meaning/Use
+-----------------------------
+Section 1 |	Message Header
+Section 2 |	The DNS question being asked
+Section 3 |	The Resource Record(s) which answer the question
+Section 4 |	The Resource Record(s) which point to the domain authority
+Section 5 |	The Resource Record(s) which may hold additional information
+*/
+
+// TYPE ET LISTE POUR LES REPONSES SRV
+type SrvAnswer = [SrvPriority SrvWeight SrvPort SrvTargetS];;
+var SrvAnswerL = nil;;
+
+// port local pour le dns
+const DNSLOCAL=1597;;
+
+// debug
+fun Dnsw s = Secholn strcatlist "[dns] " :: s :: nil ;;
+
+
+// skippe une question dans la section 2.
+// 
+//  s: la réponse dns
+//  i: le début de la partie qu'on doit skipper dans s
+//
+//  -> la position de ce qui suit cette question dans s
+fun parsequ s i= let strfind s i "\0" 0 nil -> j in	j+5;;
+
+// skippe la section 2 d'une réponse DNS (qui récapitule la
+// requête), qui ne nous intéresse pas.
+// 
+//  s: la réponse dns
+//  i: le début de la partie qu'on doit skipper dans s
+//  n: le nombre de questions restantes à skipper
+//
+//  -> la position de la fin de la section 2 dans s.
+fun parsequs s i n=	if n<=0 then i else parsequs s parsequ s i n-1;;
+
+// passe la partie "nom" de la section 3 d'une réponse dns
+//
+//  s: la réponse dns
+//  i: où commencer à lire (où commence le nom)
+//
+//  -> la position de la fin du nom dans s.
+fun skipname s i=
+	let strgetword s i -> x in
+	if (x&0xc000)==0xc000 then i+2
+	else (strfind s i "\0" 0 nil)+1;;
+
+// ON PARSE LES REPONSES A PARTIR DE i
+
+// parse les réponses dns.
+//  s: la reponse dns
+//  i: la position a partir de laquelle on doit commencer dans s
+//     (on est dans la section 3)
+//  n: le nombre de reponses qu'il reste a parser
+//
+//  -> un couple [ ip ttl ], ou nil, selon le type de message
+fun parseans s i n=
+	if n<=0 then nil
+	else let skipname s i -> j in	// Passe le nom de la requete
+	let strgetword s j -> typ in (
+		if typ==1 then
+		(
+			let strgetword s j+4 -> TTLh in
+			let strgetword s j+6 -> TTLl in
+			let TTLl + 65536 * TTLh -> ttl in
+			let strcatlist (itoa strget s j+10)::"."::(itoa strget s j+11)::"."::(itoa strget s j+12)::"."::(itoa strget s j+13)::nil -> ip in
+			(
+				Dnsw strcatlist "DNS: parsed an answear. TTLl = " :: (itoa TTLl) :: ", TTLh = " :: (itoa TTLh) :: ", so TTL = " :: (itoa ttl) :: " and ip = " :: ip :: nil;
+				[ ip ttl ]
+			)
+		)
+		else if typ==33 then ( // ON PARSE LES REQUETES SRV (les réponses)
+			Dnsw "DNS: parsing a SRV answear";
+			let strsub s j+2 nil -> SrvAns in
+			let strgetword s j+2 -> Class in
+			let strgetword s j+4 -> TTLh in
+			let strgetword s j+6 -> TTLl in
+			let strgetword s j+8 -> Len in
+			let j+10+Len -> End in
+			let strgetword s j+10 -> Priority in
+			let strgetword s j+12 -> Weight in
+			let strgetword s j+14 -> Port in
+			let strsub s j+16 (Len - 6) -> tmp in
+			let 0 -> k in
+			let strnew (Len - 8) -> Location in
+			(
+				set j=0; // ON REFORME LA TARGET
+				strset Location (Len - 9) (strget tmp (Len - 8));
+				for i=0; i<(Len-8) do (
+					if j == 0 then (
+						set j = strget tmp i;
+						if i > 0 then
+							strset Location i-1 '.'
+					)
+					else (
+						set j = j - 1;
+						strset Location i-1 (strget tmp i)
+					)
+				);
+
+				parseans s End n-1; // ON RELANCE LE TRAITEMENT (Pour toutes les réponses)
+				
+				let [SrvPriority:Priority SrvWeight:Weight SrvPort:Port SrvTargetS:Location] -> AnswerSrv in (
+					if SrvAnswerL == nil then set SrvAnswerL = AnswerSrv::nil	// ON AJOUTE DANS LA LISTE DES REPONSES
+					else set SrvAnswerL = AnswerSrv::SrvAnswerL;
+					nil
+				)
+			)
+		)
+		else parseans s (j+10+strgetword s j+8) n-1
+	);;
+
+fun parsemsg s=
+	let strgetword s 0 -> id in
+	let strgetword s 2 -> code in
+	let strgetword s 4 -> nbqu in
+	let strgetword s 6 -> nbans in
+	if nbans==0 then nil
+	else let parsequs s 12 nbqu -> i in
+		parseans s i nbans
+;;
+
+fun filterdns src=
+	let strfind src 0 "." 0 nil ->i in
+	if i!=nil then
+		strcat
+			strcat ctoa i strsub src 0 i
+			filterdns strsub src i+1 nil
+	else strcat ctoa strlen src src;;
+
+/**
+	makes a dns request
+*/
+fun question id dns=
+	strcatlist (itobin2 id)::"\$01\$00\$00\$01\$00\$00\$00\$00\$00\$00"::(filterdns dns)::"\$00\$00\$01\$00\$01"::nil;;
+
+var dnsid=0;;
+
+type Dns=[idD domainD reqD timeoutD cbD idxDnsD ];;
+var ldnsreq;;
+
+
+// liste contenant un cache dns. Les éléments de la liste sont des
+// tuples [ nomdedomaine [ ip time_valid ] ]
+// un element de la liste est périmé lorsque time > time_valid
+var ldns;;
+
+
+// aide pour dnsremoveipfromcache
+fun dnsremoveipfromcacheR l iptoremove =
+	if nil!=l then
+	(
+		let hd l -> [ ip _ ] in
+			if iptoremove==ip then
+				tl l
+			else
+				hd l :: (dnsremoveipfromcacheR tl l iptoremove) :: nil
+	)
+	else
+		l
+;;
+
+// retire une ip du cache contenu dans ldns
+//  ip: l'ip a retirer
+fun dnsremoveipfromcache iptoremove =
+	Dnsw strcatlist "DNS: CACHE: cache for ip " :: iptoremove :: " has expired. removing it" :: nil;
+	set ldns = dnsremoveipfromcacheR ldns iptoremove
+;;
+
+// recherche l'url associée à un nom de domaine et appelle le callback une fois trouvé
+// 
+//  domain: le domaine à rechercher
+//  cb: le callback à appeler
+fun dnsreq domain cb=
+	Dnsw "dnsreq("; Secho domain; Secholn ")";
+	set dnsid=(if dnsid==nil then time_ms else (dnsid+1));
+	let listswitchstr ldns domain -> [ ip time_valid ] in
+		if (ip!=nil && time < time_valid)
+			then (Dnsw "ip dans le cache"; call cb[ip])
+	else let dump question dnsid domain -> tramedns in
+	(
+		Dnsw strcatlist "on fait une requete dns pour le domaine " :: domain :: nil;
+		if (nil!=ip) then // il y a une reponse dans le cache mais elle est périmée
+			dnsremoveipfromcache ip;
+		let listnth netdnslist 0 -> netdns in
+			udpsend netip DNSLOCAL netdns 53 tramedns nil;
+		set ldnsreq=[idD:dnsid domainD:domain reqD:tramedns timeoutD:time+5 cbD:cb idxDnsD:0]::ldnsreq;
+		nil
+	);
+	0;;
+
+/**
+	Tells, for a (failed) dns request, if there is another dns server that could possibly answear the request
+*/
+fun dnsHasAnotherServer x =
+	(listlen netdnslist) > (x.idxDnsD+1)
+;;
+
+
+/**
+	Replaces the id at the beginning of the trame by a new one
+*/
+fun dnsChangeIdInTrame oldTrame newId =
+	strcatlist (itobin2 newId)::(strsub oldTrame 2 nil) :: nil;;
+
+/**
+	Asks the next dns server in the list the dns request contained in x. It is assumed that there _is_ a next server, ie dnsHasAnotherServer has been called and returned != 0
+*/
+fun dnsAskNextServer x =
+	Dnsw strcatlist ("DNS -- pas de reponse pour la requete " :: (itoa x.idD) :: " donc on en essaie un autre. dns numero " :: (itoa x.idxDnsD+1) :: " -> " :: (webip listnth netdnslist (x.idxDnsD+1)) :: nil);
+	let (listnth netdnslist (x.idxDnsD+1)) -> netdns in
+	let (dnsChangeIdInTrame x.reqD (set dnsid=(dnsid+1))) -> newtrame in
+	(
+		Dnsw strcatlist ("la nouvelle requete a le numero " :: (itoa dnsid) :: nil);
+		udpsend netip DNSLOCAL netdns 53 newtrame nil;
+		set ldnsreq=[idD:dnsid domainD:(x.domainD) reqD:newtrame timeoutD:(time+5) cbD:(x.cbD) idxDnsD:(x.idxDnsD+1)]::ldnsreq
+	);
+	nil
+;;
+
+/**
+	Helper func for select in cbnetdns
+*/
+fun selectbyid d v= d.idD==v;;
+
+// callback appelé pour chaque paquet udp qui arrive 
+// sur le port DNSLOCAL (setté dans startdnsclient)
+fun cbnetdns msg mac ipfrom= 
+	Dnsw strcatlist "cbnetdns [" :: msg :: "]" :: nil; 
+	let strgetword msg 0 -> id in
+	let parsemsg msg -> [ ip ttl ] in
+	let hd select ldnsreq id #selectbyid -> x in
+	if x!=nil then
+	(
+		Dnsw strcatlist ("on recoit une reponse pour une question dns, id " :: (itoa id) :: ", ip = " :: (if nil!=ip then ip else "nil") :: " pour le domaine " :: x.domainD :: nil);
+		Dnsw strcatlist ("cette requete etait avec le serveur numero " :: (itoa x.idxDnsD) :: ", c'est a dire l'ip " :: (webip listnth netdnslist (x.idxDnsD)) :: nil);
+
+		set ldnsreq=listrem ldnsreq x;
+
+		// check if the answear is empty. if it is, we should try to ask the next dns server
+		if (ip == nil && ttl == nil && (dnsHasAnotherServer x)) then
+			( dnsAskNextServer x; nil)
+		else
+		(
+			if ip!=nil then
+				set ldns = [ x.domainD [ ip (time + ttl)] ]::ldns	// ### attention à la taille de la liste
+			else
+				(Dnsw "ip est nil"; nil);
+			call x.cbD [ip]
+		)
+	)
+	else
+		(Dnsw "x nil"; 0);
+	0;;
+
+/**
+	Removes from the list l the dns requests that have done a timeout
+*/
+fun filterdnsdead l=if l!=nil then let hd l-> d in if d.timeoutD==nil then filterdnsdead tl l else (hd l)::filterdnsdead tl l;;
+
+/**
+	Checks if any dns request has timeouted and either relays the
+	request to the next dns server available or calls the callback with	
+	a null answear.
+*/
+fun dnstime=
+	for l=ldnsreq;l!=nil;tl l do let hd l-> d in
+	if time-d.timeoutD>=0 then
+	(
+		set d.timeoutD=nil;
+		Dnsw strcatlist "dnstime, timeout pour la requete d'id " :: (itoa d.idD) :: nil;
+		// s'il y a un dns "de secours", on l'utilise. sinon, on appelle la cb avec nil
+		if (dnsHasAnotherServer d) then
+			( dnsAskNextServer d; 0 )
+		else
+			(call d.cbD [nil] ; 0)
+	);
+	set ldnsreq=filterdnsdead ldnsreq;
+	0;;
+
+
+// démarre le client dns. en particulier, sette le callback qui sera
+// appelé pour tous les paquets udp entrants sur le port DNSLOCAL
+fun startdnsclient=
+
+	// on ajoute les dns "de secours" s'ils ne sont pas déjà dans la liste
+	addnewdns confGetNetdns 0;
+
+	regudp DNSLOCAL #cbnetdns;
+	set ldnsreq=nil;
+	set ldns=nil;
+	0;;
+
+fun isip s i=
+	if i>=strlen s then 1
+	else let strget s i -> c in
+	if (c<'0' || c>'9')&&c!='.' then 0
+	else isip s i+1;;
+
+fun DnsSrvCb2 ip Params=
+	let Params -> [Port cb] in
+	(
+		call cb [ip Port]
+	)
+;;
+
+// CALLBACK DU DnsSrv
+fun DnsSrvCb NotUse cb=
+	Dnsw "DnsSrvCb";
+	if SrvAnswerL != nil then (			// Si le callback a ete appele et qu'il n'y a aucun parametre, on passe en BOSH
+		Dnsw "Reponse pas nil";
+		let hd SrvAnswerL -> Actuel in	//  ON TENTE SUR LE PREMIER de la liste : REGLE SRV A FAIRE ICI
+		(
+			if isip Actuel.SrvTargetS 0 then				// Si on a une ip, on lance la connexion directement
+				call cb [Actuel.SrvTargetS Actuel.SrvPort]	// SI C'est une IP
+			else (
+				Dnsw strcatlist ("On a recu " :: Actuel.SrvTargetS :: " et on enchaine donc sur une requete dns" :: nil);
+				dnsreq Actuel.SrvTargetS fixarg2 #DnsSrvCb2 [Actuel.SrvPort cb];
+
+			0); // Sinon on lance la resolution en donnant le callback
+			set SrvAnswerL = tl SrvAnswerL;	// On vide la liste petit à petit, il faudra vider cette chaine dans le callback (sinon on empilera les dns)
+			0
+		)
+	)else(
+		Dnsw "SrvAnswerL nil";
+		call cb [nil nil];
+		0
+	)
+;;
+
+// REQUETE DNS SRV
+fun DnsSrv Request CallBack=
+	set dnsid=if dnsid==nil then time_ms%9999 else dnsid+1;	// ON MET l'ID pour identifier par la suite
+	Dnsw strcatlist "requete DNS SRV. dnsid=" :: (itoa dnsid) :: nil;
+	Dnsw dnslisttostr;
+	let filterdns Request -> domain in
+	let strcatlist (itobin2 dnsid)::"\$01\$00\$00\$01\$00\$00\$00\$00\$00\$00"::domain::"\$00\$00\$21\$00\$01"::nil -> dnssrvquestion in
+	let dump dnssrvquestion -> tramedns in // Creation de la question
+	(
+		let listnth netdnslist 0 -> netdns in (
+		  Dnsw webip netdns;
+			udpsend netip DNSLOCAL netdns 53 tramedns nil) ; // On lance la requete sur le DNS
+		set ldnsreq=[idD:dnsid domainD:Request reqD:tramedns timeoutD:time+7 cbD:fixarg2 #DnsSrvCb CallBack idxDnsD:0]::ldnsreq;
+		nil
+	);
+0;;
+
+
+
+/**
+	Helper func for addnewdns_r.
+*/
+fun removedns_r dns lst =
+	if (nil != lst) then	
+	(
+		if !(ipcmp dns hd lst) then
+			(tl lst)
+		else
+			(hd lst) :: (removedns_r dns tl lst)
+	)
+	else
+		nil
+;;
+
+/**
+	Helper func for addnewdns.
+*/
+fun addnewdns_r dns lst front =
+	if (front) then
+		dns :: (removedns_r dns lst)
+	else
+		(
+			if (nil!=lst) then
+				(
+					if (!ipcmp dns (hd lst)) then
+						// dns is present, nothing to do
+						lst
+					else
+						(hd lst) :: (addnewdns_r dns tl lst 0)
+				)
+			else
+				dns :: nil
+		)
+;;
+
+/**
+	Adds a new dns server in list of dns servers.
+	Skips if dns is "0.0.0.0".
+
+	If the dns is already in the list and front si set, the dns is moved
+  to the front of the list. Otherwise nothing is done.
+
+	dns: the dns to add
+	front: if 1 the dns will be added in front, else at the back
+*/
+fun addnewdns dns front =
+	if !(strcmp dns "\0\0\0\0") then
+		netdnslist
+	else
+		set netdnslist = addnewdns_r dns netdnslist front
+;;
+
+/**
+	Adds a list of new dns servers in front of the existing list of dns servers
+*/
+fun addnewdnslist dnslist =
+	set netdnslist = conc dnslist netdnslist
+;;
+
+/**
+	Helper func for dnslisttostr
+*/
+fun dnslisttostr_r l =
+	if (nil != l) then
+		(webip hd l) :: " " :: (dnslisttostr_r tl l)
+	else
+		nil
+;;
+
+/**
+	Returns a string representation of the ip in the dns list
+*/
+fun dnslisttostr =
+	strcatlist "(" :: (itoa listlen netdnslist) :: ") - " :: (dnslisttostr_r netdnslist)
+;;
+
+
+/**
+	Called when receiving a new list of dns servers from dhcp. Updates the current dns list.
+*/
+fun dnslistfromdhcp dnslist =
+	set netdnslist = dnslist;
+	addnewdns confGetNetdns 0
+;;

@@ -1,0 +1,19 @@
+#include leds_protos.mtl
+
+fun setleds col= for i=0;i<5 do led i col;;
+
+var leds_currentState = nil ;;
+
+fun leds_set_state state =
+	if (leds_currentState != state) then
+	(
+		set leds_currentState = state;
+		match state with
+			 (LEDS_STATE_START -> setleds RGB_BLACK; led LED_NOSE RGB_BLUE)
+			|(LEDS_STATE_CONFIG_WAIT -> setleds RGB_BLACK; led LED_BODY_LEFT RGB_BLUE)
+			|(LEDS_STATE_XMPP_OPENING_XMPP_TCP -> setleds RGB_BLACK; led LED_BODY_MIDDLE RGB_BLUE)
+			|(LEDS_STATE_XMPP_OPENING_XMPP_BOSH -> setleds RGB_BLACK; led LED_BODY_MIDDLE RGB_AMBER)
+			|(LEDS_STATE_XMPP_OPENING_XMPP -> setleds RGB_BLACK; led LED_BODY_MIDDLE RGB_GREEN)
+			|(LEDS_STATE_XMPP_CONNECTED -> 0 /* ne rien faire, maintenant les leds sont settées dans le code */)
+	)
+;;

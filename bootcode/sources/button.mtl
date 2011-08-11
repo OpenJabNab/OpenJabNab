@@ -1,0 +1,59 @@
+var buttonlast;;
+var buttontime;;
+var buttonevent;;
+var buttonclicn;;
+
+const BUTTON_CLIC=1;;
+const BUTTON_DCLIC=2;;
+const BUTTON_LCLIC=3;;
+const BUTTON_DLCLIC=4;;
+const T_DCLIC=500;;
+const T_LCLIC=1500;;
+
+
+fun buttonloop=
+	let button2 -> b in
+	if b!=buttonlast then
+	(
+		set buttonlast=b;
+		if b then
+		(
+			if buttontime==nil then
+			(
+				set buttonclicn=1;
+				set buttontime=time_ms
+			)
+			else
+			(
+				set buttonclicn=buttonclicn+1;
+				set buttontime=time_ms
+			)
+		)
+		else if buttontime!=nil then set buttontime=time_ms
+	)
+	else if (buttontime!=nil) then
+	(
+		if ((time_ms-buttontime)>=T_LCLIC) then
+		(
+			if buttonlast then set buttonevent=if buttonclicn==1 then BUTTON_LCLIC else BUTTON_DLCLIC;
+			set buttontime=nil
+		)
+		else if ((time_ms-buttontime)>=T_DCLIC)&&!buttonlast then
+		(
+			set buttonevent=if buttonclicn==1 then BUTTON_CLIC else BUTTON_DCLIC;
+			set buttontime=nil
+		)
+	);;
+
+fun buttongetevent=
+	let buttonevent -> ev in
+	(
+		set buttonevent=nil;
+		ev
+	);;
+
+proto loop 0;;
+fun buttoncheckevent=
+	buttonloop;
+	if buttonevent!=nil then loop;
+	0;;
