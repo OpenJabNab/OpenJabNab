@@ -54,8 +54,8 @@ public :
 
 	void echoposition();
 
-	int parsekeyword(char* keyword);
-	int parsekeyword(char* keyword,int filter);
+	int parsekeyword(const char* keyword);
+	int parsekeyword(const char* keyword,int filter);
 	int getstring(Memory* m,char separator);
 };
 

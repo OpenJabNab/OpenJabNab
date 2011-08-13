@@ -26,7 +26,7 @@
 
 // types de base
 #define NBcore 115 /******** A ACTUALISER! ************/
-char* corename[]=
+const char* corename[]=
 {NULL,NULL,NULL,NULL,NULL,"hd","tl","Secholn","Secho","Iecholn",					//10
 "Iecho","time_ms","tabnew","abs","min","max","rand","srand",					//8
 "time","strnew","strset","strcpy","vstrcmp","strfind","strfindrev","strlen",		//8
@@ -82,7 +82,7 @@ int corecode[]=
 2,3
 };
 
-char* coretype[]=
+const char* coretype[]=
 {"I","S","F","Env","Xml","fun[list u0]u0","fun[list u0]list u0","fun[S]S","fun[S]S","fun[u0]u0",
 "fun[u0]u0","fun[]I","fun[u0 I]tab u0","fun[I]I","fun[I I]I","fun[I I]I","fun[]I","fun[I]I",
 "fun[]I","fun[I]S","fun[S I I]S","fun[S I S I I]S","fun[S I S I I]I","fun[S I S I I]I","fun[S I S I I]I","fun[S]I",

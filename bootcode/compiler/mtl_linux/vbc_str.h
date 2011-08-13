@@ -6,7 +6,7 @@
 
 // cette table ne sert qu'à l'affichage du bytecode dans la console
 #define MaxOpcode 152
-char* strbytecod[MaxOpcode]=
+const char* strbytecod[MaxOpcode]=
 {
 "exec",
 "ret",

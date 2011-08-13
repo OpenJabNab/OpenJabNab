@@ -68,7 +68,7 @@ int File::openwrite(char* name)
 	if (file) return 0;
 	return -1;
 }
-int File::write(char *outbuf,int size)
+int File::write(const char *outbuf,int size)
 {
 	if (file==NULL) return 0;
 

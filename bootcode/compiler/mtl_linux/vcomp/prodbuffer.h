@@ -31,7 +31,7 @@ public:
 	void setint(int index,int i);
 	void setshort(int index,int i);
 	void addstr(char *src,int len);
-	void printf(char *format, ...);
+	void printf(const char *format, ...);
 	void cut(int len);
 	int getsize();
 	char* getstart();

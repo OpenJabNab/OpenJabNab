@@ -71,7 +71,7 @@ int Compiler::getsystempackage()
 }
 
 // crée et empile un package
-int Compiler::createpackage(char* name,int loghach)
+int Compiler::createpackage(const char* name,int loghach)
 {
 	int k;
 	if (k=PUSHMALLOCCLEAR(m,PACK_LENGTH)) return k;
@@ -307,7 +307,7 @@ int* Compiler::searchref_nosetused(int env,char* name)
 
 
 // ajout d'un label dans une liste de labels
-int Compiler::addlabel(int base,char* name,int val,int ref)
+int Compiler::addlabel(int base,const char* name,int val,int ref)
 {
 	int k;
 	int* p=MALLOCCLEAR(m,LABELLIST_LENGTH);
@@ -398,8 +398,8 @@ int* Compiler::tuplefromlabels(int base)
 
 
 // ajoute des fonctions à un package
-int Compiler::addnative(int nref, char** nameref, int* valref
-              , int* coderef, char** typeref,void* arg)
+int Compiler::addnative(int nref, const char** nameref, int* valref
+              , int* coderef, const char** typeref,void* arg)
 {
 	int i,k;
 	

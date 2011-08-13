@@ -30,7 +30,7 @@ Stack::~Stack()
 
 void Stack::dump(FILE *f)
 {
-	char* buf="stck";
+	const char* buf="stck";
 	fwrite((void*)buf,1,4,f);
 	fwrite((void*)&size,1,4,f);
 	fwrite((void*)&pp,1,4,f);
@@ -227,7 +227,7 @@ int Memory::deftab(int size)
 	return push(PNTTOVAL(p));
 }
 
-char* Memory::errorname(int err)
+const char* Memory::errorname(int err)
 {
 	if (err==MTLERR_OM) return "Out of memory";
 	else if (err==MTLERR_OP) return "Unknown Operand";

@@ -20,7 +20,7 @@
 #include "prodbuffer.h"
 
 // lit un keyword imposé
-int Parser::parsekeyword(char* keyword)
+int Parser::parsekeyword(const char* keyword)
 {
 	if (!next(0))
 	{
@@ -36,7 +36,7 @@ int Parser::parsekeyword(char* keyword)
 }
 
 // lit un keyword imposé
-int Parser::parsekeyword(char* keyword,int filter)
+int Parser::parsekeyword(const char* keyword,int filter)
 {
 	if (!next(filter))
 	{

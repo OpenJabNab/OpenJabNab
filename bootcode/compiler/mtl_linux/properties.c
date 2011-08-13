@@ -210,7 +210,7 @@ prop propNext(prop pnt)
 
 // charge un fichier de prop
 // retourne un pointeur vers la structure prop du dernier champ
-prop propLoad(char *file)
+prop propLoad(const char *file)
 {
 	prop pnt=NULL;	// pointeur vers la property en construction
 	char* src=fileLoad(file);

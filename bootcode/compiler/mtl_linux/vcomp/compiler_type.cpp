@@ -18,7 +18,7 @@
 // types
 
 // création d'un noeud de type basique (éventuellement paramétrique)
-int Compiler::createnodetypecore(char* name)
+int Compiler::createnodetypecore(const char* name)
 {
 	int k;
 
@@ -329,7 +329,7 @@ int Compiler::creategraph(Parser* p,int env,int mono,int labels)
 
 
 // création d'un graphe de type à partir d'une chaîne
-int Compiler::creategraph(char* src,int env,int mono)
+int Compiler::creategraph(const char* src,int env,int mono)
 {
 //	PRINTF(m)(LOG_DEVCORE,"Compiler : creategraph : %s\n",src);
 

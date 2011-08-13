@@ -55,7 +55,7 @@ void Terminal::echo(int msk,char* s,int size)
 	echo(msk,internalbuffer);
 }
 
-void Terminal::printf(int msk,char *format, ...)
+void Terminal::printf(int msk,const char *format, ...)
 {
 	va_list arglist;
 	int sizeout;

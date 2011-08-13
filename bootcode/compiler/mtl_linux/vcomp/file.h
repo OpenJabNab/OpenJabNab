@@ -31,7 +31,7 @@ public:
 	char* getcontent(int *size);
 
 	int openwrite(char* name);
-	int write(char* outbuf,int size);
+	int write(const char* outbuf,int size);
 
 	int close();
 

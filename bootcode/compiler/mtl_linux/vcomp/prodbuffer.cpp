@@ -50,7 +50,7 @@ void Prodbuffer::addchar(char c)
 }
 
 // printf à la suite du buffer
-void Prodbuffer::printf(char *format, ...)
+void Prodbuffer::printf(const char *format, ...)
 {
 	va_list arglist;
 	int sizeout;

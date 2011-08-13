@@ -101,7 +101,7 @@ public:
 	int deftab(int size);
 
 	void listing();
-	char* errorname(int err);
+	const char* errorname(int err);
 	void dump();
 };
 

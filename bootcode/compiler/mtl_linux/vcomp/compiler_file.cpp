@@ -126,7 +126,7 @@ int Compiler::gocompile(int type)
 		STACKDROP(m);
 		return 0;
 	}
-	char* name=STRSTART(VALTOPNT(STACKGET(m,0)));
+	const char* name=STRSTART(VALTOPNT(STACKGET(m,0)));
 	if (type==COMPILE_FROMFILE)
 	{
 		parser=new Parser(m->term,m->filesystem,name);

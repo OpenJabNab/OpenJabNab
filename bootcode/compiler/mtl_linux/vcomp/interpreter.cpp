@@ -22,7 +22,7 @@
 void displaybc(Memory* m,char* p)
 {
 	PRINTF(m)(LOG_DEVCORE,"dump %x\n",p);
-	char* spaces="         ";
+	const char* spaces="         ";
 	int ind=0;
 	while(1)
 	{
