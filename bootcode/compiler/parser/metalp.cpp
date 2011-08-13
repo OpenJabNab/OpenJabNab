@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 #include "Parser.h"
+#include <stdio.h>
 
 extern "C" {
 	int yylex(void);
