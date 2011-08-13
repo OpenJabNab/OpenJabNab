@@ -1,0 +1,4 @@
+*.o
+*.a
+mtl_comp
+mtl_simu
