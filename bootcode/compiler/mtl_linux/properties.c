@@ -252,7 +252,7 @@ int propGetInt(prop pnt,char *field)
 	return atoi(p);
 }
 
-int PropLoad(char* file)
+int PropLoad(const char* file)
 {
 	Properties=propLoad(file);
 	return 0;
