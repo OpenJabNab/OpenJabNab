@@ -12,18 +12,15 @@ class PluginColorbreathing : public PluginInterface
 public:
 	PluginColorbreathing();
 	virtual ~PluginColorbreathing() {};
-	void HttpRequestAfter(HTTPRequest &);
-        void InitApiCalls();
+	void OnInitPacket(const Bunny *, AmbientPacket &, SleepPacket &);
+	void InitApiCalls();
 
 protected:
         PLUGIN_BUNNY_API_CALL(Api_GetColorList);
         PLUGIN_BUNNY_API_CALL(Api_SetColor);
         PLUGIN_BUNNY_API_CALL(Api_GetColor);
 
-	QHash<QString, QByteArray> availableColors;
-private:
-	void patchBootcode(HTTPRequest &, long, int, QByteArray, QByteArray);
-	void patchBootcode(HTTPRequest &, long, char, char);
+	QHash<QString, unsigned char> availableColors;
 };
 
 #endif

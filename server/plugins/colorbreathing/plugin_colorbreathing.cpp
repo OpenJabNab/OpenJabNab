@@ -1,6 +1,7 @@
 #include <QDateTime>
 #include <QStringList>
 #include "plugin_colorbreathing.h"
+#include "ambientpacket.h"
 #include "bunny.h"
 #include "bunnymanager.h"
 #include "log.h"
@@ -10,47 +11,22 @@ Q_EXPORT_PLUGIN2(plugin_colorbreathing, PluginColorbreathing)
 
 PluginColorbreathing::PluginColorbreathing():PluginInterface("colorbreathing", "Change breathing color", BunnyPlugin)
 {
-	availableColors["cyan"]   = QByteArray("\x01\x01\x00",3);
-	availableColors["yellow"] = QByteArray("\x00\x01\x01",3);
-	availableColors["green"]  = QByteArray("\x00\x01\x00",3);
-	availableColors["red"]    = QByteArray("\x00\x00\x01",3);
-	availableColors["violet"] = QByteArray("\x01\x00\x01",3);
-	availableColors["blue"]   = QByteArray("\x01\x00\x00",3);
-	availableColors["white"]  = QByteArray("\x01\x01\x01",3);
-	availableColors["none"]   = QByteArray("\x00\x00\x00",3);
+	availableColors["none"]   = 0;
+	availableColors["blue"]   = 1;
+	availableColors["green"]  = 2;
+	availableColors["cyan"]   = 3;
+	availableColors["red"]    = 4;
+	availableColors["violet"] = 5;
+	availableColors["yellow"] = 6;
+	availableColors["white"]  = 7;
 }
 
-void PluginColorbreathing::patchBootcode(HTTPRequest & request, long address, int size, QByteArray origin, QByteArray patch)
+void PluginColorbreathing::OnInitPacket(const Bunny * bunny, AmbientPacket & a, SleepPacket &)
 {
-	if(request.reply.indexOf(origin, address) != address)
-	{
-		LogDebug("Firmware can't be patched for colorbreathing");
-	}
-	else
-	{
-		request.reply.replace(address, size, patch);
-	}
+	QString color = bunny->GetPluginSetting(GetName(), "color", QString("violet")).toString();
+	a.SetServiceValue(AmbientPacket::Service_BottomLed, availableColors[color]);
 }
 
-void PluginColorbreathing::HttpRequestAfter(HTTPRequest & request)
-{
-	QString uri = request.GetURI();
-	if (uri.startsWith("/vl/bc.jsp"))
-	{
-                QString version = request.GetArg("v");
-                QString serialnumber = request.GetArg("m").remove(':');
-                
-        	Bunny * b = BunnyManager::GetBunny(this, serialnumber.toAscii());
-		if(b)
-		{
-			QString color = b->GetPluginSetting(GetName(), "color", QString("violet")).toString();
-			if(availableColors.contains(color))
-			{
-				patchBootcode(request, 0x000183D8, 3, QByteArray("\x01\x00\x01",3), availableColors.value(color));
-			}
-		}
-	}
-}
 
 void PluginColorbreathing::InitApiCalls()
 {
@@ -77,7 +53,8 @@ PLUGIN_BUNNY_API_CALL(PluginColorbreathing::Api_SetColor)
                 // Save new config
                 bunny->SetPluginSetting(GetName(), "color", color);
 
-                return new ApiManager::ApiOk(QString("color changed to '%1'").arg(color));
+		// Send color to bunny
+		bunny->SendPacket(AmbientPacket(AmbientPacket::Service_BottomLed, availableColors[color]));
         }
         return new ApiManager::ApiError(QString("Unknown '%1' color").arg(color));
 }
