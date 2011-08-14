@@ -55,7 +55,9 @@ PLUGIN_BUNNY_API_CALL(PluginColorbreathing::Api_SetColor)
 
 		// Send color to bunny
 		bunny->SendPacket(AmbientPacket(AmbientPacket::Service_BottomLed, availableColors[color]));
-        }
+
+		return new ApiManager::ApiOk(QString("Bottom Color set to '%1'").arg(color));
+	}
         return new ApiManager::ApiError(QString("Unknown '%1' color").arg(color));
 }
 
