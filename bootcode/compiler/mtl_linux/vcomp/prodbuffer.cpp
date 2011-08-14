@@ -56,7 +56,7 @@ void Prodbuffer::printf(const char *format, ...)
 	int sizeout;
 
 	va_start(arglist,format);
-	while(((sizeout=vsnprintf(buffer+index,size-index-1,format,arglist))<0)||(sizeout>=size-index-1)) bigger();
+	//while(((sizeout=vsnprintf(buffer+index,size-index-1,format,arglist))<0)||(sizeout>=size-index-1)) bigger();
 	va_end(arglist);
 	index+=sizeout;
 }
