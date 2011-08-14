@@ -9,7 +9,7 @@
 class OJN_EXPORT AmbientPacket : public Packet
 {
 public:
-	enum Services { Disable_Service = 0, Service_Weather, Service_StockMarket, Service_Periph, MoveLeftEar, MoveRightEar, Service_EMail, Service_AirQuality, Service_Nose, Service_TaiChi = 0x0e};
+	enum Services { Disable_Service = 0, Service_Weather, Service_StockMarket, Service_Periph, MoveLeftEar, MoveRightEar, Service_EMail, Service_AirQuality, Service_Nose, Service_BottomLed, Service_TaiChi = 0x0e};
 	enum Weather_Values { Weather_Sun = 0, Weather_Cloudy, Weather_Smog, Weather_Rain, Weather_Snow, Weather_Storm};
 	enum StockMarket_Values { StockMarket_HighDown = 0, StockMarket_MediumDown, StockMarket_LittleDown, StockMarket_Stable, StockMarket_LittleUp, StockMarket_MediumUp, StockMarket_HighUp};
 	enum Periph_Values { Periph_VeryLow = 0, Periph_Low, Periph_LowAverage, Periph_Average, FastAverage, Fast, VeryFast };
