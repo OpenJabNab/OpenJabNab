@@ -52,6 +52,7 @@ var gBusyState = 0;;		// busy (incoming message queue full)
 var gItApp = nil;;			// the name of the interactive application
 var gEarInited = 0;;		// si les oreilles ont été initialisées.
 var gRegistrationError = 0;;// registration error during login
+var bottomColor = 0x010001;;	// Color of bottom led (Violet by default)
 
 proto itNoteEarTouched 3;;
 proto processIncomingTrame 3;;
@@ -4704,7 +4705,7 @@ fun noseled=
 fun bottomled=
 	if gSleepState == 0 then 
 	if !earDetecting then
-		(let osc time_ms>>4 -> v in led LED_BASE v*0x10001); // pulse violet
+		(let osc time_ms>>4 -> v in led LED_BASE v*bottomColor); // pulse bottom led
 	0;;
 	
 

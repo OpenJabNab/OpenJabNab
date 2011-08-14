@@ -90,6 +90,12 @@ const infoPalette={
 	0x808080 0xff8080 0x80ff80 0xffcc00 0x8080ff 0xff80ff 0x80ffff 0xff8000
 };;
 
+const bottomLedPalette={
+//	noir		bleu		vert		cyan
+	0x000000	0x000001	0x000100	0x000101
+//	rouge		violet		jaune		blanc
+	0x010000	0x010001	0x010100	0x010101
+};;
 
 // heure de démarrage du service courant
 var infoStartTime;;
@@ -267,6 +273,7 @@ fun newInfoUpdate data=
 				else if key == 1 || key == 2 || key == 3 || key == 6 || key == 7 then _infosrc_update key val
 				else if key == 4 then set newleft = val
 				else if key == 5 then set newright = val
+				else if key == 9 then set bottomColor = bottomLedPalette.(val)
 				else if key == 14 then set infotaichi = val
 				else (
 					Secho "ERROR newInfoUpdate unknown key="; Iecholn key;0
