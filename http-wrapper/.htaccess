@@ -2,6 +2,8 @@ RewriteEngine on
 RewriteCond	%{REQUEST_URI} ^.*/\.svn/.*$
 RewriteRule	.* / [F]
 
+RewriteRule	^vl/bc.jsp$	/ojn_local/bootcode/bootcode.default	[L]
+
 RewriteCond	%{REQUEST_URI} !^.*openjabnab\.php.*$
 RewriteCond	%{REQUEST_URI} !/ojn_local/
 RewriteCond	%{REQUEST_URI} !/ojn_admin/
