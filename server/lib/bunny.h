@@ -18,7 +18,7 @@ class OJN_EXPORT Bunny : QObject, public ApiHandler<Bunny>
 	friend class BunnyManager;
 	Q_OBJECT
 public:
-	enum State { State_Disconnected, State_Booting, State_Authenticating, State_Authenticated, State_Ready};
+	enum State { State_Disconnected, State_Authenticating, State_Authenticated, State_Ready};
 	virtual ~Bunny();
 
 	static void Init() { InitApiCalls(); }
@@ -51,7 +51,6 @@ public:
 
 	void XmppBunnyMessage(QByteArray const&);
 
-	void Booting();
 	void Authenticating();
 	void Authenticated();
 	void Ready();

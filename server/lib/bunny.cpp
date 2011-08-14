@@ -325,17 +325,6 @@ void Bunny::RemoveXmppHandler(XmppHandler * x)
 	}
 }
 
-void Bunny::Booting()
-{
-	state = State_Booting;
-	if(xmppHandler)
-	{
-		xmppHandler->Disconnect();
-		xmppHandler = 0;
-	}
-	SetGlobalSetting("Last BootRequest", QDateTime::currentDateTime());
-}
-
 // Called when the bunny start an authenticating process
 void Bunny::Authenticating()
 {
