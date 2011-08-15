@@ -280,7 +280,8 @@ int Compiler::parseref()
 		{
 			int i; for(i=0;i<code;i++) if (k=parseexpression())
 			{
-				PRINTF(m)(LOG_COMPILER,"Compiler : function requires %d arguments\n",code);
+				char * name=STRSTART(VALTOPNT(TABGET(p,REF_NAME)));
+				PRINTF(m)(LOG_COMPILER,"Compiler : function %s requires %d arguments\n",name, code);
 				return k;
 			}
 			if ((TABGET(p,REF_VAL)!=NIL)&&(TABGET(VALTOPNT(TABGET(p,REF_VAL)),FUN_NBLOCALS)==NIL))
