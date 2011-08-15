@@ -22,7 +22,7 @@ bool PluginLocate::HttpRequestHandle(HTTPRequest & request)
 		QString locateString;
 		locateString += QString("ping %1\n").arg(GlobalSettings::GetString("OpenJabNabServers/PingServer"));
 		locateString += QString("broad %1\n").arg(GlobalSettings::GetString("OpenJabNabServers/BroadServer"));
-		locateString += QString("xmpp_domain %1\n").arg(GlobalSettings::GetString("OpenJabNabServers/XmppServer"));
+		locateString += QString("xmpp_domain %1:%2\n").arg(GlobalSettings::GetString("OpenJabNabServers/XmppServer"),GlobalSettings::GetString("OpenJabNabServers/ListeningXmppPort"));
 		request.reply = locateString.toAscii();
 		return true;
 	}

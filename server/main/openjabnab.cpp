@@ -42,8 +42,7 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 
 	if(GlobalSettings::Get("Config/XmppListener", true) == true)
 	{
-		PluginInterface * p= PluginManager::Instance().GetPluginByName("xmppport");
-		int port = p->GetEnable() ? p->GetSettings("global/XmppPort", 5222).toInt() : 5222;
+		int port = GlobalSettings::GetInt("OpenJabNabServers/ListeningXmppPort", 5222);
 		LogInfo(QString("XMPP Port is: %1").arg(port));
 		xmppListener = new QTcpServer(this);
 		xmppListener->listen(QHostAddress::Any, port);
