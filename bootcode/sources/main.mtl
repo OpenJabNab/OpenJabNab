@@ -189,6 +189,7 @@ proto sendmailxmppurl 2;;
 // ---------------------------------------------------------
 const XmppTcpIdleTime = 8;;							// Si il ne se passe rien pendant 8 secondes sur le flux, on le maintient ouvert en envoyant un " "
 var XmppGlobalSession = nil;;							// La session Xmpp
+var XmppServerPort = 5222;;							// Port TCP de la connexion xmpp (peut etre modifie via le locate)
 
 const XmppVioletPlatformComponent = "xmpp.platform.violet.net";;
 const XmppVioletObjectsComponent = "xmpp.objects.violet.net";;
@@ -292,7 +293,7 @@ proto XmppGateOpenStream 1;;// Send the data to open stream with server
 proto XmppGateStreamOpened 1;;	// le stream a bien été ouvert
 proto XmppGateStreamClosed 2;; // if the stream has been closed
 
-type tXmppGate_Mode = pTcp | pBosh;;		// 2 Mode : BOSH (port 80) or Normal Tcp (port 5222)
+type tXmppGate_Mode = pTcp | pBosh;;		// 2 Mode : BOSH (port 80) or Normal Tcp (port XmppServerPort)
 type tXmppGate_Status = pOpening | pOpen | pInStream | pClosing | pClose;;	// Opening (try to open port), Open (try to send <stream:stream>)
 type tXmppGate = [pParent pMode pStatus pTry pTcpV pBoshV pBuffer pSId pActualMode];;
 // pParent > xSession
@@ -366,13 +367,6 @@ proto xmpps_createStanza 5;;
 // XMPP TCP
 // ---------------------------------------------------------
 
-/*
- * Appelle XmppTcpOpen sur le port 5222
- */
-fun XmppTcpOpen5222 ip xSession =
-		XmppTcpOpen ip 5222 xSession
-;;
-
 /* 
  * Ouvre un port TCP pour une session particuliere
  */
@@ -397,7 +391,7 @@ fun XmppTcpOpen ip port xSession =
 	)
 	else(	// on est a la fin des entrees srv et on a pas reussi a se connecter -> on essaie le domaine xmpp tout court, et si ca ne fonctionne pas on retombera en BOSH
 		Xw ( strcatlist "No more SRV answears. let's try to connect directly to " :: xSession.sDomain :: nil );
-		dnsreq xSession.sDomain fixarg2 #XmppTcpOpen5222 xSession;
+		dnsreq xSession.sDomain fixarg2 fixarg3 #XmppTcpOpen xSession XmppServerPort;
 		0)
 	;;
 
@@ -1019,7 +1013,33 @@ fun XmppGateConnect xSession =
 		let [pParent:xSession pMode:pTcp pStatus:pOpening pTry:3 pTcpV:nil pBoshV:nil pActualMode:nil] -> newGate in		// On crée la structure XmppGate
 		(
 			set xSession.sGate = newGate;										// on la sauvegarde
-			DnsSrv strcatlist "_xmpp-client._tcp."::xSession.sDomain::nil fixarg3 #XmppTcpOpen xSession		// et on lance la première requête
+			let strstr xSession.sDomain ":" 0 -> indexOfColon in
+			(
+				// Si sDomain contient ip::port on fait une connexion directe, sinon recherche le serveur via une query DNS SRV
+				if (indexOfColon != nil) then
+				(
+					let atoi strsub xSession.sDomain indexOfColon+1 nil -> port in
+					(
+						set xSession.sDomain = strsub xSession.sDomain 0 indexOfColon;
+						if(port != 0) then
+						(
+							set XmppServerPort = port;
+							dnsreq xSession.sDomain fixarg2 fixarg3 #XmppTcpOpen xSession port
+						)
+						else
+						(
+							// Mauvais port, on lance la requete SRV
+							DnsSrv strcatlist "_xmpp-client._tcp."::xSession.sDomain::nil fixarg3 #XmppTcpOpen xSession		// et on lance la première requête
+						)
+					)
+				)
+				else
+				(
+					DnsSrv strcatlist "_xmpp-client._tcp."::xSession.sDomain::nil fixarg3 #XmppTcpOpen xSession		// et on lance la première requête
+				);
+				0
+			);
+			0
 		);
 		set xSession.sLastIOTime = time;											// on met à jour la derniere action
 		0
