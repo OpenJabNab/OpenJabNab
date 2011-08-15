@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <stdlib.h>
 
 #include "log.h"
 
@@ -208,7 +209,7 @@ int my_printf_set_logfile(const char *filename)
 			free(outfilename);
 			outfilename=NULL;
 		}
-	
+
 	outstream=f;
 	outfilename=strdup(filename);
 	current_log_size=0;

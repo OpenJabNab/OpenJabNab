@@ -114,7 +114,7 @@ void propFree(prop pnt)
 {
 	if (pnt) free((void*)pnt);
 }
-	
+
 // détruit une prop, avec tous ses champs
 void propRelease(prop pnt)
 {
@@ -234,7 +234,7 @@ void propDump(prop pnt)
 
 
 // retourne la valeur d'un champ
-char* propGet(prop pnt,char *field)
+char* propGet(prop pnt,const char *field)
 {
 	while(pnt)
 	{
@@ -245,7 +245,7 @@ char* propGet(prop pnt,char *field)
 }
 
 // retourne la valeur entière d'un champ
-int propGetInt(prop pnt,char *field)
+int propGetInt(prop pnt,const char *field)
 {
 	char *p=propGet(pnt,field);
 	if ((p[0]=='0')&&((p[1]=='x')||(p[1]=='X'))) return htoi(p+2);
@@ -259,13 +259,13 @@ int PropLoad(const char* file)
 }
 
 // retourne la valeur d'un champ
-char* PropGet(char *field)
+char* PropGet(const char *field)
 {
 	return propGet(Properties,field);
 }
 
 // retourne la valeur entière d'un champ
-int PropGetInt(char *field)
+int PropGetInt(const char *field)
 {
 	return propGetInt(Properties,field);
 }

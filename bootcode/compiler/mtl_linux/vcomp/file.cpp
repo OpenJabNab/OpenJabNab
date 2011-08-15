@@ -40,7 +40,7 @@ int File::close()
 }
 
 
-int File::openread(char* name)
+int File::openread(const char* name)
 {
 	file=fopen(name,"rb");
 	if (file) return 0;
@@ -50,7 +50,7 @@ int File::openread(char* name)
 char* File::getcontent(int *size)
 {
 	if (file==NULL) return NULL;
-	
+
 	fseek(file,0,SEEK_END);
 	*size=ftell(file);
 	fseek(file,0,SEEK_SET);
@@ -62,7 +62,7 @@ char* File::getcontent(int *size)
 	close();
 	return buffer;
 }
-int File::openwrite(char* name)
+int File::openwrite(const char* name)
 {
 	file=fopen(name,"wb");
 	if (file) return 0;

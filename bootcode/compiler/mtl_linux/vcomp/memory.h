@@ -42,7 +42,7 @@ public:
 	int size;	// taille du bloc alloué
 	int* base;	// début de la pile
 	int* pp;	// pointeur de pile
-	
+
 	void initialize(int s);
 	int bigger(Memory* m);
 	void dump(FILE* f);
@@ -90,11 +90,11 @@ public:
 	void stackset(int* p,int val);
 
 
-	int* storestring(char* src);
-	int* storebinary(char* src,int size);
+	int* storestring(const char* src);
+	int* storebinary(const char* src,int size);
 	int* storenosrc(int size);
-	int pushstring(char* src);
-	int pushbinary(char* src,int size);
+	int pushstring(const char* src);
+	int pushbinary(const char* src,int size);
 	int pushnosrc(int size);
 	int pushpnt(void* pnt);
 
@@ -298,13 +298,13 @@ inline int Memory::pushmallocClear(int size)
 	return push(PNTTOVAL(p));
 }
 
-inline int Memory::pushstring(char* src)
+inline int Memory::pushstring(const char* src)
 {
 	int* p=storestring(src); if (!p) return MTLERR_OM;
 	return push(PNTTOVAL(p));
 }
 
-inline int Memory::pushbinary(char* src,int size)
+inline int Memory::pushbinary(const char* src,int size)
 {
 	int* p=storebinary(src,size); if (!p) return MTLERR_OM;
 	return push(PNTTOVAL(p));

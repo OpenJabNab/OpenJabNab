@@ -162,8 +162,8 @@ mtl_float mtl_atof(char* src)
 	}
 	return f/div;
 }
-		
-Parser::Parser(Terminal* t,FileSystem* fs,char *filename)
+
+Parser::Parser(Terminal* t,FileSystem* fs,const char *filename)
 {
 	term=t;
 
@@ -194,7 +194,7 @@ Parser::Parser(Terminal* t,FileSystem* fs,char *filename)
 	token=NULL;
 }
 
-Parser::Parser(Terminal* t,char *buf)
+Parser::Parser(Terminal* t,const char *buf)
 {
 	srcname=NULL;
 	term=t;
@@ -322,7 +322,7 @@ int Parser::gettoken(int filter)
 	} while(c<=32);
 
 	token=&src[offchar0];
-	
+
 	f=0;
 	if (c=='\"')	// token chaîne de caractères
 		while(1)

@@ -59,13 +59,13 @@ int StartMetal(const char *starter, const char* output, bool inSign)
 	{
 		t->printf(LOG_RUNTIME,"\nCompiler : done !\n");
 		File* f=new File(NULL);
-		f->openwrite((char*) output);
+		f->openwrite(output);
 		if (inSign) {
 			f->write("amber", 5);
 			char sizeStr[9];
 			sprintf(sizeStr, "%.8x", m->util->compiler->brelease->getsize());
 			f->write(sizeStr, 8);
-		}	
+		}
 		f->write(m->util->compiler->brelease->getstart(),m->util->compiler->brelease->getsize());
 		if (inSign) {
 			f->write("Mind", 4);

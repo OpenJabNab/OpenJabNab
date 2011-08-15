@@ -57,7 +57,7 @@ void dump(uchar *src,int len)
 }
 
 
-void loadbytecode(char *src)
+void loadbytecode(const char *src)
 {
 	FILE *f;
 	int i,n;
@@ -194,7 +194,7 @@ int handle_options(int argc, char **argv)
 		} else {
 			usage();
 			res=0;
-			break;			
+			break;
 		}
 		++i;
 	}

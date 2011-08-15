@@ -50,7 +50,7 @@ int Stack::bigger(Memory* m)
 	int currentpp=pp-base;
 
 	size*=2;
-	
+
 	int* newbase=new int[size];
 	if (!newbase)
 	{
@@ -148,7 +148,7 @@ void Memory::dump()
 int* Memory::malloc(int size,int type)
 {
 	int *p=NULL;
-	
+
 	int blocsize=size+HEADER_LENGTH;
 	p=new int[blocsize];
 	if (!p) return p;
@@ -200,7 +200,7 @@ int* Memory::storenosrc(int size)
 	return p;
 }
 
-int* Memory::storebinary(char *src,int size)
+int* Memory::storebinary(const char *src,int size)
 {
 	// calcul de la taille d'un bloc pouvant contenir une certain nombre de caractères
 	// il faut 1 mot pour la taille et un octet nul final
@@ -214,7 +214,7 @@ int* Memory::storebinary(char *src,int size)
 	return p;
 }
 
-int* Memory::storestring(char *src)
+int* Memory::storestring(const char *src)
 {
 	return storebinary(src,strlen(src));
 }
