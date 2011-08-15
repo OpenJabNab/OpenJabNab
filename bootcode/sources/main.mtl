@@ -3221,8 +3221,18 @@ fun _configcbhttp http res=
 
 			/****** XMPP ****/
 			let listswitchstr conf "xmpp_domain" -> xmpp_domain in
-				if xmpp_domain != nil then
+				if (xmpp_domain != nil) then
+				(
 					XmppSessionStart xmpp_domain 1; // START 1 XMPP SESSION HERE (1 == Display Leds for connexion Details)
+					0
+				)
+				else
+				(
+					// l'appel à locate.jsp a échoué -> ... rebooter tout ?
+					Secholn "call to locate.jsp failed, rebooting";
+					reboot 0x0407FE58 0x13fb6754;
+					0
+				);
 
 			set run = xmppLoginRun;
 		
