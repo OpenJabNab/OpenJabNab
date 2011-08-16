@@ -45,6 +45,6 @@ IV) Installation
 V) History
 ----------
 
-2008-01-24 v0.01 Initial revision
-2010-06-09 v0.10 Added some formating
-2011-08-16 v0.11 Removed Nabaztag.com-URL (Site suspended) Added Lighty as supported Webserver
+* 2008-01-24 v0.01 Initial revision
+* 2010-06-09 v0.10 Added some formating
+* 2011-08-16 v0.11 Removed Nabaztag.com-URL (Site suspended) Added Lighty as supported Webserver
