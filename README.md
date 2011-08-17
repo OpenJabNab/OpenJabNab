@@ -1,6 +1,6 @@
 OpenJabNab
 ==========
-An open PHP/C++-based proxy framework for the Nabaztag/Tag™ (http://www.nabaztag.com/) electronic pet with jabber protocol.
+An open PHP/C++-based proxy framework for the Nabaztag/Tag™ electronic pet with jabber protocol.
 
 Nabaztag is a trade mark of Violet. OpenJabNab is not owned by or affiliated with Violet.
 
@@ -28,7 +28,8 @@ III) Requirements
 -----------------
 
 * A Nabaztag/tag
-* An Apache server (use of RewriteEngine in .htaccess file) with PHP scripting
+* An Apache server (use of RewriteEngine in .htaccess file) or Lighttpd server (use of mod_rewrite, see README.lighty)
+* PHP scripting enabled at prefered Webserver
 * Qt 4 correctly installed (with dev libraries)
 
 IV) Installation
@@ -44,5 +45,6 @@ IV) Installation
 V) History
 ----------
 
-2008-01-24 v0.01 Initial revision
-2010-06-09 v0.10 Added some formating
+* 2008-01-24 v0.01 Initial revision
+* 2010-06-09 v0.10 Added some formating
+* 2011-08-16 v0.11 Removed Nabaztag.com-URL (Site suspended) Added Lighty as supported Webserver
