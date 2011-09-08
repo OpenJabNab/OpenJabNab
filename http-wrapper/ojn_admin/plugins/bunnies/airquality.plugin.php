@@ -1,7 +1,7 @@
 <?php 
 if(!empty($_POST['a']) && !empty($_POST['airqualitytime']) && !empty($_POST['airqualitycity']) ) {
 	if($_POST['a']=="addwbc")
-		$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/airquality/addwebcast?time=".$_POST['airqualitytime']."&city=".$_POST['airqualitycity']."&".$ojnAPI->getToken());
+		$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/airquality/addwebcast?time=".$_POST['airqualitytime']."&city=".urlencode($_POST['airqualitycity'])."&".$ojnAPI->getToken());
 	else
 		$retour['error'] = "Incorrect Parameters";
 	$_SESSION['message'] = isset($retour['ok']) ? $retour['ok'] : "Error : ".$retour['error'];
