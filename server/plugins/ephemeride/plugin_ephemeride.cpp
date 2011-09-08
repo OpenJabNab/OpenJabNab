@@ -97,6 +97,14 @@ void PluginEphemeride::InitApiCalls()
 {
 	DECLARE_PLUGIN_BUNNY_API_CALL("addwebcast(time)", PluginEphemeride, Api_AddWebcast);
 	DECLARE_PLUGIN_BUNNY_API_CALL("removewebcast(time)", PluginEphemeride, Api_RemoveWebcast);
+	DECLARE_PLUGIN_BUNNY_API_CALL("getwebcastslist()", PluginEphemeride, Api_GetWebcastsList);
+}
+
+PLUGIN_BUNNY_API_CALL(PluginEphemeride::Api_GetWebcastsList)
+{
+	        Q_UNUSED(account);
+		        Q_UNUSED(hRequest);
+			        return new ApiManager::ApiList(bunny->GetPluginSetting(GetName(), "Webcast/List", QStringList()).toStringList());
 }
 
 PLUGIN_BUNNY_API_CALL(PluginEphemeride::Api_AddWebcast)
