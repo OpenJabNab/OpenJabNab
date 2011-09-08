@@ -49,20 +49,21 @@ Bunny::Bunny(QByteArray const& bunnyID)
 
 ApiManager::ApiAnswer * Bunny::ProcessVioletApiCall(HTTPRequest const& hRequest)
 {
-        ApiManager::ApiViolet* answer = new ApiManager::ApiViolet();
+	ApiManager::ApiViolet* answer = new ApiManager::ApiViolet();
 
-        QString serial = hRequest.GetArg("sn");
-        QString token = hRequest.GetArg("token");
+	QString serial = hRequest.GetArg("sn");
+	QString token = hRequest.GetArg("token");
 
-        if(true) // TODO: Check for good token
+	if(GetGlobalSetting("VApiEnable",false).toBool()) {
+        if(GetGlobalSetting("VApiToken","").toString() == token && serial.toAscii()==GetID())
         {
 
                 if(hRequest.GetURI().startsWith("/ojn/FR/api_stream.jsp"))
                 {
                         if(hRequest.HasArg("urlList"))
                         {
-				QByteArray message = ("ST " + hRequest.GetArg("urlList").split("|", QString::SkipEmptyParts).join("\nMW\nST ") + "\nMW\n").toAscii();
-				SendPacket(MessagePacket(message));
+								QByteArray message = ("ST " + hRequest.GetArg("urlList").split("|", QString::SkipEmptyParts).join("\nMW\nST ") + "\nMW\n").toAscii();
+								SendPacket(MessagePacket(message));
                                 answer->AddMessage("WEBRADIOSENT", "Your webradio has been sent");
                         }
                         else
@@ -196,6 +197,8 @@ ApiManager::ApiAnswer * Bunny::ProcessVioletApiCall(HTTPRequest const& hRequest)
         {
                 answer->AddMessage("NOGOODTOKENORSERIAL", "Your token or serial number are not correct !");
         }
+	} else
+		 answer->AddMessage("APIDISABLED", "API is disabled for this bunny");
         return answer;
 }
 
