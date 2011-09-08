@@ -1,5 +1,4 @@
 #include <QDateTime>
-#include <QDebug>
 #include <QCryptographicHash>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -291,7 +290,6 @@ void PluginAir_Worker::run()
 			quality = 0;
 		}
 		QString text = QString::fromUtf8(("La qualité de l'air à "+city+" est "+qualities.at(quality)).toAscii());
-		qDebug() << text;
 		QByteArray q = TTSManager::CreateNewSound(text, "claire");
 		message = "MU "+q+"\nPL 3\nMW\n";
 		emit done(true, bunny, message);
