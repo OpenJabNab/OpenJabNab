@@ -134,6 +134,11 @@ unsigned int Cron::RegisterDaily(PluginInterface * p, QTime const& time, Bunny *
 		LogError("Cron : pointer is null !");
 		return 0;
 	}
+	if(!time.isValid())
+	{
+		LogError("Cron : invalid time");
+		return 0;
+	}
 
 	Cron & theCron = Instance();
 	unsigned id = ++theCron.lastGivenID;
