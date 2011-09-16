@@ -32,6 +32,9 @@ public:
 	virtual void InitApiCalls();
 	PLUGIN_BUNNY_API_CALL(Api_AddWebcast);
 	PLUGIN_BUNNY_API_CALL(Api_RemoveWebcast);
+	PLUGIN_BUNNY_API_CALL(Api_ListWebcast);
+	PLUGIN_BUNNY_API_CALL(Api_SetChannel);
+	PLUGIN_BUNNY_API_CALL(Api_ListChannel);
 
 private:
 	void getTVPage(Bunny *);
