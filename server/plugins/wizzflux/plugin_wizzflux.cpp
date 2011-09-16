@@ -17,6 +17,7 @@ PluginWizzflux::PluginWizzflux():PluginInterface("wizzflux", "Flux from differen
     Flist << "lemonde_cinema" << "lemonde_livres" << "lemonde_sports" << "lemonde_voyages" << "lemonde_international";
     Flist << "gala" << "voici" << "yahoo_closer";
     Flist << "cnn_latest" << "cnn_usa" << "silicon_fr" << "generation_nt";
+    Flist << "fdj_loto" << "fdj_euromillions";
 	Flist << "horoscope_jour_balance" << "horoscope_jour_belier" << "horoscope_jour_cancer" << "horoscope_jour_capricorne";
 	Flist << "horoscope_jour_gemeaux" << "horoscope_jour_lion" << "horoscope_jour_poissons" << "horoscope_jour_sagittaire";
 	Flist << "horoscope_jour_scorpion" << "horoscope_jour_taureau" << "horoscope_jour_verseau" << "horoscope_jour_vierge" ;
