@@ -22,6 +22,11 @@ if(!empty($_POST['bmac_rm'])) {
     $_SESSION['message'] = (isset($r['ok']) ? $r['ok'] : "Error : ".$r['error']);
 }
 
+if(!empty($_POST['lng'])) {
+    $r = $ojnAPI->getApiString('accounts/setlanguage?login='.urlencode($_SESSION['login']).'&lng='.$_POST['lng'].'&'.$ojnAPI->getToken());
+    $_SESSION['message'] = (isset($r['ok']) ? $r['ok'] : "Error : ".$r['error']);
+}
+
 if(!empty($_POST['zid_rm'])) {
     $r = $ojnAPI->getApiString('accounts/removeZtamp?login='.urlencode($_SESSION['login']).'&zid='.$_POST['zid_rm'].'&'.$ojnAPI->getToken());
     $_SESSION['message'] = (isset($r['ok']) ? $r['ok'] : "Error : ".$r['error']);
@@ -87,6 +92,13 @@ if(isset($_SESSION['message']) && empty($r)) {
     <?php } ?>
 </select>
 <input type="submit" value="Remove" />
+</form>
+</fieldset>
+<fieldset>
+<legend>Language</legend>
+<form method="post">
+<select name="lng"><option value="en">English</option><option value="fr">French</option></select><br />
+<input type="submit" value="Apply" />
 </form>
 </fieldset>
 <fieldset>
