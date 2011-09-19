@@ -26,6 +26,8 @@ public:
 	QString const& GetLogin() const;
 	QString const& GetUsername() const;
 	QByteArray const& GetToken() const;
+	QString const& GetLanguage() const;
+	void SetLanguage(QString const& lng);
 	void SetToken(QByteArray);
 	bool IsAdmin() const;
 	void setAdmin();
@@ -43,6 +45,7 @@ private:
 	Account(SpecialAccount t);
 	Account(QDataStream & in, unsigned int version);
 	Account(QString const& login, QString const& username, QByteArray const& passwordHash);
+	Account(QString const& login, QString const& username, QByteArray const& passwordHash, QString const& language);
 
 	void SetDefault();
 	QByteArray AddBunny(QByteArray const& b);
@@ -55,6 +58,7 @@ private:
 	QString username;
 	QByteArray passwordHash;
 	QByteArray token;
+	QString language;
 
 	bool isAdmin;
 	QList<Rights> UserAccess;
@@ -98,6 +102,15 @@ inline QString const& Account::GetLogin() const
 inline QString const& Account::GetUsername() const
 {
 	return username;
+}
+
+inline QString const& Account::GetLanguage() const
+{
+	return language;
+}
+
+inline void Account::SetLanguage(QString const& lng) {
+	language = lng;
 }
 
 inline QByteArray const& Account::GetToken() const

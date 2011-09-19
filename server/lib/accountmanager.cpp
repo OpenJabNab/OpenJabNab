@@ -211,6 +211,7 @@ void AccountManager::InitApiCalls()
 	DECLARE_API_CALL("removeZtamp(login,zid)", &AccountManager::Api_RemoveZtamp);
 	DECLARE_API_CALL("settoken(tk)", &AccountManager::Api_SetToken);
 	DECLARE_API_CALL("setadmin(user)", &AccountManager::Api_SetAdmin);
+	DECLARE_API_CALL("setlanguage(login,lng)", &AccountManager::Api_SetLanguage);
 	DECLARE_API_CALL("infos(user)", &AccountManager::Api_GetUserInfos);
 	DECLARE_API_CALL("GetUserlist()", &AccountManager::Api_GetUserlist);
 	DECLARE_API_CALL("GetConnectedUsers()", &AccountManager::Api_GetConnectedUsers);
@@ -363,6 +364,7 @@ API_CALL(AccountManager::Api_GetUserInfos)
 	QMap<QString, QVariant> list;
 	list.insert("login",ac->GetLogin());
 	list.insert("username",ac->GetUsername());
+	list.insert("language",ac->GetLanguage());
 	list.insert("isValid",listOfTokens.contains(ac->GetToken()));
 	list.insert("token",QString(ac->GetToken()));
 	list.insert("isAdmin",ac->IsAdmin());
@@ -421,4 +423,22 @@ API_CALL(AccountManager::Api_SetAdmin)
 		return new ApiManager::ApiError("Login not found.");
 	ac->setAdmin();
 	return new ApiManager::ApiOk(QString("user '%1' is now admin").arg(login));
+}
+
+API_CALL(AccountManager::Api_SetLanguage)
+{
+	Q_UNUSED(account);
+
+	QString login = hRequest.GetArg("login");
+	QString language = hRequest.GetArg("lng");
+
+	if(login == "")
+		return new ApiManager::ApiError("No account specified");
+
+	/* Get User */
+	Account *ac = listOfAccountsByName.value(login.toAscii());
+	if(ac == NULL)
+		return new ApiManager::ApiError("Account not found.");
+	ac->SetLanguage(language);
+	return new ApiManager::ApiOk(QString("Language is now '%1' for user '%2'").arg(language, login));
 }

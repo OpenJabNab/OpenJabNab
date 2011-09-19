@@ -46,6 +46,23 @@ Account::Account(QString const& l, QString const& u, QByteArray const& p)
 	login = l;
 	username = u;
 	passwordHash = p;
+	language = "fr";
+	UserAccess[AcGlobal] = Read;
+	UserAccess[AcAccount] = ReadWrite;
+	UserAccess[AcBunnies] = ReadWrite;
+	UserAccess[AcZtamps] = ReadWrite;
+	UserAccess[AcPlugins] = Read;
+	UserAccess[AcPluginsBunny] = ReadWrite;
+	UserAccess[AcPluginsZtamp] = ReadWrite;
+}
+
+Account::Account(QString const& l, QString const& u, QByteArray const& p, QString const& lng)
+{
+	SetDefault();
+	login = l;
+	username = u;
+	passwordHash = p;
+	language = lng;
 	UserAccess[AcGlobal] = Read;
 	UserAccess[AcAccount] = ReadWrite;
 	UserAccess[AcBunnies] = ReadWrite;

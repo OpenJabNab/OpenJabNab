@@ -40,8 +40,8 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 }
 ?>
 <div class="three_cols">
-      <h1 id="accueil">Accueil</h1>
-      <p>Bienvenue sur la page de configuration de votre nabaztag sur <span class="titleTip" title="serveur open-source pour le nabaztag">openJabNab</span>. Vous avez la possibilit&eacute;
+      <h1 id="accueil">Home</h1>
+      <p>Bienvenue sur la page de configuration de votre nabaztag sur openJabNab. Vous avez la possibilit&eacute;
          d'activer ou de d&eacute;sactiver certains plugins, afin que votre lapin r&eacute;ponde pleinement
 	 &agrave; vos besoins. De plus, il est possible de planifier l'ex&eacute;cution de t&acirc;ches r&eacute;currentes.</p>
 </div>
@@ -55,7 +55,7 @@ Cliquez sur le lien suivant pour vous d&eacute;connecter : <a href="index.php?lo
 <?php
 } else {
 ?>
-      <h1 id="tutorial">Connection</h1>
+      <h1 id="tutorial">Connexion</h1>
       <form method="post">
 	<dl>
 	<dt>Login</dt>
@@ -71,7 +71,7 @@ Cliquez sur le lien suivant pour vous d&eacute;connecter : <a href="index.php?lo
 </div>
 
 <div class="three_cols">
-      <h1 id="tutorial">Nouveau compte</h1>
+      <h1 id="tutorial">New account</h1>
 <p>Si vous voulez utiliser votre lapin, mais que vous n'avez pas de compte utilisateur, vous pouvez en cr&eacute;er un en cliquant sur le lien suivant : <a href="register.php">Cr&eacute;er un compte utilisateur</a>.</p>
 </div>
 <?php
