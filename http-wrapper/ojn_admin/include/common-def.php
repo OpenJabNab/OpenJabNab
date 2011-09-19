@@ -24,8 +24,8 @@ if(isset($_SESSION['token']) && !strpos($_SERVER['REQUEST_URI'],"logout")) {
 $translations = array();
 if(isset($Infos['language']))
 {
-	if($Infos['language'] == 'french')
-		require_once(ROOT_SITE.'class/translations.fr.php');
+	if(file_exists(ROOT_SITE.'class/translations.'.$Infos['language'].'.php'))
+		require_once(ROOT_SITE.'class/translations.'.$Infos['language'].'.php');
 }
 $ojnTemplate->setUInfos($Infos);
 ob_start(array($ojnTemplate,'display'));
