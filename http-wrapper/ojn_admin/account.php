@@ -96,6 +96,7 @@ if(isset($_SESSION['message']) && empty($r)) {
 </fieldset>
 <?php 
 $lng = $ojnAPI->getApiString("accounts/getlanguage?login=".$_SESSION['login']."&".$ojnAPI->getToken());
+$lng = $lng['value'];
 ?>
 <fieldset>
 <legend>Language</legend>
