@@ -47,7 +47,7 @@ bool PluginAuth::DoAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBu
 			if(data.startsWith("<?xml version='1.0' encoding='UTF-8'?>"))
 			{
 				// Send an auth Request
-				answer.append("<?xml version='1.0'?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' id='2173750751' from='xmpp.nabaztag.com' version='1.0' xml:lang='en'>");
+				answer.append("<?xml version='1.0'?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' id='2173750751' from='"+ xmpp->GetXmppDomain() + "' version='1.0' xml:lang='en'>");
 				answer.append("<stream:features><mechanisms xmlns='urn:ietf:params:xml:ns:xmpp-sasl'><mechanism>DIGEST-MD5</mechanism><mechanism>PLAIN</mechanism></mechanisms><register xmlns='http://violet.net/features/violet-register'/></stream:features>");
 				xmpp->currentAuthStep = 1;
 				return true;
@@ -133,7 +133,7 @@ bool PluginAuth::DoAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBu
 							return true;
 						}
 
-						LogError("Authentication failure for bunny");
+						LogError(QString("Authentication failure for bunny: %1").arg(QString(username)));
 						// Bad password, send failure and restart auth
 						answer.append("<failure xmlns='urn:ietf:params:xml:ns:xmpp-sasl'><not-authorized/></failure>");
 						xmpp->currentAuthStep = 0;
@@ -161,7 +161,7 @@ bool PluginAuth::DoAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBu
 			if(data.startsWith("<?xml version='1.0' encoding='UTF-8'?>"))
 			{
 				// Send success
-				answer.append("<?xml version='1.0'?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' id='1331400675' from='xmpp.nabaztag.com' version='1.0' xml:lang='en'>");
+				answer.append("<?xml version='1.0'?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' id='1331400675' from='"+ xmpp->GetXmppDomain() +"' version='1.0' xml:lang='en'>");
 				answer.append("<stream:features><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><required/></bind><unbind xmlns='urn:ietf:params:xml:ns:xmpp-bind'/><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></stream:features>");
 				xmpp->currentAuthStep = 0;
 				(*pBunny)->Authenticated();
