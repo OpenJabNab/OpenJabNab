@@ -29,13 +29,14 @@ bool PluginRFID::HttpRequestHandle(HTTPRequest & request)
 		/* Get Owner of the bunny */
 		QString Bac = b->GetGlobalSetting("OwnerAccount","").toString();
 		if(Bac != "") {
-			/* Get Owner of the Ztamp */
-			QString Zac = z->GetGlobalSetting("OwnerAccount","").toString();
+			/* Get Owners of the Ztamp */
+			QStringList Zac = z->GetGlobalSetting("OwnerAccounts","").toStringList();
 			/* None, add it to this account */
-			if(Zac == "") {
+			if(!Zac.contains(Bac)) {
 				Account *Ac = AccountManager::GetAccountByLogin(Bac.toAscii());
 				Ac->AddZtamp(tagId.toAscii());
-				z->SetGlobalSetting("OwnerAccount",Bac);
+				Zac.append(Bac);
+				z->SetGlobalSetting("OwnerAccounts",Zac);
 				LogWarning(QString("Ztamp: %1 added to account %2 by bunny %3").arg(tagId,Bac,serialnumber));
 			}
 		}

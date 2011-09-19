@@ -65,8 +65,8 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 ?>
 	<tr<?php echo $i++ % 2 ? " class='l2'" : "" ?>>
 		<td><?php echo $Plugins[$p]; ?></td>
-		<td width="21%"><a href="server_plugin.php?p=<?php echo $p; ?>">Configurer</a></td>
-		<td width="21%"><?php if($Plugins[$p][1]): ?><a href="?stat=reload&plug=<?php echo $p ?>">Recharger</a><?php endif; ?></td>
+		<td width="21%"><a href="server_plugin.php?p=<?php echo $p; ?>">Setup</a></td>
+		<td width="21%"><?php if($Plugins[$p][1]): ?><a href="?stat=reload&plug=<?php echo $p ?>">Reload</a><?php endif; ?></td>
 	</tr>
 <?php } ?>
 </table>
@@ -82,9 +82,9 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 ?>
 	<tr<?php echo $i++ % 2 ? " class='l2'" : "" ?>>
 		<td><?php echo $Plugins[$p]; ?></td>
-		<td width="14%"><a href="server_plugin.php?p=<?php echo $p; ?>">Configurer</a></td>
-		<td <?php echo in_array($p,$APlugins) ? 'width="14%"' : 'colspan="2"'; ?>><a href="?stat=<?php echo in_array($p,$APlugins) ? "deactivate" : "activate"; ?>&plug=<?php echo $p ?>"><?php echo in_array($p,$APlugins) ? "D&eacute;sa" : "A"; ?>ctiver le plugin</a>
-		<?php if(in_array($p,$APlugins)): ?><td width="14%"><a href="?stat=reload&plug=<?php echo $p ?>">Recharger</a></td><?php endif; ?>
+		<td width="14%"><a href="server_plugin.php?p=<?php echo $p; ?>">Setup</a></td>
+		<td <?php echo in_array($p,$APlugins) ? 'width="14%"' : 'colspan="2"'; ?>><a href="?stat=<?php echo in_array($p,$APlugins) ? "deactivate" : "activate"; ?>&plug=<?php echo $p ?>"><?php echo in_array($p,$APlugins) ? "Dea" : "A"; ?>ctivate plugin</a>
+		<?php if(in_array($p,$APlugins)): ?><td width="14%"><a href="?stat=reload&plug=<?php echo $p ?>">Reload</a></td><?php endif; ?>
 	</tr>
 <?php } ?>
 </table>
@@ -101,8 +101,8 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 ?>
 	<tr<?php echo $i++ % 2 ? " class='l2'" : "" ?>>
 		<td><?php echo $Plugins[$p]; ?></td>
-		<td <?php echo in_array($p,$APlugins) ? 'width="21%"' : 'colspan="2"'; ?> ><a href="?stat=<?php echo in_array($p,$APlugins) ? "deactivate" : "activate"; ?>&plug=<?php echo $p ?>"><?php echo in_array($p,$APlugins) ? "D&eacute;sa" : "A"; ?>ctiver le plugin</a>
-		<?php if(in_array($p,$APlugins)): ?></td><td width="21%"><a href="?stat=reload&plug=<?php echo $p ?>">Recharger</a><?php endif; ?>
+		<td <?php echo in_array($p,$APlugins) ? 'width="21%"' : 'colspan="2"'; ?> ><a href="?stat=<?php echo in_array($p,$APlugins) ? "deactivate" : "activate"; ?>&plug=<?php echo $p ?>"><?php echo in_array($p,$APlugins) ? "Dea" : "A"; ?>ctivate plugin</a>
+		<?php if(in_array($p,$APlugins)): ?></td><td width="21%"><a href="?stat=reload&plug=<?php echo $p ?>">Reload</a><?php endif; ?>
 		</td>
 	</tr>
 <?php } ?>

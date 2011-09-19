@@ -47,10 +47,11 @@ private:
 	API_CALL(Api_RegisterNewAccount);
 	API_CALL(Api_AddBunny);
 	API_CALL(Api_RemoveBunny);
-    API_CALL(Api_RemoveZtamp);
+    	API_CALL(Api_RemoveZtamp);
 	API_CALL(Api_SetToken);
 	API_CALL(Api_SetAdmin);
 	API_CALL(Api_SetLanguage);
+	API_CALL(Api_GetLanguage);
 	API_CALL(Api_GetUserInfos);
 	API_CALL(Api_GetUserlist);
 	API_CALL(Api_GetConnectedUsers);

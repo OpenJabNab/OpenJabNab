@@ -15,9 +15,9 @@
 
     <div id="header">
       <div class="superHeader">
-        <span>Liens directs:</span>
-        <a href="http://ojnwiki.psnet.fr/" title="openJabNab Wiki">Wiki openJabNab</a> |
-        <a href="http://freenabaztag.com/" title="Annuaire des nabaztags">Annuaire openJabNab</a>
+        <span>Direct links:</span>
+        <a href="http://ojnwiki.psnet.fr/" title="openJabNab Wiki">openJabNab Wiki</a> |
+        <a href="http://freenabaztag.com/" title="Nabaztags directory">openJabNab directory</a>
       </div>
 
       <div class="midHeader">
@@ -45,7 +45,7 @@
 
     <div id="footer">
       <span class="doNotPrint">
-      <strong>Lapins &raquo;</strong> <!!LAPINS!!> &bull; <strong>Ztamps &raquo;</strong> <!!ZTAMPS!!> &bull; <strong>Plugins &raquo;</strong> <!!PLUGINS!!> 
+      <strong>Bunnies &raquo;</strong> <!!LAPINS!!> &bull; <strong>Ztamps &raquo;</strong> <!!ZTAMPS!!> &bull; <strong>Plugins &raquo;</strong> <!!PLUGINS!!> 
       </span>
 
       </div>

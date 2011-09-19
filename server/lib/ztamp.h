@@ -64,6 +64,7 @@ private:
 	API_CALL(Api_RemovePlugin);
 	API_CALL(Api_GetListOfAssociatedPlugins);
 	API_CALL(Api_SetZtampName);
+	API_CALL(Api_RemoveOwner);
 	API_CALL(Api_ResetOwner);
 
 	QByteArray id;

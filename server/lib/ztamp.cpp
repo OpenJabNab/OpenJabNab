@@ -257,6 +257,7 @@ void Ztamp::InitApiCalls()
 	DECLARE_API_CALL("unregisterPlugin(name)", &Ztamp::Api_RemovePlugin);
 	DECLARE_API_CALL("getListOfActivePlugins()", &Ztamp::Api_GetListOfAssociatedPlugins);
 	DECLARE_API_CALL("setZtampName(name)", &Ztamp::Api_SetZtampName);
+	DECLARE_API_CALL("removeOwner(login)", &Ztamp::Api_RemoveOwner);
 	DECLARE_API_CALL("resetOwner()", &Ztamp::Api_ResetOwner);
 }
 
@@ -309,11 +310,25 @@ API_CALL(Ztamp::Api_SetZtampName)
 	return new ApiManager::ApiOk(QString("Ztamp '%1' is now named '%2'").arg(GetID(), hRequest.GetArg("name")));
 }
 
+API_CALL(Ztamp::Api_RemoveOwner)
+{
+	Q_UNUSED(account);
+
+	QString owner = hRequest.GetArg("login");
+	if(owner == "")
+		return new ApiManager::ApiError("Bad login");
+
+	QStringList owners = GetGlobalSetting("OwnerAccounts","").toStringList();
+	owners.removeAll(owner);
+	SetGlobalSetting("OwnerAccounts", owners);
+	return new ApiManager::ApiOk(QString("Owner '%1' removed").arg(owner));
+}
+
 API_CALL(Ztamp::Api_ResetOwner)
 {
 	Q_UNUSED(account);
 	Q_UNUSED(hRequest);
 
-	RemoveGlobalSetting("OwnerAccount");
+	RemoveGlobalSetting("OwnerAccounts");
 	return new ApiManager::ApiOk("Owner cleared");
 }

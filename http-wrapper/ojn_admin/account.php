@@ -94,10 +94,16 @@ if(isset($_SESSION['message']) && empty($r)) {
 <input type="submit" value="Remove" />
 </form>
 </fieldset>
+<?php 
+$lng = $ojnAPI->getApiString("accounts/getlanguage?login=".$_SESSION['login']."&".$ojnAPI->getToken());
+?>
 <fieldset>
 <legend>Language</legend>
 <form method="post">
-<select name="lng"><option value="en">English</option><option value="fr">French</option></select><br />
+<select name="lng">
+<option value="en"<?php if($lng == 'en') { ?> selected="selected"<?php } ?>>English</option>
+<option value="fr"<?php if($lng == 'fr') { ?> selected="selected"<?php } ?>>French</option>
+</select><br />
 <input type="submit" value="Apply" />
 </form>
 </fieldset>
