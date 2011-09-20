@@ -206,8 +206,11 @@ ApiManager::ApiAnswer * Bunny::ProcessVioletApiCall(HTTPRequest const& hRequest)
 			answer->AddMessage("APIDISABLED", "API is disabled for this bunny");
 		}
 	}
-	answer->AddMessage("APIDISABLED", "Missing serial or token");
-        return answer;
+	else
+	{
+		answer->AddMessage("APIDISABLED", "Missing serial or token");
+        }
+	return answer;
 }
 
 Bunny::~Bunny()
@@ -672,6 +675,8 @@ void Bunny::InitApiCalls()
 
 	DECLARE_API_CALL("disconnect()", &Bunny::Api_Disconnect);
 
+        DECLARE_API_CALL("setPublicVAPI(public)", &Bunny::Api_setPublicVApi);
+        DECLARE_API_CALL("getPublicVAPI()", &Bunny::Api_getPublicVApi);
 	DECLARE_API_CALL("enableVAPI()", &Bunny::Api_enableVApi);
 	DECLARE_API_CALL("disableVAPI()", &Bunny::Api_disableVApi);
 	DECLARE_API_CALL("getVAPIStatus()", &Bunny::Api_getVApiStatus);
@@ -856,6 +861,23 @@ API_CALL(Bunny::Api_Disconnect)
 	return new ApiManager::ApiOk("Connexion closed");
 }
 
+API_CALL(Bunny::Api_setPublicVApi)
+{
+        Q_UNUSED(account);
+        bool p = (bool)(hRequest.GetArg("public").toInt());
+        QString pub = p ? "public" : "private";
+        SetGlobalSetting("VApiPublic",p);
+        return new ApiManager::ApiOk(QString("Bunny is now %1 for VioletAPI").arg(pub));
+}
+
+API_CALL(Bunny::Api_getPublicVApi)
+{
+        Q_UNUSED(account);
+        Q_UNUSED(hRequest);
+        QString pub = GetGlobalSetting("VApiPublic",false).toBool() ? "public" : "private";
+        return new ApiManager::ApiString(pub);
+}
+
 API_CALL(Bunny::Api_enableVApi)
 {
 	Q_UNUSED(account);
@@ -883,7 +905,7 @@ API_CALL(Bunny::Api_getVApiStatus)
 {
 	Q_UNUSED(account);
 	Q_UNUSED(hRequest);
-	return new ApiManager::ApiString(GetGlobalSetting("VApiEnable", "false").toString());
+	return new ApiManager::ApiString(GetGlobalSetting("VApiEnable", false).toBool() ? "enabled" : "disabled");
 }
 
 API_CALL(Bunny::Api_getVApiToken)

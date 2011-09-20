@@ -34,8 +34,15 @@ if(!empty($_GET['b'])) {
 	$_SESSION['bunny_name'] = $_GET['bunny_name'];
 	header('Location: bunny.php');
 }
-
-if(!empty($_GET['aVAPI'])) {
+else if(!empty($_GET['pVAPI'])) {
+	$pub = (int)$_GET['pVAPI'] - 1;
+	if($pub == 0 || $pub == 1)
+		$_SESSION['message'] = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/setPublicVAPI?public=".$pub."&".$ojnAPI->getToken());
+	else
+		$_SESSION['message'] = "Error: Error in choice";
+	header("Location: bunny.php");
+}
+else if(!empty($_GET['aVAPI'])) {
 	$st = (string)$_GET['aVAPI'];
 	if($st == "enable" || $st == "disable")
 		$_SESSION['message'] = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/".$st."VAPI?".$ojnAPI->getToken());
@@ -64,7 +71,10 @@ $Token = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/getVAPIToken?".$ojn
 $Token = isset($Token['value']) ? $Token['value'] : '';
 /* Status */
 $Status = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/getVAPIStatus?".$ojnAPI->getToken());
-$Status= (!empty($Status['value']) && $Status['value'] == "true") ? true : false;
+$Status= (!empty($Status['value']) && $Status['value'] == 'enabled') ? true : false;
+/* Public */
+$Public = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/getPublicVAPI?".$ojnAPI->getToken());
+$Public= (!empty($Public['value']) && $Public['value'] == "public") ? true : false;
 
 ?>
 <h1 id="bunny">Configuration du lapin '<?php echo !empty($_SESSION['bunny_name']) ? $_SESSION['bunny_name'] : $_SESSION['bunny']; ?>'</h1>
@@ -99,6 +109,11 @@ VioletAPIToken: <?php echo $Token ; ?><br />
 <form method="get">
 VioletAPI: <input type="radio" name="aVAPI" value="enable" <?php echo $Status ? 'checked="checked"' : ''; ?>/> Activer
 <input type="radio" name="aVAPI" value="disable" <?php echo !$Status ? 'checked="checked"' : ''; ?> /> D&eacute;sactiver
+<input type="submit" value="Enregister">
+</form>
+<form method="get">
+Public: <input type="radio" name="pVAPI" value="2" <?php echo $Public ? 'checked="checked"' : ''; ?>/> Public
+<input type="radio" name="pVAPI" value="1" <?php echo !$Public ? 'checked="checked"' : ''; ?> /> Private
 <input type="submit" value="Enregister">
 </form>
 <form method="get">

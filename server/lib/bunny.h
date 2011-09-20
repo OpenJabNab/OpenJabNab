@@ -102,6 +102,8 @@ private:
 	API_CALL(Api_ResetPassword);
 	API_CALL(Api_ResetOwner);
 	API_CALL(Api_Disconnect);
+        API_CALL(Api_setPublicVApi);
+        API_CALL(Api_getPublicVApi);
 	API_CALL(Api_enableVApi);
 	API_CALL(Api_disableVApi);
 	API_CALL(Api_getVApiStatus);
