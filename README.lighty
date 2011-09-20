@@ -12,7 +12,7 @@ II) Add Rewrite-Rules
 Add the following lines to the configuration of your (sub-)domain
 
 url.rewrite-once += (
-    "^vl/bc.jsp$" => "/ojn_local/bootcode/bootcode.default",
+    "^/vl/bc.jsp.*" => "/ojn_local/bootcode/bootcode.default",
     "^/ojn_api" => "/openjabnab.php",
     "^/ojn/" => "/openjabnab.php",
     "^/vl" => "/openjabnab.php")
