@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = auth locate record rfid msgall annuaire
+SUBDIRS = auth locate record rfid msgall annuaire stats

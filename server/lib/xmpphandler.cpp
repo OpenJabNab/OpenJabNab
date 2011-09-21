@@ -77,6 +77,8 @@ void XmppHandler::HandleBunnyXmppMessage()
 
 	// Send raw xml info to all 'system' plugins and bunny's plugins
 	bunny->XmppBunnyMessage(data);
+	//qDebug() << incomingXmppSocket->peerAddress();
+	bunny->SetGlobalSetting("LastIP", incomingXmppSocket->peerAddress().toString());
 
 	// Parse Bunny messages
 	// Check if the data contains <message></message>
