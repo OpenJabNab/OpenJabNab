@@ -34,6 +34,8 @@ public:
 	PLUGIN_BUNNY_API_CALL(Api_Play);
 	PLUGIN_BUNNY_API_CALL(Api_ListWebcast);
 	PLUGIN_BUNNY_API_CALL(Api_ListFlux);
+	PLUGIN_API_CALL(Api_GetFlux);
+	PLUGIN_API_CALL(Api_SetFlux);
 private:
 	bool streamFlux(Bunny *, QString const);
     QStringList Flist;

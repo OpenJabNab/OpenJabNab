@@ -92,7 +92,7 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 <table style="width: 80%">
 	<tr>
 		<th>Bunnies &amp; Ztamps Plugins</th>
-		<th colspan="2">Actions</th>
+		<th colspan="3">Actions</th>
 	</tr>
 <?php
 	$i = 0;
@@ -101,8 +101,9 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 ?>
 	<tr<?php echo $i++ % 2 ? " class='l2'" : "" ?>>
 		<td><?php echo $Plugins[$p]; ?></td>
-		<td <?php echo in_array($p,$APlugins) ? 'width="21%"' : 'colspan="2"'; ?> ><a href="?stat=<?php echo in_array($p,$APlugins) ? "deactivate" : "activate"; ?>&plug=<?php echo $p ?>"><?php echo in_array($p,$APlugins) ? "Dea" : "A"; ?>ctivate plugin</a>
-		<?php if(in_array($p,$APlugins)): ?></td><td width="21%"><a href="?stat=reload&plug=<?php echo $p ?>">Reload</a><?php endif; ?>
+		<td width="14%"><a href="server_plugin.php?p=<?php echo $p; ?>">Setup</a></td>
+		<td <?php echo in_array($p,$APlugins) ? 'width="14%"' : 'colspan="2"'; ?> ><a href="?stat=<?php echo in_array($p,$APlugins) ? "deactivate" : "activate"; ?>&plug=<?php echo $p ?>"><?php echo in_array($p,$APlugins) ? "Dea" : "A"; ?>ctivate plugin</a>
+		<?php if(in_array($p,$APlugins)): ?></td><td width="14%"><a href="?stat=reload&plug=<?php echo $p ?>">Reload</a><?php endif; ?>
 		</td>
 	</tr>
 <?php } ?>

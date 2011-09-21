@@ -4,6 +4,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include "account.h"
 #include "plugin_wizzflux.h"
 #include "bunny.h"
 #include "cron.h"
@@ -13,14 +14,19 @@
 Q_EXPORT_PLUGIN2(plugin_wizzflux, PluginWizzflux)
 
 PluginWizzflux::PluginWizzflux():PluginInterface("wizzflux", "Flux from different sources (provided by Wizz.cc)", BunnyZtampPlugin) {
-    Flist << "lemonde_une" << "lemonde_economie" << "lemonde_culture" << "lemonde_planete";
-    Flist << "lemonde_cinema" << "lemonde_livres" << "lemonde_sports" << "lemonde_voyages" << "lemonde_international";
-    Flist << "gala" << "voici" << "yahoo_closer";
-    Flist << "cnn_latest" << "cnn_usa" << "silicon_fr" << "generation_nt";
-    Flist << "fdj_loto" << "fdj_euromillions";
-	Flist << "horoscope_jour_balance" << "horoscope_jour_belier" << "horoscope_jour_cancer" << "horoscope_jour_capricorne";
-	Flist << "horoscope_jour_gemeaux" << "horoscope_jour_lion" << "horoscope_jour_poissons" << "horoscope_jour_sagittaire";
-	Flist << "horoscope_jour_scorpion" << "horoscope_jour_taureau" << "horoscope_jour_verseau" << "horoscope_jour_vierge" ;
+	Flist = GetSettings("ListFlux", QStringList()).toStringList();
+	if(Flist.count() == 0)
+	{
+		Flist << "lemonde_une" << "lemonde_economie" << "lemonde_culture" << "lemonde_planete";
+		Flist << "lemonde_cinema" << "lemonde_livres" << "lemonde_sports" << "lemonde_voyages" << "lemonde_international";
+		Flist << "gala" << "voici" << "yahoo_closer";
+		Flist << "cnn_latest" << "cnn_usa" << "silicon_fr" << "generation_nt";
+		Flist << "fdj_loto" << "fdj_euromillions";
+		Flist << "horoscope_jour_balance" << "horoscope_jour_belier" << "horoscope_jour_cancer" << "horoscope_jour_capricorne";
+		Flist << "horoscope_jour_gemeaux" << "horoscope_jour_lion" << "horoscope_jour_poissons" << "horoscope_jour_sagittaire";
+		Flist << "horoscope_jour_scorpion" << "horoscope_jour_taureau" << "horoscope_jour_verseau" << "horoscope_jour_vierge" ;
+		SetSettings("ListFlux", Flist);
+	}
 }
 
 PluginWizzflux::~PluginWizzflux()
@@ -132,6 +138,8 @@ void PluginWizzflux::InitApiCalls()
 	DECLARE_PLUGIN_BUNNY_API_CALL("play(name)", PluginWizzflux, Api_Play);
 	DECLARE_PLUGIN_BUNNY_API_CALL("listwebcast()", PluginWizzflux, Api_ListWebcast);
 	DECLARE_PLUGIN_BUNNY_API_CALL("listflux()", PluginWizzflux, Api_ListFlux);
+	DECLARE_PLUGIN_API_CALL("getflux()", PluginWizzflux, Api_GetFlux);
+	DECLARE_PLUGIN_API_CALL("setflux(list)", PluginWizzflux, Api_SetFlux);
 }
 
 PLUGIN_BUNNY_API_CALL(PluginWizzflux::Api_AddRFID)
@@ -233,5 +241,24 @@ PLUGIN_BUNNY_API_CALL(PluginWizzflux::Api_ListFlux)
     Q_UNUSED(bunny);
     Q_UNUSED(hRequest);
 
-	return new ApiManager::ApiList(Flist);
+	return new ApiManager::ApiList(GetSettings("ListFlux", QStringList()).toStringList());
+}
+
+PLUGIN_API_CALL(PluginWizzflux::Api_GetFlux)
+{
+	Q_UNUSED(account);
+    Q_UNUSED(hRequest);
+
+	return new ApiManager::ApiList(GetSettings("ListFlux", QStringList()).toStringList());
+}
+
+PLUGIN_API_CALL(PluginWizzflux::Api_SetFlux)
+{
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied.");
+
+	QStringList list = hRequest.GetArg("list").split(",");
+	SetSettings("ListFlux", list);
+	Flist = list;
+	return new ApiManager::ApiOk("Successfully set flux");
 }
