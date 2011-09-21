@@ -22,8 +22,8 @@ bool PluginEars::OnEarsMove(Bunny * b, int l, int r) {
 				if(f->GetPluginSetting(GetName(), "Friend", "").toByteArray() == b->GetID()) {
 					/* If the friend is connected and not sleeping */
 					if(f->IsConnected() && !f->IsSleeping()) {
-						/* Debug
-					    LogDebug(QString("Friend: %1 Ears to: %2 - %3").arg(FName).arg(l).arg(r)); */
+						/* Debug*/
+					    LogDebug(QString("Friend: %1 Ears to: %2 - %3").arg(FName).arg(l).arg(r));
 						/* Send A packet to move the ears */
 						AmbientPacket p;
 						p.SetEarsPosition(l, r);
