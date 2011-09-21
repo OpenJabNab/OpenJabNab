@@ -1,4 +1,4 @@
-<?
+<?php
 // Be careful when adding translations.
 // Put single words at end of array
 
