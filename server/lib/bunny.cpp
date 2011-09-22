@@ -16,6 +16,7 @@
 #include "sleeppacket.h"
 #include "xmpphandler.h"
 #include "account.h"
+#include "ttsmanager.h"
 
 #define SINGLE_CLICK_PLUGIN_SETTINGNAME "singleClickPlugin"
 #define DOUBLE_CLICK_PLUGIN_SETTINGNAME "doubleClickPlugin"
@@ -148,6 +149,7 @@ ApiManager::ApiAnswer * Bunny::ProcessVioletApiCall(HTTPRequest const& hRequest)
                 		                }
 		                                if(hRequest.HasArg("tts"))
 		                                {
+							SendPacket(MessagePacket("MU "+TTSManager::CreateNewSound(hRequest.GetArg("tts"), "claire")+"\nPL 3\nMW\n"));
                 		                        answer->AddMessage("TTSSENT", "Your text has been sent");
 		                                }
                 		                if(hRequest.HasArg("ears"))
