@@ -684,6 +684,10 @@ void Bunny::InitApiCalls()
 	DECLARE_API_CALL("getVAPIStatus()", &Bunny::Api_getVApiStatus);
 	DECLARE_API_CALL("getVAPIToken()", &Bunny::Api_getVApiToken);
 	DECLARE_API_CALL("setVAPIToken(tk)", &Bunny::Api_setVApiToken);
+
+	DECLARE_API_CALL("getlastip()", &Bunny::Api_getLastIP);
+	DECLARE_API_CALL("getlastconnection()", &Bunny::Api_getLastConnection);
+	DECLARE_API_CALL("getlastrecord()", &Bunny::Api_getLastRecord);
 }
 
 API_CALL(Bunny::Api_AddPlugin)
@@ -924,4 +928,31 @@ API_CALL(Bunny::Api_setVApiToken)
 
 	SetGlobalSetting("VApiToken",hRequest.GetArg("tk").toAscii());
 	return new ApiManager::ApiOk(QString("VioletAPI Token updated."));
+}
+
+API_CALL(Bunny::Api_getLastIP)
+{
+	Q_UNUSED(hRequest);
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	return new ApiManager::ApiString(GetGlobalSetting("LastIP", QString("")).toString());
+}
+
+API_CALL(Bunny::Api_getLastConnection)
+{
+	Q_UNUSED(hRequest);
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	return new ApiManager::ApiString(GetGlobalSetting("Last JabberConnection", QString("")).toString());
+}
+
+API_CALL(Bunny::Api_getLastRecord)
+{
+	Q_UNUSED(hRequest);
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	return new ApiManager::ApiString(GetGlobalSetting("LastRecord", QString("")).toString());
 }

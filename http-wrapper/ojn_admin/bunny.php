@@ -127,6 +127,17 @@ Public: <input type="radio" name="pVAPI" value="2" <?php echo $Public ? 'checked
 <input name="resetpwd" type="submit" value="Remettre a zero le mot de passe">
 <input name="resetown" type="submit" value="Liberer le lapin de son maitre">
 </form>
+<?php
+$lastConnection = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/getlastconnection?".$ojnAPI->getToken());
+$lastConnection = isset($lastConnection['value']) ? $lastConnection['value'] : "";
+$lastIP = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/getlastip?".$ojnAPI->getToken());
+$lastIP = isset($lastIP['value']) ? $lastIP['value'] : "";
+$lastRecord = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/getlastrecord?".$ojnAPI->getToken());
+$lastRecord = isset($lastRecord['value']) ? $lastRecord['value'] : "";
+?>
+<div><label>Last Jabber Connection : </label><?php echo $lastConnection != "" ? date("d/m/Y H:i:s", strtotime($lastConnection)) : '' ?></div>
+<div><label>Last IP : </label><?php echo $lastIP ?></div>
+<div><label>Last Record : </label><?php echo $lastRecord ?></div>
 </fieldset>
 <?php endif; ?>
 <h2>Plugins</h2>
