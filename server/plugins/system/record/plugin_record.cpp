@@ -24,9 +24,12 @@ bool PluginRecord::HttpRequestHandle(HTTPRequest & request)
 	if (uri.startsWith("/vl/record.jsp"))
 	{
 		QString serialnumber = request.GetArg("sn");
-		QFile wavFile( recordFolder.absoluteFilePath("record_"+QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss")+".wav") );
+		QString filename = recordFolder.absoluteFilePath("record_"+serialnumber+"_"+QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss")+".wav");
+		QFile wavFile( filename );
 		if(wavFile.open(QFile::WriteOnly)) {
 			wavFile.write(request.GetPostRaw());
+			Bunny * b = BunnyManager::GetBunny(this, serialnumber.toAscii());
+			b->SetGlobalSetting("LastRecord", filename);
 		} else {
 			LogError("Impossible to write record file");
 		}
