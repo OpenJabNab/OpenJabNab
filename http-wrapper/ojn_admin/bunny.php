@@ -205,13 +205,13 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 <legend style="color: red">Use at your own risk, bunny may loose connection if parameters are bad</legend>
 <form method="post">
 <?php
-$pingserver = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/getcustomlocate?param=PingServer".$ojnAPI->getToken());
+$pingserver = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/getcustomlocate?param=PingServer&".$ojnAPI->getToken());
 $pingserver = $pingserver['value'];
-$broadserver = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/getcustomlocate?param=BroadServer".$ojnAPI->getToken());
+$broadserver = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/getcustomlocate?param=BroadServer&".$ojnAPI->getToken());
 $broadserver = $broadserver['value'];
-$xmppserver = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/getcustomlocate?param=XmppServer".$ojnAPI->getToken());
+$xmppserver = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/getcustomlocate?param=XmppServer&".$ojnAPI->getToken());
 $xmppserver = $xmppserver['value'];
-$xmppport = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/getcustomlocate?param=ListeningXmppPort".$ojnAPI->getToken());
+$xmppport = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/getcustomlocate?param=ListeningXmppPort&".$ojnAPI->getToken());
 $xmppport = $xmppport['value'];
 ?>
 Ping Server : <input type="text" name="pingserver" value="<?php echo $pingserver ?>"><br />
