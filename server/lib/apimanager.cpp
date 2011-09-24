@@ -151,7 +151,7 @@ ApiManager::ApiAnswer * ApiManager::ProcessBunnyApiCall(Account const& account, 
 			if(!plugin)
 				return new ApiManager::ApiError(QString("Unknown Plugin : '%1'").arg(list.at(1)));
 
-			if(b->HasPlugin(plugin))
+			if(b->HasPlugin(plugin) || ( (plugin->GetType() == PluginInterface::SystemPlugin || plugin->GetType() == PluginInterface::RequiredPlugin ) && plugin->GetEnable()))
 			{
 				QByteArray const& functionName = list.at(2).toAscii();
 				return plugin->ProcessBunnyApiCall(b, account, functionName, hRequest);
