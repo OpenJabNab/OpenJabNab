@@ -24,8 +24,9 @@ bool PluginRecord::HttpRequestHandle(HTTPRequest & request)
 	if (uri.startsWith("/vl/record.jsp"))
 	{
 		QString serialnumber = request.GetArg("sn");
-		QString filename = recordFolder.absoluteFilePath("record_"+serialnumber+"_"+QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss")+".wav");
-		QFile wavFile( filename );
+		QString filename ="record_"+serialnumber+"_"+QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss")+".wav";
+		QString filepath = recordFolder.absoluteFilePath(filename);
+		QFile wavFile( filepath );
 		if(wavFile.open(QFile::WriteOnly)) {
 			wavFile.write(request.GetPostRaw());
 			Bunny * b = BunnyManager::GetBunny(this, serialnumber.toAscii());
