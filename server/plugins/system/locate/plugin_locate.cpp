@@ -16,16 +16,54 @@ bool PluginLocate::HttpRequestHandle(HTTPRequest & request)
 	if (uri.startsWith("/vl/locate.jsp"))
 	{
 		QString serialnumber = request.GetArg("sn").remove(':');
-		
+		Bunny * bunny = BunnyManager::GetBunny(this, serialnumber.toAscii());
+
+		QString pingServer = bunny->GetPluginSetting(GetName(), "PingServer", GlobalSettings::GetString("OpenJabNabServers/PingServer")).toString(); 
+		QString broadServer = bunny->GetPluginSetting(GetName(), "BroadServer", GlobalSettings::GetString("OpenJabNabServers/BroadServer")).toString(); 
+		QString xmppServer = bunny->GetPluginSetting(GetName(), "XmppServer", GlobalSettings::GetString("OpenJabNabServers/XmppServer")).toString(); 
+		QString xmppPort = bunny->GetPluginSetting(GetName(), "ListeningXmppPort", GlobalSettings::GetString("OpenJabNabServers/ListeningXmppPort")).toString(); 
+
 		LogInfo(QString("Requesting LOCATE for tag %1").arg(serialnumber));
 		
 		QString locateString;
-		locateString += QString("ping %1\n").arg(GlobalSettings::GetString("OpenJabNabServers/PingServer"));
-		locateString += QString("broad %1\n").arg(GlobalSettings::GetString("OpenJabNabServers/BroadServer"));
-		locateString += QString("xmpp_domain %1:%2\n").arg(GlobalSettings::GetString("OpenJabNabServers/XmppServer"),GlobalSettings::GetString("OpenJabNabServers/ListeningXmppPort"));
+		locateString += QString("ping %1\n").arg(pingServer);
+		locateString += QString("broad %1\n").arg(broadServer);
+		locateString += QString("xmpp_domain %1:%2\n").arg(xmppServer, xmppPort);
 		request.reply = locateString.toAscii();
 		return true;
 	}
 	else
 		return false;
 }
+
+void PluginLocate::InitApiCalls()
+{
+	DECLARE_PLUGIN_BUNNY_API_CALL("setcustomlocate(param,value)", PluginLocate, Api_SetCustomLocateSetting);
+	DECLARE_PLUGIN_BUNNY_API_CALL("getcustomlocate(param)", PluginLocate, Api_GetCustomLocateSetting);
+}
+
+PLUGIN_BUNNY_API_CALL(PluginLocate::Api_SetCustomLocateSetting)
+{
+	Q_UNUSED(account);
+
+	QString hParam = hRequest.GetArg("param");
+	if(hParam == "PingServer" || hParam == "BroadServer" || hParam == "XmppServer" || hParam == "ListeningXmppPort")
+	{
+		bunny->SetPluginSetting(GetName(), hParam, hRequest.GetArg("value"));
+		return new ApiManager::ApiOk(QString("Setting '%1' to custom value '%2'").arg(hParam, hRequest.GetArg("value")));
+	}
+	return new ApiManager::ApiError(QString("'%1' is not a setting for this plugin").arg(hParam));
+}
+
+PLUGIN_BUNNY_API_CALL(PluginLocate::Api_GetCustomLocateSetting)
+{
+	Q_UNUSED(account);
+
+	QString hParam = hRequest.GetArg("param");
+	if(hParam == "PingServer" || hParam == "BroadServer" || hParam == "XmppServer" || hParam == "ListeningXmppPort")
+	{
+		return new ApiManager::ApiString(bunny->GetPluginSetting(GetName(), hParam, QString("")).toString());
+	}
+	return new ApiManager::ApiError(QString("'%1' is not a setting for this plugin").arg(hParam));
+}
+

@@ -50,6 +50,33 @@ else if(!empty($_GET['aVAPI'])) {
 		$_SESSION['message'] = "Error: Error in choice";
 	header("Location: bunny.php");
 }
+elseif(!empty($_POST) && count($_POST) == 4) {
+	$ping = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/setcustomlocate?param=PingServer&value=".$_POST['pingserver']."&".$ojnAPI->getToken());
+	$broad = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/setcustomlocate?param=BroadServer&value=".$_POST['broadserver']."&".$ojnAPI->getToken());
+	$xmpp = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/setcustomlocate?param=XmppServer&value=".$_POST['xmppserver']."&".$ojnAPI->getToken());
+	$port = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/setcustomlocate?param=ListeningXmppPort&value=".$_POST['xmppport']."&".$ojnAPI->getToken());
+	if(isset($ping['ok']))
+		$_SESSION['message']['ok'] = $ping['ok'];
+	else
+		$_SESSION['message']['error'] = $ping['error'];
+
+	if(isset($broad['ok']))
+		$_SESSION['message']['ok'] .= "<br />".$broad['ok'];
+	else
+		$_SESSION['message']['error'] .= "<br />".$broad['error'];
+
+	if(isset($xmpp['ok']))
+		$_SESSION['message']['ok'] .= "<br />".$xmpp['ok'];
+	else
+		$_SESSION['message']['error'] .= "<br />".$xmpp['error'];
+
+	if(isset($port['ok']))
+		$_SESSION['message']['ok'] .= "<br />".$port['ok'];
+	else
+		$_SESSION['message']['error'] .= "<br />".$port['error'];
+
+	header("Location: bunny.php");
+}
 
 if(empty($_SESSION['bunny'])) {
 ?>
@@ -172,6 +199,28 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 	</tr>
 <?php } ?>
 </table>
-<?php }
+</center>
+<h2>Server</h2>
+<fieldset>
+<legend style="color: red">Use at your own risk, bunny may loose connection if parameters are bad</legend>
+<form method="post">
+<?php
+$pingserver = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/getcustomlocate?param=PingServer".$ojnAPI->getToken());
+$pingserver = $pingserver['value'];
+$broadserver = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/getcustomlocate?param=BroadServer".$ojnAPI->getToken());
+$broadserver = $broadserver['value'];
+$xmppserver = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/getcustomlocate?param=XmppServer".$ojnAPI->getToken());
+$xmppserver = $xmppserver['value'];
+$xmppport = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/locate/getcustomlocate?param=ListeningXmppPort".$ojnAPI->getToken());
+$xmppport = $xmppport['value'];
+?>
+Ping Server : <input type="text" name="pingserver" value="<?php echo $pingserver ?>"><br />
+Broad Server : <input type="text" name="broadserver" value="<?php echo $broadserver ?>"><br />
+Xmpp Server : <input type="text" name="xmppserver" value="<?php echo $xmppserver ?>"><br />
+Xmpp Port : <input type="text" name="xmppport" value="<?php echo $xmppport ?>"><br />
+<input type="submit" value="Apply">
+</form>
+<?php
+}
 require_once "include/append.php";
 ?>

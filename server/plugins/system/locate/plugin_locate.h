@@ -13,6 +13,10 @@ public:
 	PluginLocate();
 	virtual ~PluginLocate() {};
 	virtual bool HttpRequestHandle(HTTPRequest &);
+
+	virtual void InitApiCalls();
+	PLUGIN_BUNNY_API_CALL(Api_SetCustomLocateSetting);
+	PLUGIN_BUNNY_API_CALL(Api_GetCustomLocateSetting);
 };
 
 #endif
