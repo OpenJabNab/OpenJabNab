@@ -30,6 +30,10 @@ bool PluginLocate::HttpRequestHandle(HTTPRequest & request)
 		locateString += QString("broad %1\n").arg(broadServer);
 		locateString += QString("xmpp_domain %1:%2\n").arg(xmppServer, xmppPort);
 		request.reply = locateString.toAscii();
+
+		bunny->SetGlobalSetting("LastLocate", QDateTime::currentDateTime());
+		bunny->SetGlobalSetting("LastLocateString", locateString);
+		
 		return true;
 	}
 	else

@@ -109,9 +109,8 @@ private:
 	API_CALL(Api_getVApiStatus);
 	API_CALL(Api_getVApiToken);
 	API_CALL(Api_setVApiToken);
-	API_CALL(Api_getLastIP);
-	API_CALL(Api_getLastConnection);
-	API_CALL(Api_getLastRecord);
+	API_CALL(Api_getAllLast);
+	API_CALL(Api_getOneLast);
 
 	enum State state;
 

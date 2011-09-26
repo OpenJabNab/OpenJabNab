@@ -155,16 +155,13 @@ Public: <input type="radio" name="pVAPI" value="2" <?php echo $Public ? 'checked
 <input name="resetown" type="submit" value="Liberer le lapin de son maitre">
 </form>
 <?php
-$lastConnection = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/getlastconnection?".$ojnAPI->getToken());
-$lastConnection = isset($lastConnection['value']) ? $lastConnection['value'] : "";
-$lastIP = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/getlastip?".$ojnAPI->getToken());
-$lastIP = isset($lastIP['value']) ? $lastIP['value'] : "";
-$lastRecord = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/getlastrecord?".$ojnAPI->getToken());
-$lastRecord = isset($lastRecord['value']) ? $lastRecord['value'] : "";
+$lasts = $ojnAPI->getApiMapped("bunny/".$_SESSION['bunny']."/getlasts?".$ojnAPI->getToken());
 ?>
-<div><label>Last Jabber Connection : </label><?php echo $lastConnection != "" ? date("d/m/Y H:i:s", strtotime($lastConnection)) : '' ?></div>
-<div><label>Last IP : </label><?php echo $lastIP ?></div>
-<div><label>Last Record : </label><?php echo $lastRecord ?></div>
+<div><label>Last Jabber Connection : </label><?php echo $lasts['Last JabberConnection'] != "" ? date("d/m/Y H:i:s", strtotime($lasts['Last JabberConnection'])) : '' ?></div>
+<div><label>Last IP : </label><?php echo $lasts['LastIP'] ?></div>
+<div><label>Last Record : </label><?php echo $lasts['LastIP'] ?></div>
+<div><label>Last Locate : </label><?php echo $lasts['LastLocate'] != "" ? date("d/m/Y H:i:s", strtotime($lasts['LastLocate'])) : '' ?></div>
+<div><label>Last Locate String : </label><?php echo $lasts['LastLocateString'] ?></div>
 </fieldset>
 <?php endif; ?>
 <h2>Plugins</h2>

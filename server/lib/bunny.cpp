@@ -685,9 +685,8 @@ void Bunny::InitApiCalls()
 	DECLARE_API_CALL("getVAPIToken()", &Bunny::Api_getVApiToken);
 	DECLARE_API_CALL("setVAPIToken(tk)", &Bunny::Api_setVApiToken);
 
-	DECLARE_API_CALL("getlastip()", &Bunny::Api_getLastIP);
-	DECLARE_API_CALL("getlastconnection()", &Bunny::Api_getLastConnection);
-	DECLARE_API_CALL("getlastrecord()", &Bunny::Api_getLastRecord);
+	DECLARE_API_CALL("getlast(param)", &Bunny::Api_getOneLast);
+	DECLARE_API_CALL("getlasts()", &Bunny::Api_getAllLast);
 }
 
 API_CALL(Bunny::Api_AddPlugin)
@@ -930,29 +929,32 @@ API_CALL(Bunny::Api_setVApiToken)
 	return new ApiManager::ApiOk(QString("VioletAPI Token updated."));
 }
 
-API_CALL(Bunny::Api_getLastIP)
+API_CALL(Bunny::Api_getOneLast)
 {
-	Q_UNUSED(hRequest);
 	if(!account.IsAdmin())
 		return new ApiManager::ApiError("Access denied");
 
-	return new ApiManager::ApiString(GetGlobalSetting("LastIP", QString("")).toString());
+	QString hParam = hRequest.GetArg("param");
+	if(hParam == "Last JabberConnection" || hParam == "LastIP" || hParam == "LastRecord" || hParam == "LastLocate" || hParam == "LastLocateString")
+	{
+		return new ApiManager::ApiString(GetGlobalSetting(hParam, QString("")).toString());
+	}
+	return new ApiManager::ApiError(QString("'%1' is not a good parameter").arg(hParam));
 }
 
-API_CALL(Bunny::Api_getLastConnection)
+API_CALL(Bunny::Api_getAllLast)
 {
 	Q_UNUSED(hRequest);
 	if(!account.IsAdmin())
 		return new ApiManager::ApiError("Access denied");
 
-	return new ApiManager::ApiString(GetGlobalSetting("Last JabberConnection", QString("")).toString());
-}
+	QStringList params;
+	params << "Last JabberConnection" << "LastIP" << "LastRecord" << "LastLocate" << "LastLocateString";
+	QMap<QString, QVariant> answer = QMap<QString, QVariant>();
+	foreach(QString param, params)
+	{
+		answer.insert(param, GetGlobalSetting(param, QString("")));
+	}
 
-API_CALL(Bunny::Api_getLastRecord)
-{
-	Q_UNUSED(hRequest);
-	if(!account.IsAdmin())
-		return new ApiManager::ApiError("Access denied");
-
-	return new ApiManager::ApiString(GetGlobalSetting("LastRecord", QString("")).toString());
+	return new ApiManager::ApiMappedList(answer);
 }
