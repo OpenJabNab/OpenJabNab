@@ -159,7 +159,7 @@ $lasts = $ojnAPI->getApiMapped("bunny/".$_SESSION['bunny']."/getlasts?".$ojnAPI-
 ?>
 <div><label>Last Jabber Connection : </label><?php echo $lasts['Last JabberConnection'] != "" ? date("d/m/Y H:i:s", strtotime($lasts['Last JabberConnection'])) : '' ?></div>
 <div><label>Last IP : </label><?php echo $lasts['LastIP'] ?></div>
-<div><label>Last Record : </label><?php echo $lasts['LastIP'] ?></div>
+<div><label>Last Record : </label><?php echo $lasts['LastRecord'] ?></div>
 <div><label>Last Locate : </label><?php echo $lasts['LastLocate'] != "" ? date("d/m/Y H:i:s", strtotime($lasts['LastLocate'])) : '' ?></div>
 <div><label>Last Locate String : </label><?php echo $lasts['LastLocateString'] ?></div>
 </fieldset>
