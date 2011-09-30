@@ -4,6 +4,7 @@
 #include "cron.h"
 #include "plugininterface.h"
 #include "log.h"
+#include "bunny.h"
 
 Cron::Cron() {
 	LogInfo("Cron Started...");
@@ -23,9 +24,17 @@ void Cron::OnTimer()
 		CronElement e = CronElements.takeFirst();
 
 		if(e.callback)
+		{
+			if(GlobalSettings::Get("Log/DisplayCronLog", false) == true)
+				LogInfo(QString("%1->%2 for bunny %3").arg(e.plugin->GetName(), e.callback, e.bunny->GetID()) );
+			e.bunny->SetGlobalSetting("LastCron", QString("%1 - %2->%3").arg(QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss"), e.plugin->GetName(), e.callback));
 			QMetaObject::invokeMethod(e.plugin, e.callback, Q_ARG(Bunny*, e.bunny), Q_ARG(QVariant, e.data));
+		}
 		else
 		{
+			if(GlobalSettings::Get("Log/DisplayCronLog", false) == true)
+				LogInfo(QString("%1->OnCron for bunny %2").arg(e.plugin->GetName(), QString(e.bunny->GetID())) );
+			e.bunny->SetGlobalSetting("LastCron", QString("%1 - %2->OnCron").arg(QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss"), e.plugin->GetName()));
 			e.plugin->OnCron(e.bunny, e.data);
 		}
 

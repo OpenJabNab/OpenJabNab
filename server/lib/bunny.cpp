@@ -935,7 +935,7 @@ API_CALL(Bunny::Api_getOneLast)
 		return new ApiManager::ApiError("Access denied");
 
 	QString hParam = hRequest.GetArg("param");
-	if(hParam == "Last JabberConnection" || hParam == "LastIP" || hParam == "LastRecord" || hParam == "LastLocate" || hParam == "LastLocateString")
+	if(hParam == "Last JabberConnection" || hParam == "LastIP" || hParam == "LastRecord" || hParam == "LastLocate" || hParam == "LastLocateString" || hParam == "LastCron")
 	{
 		return new ApiManager::ApiString(GetGlobalSetting(hParam, QString("")).toString());
 	}
@@ -949,7 +949,7 @@ API_CALL(Bunny::Api_getAllLast)
 		return new ApiManager::ApiError("Access denied");
 
 	QStringList params;
-	params << "Last JabberConnection" << "LastIP" << "LastRecord" << "LastLocate" << "LastLocateString";
+	params << "Last JabberConnection" << "LastIP" << "LastRecord" << "LastLocate" << "LastLocateString" << "LastCron";
 	QMap<QString, QVariant> answer = QMap<QString, QVariant>();
 	foreach(QString param, params)
 	{

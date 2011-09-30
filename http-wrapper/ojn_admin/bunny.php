@@ -162,6 +162,7 @@ $lasts = $ojnAPI->getApiMapped("bunny/".$_SESSION['bunny']."/getlasts?".$ojnAPI-
 <div><label>Last Record : </label><?php echo $lasts['LastRecord'] ?></div>
 <div><label>Last Locate : </label><?php echo $lasts['LastLocate'] != "" ? date("d/m/Y H:i:s", strtotime($lasts['LastLocate'])) : '' ?></div>
 <div><label>Last Locate String : </label><?php echo $lasts['LastLocateString'] ?></div>
+<div><label>Last Cron : </label><?php echo $lasts['LastCron'] ?></div>
 </fieldset>
 <?php endif; ?>
 <h2>Plugins</h2>

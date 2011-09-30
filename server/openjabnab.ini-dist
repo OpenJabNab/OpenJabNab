@@ -26,3 +26,4 @@ ListeningXmppPort=5222
 LogFile=openjabnab.log
 LogFileLevel=Debug
 LogScreenLevel=Warning
+DisplayCronLog=false
