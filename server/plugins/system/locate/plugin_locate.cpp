@@ -53,8 +53,16 @@ PLUGIN_BUNNY_API_CALL(PluginLocate::Api_SetCustomLocateSetting)
 	QString hParam = hRequest.GetArg("param");
 	if(hParam == "PingServer" || hParam == "BroadServer" || hParam == "XmppServer" || hParam == "ListeningXmppPort")
 	{
-		bunny->SetPluginSetting(GetName(), hParam, hRequest.GetArg("value"));
-		return new ApiManager::ApiOk(QString("Setting '%1' to custom value '%2'").arg(hParam, hRequest.GetArg("value")));
+		if(hRequest.GetArg("value") != "")
+		{
+			bunny->SetPluginSetting(GetName(), hParam, hRequest.GetArg("value"));
+			return new ApiManager::ApiOk(QString("Setting '%1' to custom value '%2'").arg(hParam, hRequest.GetArg("value")));
+		}
+		else
+		{
+			bunny->RemovePluginSetting(GetName(), hParam);
+			return new ApiManager::ApiOk(QString("Removing '%1' custom value").arg(hParam));
+		}
 	}
 	return new ApiManager::ApiError(QString("'%1' is not a setting for this plugin").arg(hParam));
 }
