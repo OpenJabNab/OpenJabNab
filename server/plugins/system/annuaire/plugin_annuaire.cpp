@@ -19,7 +19,9 @@ void PluginAnnuaire::OnBunnyConnect(Bunny * b)
 	QString server = GetSettings("global/URL", "").toString();
 	if(server != "") {
 		QHttp *http = new QHttp(server,80);
-		http->get("/nabconnection.php?m=" + b->GetID() + "&n="+ b->GetBunnyName() + "&s=" + GlobalSettings::GetString("OpenJabNabServers/PingServer"));
+		QString api = b->GetGlobalSetting("VApiEnable", false).toBool() ? "1" : "0";
+		QString pub = b->GetGlobalSetting("VApiPublic", false).toBool() ? "1" : "0";
+		http->get("/nabconnection.php?m=" + b->GetID() + "&n="+ b->GetBunnyName() + "&s=" + GlobalSettings::GetString("OpenJabNabServers/PingServer") + "&ip=" + b->GetGlobalSetting("LastIP", QString("")).toString() + "&api=" + api + "&public=" + pub);
 	}
 }
 
