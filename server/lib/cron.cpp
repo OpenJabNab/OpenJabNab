@@ -25,16 +25,16 @@ void Cron::OnTimer()
 
 		if(e.callback)
 		{
-			if(GlobalSettings::Get("Log/DisplayCronLog", false) == true)
-				LogInfo(QString("%1->%2 for bunny %3").arg(e.plugin->GetName(), e.callback, e.bunny->GetID()) );
-			e.bunny->SetGlobalSetting("LastCron", QString("%1 - %2->%3").arg(QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss"), e.plugin->GetName(), e.callback));
+//			if(GlobalSettings::Get("Log/DisplayCronLog", false) == true)
+//				LogInfo(QString("%1->%2 for bunny %3").arg(e.plugin->GetName(), e.callback, e.bunny->GetID()) );
+//			e.bunny->SetGlobalSetting("LastCron", QString("%1 - %2->%3").arg(QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss"), e.plugin->GetName(), e.callback));
 			QMetaObject::invokeMethod(e.plugin, e.callback, Q_ARG(Bunny*, e.bunny), Q_ARG(QVariant, e.data));
 		}
 		else
 		{
-			if(GlobalSettings::Get("Log/DisplayCronLog", false) == true)
-				LogInfo(QString("%1->OnCron for bunny %2").arg(e.plugin->GetName(), QString(e.bunny->GetID())) );
-			e.bunny->SetGlobalSetting("LastCron", QString("%1 - %2->OnCron").arg(QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss"), e.plugin->GetName()));
+//			if(GlobalSettings::Get("Log/DisplayCronLog", false) == true)
+//				LogInfo(QString("%1->OnCron for bunny %2").arg(e.plugin->GetName(), QString(e.bunny->GetID())) );
+//			e.bunny->SetGlobalSetting("LastCron", QString("%1 - %2->OnCron").arg(QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss"), e.plugin->GetName()));
 			e.plugin->OnCron(e.bunny, e.data);
 		}
 
