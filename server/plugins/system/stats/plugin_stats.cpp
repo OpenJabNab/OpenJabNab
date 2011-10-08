@@ -16,6 +16,7 @@ void PluginStats::InitApiCalls()
 	DECLARE_PLUGIN_API_CALL("getcolors()", PluginStats, Api_GetColors);
 	DECLARE_PLUGIN_API_CALL("getplugins()", PluginStats, Api_GetPlugins);
 	DECLARE_PLUGIN_API_CALL("getbunniesip()", PluginStats, Api_GetBunniesIP);
+	DECLARE_PLUGIN_API_CALL("getbunniesname()", PluginStats, Api_GetBunniesName); 
 	DECLARE_PLUGIN_API_CALL("getbunniesstatus()", PluginStats, Api_GetBunniesStatus);
 }
 
@@ -68,6 +69,23 @@ PLUGIN_API_CALL(PluginStats::Api_GetBunniesIP)
 	{
 		Bunny * b = BunnyManager::GetBunny(id);
 		list.insert(QString(b->GetID()), b->GetGlobalSetting("LastIP"));
+	}
+
+	return new ApiManager::ApiMappedList(list);
+}
+
+PLUGIN_API_CALL(PluginStats::Api_GetBunniesName)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+
+	QList<QByteArray> listB =  BunnyManager::GetConnectedBunniesList();
+
+	QMap<QString, QVariant> list;
+	foreach(QByteArray id, listB)
+	{
+		Bunny * b = BunnyManager::GetBunny(id);
+		list.insert(QString(b->GetID()), b->GetBunnyName());
 	}
 
 	return new ApiManager::ApiMappedList(list);
