@@ -28,6 +28,7 @@ public:
 	PLUGIN_API_CALL(Api_getURL);
 	PLUGIN_API_CALL(Api_SearchBunnyByName);
 	PLUGIN_API_CALL(Api_SearchBunnyByMac);
+	PLUGIN_API_CALL(Api_VerifyMacToken);
 
 };
 

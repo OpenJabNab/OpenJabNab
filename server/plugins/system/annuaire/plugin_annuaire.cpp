@@ -127,6 +127,7 @@ void PluginAnnuaire::InitApiCalls()
 	DECLARE_PLUGIN_API_CALL("getURL()", PluginAnnuaire, Api_getURL);
 	DECLARE_PLUGIN_API_CALL("searchbunnybymac(mac)", PluginAnnuaire, Api_SearchBunnyByMac);
 	DECLARE_PLUGIN_API_CALL("searchbunnybyname(name)", PluginAnnuaire, Api_SearchBunnyByName);
+	DECLARE_PLUGIN_API_CALL("verifymactoken(mac,reqtoken)", PluginAnnuaire, Api_VerifyMacToken);
 }
 
 PLUGIN_API_CALL(PluginAnnuaire::Api_setURL)
@@ -182,4 +183,19 @@ PLUGIN_API_CALL(PluginAnnuaire::Api_SearchBunnyByName)
 		xml += "</bunny>\n";
 	}
 	return new ApiManager::ApiXml(xml);
+}
+
+PLUGIN_API_CALL(PluginAnnuaire::Api_VerifyMacToken)
+{
+	Q_UNUSED(account);
+	Bunny * b = BunnyManager::GetBunny(hRequest.GetArg("mac").toAscii());
+	QString xml = "";
+		
+	if (hRequest.GetArg("reqtoken").toAscii()==b->GetGlobalSetting("VApiToken","FAILED").toString() ) 
+		xml += "<verify>true</verify>\n";
+	else 
+		xml += "<verify>false</verify>\n";
+	
+	return new ApiManager::ApiXml(xml);
+
 }
