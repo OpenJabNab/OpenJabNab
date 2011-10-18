@@ -44,9 +44,27 @@ void BunnyManager::InitApiCalls()
 {
 	DECLARE_API_CALL("getListOfConnectedBunnies()", &BunnyManager::Api_GetListOfConnectedBunnies);
 	DECLARE_API_CALL("getListOfBunnies()", &BunnyManager::Api_GetListOfBunnies);
+	DECLARE_API_CALL("removeBunny(serial)", &BunnyManager::Api_RemoveBunny);
 	DECLARE_API_CALL("addBunny(serial)", &BunnyManager::Api_AddBunny);
 	DECLARE_API_CALL("getListofAllBunnies()",&BunnyManager::Api_GetListOfAllBunnies);
 	DECLARE_API_CALL("getListofAllConnectedBunnies()",&BunnyManager::Api_GetListOfAllConnectedBunnies);
+}
+
+API_CALL(BunnyManager::Api_RemoveBunny)
+{
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	QString serial = hRequest.GetArg("serial");
+	QByteArray hexSerial = QByteArray::fromHex(serial.toAscii());
+	if(!listOfBunnies.contains(hexSerial))
+		return new ApiManager::ApiError(QString("Bunny '%1' does not exist").arg(serial));
+
+	listOfBunnies.remove(hexSerial);
+	QFile bunnyFile(bunniesDir.absoluteFilePath(QString("%1.dat").arg(serial)));
+	if(bunnyFile.remove())
+		return new ApiManager::ApiOk(QString("Bunny %1 removed").arg(serial));
+	return new ApiManager::ApiError(QString("Error when removing bunny %1").arg(serial));
 }
 
 int BunnyManager::GetConnectedBunnyCount()

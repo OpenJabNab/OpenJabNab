@@ -206,6 +206,7 @@ void AccountManager::InitApiCalls()
 	DECLARE_API_CALL("auth(login,pass)", &AccountManager::Api_Auth);
 	DECLARE_API_CALL("changePassword(login,pass)", &AccountManager::Api_ChangePasswd);
 	DECLARE_API_CALL("registerNewAccount(login,username,pass)", &AccountManager::Api_RegisterNewAccount);
+	DECLARE_API_CALL("removeAccount(login)", &AccountManager::Api_RemoveAccount);
 	DECLARE_API_CALL("addBunny(login,bunnyid)", &AccountManager::Api_AddBunny);
 	DECLARE_API_CALL("removeBunny(login,bunnyid)", &AccountManager::Api_RemoveBunny);
 	DECLARE_API_CALL("removeZtamp(login,zid)", &AccountManager::Api_RemoveZtamp);
@@ -268,6 +269,25 @@ API_CALL(AccountManager::Api_RegisterNewAccount)
 	}
 	SaveAccounts();
 	return new ApiManager::ApiOk(QString("New account created : %1").arg(hRequest.GetArg("login")));
+}
+
+API_CALL(AccountManager::Api_RemoveAccount)
+{
+	if(!account.IsAdmin())
+		return new ApiManager::ApiError("Access denied");
+
+	QString login = hRequest.GetArg("login");
+	if(!listOfAccountsByName.contains(login))
+		return new ApiManager::ApiError(QString("Account '%1' does not exist").arg(login));
+
+	Account * a = GetAccountByLogin(login.toAscii());
+	int indexOfAccount = listOfAccounts.indexOf(a);
+	listOfAccounts.removeAt(indexOfAccount);
+	listOfAccountsByName.remove(a->GetLogin());
+	QFile accountFile(accountsDir.absoluteFilePath(QString("%1.dat").arg(a->GetLogin())));
+	if(accountFile.remove())
+		return new ApiManager::ApiOk(QString("Account %1 removed").arg(login));
+	return new ApiManager::ApiError(QString("Error when removing account %1").arg(login));
 }
 
 API_CALL(AccountManager::Api_AddBunny)

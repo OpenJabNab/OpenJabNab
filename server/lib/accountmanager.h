@@ -45,6 +45,7 @@ private:
 	API_CALL(Api_Auth);
 	API_CALL(Api_ChangePasswd);
 	API_CALL(Api_RegisterNewAccount);
+	API_CALL(Api_RemoveAccount);
 	API_CALL(Api_AddBunny);
 	API_CALL(Api_RemoveBunny);
     	API_CALL(Api_RemoveZtamp);

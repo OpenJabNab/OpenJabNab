@@ -18,6 +18,12 @@ if((!empty($_GET['plug']) && !empty($_GET['stat'])) || (!empty($_POST['plug']) &
 	else
 		$_SESSION['message']['error'] = "No plugin with such name.";
 	header('Location: server.php');
+} else if(!empty($_GET['removeA'])) {
+	$_SESSION['message'] = $ojnAPI->getApiString('accounts/removeAccount?login='.$_GET['removeA'].'&'.$ojnAPI->getToken());
+	header('Location: server.php');
+} else if(!empty($_GET['removeB'])) {
+	$_SESSION['message'] = $ojnAPI->getApiString('bunnies/removeBunny?serial='.$_GET['removeB'].'&'.$ojnAPI->getToken());
+	header('Location: server.php');
 }
 
 ?>
@@ -135,7 +141,7 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 		<td width="20%"><?php echo $mac; ?></td>
 		<td><?php echo $name; ?></td>
 		<td width="20%"><?php	echo isset($cbunnies[$mac]) ? 'C': 'D&eacute;c' ?>onnect&eacute;</td>
-		<td width="20%"><a href='bunny.php?b=<?php echo $mac; ?>'>Configurer</a>
+		<td width="20%"><a href='bunny.php?b=<?php echo $mac; ?>'>Configurer</a>&nbsp;<a href='server.php?removeB=<?php echo $mac; ?>'>Remove</a></td>
 	</tr>
 <?php } ?>
 </table>
@@ -173,6 +179,7 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 		<th>Login</th>
 		<th>Username</th>
 		<th>Statut</th>
+		<th>Actions</th>
 	</tr>
 <?php
 	$i = 0;
@@ -186,6 +193,7 @@ if(isset($_SESSION['message']) && empty($_GET)) {
 		<td width="20%" <?php echo in_array($l,$Admins) ? 'style="font-weight:bold;"' :''; ?>><?php echo $l; ?></td>
 		<td><?php echo $name; ?></td>
 		<td width="20%"><?php echo in_array($l,$Online) ? "C":"D&eacute;c"; ?>onnect&eacute;</td>
+		<td><a href="server.php?removeA=<?php echo $l; ?>">Remove</a></td>
 	</tr>
 <?php } ?>
 </table>
