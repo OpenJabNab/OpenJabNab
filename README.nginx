@@ -1,0 +1,45 @@
+server {
+        server_name  terrier.cavaweb.info;
+        root         /var/htdocs/openjabnab;
+        location / {
+                        index index.php;
+						autoindex off;
+        }
+        if ($uri ~* "/vl/bc.jsp$") {
+                rewrite ^ /ojn_local/bootcode/bootcode.default last;
+        }
+        if (!-e $request_filename) {
+                rewrite ^ /openjabnab.php last;
+        }
+        location /ojn_admin {
+                        index index.php;
+            autoindex off;
+        }
+
+        # Disable .htaccess
+		location ~ \.htaccess {
+            deny all;
+        }
+        # Stuffs
+        location = /favicon.ico {
+                access_log       off;
+                return   204;
+        }
+        location ~* ^.+\.(jpg|jpeg|gif|css|png|js|xml)$ {
+                expires         30d;
+                access_log      off;
+        }
+        #all unknown stuff is redirected to bunny
+		if (!-e $request_filename) {
+           rewrite  ^/(.*)$  /openjabnab.php  last;
+        }
+        location ~ \.php$ {
+                try_files $uri =404;
+                fastcgi_pass   127.0.0.1:9000;
+                fastcgi_index  index.php;
+                include fastcgi_params;
+                fastcgi_param SCRIPT_FILENAME /var/htdocs/openjabnab$fastcgi_script_name;
+                fastcgi_param SERVER_NAME $http_host;
+                fastcgi_ignore_client_abort on;
+        }
+}
