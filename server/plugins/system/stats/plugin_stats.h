@@ -18,6 +18,7 @@ public:
 	PLUGIN_API_CALL(Api_GetBunniesIP);
 	PLUGIN_API_CALL(Api_GetBunniesName);
 	PLUGIN_API_CALL(Api_GetBunniesStatus);
+        PLUGIN_API_CALL(Api_GetBunniesInformation);
 	
 };
 

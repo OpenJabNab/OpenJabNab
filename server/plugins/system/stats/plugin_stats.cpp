@@ -18,6 +18,8 @@ void PluginStats::InitApiCalls()
 	DECLARE_PLUGIN_API_CALL("getbunniesip()", PluginStats, Api_GetBunniesIP);
 	DECLARE_PLUGIN_API_CALL("getbunniesname()", PluginStats, Api_GetBunniesName); 
 	DECLARE_PLUGIN_API_CALL("getbunniesstatus()", PluginStats, Api_GetBunniesStatus);
+        DECLARE_PLUGIN_API_CALL("getbunniesinformation()",PluginStats, Api_GetBunniesInformation);
+
 }
 
 PLUGIN_API_CALL(PluginStats::Api_GetPlugins)
@@ -111,3 +113,32 @@ PLUGIN_API_CALL(PluginStats::Api_GetBunniesStatus)
 	return new ApiManager::ApiMappedList(list);
 }
 
+PLUGIN_API_CALL(PluginStats::Api_GetBunniesInformation)
+{
+        Q_UNUSED(account);
+        Q_UNUSED(hRequest);
+
+        QString xml = "";
+        QString awake;
+        QList<QByteArray> listB =  BunnyManager::GetConnectedBunniesList();
+
+        QMap<QString, QVariant> list;
+        foreach(QByteArray id, listB)
+        {
+                Bunny * b = BunnyManager::GetBunny(id);
+                list.insert(QString(b->GetID()), b->GetBunnyName());
+                awake = b->IsSleeping() ? "1" : "0";
+                xml += "<bunny>";
+                xml += "  <name>" + b->GetBunnyName() + "</name>";
+                xml += "  <ID>" + QString(b->GetID()) + "</ID>";
+                xml += "  <sleep>" + awake  + "</sleep>";
+                xml += "  <color>" + b->GetPluginSetting("colorbreathing", "color", QString("violet")).toString() + "</color>";
+                xml += "  <apiEnable>"+ b->GetGlobalSetting("VApiEnable", false).toString() + "</apiEnable>";
+                xml += "  <apiPublic>" + b->GetGlobalSetting("VApiPublic", false).toString()  + "</apiPublic>";
+                xml += "  <lastRecord>" +  b->GetGlobalSetting("LastRecord","").toString() + "</lastRecord>";
+                xml += "  <lastLocate>" + b->GetGlobalSetting("LastLocate","").toString() + "<lastLocate>";
+                xml += "  <LastCron>" + b->GetGlobalSetting("LastCron","").toString() + "<LastCron>";
+                xml += "</bunny>";
+        }
+        return new ApiManager::ApiXml(xml);
+}
