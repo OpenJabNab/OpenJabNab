@@ -136,8 +136,8 @@ PLUGIN_API_CALL(PluginStats::Api_GetBunniesInformation)
                 xml += "  <apiEnable>"+ b->GetGlobalSetting("VApiEnable", false).toString() + "</apiEnable>";
                 xml += "  <apiPublic>" + b->GetGlobalSetting("VApiPublic", false).toString()  + "</apiPublic>";
                 xml += "  <lastRecord>" +  b->GetGlobalSetting("LastRecord","").toString() + "</lastRecord>";
-                xml += "  <lastLocate>" + b->GetGlobalSetting("LastLocate","").toString() + "<lastLocate>";
-                xml += "  <LastCron>" + b->GetGlobalSetting("LastCron","").toString() + "<LastCron>";
+                xml += "  <lastLocate>" + b->GetGlobalSetting("LastLocate","").toString() + "</lastLocate>";
+                xml += "  <LastCron>" + b->GetGlobalSetting("LastCron","").toString() + "</LastCron>";
                 xml += "</bunny>";
         }
         return new ApiManager::ApiXml(xml);
