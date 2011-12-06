@@ -2703,9 +2703,7 @@ fun xmppStateToStr state =
 fun XmppSessionProcessHandleStanzaIq xSession xmlStanza =
 	// check that message from xmpp.objects.violet.net or xmpp.platform.violet.net
 	let Xml_GetElementAttribute xmlStanza "from" -> from in
-	if ((strcmp (xmpps_JIDPlatform from) XmppVioletPlatformComponent)
-			&& (strcmp (xmpps_JIDPlatform from) XmppVioletObjectsComponent)
-			&& (strcmp (xmpps_JIDPlatform from) XmppVioletAppletComponent)) then (
+	if ((strcmp (xmpps_JIDPlatform from) xSession.sDomain)) then (
 		Xw strcatlist "Error : received msg from "::from::"dropped"::nil;
 		[ssFree nil]
 	)

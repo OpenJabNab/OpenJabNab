@@ -42,6 +42,7 @@ private:
 	QByteArray OjnXmppDomain;
 
 	static unsigned short msgNb;
+	static unsigned short msgStreamNb;
 };
 
 #endif

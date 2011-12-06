@@ -12,6 +12,7 @@
 #include "xmpphandler.h"
 
 unsigned short XmppHandler::msgNb = 0;
+unsigned short XmppHandler::msgStreamNb = 0;
 
 XmppHandler::XmppHandler(QTcpSocket * s):pluginManager(PluginManager::Instance())
 {
@@ -70,7 +71,7 @@ void XmppHandler::HandleBunnyXmppMessage()
 
 	// No bunny yet
 	if(!bunny)
-	{
+	{	
 		LogError(QString("Unable to handle xmpp message : %1").arg(QString(data)));
 		return;
 	}
@@ -150,6 +151,15 @@ void XmppHandler::HandleBunnyXmppMessage()
 				WriteToBunnyAndLog(iq.Reply(IQ::Iq_Result, "%1 %4", QByteArray()));
 				handled = true;
 			}
+			else if(rx.setPattern("<query xmlns='jabber:iq:version'><name>Nabaztag/tag</name><version>.*</version></query>"), rx.indexIn(iq.Content()) != -1)
+			{
+                        	if(rx.setPattern("from='"+bunny->GetID()+"@"+OjnXmppDomain+"/([^']+)'"), rx.indexIn(data) != -1)
+	                        {
+        	                        QByteArray resource = rx.cap(1).toAscii();
+                	                bunny->SetXmppResource(resource);
+                        	}
+				handled = true;
+			}
 			else
 			{
 				LogError(QString("Unknown IQ : %1").arg(QString(iq.Content())));
@@ -171,6 +181,15 @@ void XmppHandler::HandleBunnyXmppMessage()
 	{
 		// Bunny's ping packet, nothing to do
 		handled = true;
+
+		if(bunny->GetXmppResource() == "streaming")
+		{
+			QByteArray ret = "<iq type='get' from='server@"+OjnXmppDomain+"/idle' to='"+bunny->GetID()+"@"+OjnXmppDomain+"' id='OJN-"+QByteArray::number(msgStreamNb)+"'><query xmlns='jabber:iq:version'/></iq>";
+			WriteToBunnyAndLog(ret);
+			msgStreamNb++;
+			//return;
+		}
+
 	}
 
 	// If the message wasn't handled
