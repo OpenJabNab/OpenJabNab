@@ -68,6 +68,7 @@ class ojnTemplate {
 			}
             $menu .= ' | <a href="index.php?logout">Logout ('.$this->UInfos['username'].')</a>';
 		}
+		$menu .= ' | <a href="help.php">Aide</a>';
 		return $menu;
 	}
 
