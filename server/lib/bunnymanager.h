@@ -46,6 +46,7 @@ protected:
 	API_CALL(Api_RemoveBunny);
 	API_CALL(Api_GetListOfAllConnectedBunnies);
 	API_CALL(Api_GetListOfAllBunnies);
+	API_CALL(Api_ResetAllBunniesPassword);
 
 private:
 	BunnyManager();
