@@ -392,7 +392,7 @@ QByteArray Bunny::GetInitPacket() const
 
 void Bunny::SendPacket(Packet const& p)
 {
-	if (xmppHandler)
+	if (xmppHandler && (p.GetType() == Packet::Packet_Message && (!IsSleeping() || GetGlobalSetting("Insomniac",false).toBool())))
 	{
 		NetworkDump::Log("XMPP SendPacketToBunny", p.GetPrintableData());
 		xmppHandler->WriteDataToBunny(p.GetData());
@@ -677,6 +677,9 @@ void Bunny::InitApiCalls()
 
 	DECLARE_API_CALL("disconnect()", &Bunny::Api_Disconnect);
 
+        DECLARE_API_CALL("setInsomniac(insomniac)", &Bunny::Api_setInsomniac);
+        DECLARE_API_CALL("getInsomniac()", &Bunny::Api_getInsomniac);
+
         DECLARE_API_CALL("setPublicVAPI(public)", &Bunny::Api_setPublicVApi);
         DECLARE_API_CALL("getPublicVAPI()", &Bunny::Api_getPublicVApi);
 	DECLARE_API_CALL("enableVAPI()", &Bunny::Api_enableVApi);
@@ -864,6 +867,23 @@ API_CALL(Bunny::Api_Disconnect)
         }
 
 	return new ApiManager::ApiOk("Connexion closed");
+}
+
+API_CALL(Bunny::Api_setInsomniac)
+{
+        Q_UNUSED(account);
+        bool i = (bool)(hRequest.GetArg("insomniac").toInt());
+        QString night = i ? "insomniac" : "a good sleeper";
+        SetGlobalSetting("Insomniac",i);
+        return new ApiManager::ApiOk(QString("Bunny is now %1").arg(night));
+}
+
+API_CALL(Bunny::Api_getInsomniac)
+{
+        Q_UNUSED(account);
+        Q_UNUSED(hRequest);
+        QString night = GetGlobalSetting("Insomniac",false).toBool() ? "insomniac" : "a good sleeper";
+        return new ApiManager::ApiString(night);
 }
 
 API_CALL(Bunny::Api_setPublicVApi)

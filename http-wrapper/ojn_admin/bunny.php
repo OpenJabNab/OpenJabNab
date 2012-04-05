@@ -42,6 +42,14 @@ else if(!empty($_GET['pVAPI'])) {
 		$_SESSION['message'] = "Error: Error in choice";
 	header("Location: bunny.php");
 }
+else if(!empty($_GET['aInsomniac'])) {
+	$night = (int)$_GET['aInsomniac'] - 1;
+	if($night == 0 || $night == 1)
+		$_SESSION['message'] = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/setInsomniac?insomniac=".$night."&".$ojnAPI->getToken());
+	else
+		$_SESSION['message'] = "Error: Error in choice";
+	header("Location: bunny.php");
+}
 else if(!empty($_GET['aVAPI'])) {
 	$st = (string)$_GET['aVAPI'];
 	if($st == "enable" || $st == "disable")
@@ -102,6 +110,9 @@ $Status= (!empty($Status['value']) && $Status['value'] == 'enabled') ? true : fa
 /* Public */
 $Public = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/getPublicVAPI?".$ojnAPI->getToken());
 $Public= (!empty($Public['value']) && $Public['value'] == "public") ? true : false;
+/* Night */
+$Insomniac = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/getInsomniac?".$ojnAPI->getToken());
+$Insomniac = (!empty($Insomniac['value']) && $Insomniac['value'] == "insomniac") ? true : false;
 
 ?>
 <h1 id="bunny">Configuration du lapin '<?php echo !empty($_SESSION['bunny_name']) ? $_SESSION['bunny_name'] : $_SESSION['bunny']; ?>'</h1>
@@ -132,6 +143,12 @@ Plugin double click : <select name="double">
 </select><br />
 <input type="submit" value="Enregistrer">
 </form><br />
+<form method="get">
+La nuit : <input type="radio" name="aInsomniac" value="1" <?php echo !$Insomniac ? 'checked="checked"' : ''; ?>/> Gros dormeur
+<input type="radio" name="aInsomniac" value="2" <?php echo $Insomniac ? 'checked="checked"' : ''; ?> /> Insomniaque
+<input type="submit" value="Enregister">
+</form>
+<br />
 VioletAPIToken: <?php echo $Token ; ?><br />
 <form method="get">
 VioletAPI: <input type="radio" name="aVAPI" value="enable" <?php echo $Status ? 'checked="checked"' : ''; ?>/> Activer

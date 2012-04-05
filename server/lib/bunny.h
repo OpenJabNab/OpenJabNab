@@ -107,6 +107,8 @@ private:
 	API_CALL(Api_enableVApi);
 	API_CALL(Api_disableVApi);
 	API_CALL(Api_getVApiStatus);
+	API_CALL(Api_getInsomniac);
+	API_CALL(Api_setInsomniac);
 	API_CALL(Api_getVApiToken);
 	API_CALL(Api_setVApiToken);
 	API_CALL(Api_getAllLast);
