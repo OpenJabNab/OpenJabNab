@@ -392,7 +392,7 @@ QByteArray Bunny::GetInitPacket() const
 
 void Bunny::SendPacket(Packet const& p)
 {
-	if (xmppHandler && (p.GetType() == Packet::Packet_Message && (!IsSleeping() || GetGlobalSetting("Insomniac",false).toBool())))
+	if (xmppHandler && (p.GetType() != Packet::Packet_Message || (!IsSleeping() || GetGlobalSetting("Insomniac",false).toBool())))
 	{
 		NetworkDump::Log("XMPP SendPacketToBunny", p.GetPrintableData());
 		xmppHandler->WriteDataToBunny(p.GetData());
