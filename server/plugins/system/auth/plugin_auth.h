@@ -14,6 +14,7 @@ class PluginAuth : public PluginAuthInterface
 public:
 	PluginAuth();
 	virtual ~PluginAuth() {};
+	bool HttpRequestHandle(HTTPRequest &);
 
 	virtual bool DoAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBunny, QByteArray & answer);
 

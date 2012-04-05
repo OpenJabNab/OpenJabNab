@@ -206,6 +206,20 @@ bool PluginAuth::DoAuth(XmppHandler * xmpp, QByteArray const& data, Bunny ** pBu
 	}
 }
 
+bool PluginAuth::HttpRequestHandle(HTTPRequest & request)
+{
+	QString uri = request.GetURI();
+	if (uri.startsWith("/vl/sendMailXMPP.jsp"))
+	{
+		QString mac = request.GetArg("m");
+		Bunny * b = BunnyManager::GetBunny(this, mac.toAscii());
+		b->ClearBunnyPassword();
+		LogError("Bunny just call sendMailXMPP, password reset");
+		return true;
+	}
+	return false;
+}
+
 /*******/
 /* API */
 /*******/
