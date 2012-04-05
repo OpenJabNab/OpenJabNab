@@ -7,3 +7,4 @@ const RGB_BLUE   = 0x0000ff ;;
 const RGB_GREEN  = 0x00ff00 ;;
 const RGB_AMBER  = 0xff8000 ;;
 const RGB_VIOLET = 0xff00ff ;;
+const RGB_ORANGE = 0xff8000 ;;

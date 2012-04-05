@@ -60,7 +60,7 @@ proto dumpStatus 0;;
 
 #include net_vars.mtl
 
-const BYTECODE_REVISION_STR = "$Rev: 18673 $";;
+const BYTECODE_REVISION_STR = "$Rev: 18674 $";;
 fun getBytecodeRevision =
 	strsub BYTECODE_REVISION_STR 6 ((strlen BYTECODE_REVISION_STR) - 8);;
 
@@ -4289,6 +4289,31 @@ fun runEvalOneCommand i0=
 		set run=cmdEvalOne i0+1;
 		0
 	)
+	else if !strcmp key "CU" then
+	(
+		Secholn "exec CU : Start callURL";
+		set gStreamingState = 0;
+		setleds 0;
+		httprequest "GET" val nil nil HTTP_NORMAL;
+		set run=cmdEvalOne i0+1;
+		0
+	)
+	else if !strcmp key "SG" then
+	(
+		Secholn "exec SG : Start Google say";
+		//IPecho netdns 0 1;
+		//startdnsclient;
+		set gStreamingState = 1;
+		setleds 0;
+		if !gBusyState then XmppSessionRequestResource "streaming";
+		set gCurAudioCmdIndex=gCurAudioCmdIndex+1;
+		set gCurStreamName= nil;
+		set chorst_pasdedanse=nil;
+		let strcatlist "http://translate.google.com/translate_tts?ie=UTF-8&tl=fr&q="::val::nil -> music in
+		wavstarthttp music #_cbWavError;
+		set run=streamCmdRun i0;
+		0
+	)
 	else if !strcmp key "ST" then
 	(
 		Secholn "exec ST : Start streaming";
@@ -4721,7 +4746,7 @@ fun noseled=
 	let uploading || (match run with (rscLoadWaitRun _-> 1)|(interactiveReqWaitRun _->1)|(_->0)) -> netactivity in
 	if (netactivity || wav_buffering) then (
 		let if netactivity then 256 else if wav_buffering then 128 else 0 -> speed in
-		if speed > 0 then led LED_NOSE (if time_ms&speed then RGB_RED else 0);
+		if speed > 0 then led LED_NOSE (if time_ms&speed then RGB_RED else RGB_ORANGE);
 		set gWasNetActivity = 1
 	) else if (gWasNetActivity) then (
 		// show off the light
