@@ -38,13 +38,23 @@ void PluginMemo::OnCron(Bunny * b, QVariant v)
 
 void PluginMemo::OnBunnyConnect(Bunny * b)
 {
-	QMap<QString, QVariant> list = b->GetPluginSetting(GetName(), "DailyWebcasts", QMap<QString, QVariant>()).toMap();
-	QMapIterator<QString, QVariant> i(list);
+	QMap<QString, QVariant> listDaily = b->GetPluginSetting(GetName(), "DailyWebcasts", QMap<QString, QVariant>()).toMap();
+	QMapIterator<QString, QVariant> i(listDaily);
 	while (i.hasNext()) {
 		i.next();
 		QString time = i.key();
 		QString message = i.value().toString();
 		Cron::RegisterDaily(this, QTime::fromString(time, "hh:mm"), b, QVariant::fromValue(message));
+	}
+	QMap<QString, QVariant> list = b->GetPluginSetting(GetName(), "Webcasts", QMap<QString, QVariant>()).toMap();
+	QMapIterator<QString, QVariant> i2(list);
+	while (i2.hasNext()) {
+		i2.next();
+		QStringList when = i2.key().split("|");
+		int day = when.at(0).toInt();
+		QString time = when.at(1);
+		QString message = i2.value().toString();
+		Cron::RegisterWeekly(this, (Qt::DayOfWeek)day, QTime::fromString(time, "hh:mm"), b, QVariant::fromValue(message));
 	}
 }
 
