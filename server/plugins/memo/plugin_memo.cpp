@@ -150,7 +150,7 @@ PLUGIN_BUNNY_API_CALL(PluginMemo::Api_RemoveDailyWebcast)
     if(list.contains(time))
     {
 		list.remove(time);
-        bunny->SetPluginSetting(GetName(), "Webcasts", list);
+        bunny->SetPluginSetting(GetName(), "DailyWebcasts", list);
 
 		// Recreate crons
         OnBunnyDisconnect(bunny);

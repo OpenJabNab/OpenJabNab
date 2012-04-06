@@ -29,8 +29,8 @@ else if(!empty($_GET['rt']) && !empty($_GET['rd'])) {
 	$_SESSION['message'] = isset($retour['ok']) ? $retour['ok'] : "Error : ".$retour['error'];
 	header("Location: bunny_plugin.php?p=memo");
 }
-else if(!empty($_GET['rdw'])) {
-	$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/memo/removedaily?time=".$_GET['rdw']."&".$ojnAPI->getToken());
+else if(!empty($_GET['rw'])) {
+	$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/memo/removedaily?time=".$_GET['rw']."&".$ojnAPI->getToken());
 	$_SESSION['message'] = isset($retour['ok']) ? $retour['ok'] : "Error : ".$retour['error'];
 	header("Location: bunny_plugin.php?p=memo");
 }
