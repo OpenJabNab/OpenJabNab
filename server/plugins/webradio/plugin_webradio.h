@@ -1,6 +1,7 @@
 #ifndef _PLUGINWEBRADIO_H_
 #define _PLUGINWEBRADIO_H_
 
+#include <QMap>
 #include "plugininterface.h"
 	
 class PluginWebradio : public PluginInterface
@@ -38,6 +39,7 @@ public:
 private:
 	bool streamWebradio(Bunny *, QString);
 	bool streamPresetWebradio(Bunny *, QString);
+	QMap<QString, QVariant> presets;
 };
 
 #endif

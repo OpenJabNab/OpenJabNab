@@ -9,7 +9,36 @@
 
 Q_EXPORT_PLUGIN2(plugin_webradio, PluginWebradio)
 
-PluginWebradio::PluginWebradio():PluginInterface("webradio", "WebRadio", BunnyZtampPlugin) {}
+PluginWebradio::PluginWebradio():PluginInterface("webradio", "WebRadio", BunnyZtampPlugin)
+{
+	presets.clear();
+	presets.insert("BFM", "http://vipicecast.yacast.net/bfm");
+	presets.insert("Bloomberg Radio", "http://www.bloomberg.com/streams/audio/radio_live.asx");
+	presets.insert("Capital", "http://media-ice.musicradio.com:80/CapitalMP3");
+	presets.insert("Europe 1", "http://vipicecast.yacast.net/europe1");
+	presets.insert("France Info", "http://mp3.live.tv-radio.com/franceinfo/all/franceinfo.mp3");
+	presets.insert("France Inter", "http://mp3.live.tv-radio.com/franceinter/all/franceinterhautdebit.mp3");
+	presets.insert("Fun Radio", "http://streaming.radio.funradio.fr:80/fun-1-44-96");
+	presets.insert("Jazz fm", "http://83.170.105.95:8002");
+	presets.insert("Le Mouv", "http://mp3.live.tv-radio.com/lemouv/all/lemouvhautdebit.mp3");
+	presets.insert("Magic", "http://media-ice.musicradio.com:80/HeartLondonMP3");
+	presets.insert("MFM", "http://mfm.ice.infomaniak.ch:80/mfm-128.mp3");
+	presets.insert("NME Radio", "http://icy-e-01.sharp-stream.com:80/nmeradio.mp3");
+	presets.insert("OUI FM", "http://ouifm.ice.infomaniak.ch/ouifm-high.mp3");
+	presets.insert("Radio-Canada Montreal", "http://www.radio-canada.ca/util/endirect/premiere.asx");
+	presets.insert("Radio Classique", "http://broadcast.infomaniak.net:80/radioclassique-high.mp3");
+	presets.insert("Radio Country", "http://url.radiostreamlive.com/radiocountrylive/low_ad.asx");
+	presets.insert("Radio Nova", "http://broadcast.infomaniak.net/radionova-high.mp3");
+	presets.insert("RMC", "http://vipicecast.yacast.net/rmc");
+	presets.insert("RTL", "http://streaming.radio.rtl.fr:80/rtl-1-44-96");
+	presets.insert("SKYfm Classic Rock", "http://wstream5b.di.fm:80/classicrock");
+	presets.insert("SKYfm Smooth Jazz", "http://scfire-dtc-aa01.stream.aol.com:80/stream/1010");
+	presets.insert("SKYfm The 80s", "http://scfire-dtc-aa05.stream.aol.com:80/stream/1013");
+	presets.insert("SKYfm Top Hits", "http://scfire-ntc-aa03.stream.aol.com:80/stream/1014");
+	presets.insert("Smooth Radio", "http://shoutcast.gmgradio.com:10006");
+	presets.insert("Talk Sport", "http://stream5.radiomonitor.com:80/talksport_world");
+	presets.insert("Zen Radio", "http://zenradio.fr:8800");
+}
 
 PluginWebradio::~PluginWebradio()
 {
@@ -95,6 +124,11 @@ bool PluginWebradio::streamPresetWebradio(Bunny * b, QString preset)
 		QString url = list.value(preset).toString();
 		return streamWebradio(b, url);
 	}
+	else if(presets.contains(preset))
+	{
+		QString url = presets.value(preset).toString();
+		return streamWebradio(b, url);
+	}
 	return false;
 }
 
@@ -164,7 +198,10 @@ PLUGIN_BUNNY_API_CALL(PluginWebradio::Api_RemovePreset)
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(hRequest.GetArg("to")));
 
 	QMap<QString, QVariant> list = bunny->GetPluginSetting(GetName(), "Presets", QMap<QString, QVariant>()).toMap();
-	list.remove(hRequest.GetArg("name"));
+	if(list.contains(hRequest.GetArg("name")))
+		list.remove(hRequest.GetArg("name"));
+	else
+		return new ApiManager::ApiError(QString("Cannot remove this default preset"));
 	bunny->SetPluginSetting(GetName(), "Presets", list);
 
 	return new ApiManager::ApiOk(QString("Remove preset '%1' for bunny '%2'").arg(hRequest.GetArg("name"), QString(bunny->GetID())));
@@ -278,6 +315,9 @@ PLUGIN_BUNNY_API_CALL(PluginWebradio::Api_ListPreset)
 		return new ApiManager::ApiError(QString("Bunny '%1' is not connected").arg(hRequest.GetArg("to")));
 
 	QMap<QString, QVariant> list = bunny->GetPluginSetting(GetName(), "Presets", QMap<QString, QVariant>()).toMap();
+	QMap<QString, QVariant>::iterator i;
+	for (i = presets.begin(); i != presets.end(); ++i)
+		list.insert("OJN_" + i.key(), i.value());
 
 	return new ApiManager::ApiMappedList(list);
 }

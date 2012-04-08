@@ -68,7 +68,7 @@ $wList = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/webradio/listwebcas
 <input type="radio" name="a" value="play" /> Play a preset <select name="playN">
 	<option value=""></option>
 	<?php foreach($pList['list']->item as $item) { ?>
-		<option value="<?php echo urldecode($item->key) ?>"><?php echo urldecode($item->key); ?></option>
+		<option value="<?php echo urldecode($item->key) ?>"><?php echo urldecode(preg_replace("|^OJN_|", "", $item->key)); ?></option>
 	<?php } ?>
 </select><br />
 <input type="radio" name="a" value="playurl" /> Play an url <input type="text" name="playU"><br />
@@ -76,13 +76,13 @@ $wList = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/webradio/listwebcas
 <input type="radio" name="a" value="webcast" /> Add a webcast at (hh:mm) <input type="text" name="webcastT" maxlength="5" style="width:50px" /> for preset <select name="webcastP">
 	<option value=""></option>
 	<?php foreach($pList['list']->item as $item) { ?>
-		<option value="<?php echo urldecode($item->key) ?>"><?php echo urldecode($item->key); ?></option>
-	<?php } ?>
+		<option value="<?php echo urldecode($item->key) ?>"><?php echo urldecode(preg_replace("|^OJN_|", "", $item->key)); ?></option>
+<?php } ?>
 </select><br />
 <input type="radio" name="a" value="rfidplay" /> Play preset <select name="PresetN_Rfp">
 	<option value=""></option>
 	<?php foreach($pList['list']->item as $item) { ?>
-		<option value="<?php echo urldecode($item->key) ?>"><?php echo urldecode($item->key); ?></option>
+		<option value="<?php echo urldecode($item->key) ?>"><?php echo urldecode(preg_replace("|^OJN_|", "", $item->key)); ?></option>
 	<?php } ?>
 </select> on Ztamp: <select name="Tag_Rfp">
     <option value=""></option>
@@ -117,10 +117,17 @@ if(isset($pList['list']->item)) {
 	foreach($pList['list']->item as $item) {
 ?>
 	<tr<?php echo $i++ % 2 ? " class='l2'" : "" ?>>
+<?php if(preg_match("|^OJN_|", $item->key)) { ?>
+		<td><?php echo urldecode(preg_replace("|^OJN_|", "", $item->key)) ?></td>
+		<td><?php echo $item->value ?></td>
+		<td width="15%">&nbsp;</td>
+		<td width="15%"><?php if($default != $item->key) { ?><a href="bunny_plugin.php?p=webradio&d=<?php echo $item->key ?>">Set as default</a><?php } else { ?>Default preset<?php } ?></td>
+<?php } else { ?>
 		<td><?php echo urldecode($item->key) ?></td>
 		<td><?php echo $item->value ?></td>
 		<td width="15%"><a href="bunny_plugin.php?p=webradio&rp=<?php echo $item->key ?>">Remove</a></td>
 		<td width="15%"><?php if($default != $item->key) { ?><a href="bunny_plugin.php?p=webradio&d=<?php echo $item->key ?>">Set as default</a><?php } else { ?>Default preset<?php } ?></td>
+<?php } ?>
 	</tr>
 <?php } ?>
 </table>
