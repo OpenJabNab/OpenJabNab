@@ -121,12 +121,12 @@ if(isset($pList['list']->item)) {
 		<td><?php echo urldecode(preg_replace("|^OJN_|", "", $item->key)) ?></td>
 		<td><?php echo $item->value ?></td>
 		<td width="15%">&nbsp;</td>
-		<td width="15%"><?php if($default != $item->key) { ?><a href="bunny_plugin.php?p=webradio&d=<?php echo $item->key ?>">Set as default</a><?php } else { ?>Default preset<?php } ?></td>
+		<td width="15%"><?php if("OJN_".$default != $item->key) { ?><a href="bunny_plugin.php?p=webradio&d=<?php echo urlencode(preg_replace("|^OJN_|", "", $item->key)) ?>">Set as default</a><?php } else { ?>Default preset<?php } ?></td>
 <?php } else { ?>
 		<td><?php echo urldecode($item->key) ?></td>
 		<td><?php echo $item->value ?></td>
 		<td width="15%"><a href="bunny_plugin.php?p=webradio&rp=<?php echo $item->key ?>">Remove</a></td>
-		<td width="15%"><?php if($default != $item->key) { ?><a href="bunny_plugin.php?p=webradio&d=<?php echo $item->key ?>">Set as default</a><?php } else { ?>Default preset<?php } ?></td>
+		<td width="15%"><?php if($default != $item->key) { ?><a href="bunny_plugin.php?p=webradio&d=<?php echo urlencode($item->key) ?>">Set as default</a><?php } else { ?>Default preset<?php } ?></td>
 <?php } ?>
 	</tr>
 <?php } ?>
