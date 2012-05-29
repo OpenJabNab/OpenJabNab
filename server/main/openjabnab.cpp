@@ -30,6 +30,10 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 	BunnyManager::LoadBunnies();
 	ZtampManager::LoadZtamps();
 
+        int now = QDateTime::currentDateTime().toTime_t();
+        int next = QDateTime(QDate::currentDate().addDays(1)).toTime_t();
+        QTimer::singleShot(1000 * (next - now), this, SLOT(RotateLog()));
+
 	if(GlobalSettings::Get("Config/HttpListener", true) == true)
 	{
 		// Create Listeners
@@ -54,6 +58,14 @@ OpenJabNab::OpenJabNab(int argc, char ** argv):QCoreApplication(argc, argv)
 	httpApi = GlobalSettings::Get("Config/HttpApi", true).toBool();
 	httpVioletApi = GlobalSettings::Get("Config/HttpVioletApi", true).toBool();
 	LogInfo(QString("Parsing of HTTP Api is ").append((httpApi == true)?"enabled":"disabled"));
+}
+
+void OpenJabNab::RotateLog()
+{
+	LogRotate();
+	int now = QDateTime::currentDateTime().toTime_t();
+	int next = QDateTime(QDate::currentDate().addDays(1)).toTime_t();
+	QTimer::singleShot(1000 * (next - now), this, SLOT(RotateLog()));
 }
 
 void OpenJabNab::Close()

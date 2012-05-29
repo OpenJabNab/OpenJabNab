@@ -19,6 +19,7 @@ signals:
 	void Quit();
 
 private slots:
+	void RotateLog();
 	void NewHTTPConnection();
 	void NewXMPPConnection();
 

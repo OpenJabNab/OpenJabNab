@@ -1,7 +1,9 @@
 #include <QCoreApplication>
+#include <QTimer>
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <iostream>
 #include "log.h"
 #include "settings.h"
@@ -29,8 +31,36 @@ Log::Log()
 }
 
 void Log::LogToFile(QString const& data, LogLevel level)
+{
+	Log::LogToFile(data, level, false);
+}
+
+void Log::LogToFile(QString const& data, LogLevel level, bool rotate)
 {	
 	static Log instance;
+
+	if(rotate)
+	{
+		QString fileName = QDir(QCoreApplication::applicationDirPath()).absoluteFilePath(GlobalSettings::GetString("Log/LogFile"));
+
+		QString archiveName = fileName;
+		archiveName.replace(".log", "." + QDateTime::currentDateTime().addDays(-1).toString("yyyyMMdd") + ".log");
+		instance.logFile->rename(archiveName);
+
+		instance.logFile = NULL;
+		delete instance.logFile;
+		instance.logFile = new QFile(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath(GlobalSettings::GetString("Log/LogFile")));
+        	if(!instance.logFile->open(QIODevice::Append))
+        	{
+        	        std::cerr << "Error opening file : " << qPrintable(instance.logFile->fileName()) << std::endl << "Logging only on screen !" << std::endl;
+        	        instance.maxFileLogLevel = Log_None;
+        	}
+        	else
+		{
+			instance.logStream.flush();
+        	        instance.logStream.setDevice(instance.logFile);
+		}
+	}
 
 	if (level <= instance.maxFileLogLevel)
 		instance.logStream << QDateTime::currentDateTime().toString("[dd/MM/yyyy hh:mm:ss] ") << data << endl;
