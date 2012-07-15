@@ -23,6 +23,10 @@
 
 Bunny::Bunny(QByteArray const& bunnyID)
 {
+	// Init click plugins
+	singleClickPlugin = NULL;
+	doubleClickPlugin = NULL;
+
 	// Check bunnies folder
 	QDir bunniesDir = QDir(QCoreApplication::applicationDirPath());
 	if (!bunniesDir.cd("bunnies"))
