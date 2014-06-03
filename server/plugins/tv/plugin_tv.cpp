@@ -27,7 +27,7 @@ PluginTV::~PluginTV()
 
 bool PluginTV::Init()
 {
-	QByteArray ceSoir = TTSManager::CreateNewSound("Programme télé de ce soir", "claire");
+	QByteArray ceSoir = TTSManager::CreateNewSound("Programme télé de ce soir", "Claire");
 	if(ceSoir.isNull())
 		return false;
 
@@ -214,7 +214,7 @@ void PluginTV_Worker::run()
 					{
 						// LogDebug(rx.cap(4) +" : "+rx.cap(3));
 						chaine = rx.cap(1);
-						QByteArray file = TTSManager::CreateNewSound(rx.cap(1).trimmed() + ", " + rx.cap(3).trimmed(), "claire");
+						QByteArray file = TTSManager::CreateNewSound(rx.cap(1).trimmed() + ", " + rx.cap(3).trimmed(), "Claire");
 						message += "MU " + file + "\nPL 3\nMW\n";
 					}
 				}

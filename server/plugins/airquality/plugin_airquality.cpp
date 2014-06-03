@@ -290,7 +290,7 @@ void PluginAir_Worker::run()
 			quality = 0;
 		}
 		QString text = QString::fromUtf8(("La qualité de l'air à "+city+" est "+qualities.at(quality)).toAscii());
-		QByteArray q = TTSManager::CreateNewSound(text, "claire");
+		QByteArray q = TTSManager::CreateNewSound(text, "Claire");
 		message = "MU "+q+"\nPL 3\nMW\n";
 		emit done(true, bunny, message);
 	}

@@ -27,7 +27,7 @@ PLUGIN_API_CALL(PluginMsgall::Api_Say)
 	if(!account.IsAdmin())
 		return new ApiManager::ApiError("Access denied.");
 
-	QByteArray fileName = TTSManager::CreateNewSound(hRequest.GetArg("text"), "claire");
+	QByteArray fileName = TTSManager::CreateNewSound(hRequest.GetArg("text"), "Claire");
 
 	QList<QByteArray> BList = BunnyManager::GetConnectedBunniesList();
 	foreach (QByteArray BID, BList)

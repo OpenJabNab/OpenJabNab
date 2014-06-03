@@ -345,18 +345,18 @@ void PluginRatp_Worker::run()
 		}
 		else
 		{
-			QByteArray where = TTSManager::CreateNewSound(QString("Prochain passage a %1").arg(sArret), "claire");
+			QByteArray where = TTSManager::CreateNewSound(QString("Prochain passage a %1").arg(sArret), "Claire");
 			message += "MU "+where+"\nPL 3\nMW\n";
 			if(pos!=0)
 			{
 				for (int i = 0; i < sProchainPassages.size() && i < sDirection.size(); ++i){
-					QByteArray direction = TTSManager::CreateNewSound(QString("Direction %1").arg(sDirection.at(i)), "claire");
+					QByteArray direction = TTSManager::CreateNewSound(QString("Direction %1").arg(sDirection.at(i)), "Claire");
 					message += "MU "+direction+"\nPL 3\nMW\n";
 					if(type == 1){
-						QByteArray passage = TTSManager::CreateNewSound(QString("passera a %1").arg(sProchainPassages.at(i)), "claire");
+						QByteArray passage = TTSManager::CreateNewSound(QString("passera a %1").arg(sProchainPassages.at(i)), "Claire");
 						message += "MU "+passage+"\nPL 3\nMW\n";
 					}else{
-						QByteArray passage = TTSManager::CreateNewSound(QString("passera dans %1").arg(sProchainPassages.at(i)), "claire");						
+						QByteArray passage = TTSManager::CreateNewSound(QString("passera dans %1").arg(sProchainPassages.at(i)), "Claire");						
 						message += "MU "+passage+"\nPL 3\nMW\n";
 					}
 

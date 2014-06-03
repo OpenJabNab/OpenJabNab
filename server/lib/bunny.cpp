@@ -153,7 +153,7 @@ ApiManager::ApiAnswer * Bunny::ProcessVioletApiCall(HTTPRequest const& hRequest)
                 		                }
 		                                if(hRequest.HasArg("tts"))
 		                                {
-							SendPacket(MessagePacket("MU "+TTSManager::CreateNewSound(hRequest.GetArg("tts"), "claire")+"\nPL 3\nMW\n"));
+							SendPacket(MessagePacket("MU "+TTSManager::CreateNewSound(hRequest.GetArg("tts"), "Claire")+"\nPL 3\nMW\n"));
                 		                        answer->AddMessage("TTSSENT", "Your text has been sent");
 		                                }
                 		                if(hRequest.HasArg("ears"))
