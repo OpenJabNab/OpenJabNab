@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QSettings>
 #include <QString>
+#include <QMap>
 #include <QtPlugin>
 #include "log.h"
 #include "settings.h"
@@ -41,7 +42,7 @@ public:
 
 protected:
 	void SetEnable(bool);
-	QStringList voiceList;
+	QMap<QString, QString> voiceList;
 	QDir ttsFolder;
 	QString ttsHTTPUrl;
 

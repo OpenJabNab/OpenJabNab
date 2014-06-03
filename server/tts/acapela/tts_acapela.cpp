@@ -9,18 +9,67 @@ Q_EXPORT_PLUGIN2(tts_acapela, TTSAcapela)
 
 TTSAcapela::TTSAcapela():TTSInterface("acapela", "Acapela")
 {
-	// French voices
-	voiceList << "claire" << "alice" << "bruno" << "julie";
-	// Canadian French voices
-	voiceList << "louise";
-	// German voices
-	voiceList << "klaus" << "sarah";
-	// Spanish voices
-	voiceList << "maria";
-	// UK English voices
-	voiceList << "graham" << "lucy" << "peter" << "rachel";
-	// US English voices
-	voiceList << "heather" << "kenny" << "laura" << "nelly" << "ryan";
+	// Arabic
+	voiceList.insert("Leila", "sonid0");
+	voiceList.insert("Mehdi", "sonid0");
+	voiceList.insert("Nizar", "sonid0");
+	voiceList.insert("Salma", "sonid0");
+	// English (AU)
+	voiceList.insert("Liam", "sonid6");
+	voiceList.insert("Lisa", "sonid6");
+	voiceList.insert("Olivia", "sonid6");
+	voiceList.insert("Tyler", "sonid6");
+	// English (India)
+	voiceList.insert("Deepa", "sonid7");
+	// English (UK)
+	voiceList.insert("Graham", "sonid8");
+	voiceList.insert("Harry", "sonid8");
+	voiceList.insert("Lucy", "sonid8");
+	voiceList.insert("Nizareng", "sonid8");
+	voiceList.insert("Peter", "sonid8");
+	voiceList.insert("PeterHappy", "sonid8");
+	voiceList.insert("PeterSad", "sonid8");
+	voiceList.insert("QueenElizabeth", "sonid8");
+	voiceList.insert("Rachel", "sonid8");
+	voiceList.insert("Rosie", "sonid8");
+	// French (Belgium)
+	voiceList.insert("Justine", "sonid11");
+	// French (Canada)
+	voiceList.insert("Louise", "sonid12");
+	// French (France)
+	voiceList.insert("Alice", "sonid13");
+	voiceList.insert("Antoine", "sonid13");
+	voiceList.insert("AntoineFromAfar", "sonid13");
+	voiceList.insert("AntoineHappy", "sonid13");
+	voiceList.insert("AntoineSad", "sonid13");
+	voiceList.insert("AntoineUpClose", "sonid13");
+	voiceList.insert("Bruno", "sonid13");
+	voiceList.insert("Claire", "sonid13");
+	voiceList.insert("Julie", "sonid13");
+	voiceList.insert("Manon", "sonid13");
+	voiceList.insert("Margaux", "sonid13");
+	voiceList.insert("MargauxHappy", "sonid13");
+	voiceList.insert("MargauxSad", "sonid13");
+	// German
+	voiceList.insert("Andreas", "sonid14");
+	voiceList.insert("Jonas", "sonid14");
+	voiceList.insert("Julia", "sonid14");
+	voiceList.insert("Klaus", "sonid14");
+	voiceList.insert("Lea", "sonid14");
+	voiceList.insert("Sarah", "sonid14");
+	// Italian
+	voiceList.insert("chiara", "sonid16");
+	voiceList.insert("fabiana", "sonid16");
+	voiceList.insert("vittorio", "sonid16");
+	// Russian
+	voiceList.insert("Alyona", "sonid24");
+	// Spanish (Spain)
+	voiceList.insert("Antonio", "sonid25");
+	voiceList.insert("Ines", "sonid25");
+	voiceList.insert("Maria", "sonid25");
+	// Spanish (US)
+	voiceList.insert("Rodrigo", "sonid26");
+	voiceList.insert("Rosa", "sonid26");
 }
 
 TTSAcapela::~TTSAcapela()
@@ -32,7 +81,7 @@ QByteArray TTSAcapela::CreateNewSound(QString text, QString voice, bool forceOve
 	QEventLoop loop;
 
 	if(!voiceList.contains(voice))
-		voice = "claire";
+		voice = "Claire";
 
 	// Check (and create if needed) output folder
 	QDir outputFolder = ttsFolder;
@@ -53,38 +102,39 @@ QByteArray TTSAcapela::CreateNewSound(QString text, QString voice, bool forceOve
 		return ttsHTTPUrl.arg(voice, fileName).toAscii();
 
 	// Fetch MP3
-	QHttp http("vaas.acapela-group.com");
+	QHttp http("www.acapela-group.com");
 	QObject::connect(&http, SIGNAL(done(bool)), &loop, SLOT(quit()));
 
+	QString langId = voiceList.value(voice);
+	QString langName = voice;
 	QByteArray ContentData;
-	ContentData += "client%5Ftext=" + QUrl::toPercentEncoding(text) + "&client%5Fvoice=" + voice + "22k&client%5Frequest%5Ftype=CREATE%5FREQUEST&client%5Fpassword=demo%5Fweb&client%5Flogin=asTTS&client%5Fversion=1%2D00&actionscript%5Fversion=3";
+	ContentData += "MyLanguages="+langId+"&0=Leila&1=Laia&2=Eliska&3=Mette&4=Jeroen&5=Daan&6=Liam&7=Deepa&8=Graham&9=Heather&10=Sanna&11=Justine&12=Louise&MySelectedVoice="+langName+"&14=Andreas&15=Dimitris&16=chiara&17=Sakura&18=Minji&19=Lulu&20=Bente&21=Ania&22=Marcia&23=Celia&24=Alyona&25=Antonio&26=Rodrigo&27=Elin&28=Samuel&29=Kal&30=Mia&31=Ipek&MyTextForTTS="+QUrl::toPercentEncoding(text)+"&t=1&SendToVaaS=";
 
 	QHttpRequestHeader Header;
-	Header.addValue("Host", "vaas.acapela-group.com");
-	Header.addValue("User-Agent", "Mozilla/5.0 (X11; U; Linux i686; fr; rv:1.9.0.1) Gecko/2011000000 Firefox/6.0.1");
-	Header.addValue("Referer", "http://www.acapela-group.com/Flash/Demo_Web_AS3/demo_web.swf?path=http://vaas.acapela-group.com/Services/DemoWeb/&lang=EN");
-	Header.addValue("Content-type", "application/x-www-form-urlencoded");
 	Header.addValue("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+	Header.addValue("Accept-Encoding", "gzip, deflate");
 	Header.addValue("Accept-Language", "fr,fr-fr;q=0.8,en-us;q=0.5,en;q=0.3");
-	Header.addValue("Accept-Encoding", "gzip,deflate");
-	Header.addValue("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
-	Header.addValue("Keep-Alive", "300");
 	Header.addValue("Connection", "keep-alive");
+	Header.addValue("Host", "www.acapela-group.com");
+	Header.addValue("Referer", "http://www.acapela-group.com/demo-tts/DemoHTML5Form_V2.php?langdemo=Powered+by+%3Ca+href%3D%22http%3A%2F%2Fwww.acapela-vaas.com%22%3EAcapela+Voice+as+a+Service%3C%2Fa%3E.+For+demo+and+evaluation+purpose+only%2C+for+commercial+use+of+generated+sound+files+please+go+to+%3Ca+href%3D%22http%3A%2F%2Fwww.acapela-box.com%22%3Ewww.acapela-box.com%3C%2Fa%3E");
+	Header.addValue("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:28.0) Gecko/20100101 Firefox/28.0");
+	Header.addValue("Content-Type", "application/x-www-form-urlencoded");
 
 	Header.setContentLength(ContentData.length());
-	Header.setRequest("POST", "/Services/DemoWeb/textToMP3.php", 1, 1);
+	Header.setRequest("POST", "/demo-tts/DemoHTML5Form_V2_fr.php?langdemo=Vocalis%C3%A9+par+%3Ca+href%3D%22http%3A%2F%2Fwww.acapela-vaas.com%22%3EAcapela+Voice+as+a+Service%3C%2Fa%3E.+Pour+d%C3%A9monstration+et+%C3%A9valuation+uniquement%2C+pour+toute+utilisation+commerciale+des+fichiers+sons+g%C3%A9n%C3%A9r%C3%A9s%2C+consultez+%3Ca+href%3D%22http%3A%2F%2Fwww.acapela-box.com%22%3Ewww.acapela-box.com%3C%2Fa%3E", 1, 1);
 	http.request(Header, ContentData);
 	loop.exec();
 	QByteArray reponse = http.readAll();
-	QUrl url("?"+reponse);
-	if(reponse.startsWith("retour_php"))
+
+	QRegExp rx("myPhpVar = '(http://[^']*mp3)';");
+	rx.setMinimal(true);
+	int pos = 0;
+	if((pos = rx.indexIn(reponse, pos)) != -1 )
 	{
-		//LogDebug(QString("Acapela answer : %1").arg(QString(reponse)));
-		QString acapelaFile = url.queryItemValue("retour_php");
+		QString acapelaFile = rx.cap(1);
 		QUrl urlfile(acapelaFile);
-		http.setHost(urlfile.host());
+		http.setHost(urlfile.host(), urlfile.port());
 		Header.setRequest("GET",urlfile.path(),1,1);
-		//LogInfo(QString("Downloading MP3 file : %1").arg(QString(acapelaFile)));
 		http.request(Header,"");
 		loop.exec();
 		QFile file(filePath);
@@ -100,5 +150,6 @@ QByteArray TTSAcapela::CreateNewSound(QString text, QString voice, bool forceOve
 	LogError("Acapela demo did not return a sound file");
 	LogDebug(QString("Acapela answer : %1").arg(QString(reponse)));
 	return QByteArray();
+
 }
 
