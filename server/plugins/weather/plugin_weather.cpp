@@ -19,7 +19,7 @@
 
 Q_EXPORT_PLUGIN2(plugin_weather, PluginWeather)
 
-PluginWeather::PluginWeather():PluginInterface("weather", "Météo",BunnyZtampPlugin)
+PluginWeather::PluginWeather():PluginInterface("weather", "MÃ©tÃ©o",BunnyZtampPlugin)
 {
 	std::auto_ptr<QDir> dir(GetLocalHTTPFolder());
 	if(dir.get())
@@ -290,7 +290,7 @@ void PluginWeather_Worker::run()
 	int iForecastHigh=0;
 	QString sCurrentCond;
 	QString sForecastCond;
-	QString sForecast("Prévisions:");
+	QString sForecast("PrÃ©visions:");
 	QString sCity;
 	while (!xml.atEnd() && (current!=2 || forecast!=3))
 	{
@@ -347,12 +347,12 @@ void PluginWeather_Worker::run()
 		}
 		else
 		{
-			QByteArray where = TTSManager::CreateNewSound(QString("Météo pour %1.").arg(sCity), "Claire");
+			QByteArray where = TTSManager::CreateNewSound(QString("MÃ©tÃ©o pour %1.").arg(sCity), "Claire");
 			message += "MU "+where+"\nPL 3\nMW\n";
 			if(current!=0)
 			{
 				QByteArray maintenant = TTSManager::CreateNewSound("actuellement, ", "Claire");
-				QByteArray temperature = TTSManager::CreateNewSound(QString::number(iCurrentTemp) + " degrés", "Claire");
+				QByteArray temperature = TTSManager::CreateNewSound(QString::number(iCurrentTemp) + " degrÃ©s", "Claire");
 				QByteArray meteo = TTSManager::CreateNewSound(sCurrentCond, "Claire");
  				message += "MU "+maintenant+"\nPL 3\nMW\n";
  				message += "MU "+meteo+"\nPL 3\nMW\n";
@@ -362,7 +362,7 @@ void PluginWeather_Worker::run()
 			{
 				QByteArray prevision = TTSManager::CreateNewSound(sForecast, "Claire");
 				QByteArray meteo = TTSManager::CreateNewSound(sForecastCond, "Claire");
-				QByteArray temperature = TTSManager::CreateNewSound("entre "+QString::number(iForecastLow) + " et "+QString::number(iForecastHigh) + " degrés", "Claire");
+				QByteArray temperature = TTSManager::CreateNewSound("entre "+QString::number(iForecastLow) + " et "+QString::number(iForecastHigh) + " degrÃ©s", "Claire");
  				message += "MU "+prevision+"\nPL 3\nMW\n";
  				message += "MU "+meteo+"\nPL 3\nMW\n";
  				message += "MU "+temperature+"\nPL 3\nMW\n";

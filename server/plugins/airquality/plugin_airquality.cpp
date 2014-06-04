@@ -269,7 +269,7 @@ PluginAir_Worker::PluginAir_Worker(PluginAirquality * p, Bunny * bu, QString c, 
 
 void PluginAir_Worker::run()
 {
-	qualities << "inconnue" << "très bonne" << "très bonne" << "bonne" << "bonne" << "moyenne" << "médiocre" << "médiocre" << "mauvaise" << "mauvaise" << "très mauvaise";
+	qualities << "inconnue" << "trÃ¨s bonne" << "trÃ¨s bonne" << "bonne" << "bonne" << "moyenne" << "mÃ©diocre" << "mÃ©diocre" << "mauvaise" << "mauvaise" << "trÃ¨s mauvaise";
 	QUrl* data = new QUrl("http://data/?" + buffer);
 	QStringList cities = data->queryItemValue("NomVille").toLower().split(",");
 	plugin->SetSettings("config/city", cities);
@@ -289,7 +289,7 @@ void PluginAir_Worker::run()
 		{
 			quality = 0;
 		}
-		QString text = QString::fromUtf8(("La qualité de l'air à "+city+" est "+qualities.at(quality)).toAscii());
+		QString text = QString::fromUtf8(("La qualitÃ© de l'air Ã  "+city+" est "+qualities.at(quality)).toAscii());
 		QByteArray q = TTSManager::CreateNewSound(text, "Claire");
 		message = "MU "+q+"\nPL 3\nMW\n";
 		emit done(true, bunny, message);
