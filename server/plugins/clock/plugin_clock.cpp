@@ -27,6 +27,24 @@ PluginClock::~PluginClock()
 	Cron::UnregisterAll(this);
 }
 
+bool PluginClock::OnClick(Bunny * b, PluginInterface::ClickType)
+{
+	if(b->IsIdle())
+	{
+		QString hour = QDateTime::currentDateTime().toString("h:m");
+		QString voice = b->GetPluginSetting(GetName(), "voice", "tts").toString();
+		QByteArray file = TTSManager::CreateNewSound("Il est " + hour , "julie");
+
+		if(!file.isNull())
+		{
+			QByteArray message = "MU "+file+"\nPL 3\nMW\n";
+			b->SendPacket(MessagePacket(message));
+			return true;
+		}
+	}
+	return false;
+}
+
 void PluginClock::OnCron(Bunny *, QVariant)
 {
 	QMapIterator<Bunny *, QString> i(bunnyList);
