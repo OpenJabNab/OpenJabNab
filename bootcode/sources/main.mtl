@@ -53,6 +53,7 @@ var gItApp = nil;;			// the name of the interactive application
 var gEarInited = 0;;		// si les oreilles ont été initialisées.
 var gRegistrationError = 0;;// registration error during login
 var bottomColor = 0x010001;;	// Color of bottom led (Violet by default)
+var language = "fr";;
 
 proto itNoteEarTouched 3;;
 proto processIncomingTrame 3;;
@@ -60,7 +61,7 @@ proto dumpStatus 0;;
 
 #include net_vars.mtl
 
-const BYTECODE_REVISION_STR = "$Rev: 18674 $";;
+const BYTECODE_REVISION_STR = "$Rev: Git001 $";;
 fun getBytecodeRevision =
 	strsub BYTECODE_REVISION_STR 6 ((strlen BYTECODE_REVISION_STR) - 8);;
 
@@ -4289,6 +4290,13 @@ fun runEvalOneCommand i0=
 		set run=cmdEvalOne i0+1;
 		0
 	)
+	else if !strcmp key "SL" then
+	(
+		Secholn "exec SL : Set language for Google";
+		set language=val;
+		set run=cmdEvalOne i0+1;
+		0
+	)
 	else if !strcmp key "CU" then
 	(
 		Secholn "exec CU : Start callURL";
@@ -4309,7 +4317,7 @@ fun runEvalOneCommand i0=
 		set gCurAudioCmdIndex=gCurAudioCmdIndex+1;
 		set gCurStreamName= nil;
 		set chorst_pasdedanse=nil;
-		let strcatlist "http://translate.google.com/translate_tts?ie=UTF-8&tl=fr&q="::val::nil -> music in
+		let strcatlist "http://translate.google.com/translate_tts?ie=UTF-8&tl="::language::"&q="::val::nil -> music in
 		wavstarthttp music #_cbWavError;
 		set run=streamCmdRun i0;
 		0
