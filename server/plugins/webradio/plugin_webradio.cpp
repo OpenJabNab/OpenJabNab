@@ -12,32 +12,44 @@ Q_EXPORT_PLUGIN2(plugin_webradio, PluginWebradio)
 PluginWebradio::PluginWebradio():PluginInterface("webradio", "WebRadio", BunnyZtampPlugin)
 {
 	presets.clear();
-	presets.insert("BFM", "http://vipicecast.yacast.net/bfm");
-	presets.insert("Bloomberg Radio", "http://www.bloomberg.com/streams/audio/radio_live.asx");
+	presets.insert("Ado FM", "http://ice3.infomaniak.ch/start-adofm-high.mp3");
+	presets.insert("BBC World Service", "http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk");
+	presets.insert("Beur FM", "http://ice13.infomaniak.ch/beurfm-high.mp3");
 	presets.insert("Capital", "http://media-ice.musicradio.com:80/CapitalMP3");
-	presets.insert("Europe 1", "http://vipicecast.yacast.net/europe1");
+	presets.insert("Chérie FM", "http://95.81.155.24/8473/nrj_178499.mp3?1411574473038.mp3");
+	presets.insert("Club FG", "http://radiofg.impek.com/fg6");
+	presets.insert("Europe 1", "http://95.81.155.10/10489/europe1.mp3");
+	presets.insert("FG Chic", "http://radiofg.impek.com/fgc");
+	presets.insert("FG Deep Dance", "http://radiofg.impek.com/fgd");
+	presets.insert("FG Europe", "http://radiofg.impek.com/fge");
+	presets.insert("FIP", "http://95.81.147.3/fip/all/fiphautdebit.mp3");
+	presets.insert("France Bleu Nord", "http://95.81.155.3/fbnord/all/fbnord.mp3");
+	presets.insert("France Bleu Provence", "http://95.81.155.3/fbprovence/all/fbprovence.mp3");
+	presets.insert("France Culture", "http://95.81.147.3/franceculture/all/franceculturehautdebit.mp3");
 	presets.insert("France Info", "http://mp3.live.tv-radio.com/franceinfo/all/franceinfo.mp3");
 	presets.insert("France Inter", "http://mp3.live.tv-radio.com/franceinter/all/franceinterhautdebit.mp3");
+	presets.insert("France Musique", "http://95.81.147.3/francemusique/all/francemusiquehautdebit.mp3");
 	presets.insert("Fun Radio", "http://streaming.radio.funradio.fr:80/fun-1-44-96");
-	presets.insert("Jazz fm", "http://83.170.105.95:8002");
+	presets.insert("Japan FM", "http://flux.k-fm.com/JP-FM-LQ");
 	presets.insert("Le Mouv", "http://mp3.live.tv-radio.com/lemouv/all/lemouvhautdebit.mp3");
-	presets.insert("Magic", "http://media-ice.musicradio.com:80/HeartLondonMP3");
 	presets.insert("MFM", "http://mfm.ice.infomaniak.ch:80/mfm-128.mp3");
-	presets.insert("NME Radio", "http://icy-e-01.sharp-stream.com:80/nmeradio.mp3");
+	presets.insert("Magic", "http://media-ice.musicradio.com:80/HeartLondonMP3");
+	presets.insert("Métropolys", "http://mp3.live.tv-radio.com/rocfm/all/rocfm-128k.mp3");
+	presets.insert("NRJ", "http://95.81.155.24/8470/nrj_165631.mp3");
+	presets.insert("Nostalgie", "http://95.81.155.10/5010/nrj_121955.mp3");
+	presets.insert("Nostalgie Best of 80's", "http://95.81.155.24/8560/nrj_169022.mp3");
 	presets.insert("OUI FM", "http://ouifm.ice.infomaniak.ch/ouifm-high.mp3");
-	presets.insert("Radio-Canada Montreal", "http://www.radio-canada.ca/util/endirect/premiere.asx");
-	presets.insert("Radio Classique", "http://broadcast.infomaniak.net:80/radioclassique-high.mp3");
-	presets.insert("Radio Country", "http://url.radiostreamlive.com/radiocountrylive/low_ad.asx");
-	presets.insert("Radio Nova", "http://broadcast.infomaniak.net/radionova-high.mp3");
-	presets.insert("RMC", "http://vipicecast.yacast.net/rmc");
 	presets.insert("RTL", "http://streaming.radio.rtl.fr:80/rtl-1-44-96");
-	presets.insert("SKYfm Classic Rock", "http://wstream5b.di.fm:80/classicrock");
-	presets.insert("SKYfm Smooth Jazz", "http://scfire-dtc-aa01.stream.aol.com:80/stream/1010");
-	presets.insert("SKYfm The 80s", "http://scfire-dtc-aa05.stream.aol.com:80/stream/1013");
-	presets.insert("SKYfm Top Hits", "http://scfire-ntc-aa03.stream.aol.com:80/stream/1014");
-	presets.insert("Smooth Radio", "http://shoutcast.gmgradio.com:10006");
-	presets.insert("Talk Sport", "http://stream5.radiomonitor.com:80/talksport_world");
-	presets.insert("Zen Radio", "http://zenradio.fr:8800");
+	presets.insert("RTL2", "http://streaming.radio.rtl.fr/rtl2-1-44-64");
+	presets.insert("Radio Classique", "http://broadcast.infomaniak.net:80/radioclassique-high.mp3");
+	presets.insert("Radio FG", "http://radiofg.impek.com/fg");
+	presets.insert("Radio Nova", "http://broadcast.infomaniak.net/radionova-high.mp3");
+	presets.insert("Rire & Chansons", "http://95.81.155.24/8474/nrj_177978.mp3");
+	presets.insert("Rire & Chansons - 100% nouveaux talents", "http://95.81.147.24/8573/nrj_177371.mp3");
+	presets.insert("Rire & Chansons - 100% sketches", "http://95.81.155.24/8572/nrj_175797.mp3");
+	presets.insert("Skyrock", "http://95.81.155.10/4604/sky_121348.mp3");
+	presets.insert("Underground FG", "http://radiofg.impek.com/ufg");
+	presets.insert("Voltage", "http://broadcast.infomaniak.net/start-voltage-high.mp3");
 }
 
 PluginWebradio::~PluginWebradio()
