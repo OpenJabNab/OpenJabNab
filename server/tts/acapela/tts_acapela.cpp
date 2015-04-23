@@ -4,6 +4,9 @@
 #include <QMapIterator>
 #include "tts_acapela.h"
 #include "log.h"
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QNetworkAccessManager>
 
 Q_EXPORT_PLUGIN2(tts_acapela, TTSAcapela)
 
@@ -130,24 +133,24 @@ QByteArray TTSAcapela::CreateNewSound(QString text, QString voice, bool forceOve
 	rx.setMinimal(true);
 	int pos = 0;
 	if((pos = rx.indexIn(reponse, pos)) != -1 )
-	{
-		QString acapelaFile = rx.cap(1);
-		QUrl urlfile(acapelaFile);
-		http.setHost(urlfile.host(), urlfile.port());
-		Header.setRequest("GET",urlfile.path(),1,1);
-		http.request(Header,"");
-		loop.exec();
-		QFile file(filePath);
-		if (!file.open(QIODevice::WriteOnly))
-		{
-			LogError("Cannot open sound file for writing");
-			return QByteArray();
-		}
-		file.write(http.readAll());
-		file.close();
-		return ttsHTTPUrl.arg(voice, fileName).toAscii();
-	}
-	LogError("Acapela demo did not return a sound file");
+        {
+                QString acapelaFile = rx.cap(1);
+                QUrl urlfile(acapelaFile);
+                QNetworkAccessManager * manager = new QNetworkAccessManager(this);
+                QObject::connect(manager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
+                QNetworkReply * reply = manager->get(QNetworkRequest(urlfile));
+                loop.exec();
+                QFile file(filePath);
+                if (!file.open(QIODevice::WriteOnly))
+                {
+                    LogError("Cannot open sound file for writing");
+                    return QByteArray();
+                }
+                file.write(reply->readAll());
+                file.close();
+                return ttsHTTPUrl.arg(voice, fileName).toAscii();
+        }
+ 	LogError("Acapela demo did not return a sound file");
 	LogDebug(QString("Acapela answer : %1").arg(QString(reponse)));
 	return QByteArray();
 
