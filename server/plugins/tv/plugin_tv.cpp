@@ -27,7 +27,7 @@ PluginTV::~PluginTV()
 
 bool PluginTV::Init()
 {
-	QByteArray ceSoir = TTSManager::CreateNewSound("Programme télé de ce soir", "Claire");
+	QByteArray ceSoir = TTSManager::CreateNewSound("Programme tÃ©lÃ© de ce soir", "Claire");
 	if(ceSoir.isNull())
 		return false;
 
