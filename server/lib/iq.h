@@ -1,5 +1,5 @@
 #ifndef _IQ_H_
-#define IQ_H_
+#define _IQ_H_
 
 #include <QByteArray>
 #include "global.h"
