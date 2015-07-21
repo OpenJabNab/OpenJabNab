@@ -65,4 +65,8 @@ $translations['Manage Locate requests'] = "Gestion du fichier locate.jsp";
 
 //airquality
 $translations['Air quality plugin'] = "Plugin qualité de l'air";
+
+//weather
+$translations['Weather'] = "Météo";
+
 ?>
