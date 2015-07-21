@@ -590,7 +590,7 @@ if(isset($_POST['addReseau']) && $_POST['addReseau'] != ""){
 else{
 ?>
 <input type="text" name="addLigne"><br />
-<?	
+<?php
 }
 ?>
 Arrêt
@@ -605,7 +605,7 @@ if(isset($_POST['addReseau']) && isset($_POST['addLigne']) && $_POST['addLigne']
 else{
 ?>
 <input type="text" name="addArret"><br />
-<?	
+<?php
 }
 ?>
 Direction : 
@@ -620,7 +620,7 @@ if(isset($_POST['addReseau']) && isset($_POST['addLigne']) && $_POST['addLigne']
 else{
 ?>
 <input type="text" name="addArret"><br />
-<?	
+<?php
 }
 if(isset($_POST['addReseau']) && isset($_POST['addLigne']) && $_POST['addLigne'] != ""){
 	echo '<input type="hidden" name="a" value="addStop">';
