@@ -34,6 +34,12 @@ if(!empty($_POST['a'])) {
 			$_SESSION['message'] = isset($retour['ok']) ? $retour['ok'] : "Error : ".$retour['error'];
 			header("Location: bunny_plugin.php?p=weather");
 		}
+	} else if($_POST['a'] == "previtoken") {
+		if(!empty($_POST['previT'])) {
+			$retour = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/weather/setprevitoken?apitoken=".$_POST['previT']."&".$ojnAPI->getToken());
+			$_SESSION['message'] = isset($retour['ok']) ? $retour['ok'] : "Error : ".$retour['error'];
+			header("Location: bunny_plugin.php?p=weather");
+		}
 	}
 }
 else if(!empty($_GET['rp'])) {
@@ -57,12 +63,15 @@ $pList = $ojnAPI->getApiList("bunny/".$_SESSION['bunny']."/weather/getcitieslist
 $wList = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/weather/getwebcastslist?".$ojnAPI->getToken());
 $lang =  $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/weather/getlang?".$ojnAPI->getToken());
 $lang = isset($lang['value']) ? (string)($lang['value']) : 'fr';
+$previtoken = $ojnAPI->getApiString("bunny/".$_SESSION['bunny']."/weather/getprevitoken?".$ojnAPI->getToken());
+$previtoken = isset($previtoken['value']) ? (string)($previtoken['value']) : 'plop';
 
 ?>
 <form method="post">
 <fieldset>
 <legend>Actions</legend>
 <input type="radio" name="a" value="addcity" /> Add a city<input type="text" name="addC"><br />
+<input type="radio" name="a" value="previtoken" /> Previmeteo token<input type="text" name="previT" value="<?php echo $previtoken ?>"><br />
 <input type="radio" name="a" value="webcast" /> Add a webcast at (hh:mm) <input type="text" name="webcastT" maxlength="5" style="width:50px" /> for city <select name="webcastC">
 	<option value=""></option>
 	<?php if(!empty($pList))

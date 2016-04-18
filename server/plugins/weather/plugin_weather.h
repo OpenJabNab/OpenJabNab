@@ -42,6 +42,8 @@ public:
 	PLUGIN_BUNNY_API_CALL(Api_RemoveRFID);
 	PLUGIN_BUNNY_API_CALL(Api_getLang);
 	PLUGIN_BUNNY_API_CALL(Api_setLang);
+	PLUGIN_BUNNY_API_CALL(Api_getPrevitoken);
+	PLUGIN_BUNNY_API_CALL(Api_setPrevitoken);
 
 private:
 	void getWeatherPage(Bunny *, QString);

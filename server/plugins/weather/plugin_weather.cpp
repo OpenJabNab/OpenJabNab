@@ -67,7 +67,8 @@ bool PluginWeather::OnClick(Bunny * b, PluginInterface::ClickType type)
 void PluginWeather::getWeatherPage(Bunny * b, QString ville)
 {
 	Q_UNUSED(b);
-	QUrl url("http://api.previmeteo.com/XXXXXXXXX/ig/api");
+	QString api_token =  b->GetPluginSetting(GetName(), "PreviToken", QString()).toString();
+	QUrl url("http://api.previmeteo.com/" + api_token + "/ig/api");
 	url.addEncodedQueryItem("hl", b->GetPluginSetting(GetName(), "Lang","fr").toByteArray());
 	url.addEncodedQueryItem("weather", QUrl::toPercentEncoding(ville));
 	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
@@ -128,6 +129,8 @@ void PluginWeather::InitApiCalls()
 	DECLARE_PLUGIN_BUNNY_API_CALL("getwebcastslist()", PluginWeather, Api_ListWebcast);
 	DECLARE_PLUGIN_BUNNY_API_CALL("setlang(lg)", PluginWeather, Api_setLang);
 	DECLARE_PLUGIN_BUNNY_API_CALL("getlang()", PluginWeather, Api_getLang);
+	DECLARE_PLUGIN_BUNNY_API_CALL("setprevitoken(apitoken)", PluginWeather, Api_setPrevitoken);
+	DECLARE_PLUGIN_BUNNY_API_CALL("getprevitoken()", PluginWeather, Api_getPrevitoken);
 }
 
 PLUGIN_BUNNY_API_CALL(PluginWeather::Api_addCity) {
@@ -263,6 +266,23 @@ PLUGIN_BUNNY_API_CALL(PluginWeather::Api_setLang)
 	return new ApiManager::ApiOk("Lang Updated!");
 }
 
+PLUGIN_BUNNY_API_CALL(PluginWeather::Api_getPrevitoken)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+
+	return new ApiManager::ApiString(bunny->GetPluginSetting(GetName(), "PreviToken").toString());
+}
+
+PLUGIN_BUNNY_API_CALL(PluginWeather::Api_setPrevitoken)
+{
+	Q_UNUSED(account);
+	if(!hRequest.HasArg("apitoken"))
+		return new ApiManager::ApiError(QString("Missing argument 'token' for plugin Weather"));
+	bunny->SetPluginSetting(GetName(), "PreviToken",hRequest.GetArg("apitoken"));
+
+	return new ApiManager::ApiOk(QString("Previmeteo token updated to '%1' for bunny '%2'").arg(hRequest.GetArg("apitoken"), QString(bunny->GetID())));
+}
 
 /* WORKER THREAD */
 PluginWeather_Worker::PluginWeather_Worker(PluginWeather * p, Bunny * bu, QString b):plugin(p),bunny(bu),buffer(b.replace("&amp;", "and").replace("</script>",""))
