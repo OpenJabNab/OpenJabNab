@@ -31,6 +31,7 @@ bool PluginRecord::HttpRequestHandle(HTTPRequest & request)
 			wavFile.write(request.GetPostRaw());
 			Bunny * b = BunnyManager::GetBunny(this, serialnumber.toAscii());
 			b->SetGlobalSetting("LastRecord", filename);
+			wavFile.close();
 		} else {
 			LogError("Impossible to write record file");
 		}
