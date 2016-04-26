@@ -34,6 +34,7 @@ HEADERS +=	httphandler.h \
 			packet.h \
 			ambientpacket.h \
 			messagepacket.h \
+			taichipacket.h \
 			sleeppacket.h \
 			choregraphy.h \
 			bunnymanager.h \
@@ -60,6 +61,7 @@ SOURCES +=	httphandler.cpp \
 			packet.cpp \
 			ambientpacket.cpp \
 			messagepacket.cpp \
+			taichipacket.cpp \
 			sleeppacket.cpp \
 			choregraphy.cpp \
 			bunnymanager.cpp \

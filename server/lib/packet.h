@@ -8,7 +8,7 @@
 class OJN_EXPORT Packet
 {
 public:
-	enum Packet_Types { Packet_Ambient = 0x04, Packet_Message = 0x0A, Packet_Sleep = 0x0B };
+	enum Packet_Types { Packet_Ambient = 0x04, Packet_Taichi = 0x05, Packet_Message = 0x0A, Packet_Sleep = 0x0B };
 	
 	virtual ~Packet() {};
 	static QList<Packet *> Parse(QByteArray const&);

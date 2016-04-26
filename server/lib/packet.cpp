@@ -1,6 +1,7 @@
 #include "ambientpacket.h"
 #include "messagepacket.h"
 #include "packet.h"
+#include "taichipacket.h"
 #include "sleeppacket.h"
 #include "log.h"
 
@@ -27,6 +28,10 @@ QList<Packet*> Packet::Parse(QByteArray const& originalBuffer)
 		{
 			case Packet_Ambient:
 				p = AmbientPacket::Parse(buffer.mid(4, len));
+				break;
+
+			case Packet_Taichi:
+				p = TaichiPacket::Parse(buffer.mid(4, len));
 				break;
 
 			case Packet_Message:

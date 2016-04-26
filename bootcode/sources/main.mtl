@@ -4589,6 +4589,9 @@ fun evalTrame ping_trame=
 						dumpStatus;
 						nil
 					)
+				) else if code == 5 then (
+					taichistart;
+					nil
 				) else if code == 9 then (
 					// reboot
 					reboot 0x0407FE58 0x13fb6754;
