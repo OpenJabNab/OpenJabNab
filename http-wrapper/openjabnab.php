@@ -4,13 +4,16 @@
 		echo "Problem with OpenJabNab !";
 	else
 	{
+		// Get raw data, if exist
+		$rawdata = file_get_contents("php://input");
+
 		// Types :
 		// 1 = GET
 		// 2 = Normal POST
 		// 3 = Raw POST
-		if(isset($GLOBALS['HTTP_RAW_POST_DATA']))
+		if($rawdata)
 			$type = 3;
-		else if (count($_POST))
+		else if ($_SERVER['REQUEST_METHOD'] == 'POST')
 			$type = 2;
 		else
 			$type = 1;
@@ -43,7 +46,7 @@
 			case 3: // Raw Post
 				if(isset($_SERVER["CONTENT_LENGTH"]))
 					$headers .= "Content-Length: " . $_SERVER["CONTENT_LENGTH"] . "\r\n";
-				$requestdata = $headers . "\x00" . $_SERVER['REQUEST_URI'] . "\x00" . $GLOBALS['HTTP_RAW_POST_DATA'];
+				$requestdata = $headers . "\x00" . $_SERVER['REQUEST_URI'] . "\x00" . $rawdata;
 				break;
 		}
 		$requestlen = 5 + strlen($requestdata);
