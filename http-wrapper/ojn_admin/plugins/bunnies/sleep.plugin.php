@@ -40,7 +40,7 @@ if(count($lists) == 14) {
 <legend>Actions</legend>
 <input type="radio" name="a" value="sleep" /> Coucher<br />
 <input type="radio" name="a" value="wakeup" /> Reveiller<br />
-<input type="radio" name="a" value="setup" /> Configuration<br />
+<input type="radio" name="a" value="setup" checked="checked" /> Configuration<br />
 <table>
 <tr>
 	<th>Jour</th>

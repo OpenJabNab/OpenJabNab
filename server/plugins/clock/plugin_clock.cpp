@@ -31,7 +31,7 @@ bool PluginClock::OnClick(Bunny * b, PluginInterface::ClickType)
 {
 	if(b->IsIdle())
 	{
-		QString hour = QDateTime::currentDateTime().toString("h:m");
+		QString hour = QDateTime::currentDateTime().toString("hh:mm");
 		QString voice = b->GetPluginSetting(GetName(), "voice", "tts").toString();
 		QByteArray file = TTSManager::CreateNewSound("Il est " + hour , "julie");
 
