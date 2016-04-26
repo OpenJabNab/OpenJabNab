@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/OpenJabNab/OpenJabNab.svg?branch=master)](https://travis-ci.org/OpenJabNab/OpenJabNab)
+
 OpenJabNab
 ==========
 An open PHP/C++-based proxy framework for the Nabaztag/Tag™ electronic pet with jabber protocol.
