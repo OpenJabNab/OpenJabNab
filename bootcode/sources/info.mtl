@@ -80,6 +80,30 @@ fun infoInit=
 	[14 {0 6 0 0 6 6 6 6 6 6 0 0 0 0 0 0 6 0 0 6 6 0 0 0 6 6 0 6 6 6 0 0 6 6 0 0 0 6 0 0 0 0 6 0 6 0 6 0}]
 }
 ]::
+[9 // generiqGauge
+{
+	[70 {0 0 0}]
+	[70 {0 0 0 2 0 0}]
+	[70 {2 0 0}]
+	[70 {2 0 0 2 2 0}]
+	[70 {2 2 0}]
+	[70 {2 2 0 2 2 2}]
+	[70 {2 2 2}]
+	[70 {2 2 2 3 2 2}]
+	[70 {3 2 2}]
+	[70 {3 2 2 3 3 2}]
+	[70 {3 3 2}]
+	[70 {3 3 2 3 3 3}]
+	[70 {3 3 3}]
+	[70 {3 3 3 1 3 3}]
+	[70 {1 3 3}]
+	[70 {1 3 3 1 1 3}]
+	[70 {1 1 3}]
+	[70 {1 1 3 1 1 1}]
+	[70 {1 1 1}]
+	[35 {1 1 1 0 0 0}]
+}
+]::
 nil;;
 
 // v21 : changé couleur jaune clair (11) de 0xffff80 à 0xffcc00 (bug 197)
@@ -270,7 +294,7 @@ fun newInfoUpdate data=
 				Secho "key:"; Iecho key; Secho "="; Iecho val; Secho ",";
 				if key == 8 then set infomessages = val
 				else if key == 0 then _infosrc_del val
-				else if key == 1 || key == 2 || key == 3 || key == 6 || key == 7 then _infosrc_update key val
+				else if key == 1 || key == 2 || key == 3 || key == 6 || key == 7 || key == 10 then _infosrc_update key val
 				else if key == 4 then set newleft = val
 				else if key == 5 then set newright = val
 				else if key == 9 then set bottomColor = bottomLedPalette.(val)

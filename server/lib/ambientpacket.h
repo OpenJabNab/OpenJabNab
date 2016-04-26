@@ -9,13 +9,14 @@
 class OJN_EXPORT AmbientPacket : public Packet
 {
 public:
-	enum Services { Disable_Service = 0, Service_Weather, Service_StockMarket, Service_Periph, MoveLeftEar, MoveRightEar, Service_EMail, Service_AirQuality, Service_Nose, Service_BottomLed, Service_TaiChi = 0x0e};
+	enum Services { Disable_Service = 0, Service_Weather, Service_StockMarket, Service_Periph, MoveLeftEar, MoveRightEar, Service_EMail, Service_AirQuality, Service_Nose, Service_BottomLed, Service_Gauge, Service_TaiChi = 0x0e};
 	enum Weather_Values { Weather_Sun = 0, Weather_Cloudy, Weather_Smog, Weather_Rain, Weather_Snow, Weather_Storm};
 	enum StockMarket_Values { StockMarket_HighDown = 0, StockMarket_MediumDown, StockMarket_LittleDown, StockMarket_Stable, StockMarket_LittleUp, StockMarket_MediumUp, StockMarket_HighUp};
 	enum Periph_Values { Periph_VeryLow = 0, Periph_Low, Periph_LowAverage, Periph_Average, FastAverage, Fast, VeryFast };
 	enum EMail_Values { EMail_No = 0, EMail_1, EMail_2, EMail_3AndMore };
 	enum AirQuality_Values { AirQuality_Good = 0, AirQuality_Medium = 5, AirQuality_Bad = 10 };
 	enum Nose_Values { Nose_No = 0, Nose_Blink, Nose_DoubleBlink };
+	enum Gauge_Values { Gauge_0 = 0, Gauge_1, Gauge_2, Gauge_3, Gauge_4, Gauge_5, Gauge_6, Gauge_7, Gauge_8, Gauge_9, Gauge_10, Gauge_11, Gauge_12, Gauge_13, Gauge_14, Gauge_15, Gauge_16, Gauge_17, Gauge_18, Gauge_19 };
 
 	AmbientPacket() {};
 	AmbientPacket(enum Services, unsigned char value);
