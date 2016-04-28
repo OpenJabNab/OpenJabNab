@@ -12,6 +12,7 @@ public:
 	PluginSurprise();
 	virtual ~PluginSurprise();
 
+	virtual bool OnClick(Bunny *, PluginInterface::ClickType);
 	void OnBunnyConnect(Bunny *);
 	void OnBunnyDisconnect(Bunny *);
 	virtual void OnCron(Bunny *, QVariant);
@@ -20,6 +21,7 @@ public:
 	
 protected:
 	void createCron(Bunny *);
+	void SendSurprise(Bunny *);
 	int GetRandomizedFrequency(unsigned int);
 
 	PLUGIN_BUNNY_API_CALL(Api_GetFolderList);

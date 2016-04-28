@@ -28,6 +28,16 @@ void PluginSurprise::createCron(Bunny * b)
 	Cron::RegisterOneShot(this, GetRandomizedFrequency(frequency), b, QVariant(), NULL);
 }
 
+bool PluginSurprise::OnClick(Bunny * b, PluginInterface::ClickType type)
+{
+        if (type == PluginInterface::SingleClick)
+        {
+		SendSurprise(b);
+		return true;
+        }
+        return false;
+}
+
 int PluginSurprise::GetRandomizedFrequency(unsigned int freq)
 {
 	// 250 => ~30min, 125 => ~1h, 50 => ~2h30
@@ -62,33 +72,38 @@ void PluginSurprise::OnCron(Bunny * b, QVariant)
 {
 	if(b->IsIdle())
 	{
-		QByteArray file;
-		// Fetch available files
-		QDir * dir = GetLocalHTTPFolder();
-		if(dir)
-		{
-			QString surprise = b->GetPluginSetting(GetName(), "folder", QString()).toString();
-
-			if(!surprise.isNull() && dir->cd(surprise))
-			{
-				QStringList list = dir->entryList(QDir::Files|QDir::NoDotAndDotDot);
-				if(list.count())
-				{
-					file = GetBroadcastHTTPPath(QString("%1/%3").arg(surprise, list.at(qrand()%list.count())));
-					QByteArray message = "MU "+file+"\nPL 3\nMW\n";
-					b->SendPacket(MessagePacket(message));
-				}
-			}
-			else
-				LogError("Invalid surprise config");
-
-			delete dir;
-		}
-		else
-			LogError("Invalid GetLocalHTTPFolder()");
+		SendSurprise(b);
 	}
 	// Restart Timer
 	createCron(b);
+}
+
+void PluginSurprise::SendSurprise(Bunny * b)
+{
+	QByteArray file;
+	// Fetch available files
+	QDir * dir = GetLocalHTTPFolder();
+	if(dir)
+	{
+		QString surprise = b->GetPluginSetting(GetName(), "folder", QString()).toString();
+
+		if(!surprise.isNull() && dir->cd(surprise))
+		{
+			QStringList list = dir->entryList(QDir::Files|QDir::NoDotAndDotDot);
+			if(list.count())
+			{
+				file = GetBroadcastHTTPPath(QString("%1/%3").arg(surprise, list.at(qrand()%list.count())));
+				QByteArray message = "MU "+file+"\nPL 3\nMW\n";
+				b->SendPacket(MessagePacket(message));
+			}
+		}
+		else
+			LogError("Invalid surprise config");
+
+		delete dir;
+	}
+	else
+		LogError("Invalid GetLocalHTTPFolder()");
 }
 
 /*******
