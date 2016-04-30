@@ -28,6 +28,7 @@ PluginWeather::PluginWeather():PluginInterface("weather", "Weather", BunnyZtampP
 	}
 }
 
+
 PluginWeather::~PluginWeather()
 {
 	Cron::UnregisterAll(this);
@@ -66,7 +67,8 @@ bool PluginWeather::OnClick(Bunny * b, PluginInterface::ClickType type)
 void PluginWeather::getWeatherPage(Bunny * b, QString ville)
 {
 	Q_UNUSED(b);
-	QUrl url("http://www.google.com/ig/api");
+	QString api_token =  b->GetPluginSetting(GetName(), "PreviToken", QString()).toString();
+	QUrl url("http://api.previmeteo.com/" + api_token + "/ig/api");
 	url.addEncodedQueryItem("hl", b->GetPluginSetting(GetName(), "Lang","fr").toByteArray());
 	url.addEncodedQueryItem("weather", QUrl::toPercentEncoding(ville));
 	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
@@ -127,6 +129,8 @@ void PluginWeather::InitApiCalls()
 	DECLARE_PLUGIN_BUNNY_API_CALL("getwebcastslist()", PluginWeather, Api_ListWebcast);
 	DECLARE_PLUGIN_BUNNY_API_CALL("setlang(lg)", PluginWeather, Api_setLang);
 	DECLARE_PLUGIN_BUNNY_API_CALL("getlang()", PluginWeather, Api_getLang);
+	DECLARE_PLUGIN_BUNNY_API_CALL("setprevitoken(apitoken)", PluginWeather, Api_setPrevitoken);
+	DECLARE_PLUGIN_BUNNY_API_CALL("getprevitoken()", PluginWeather, Api_getPrevitoken);
 }
 
 PLUGIN_BUNNY_API_CALL(PluginWeather::Api_addCity) {
@@ -262,6 +266,23 @@ PLUGIN_BUNNY_API_CALL(PluginWeather::Api_setLang)
 	return new ApiManager::ApiOk("Lang Updated!");
 }
 
+PLUGIN_BUNNY_API_CALL(PluginWeather::Api_getPrevitoken)
+{
+	Q_UNUSED(account);
+	Q_UNUSED(hRequest);
+
+	return new ApiManager::ApiString(bunny->GetPluginSetting(GetName(), "PreviToken").toString());
+}
+
+PLUGIN_BUNNY_API_CALL(PluginWeather::Api_setPrevitoken)
+{
+	Q_UNUSED(account);
+	if(!hRequest.HasArg("apitoken"))
+		return new ApiManager::ApiError(QString("Missing argument 'token' for plugin Weather"));
+	bunny->SetPluginSetting(GetName(), "PreviToken",hRequest.GetArg("apitoken"));
+
+	return new ApiManager::ApiOk(QString("Previmeteo token updated to '%1' for bunny '%2'").arg(hRequest.GetArg("apitoken"), QString(bunny->GetID())));
+}
 
 /* WORKER THREAD */
 PluginWeather_Worker::PluginWeather_Worker(PluginWeather * p, Bunny * bu, QString b):plugin(p),bunny(bu),buffer(b.replace("&amp;", "and").replace("</script>",""))
@@ -290,7 +311,7 @@ void PluginWeather_Worker::run()
 	int iForecastHigh=0;
 	QString sCurrentCond;
 	QString sForecastCond;
-	QString sForecast("Prévisions:");
+	QString sForecast("Previsions:");
 	QString sCity;
 	while (!xml.atEnd() && (current!=2 || forecast!=3))
 	{
@@ -298,9 +319,10 @@ void PluginWeather_Worker::run()
 		if (xml.isStartElement())
 		{
 			currentTag = xml.name().toString();
-			if(currentTag == "postal_code")
+			if(currentTag == "city") {
 				sCity =  xml.attributes().value("data").toString();
-
+				sCity = sCity.left(sCity.size() - 3);
+			}
 			if(current==0 && currentTag == "current_conditions") {
 				doCurrent = true;
 			}
@@ -312,8 +334,9 @@ void PluginWeather_Worker::run()
 					iCurrentTemp = xml.attributes().value("data").toString().toInt();
 					current++;
 				}
-				if(current==2)
+				if(current==2) {
 					doCurrent = false;
+				}
 			}
 			if(forecast==0 && currentTag == "forecast_conditions") {
 				doForecast = true;
@@ -329,8 +352,9 @@ void PluginWeather_Worker::run()
 					iForecastHigh = xml.attributes().value("data").toString().toInt();
 					forecast++;
 				}
-				if(forecast==3)
+				if(forecast==3) {
 					doForecast = false;
+				}
 			}
 		}
 	}
@@ -347,22 +371,22 @@ void PluginWeather_Worker::run()
 		}
 		else
 		{
-			QByteArray where = TTSManager::CreateNewSound(QString("Météo pour %1.").arg(sCity), "Claire");
+			QByteArray where = TTSManager::CreateNewSound(QString("Meteo pour %1.").arg(sCity), "claire");
 			message += "MU "+where+"\nPL 3\nMW\n";
 			if(current!=0)
 			{
-				QByteArray maintenant = TTSManager::CreateNewSound("actuellement, ", "Claire");
-				QByteArray temperature = TTSManager::CreateNewSound(QString::number(iCurrentTemp) + " degrés", "Claire");
-				QByteArray meteo = TTSManager::CreateNewSound(sCurrentCond, "Claire");
+				QByteArray maintenant = TTSManager::CreateNewSound("actuellement, ", "claire");
+				QByteArray temperature = TTSManager::CreateNewSound(QString::number(iCurrentTemp) + " degres", "claire");
+				QByteArray meteo = TTSManager::CreateNewSound(sCurrentCond, "claire");
  				message += "MU "+maintenant+"\nPL 3\nMW\n";
  				message += "MU "+meteo+"\nPL 3\nMW\n";
  				message += "MU "+temperature+"\nPL 3\nMW\n";
 			}
 			if(forecast!=0)
 			{
-				QByteArray prevision = TTSManager::CreateNewSound(sForecast, "Claire");
-				QByteArray meteo = TTSManager::CreateNewSound(sForecastCond, "Claire");
-				QByteArray temperature = TTSManager::CreateNewSound("entre "+QString::number(iForecastLow) + " et "+QString::number(iForecastHigh) + " degrés", "Claire");
+				QByteArray prevision = TTSManager::CreateNewSound(sForecast, "claire");
+				QByteArray meteo = TTSManager::CreateNewSound(sForecastCond, "claire");
+				QByteArray temperature = TTSManager::CreateNewSound("entre "+QString::number(iForecastLow) + " et "+QString::number(iForecastHigh) + " degres", "claire");
  				message += "MU "+prevision+"\nPL 3\nMW\n";
  				message += "MU "+meteo+"\nPL 3\nMW\n";
  				message += "MU "+temperature+"\nPL 3\nMW\n";
